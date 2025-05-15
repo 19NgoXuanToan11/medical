@@ -115,12 +115,6 @@ const Blog = () => {
             </div>
           ))}
         </div>
-
-        <div className="text-center mt-12">
-          <button className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
-            Xem tất cả bài viết
-          </button>
-        </div>
       </div>
     </section>
   );
