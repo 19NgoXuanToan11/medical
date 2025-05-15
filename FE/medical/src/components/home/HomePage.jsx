@@ -1,11 +1,11 @@
 import React from "react";
-import Navbar from "../layout/Navbar";
-import Hero from "./Hero";
-import Features from "./Features";
-import SchoolInfo from "./SchoolInfo";
-import HealthResources from "./HealthResources";
-import Blog from "./Blog";
-import Footer from "../layout/Footer";
+import Navbar from "../layout/navbar/Navbar";
+import Hero from "./hero/Hero";
+import Features from "./feature/Features";
+import SchoolInfo from "./school-info/SchoolInfo";
+import HealthResources from "./health-resource/HealthResources";
+import Blog from "./blog/Blog";
+import Footer from "../layout/footer/Footer";
 
 const HomePage = () => {
   return (
