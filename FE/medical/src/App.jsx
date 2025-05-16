@@ -10,6 +10,8 @@ import MentalHealth from "./pages/resources/mental-health/MentalHealth";
 import FirstAid from "./pages/resources/first-aid/FirstAid";
 import PhysicalDevelopment from "./pages/resources/physical-development/PhysicalDevelopment";
 import MedicalProcedures from "./pages/resources/medical-procedures/MedicalProcedures";
+import StudentHealthProfile from "./pages/parent/health-profile/StudentHealthProfile";
+import HealthProfileList from "./pages/parent/health-profile/HealthProfileList";
 
 function App() {
   return (
@@ -18,14 +20,28 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        
+
         {/* Health Resources Routes */}
         <Route path="/resources/nutrition" element={<Nutrition />} />
-        <Route path="/resources/disease-prevention" element={<DiseasePrevention />} />
+        <Route
+          path="/resources/disease-prevention"
+          element={<DiseasePrevention />}
+        />
         <Route path="/resources/mental-health" element={<MentalHealth />} />
         <Route path="/resources/first-aid" element={<FirstAid />} />
-        <Route path="/resources/physical-development" element={<PhysicalDevelopment />} />
-        <Route path="/resources/medical-procedures" element={<MedicalProcedures />} />
+        <Route
+          path="/resources/physical-development"
+          element={<PhysicalDevelopment />}
+        />
+        <Route
+          path="/resources/medical-procedures"
+          element={<MedicalProcedures />}
+        />
+        <Route
+          path="/parent/health-profile/new"
+          element={<StudentHealthProfile />}
+        />
+        <Route path="/parent/health-profile" element={<HealthProfileList />} />
       </Routes>
     </div>
   );
