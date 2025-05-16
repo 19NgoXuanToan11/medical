@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import mother from "../../../../public/images/mother.jpg";
 import mother2 from "../../../../public/images/mother2.jpg";
 
@@ -25,6 +26,7 @@ const Features = () => {
         </svg>
       ),
       color: "bg-blue-500",
+      link: "/parent/health-profile",
     },
     {
       title: "Tiêm Chủng",
@@ -184,6 +186,7 @@ const Features = () => {
       ),
       color: "bg-green-100",
       buttonText: "Tìm hiểu thêm",
+      link: "/parent/health-profile",
     },
     {
       title: "Y Tế Trường Học",
@@ -292,6 +295,163 @@ const Features = () => {
                 alt="Healthcare professional with student"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="bg-gray-50 py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Tính năng nổi bật
+            </h2>
+            <p className="text-lg text-gray-600">
+              Ứng dụng cung cấp các tính năng quản lý sức khỏe học đường toàn
+              diện, kết nối chặt chẽ giữa nhà trường và phụ huynh.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featureItems.map((item, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+              >
+                <div
+                  className={`${item.color} p-6 flex justify-center items-center`}
+                >
+                  <div className="bg-white/20 p-4 rounded-full">
+                    {item.icon}
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="font-bold text-xl text-gray-800 mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-600 mb-4">{item.description}</p>
+                  {item.link && (
+                    <Link
+                      to={item.link}
+                      className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Xem chi tiết
+                      <svg
+                        className="ml-2 w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        />
+                      </svg>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Audience Section */}
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Đối tượng sử dụng
+            </h2>
+            <p className="text-lg text-gray-600">
+              Ứng dụng được thiết kế để phục vụ các đối tượng khác nhau.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {audiences.map((audience, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+              >
+                <div
+                  className={`${audience.color} p-6 flex justify-center items-center`}
+                >
+                  <div className="bg-white/20 p-4 rounded-full">
+                    {audience.icon}
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="font-bold text-xl text-gray-800 mb-2">
+                    {audience.title}
+                  </h3>
+                  <p className="text-gray-600 mb-4">{audience.description}</p>
+                  {audience.link ? (
+                    <Link
+                      to={audience.link}
+                      className="inline-block py-2 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition-colors text-sm"
+                    >
+                      {audience.buttonText}
+                    </Link>
+                  ) : (
+                    <button className="inline-block py-2 px-6 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-lg shadow-sm transition-colors text-sm">
+                      {audience.buttonText}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Parent Connection Section */}
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Kết nối với phụ huynh
+            </h2>
+            <p className="text-lg text-gray-600">
+              Hỗ trợ kết nối và quản lý hồ sơ sức khỏe cho phụ huynh.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="p-6">
+                <h3 className="font-bold text-xl text-gray-800 mb-2">
+                  Hồ sơ sức khỏe
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Quản lý thông tin sức khỏe học sinh với lịch sử bệnh án, tiêm
+                  chủng và điều trị một cách toàn diện.
+                </p>
+                <Link
+                  to="/parent/health-profile"
+                  className="inline-flex items-center py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow transition-colors"
+                >
+                  Quản lý hồ sơ sức khỏe
+                  <svg
+                    className="ml-2 w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
