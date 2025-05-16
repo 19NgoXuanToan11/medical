@@ -5,26 +5,67 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [healthProfileDropdownOpen, setHealthProfileDropdownOpen] =
     useState(false);
-  const dropdownRef = useRef(null);
+  const [medicationDropdownOpen, setMedicationDropdownOpen] = useState(false);
+  const healthDropdownRef = useRef(null);
+  const medicationDropdownRef = useRef(null);
 
-  const handleMouseEnter = () => {
+  // Add timers to control delayed closing of dropdowns
+  const healthDropdownTimer = useRef(null);
+  const medicationDropdownTimer = useRef(null);
+
+  const handleHealthMouseEnter = () => {
+    if (healthDropdownTimer.current) {
+      clearTimeout(healthDropdownTimer.current);
+      healthDropdownTimer.current = null;
+    }
     setHealthProfileDropdownOpen(true);
   };
 
-  const handleMouseLeave = () => {
-    setHealthProfileDropdownOpen(false);
+  const handleHealthMouseLeave = () => {
+    healthDropdownTimer.current = setTimeout(() => {
+      setHealthProfileDropdownOpen(false);
+    }, 300); // 300ms delay before closing
+  };
+
+  const handleMedicationMouseEnter = () => {
+    if (medicationDropdownTimer.current) {
+      clearTimeout(medicationDropdownTimer.current);
+      medicationDropdownTimer.current = null;
+    }
+    setMedicationDropdownOpen(true);
+  };
+
+  const handleMedicationMouseLeave = () => {
+    medicationDropdownTimer.current = setTimeout(() => {
+      setMedicationDropdownOpen(false);
+    }, 300); // 300ms delay before closing
   };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        healthDropdownRef.current &&
+        !healthDropdownRef.current.contains(event.target)
+      ) {
         setHealthProfileDropdownOpen(false);
+      }
+
+      if (
+        medicationDropdownRef.current &&
+        !medicationDropdownRef.current.contains(event.target)
+      ) {
+        setMedicationDropdownOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      // Clear any pending timers on unmount
+      if (healthDropdownTimer.current)
+        clearTimeout(healthDropdownTimer.current);
+      if (medicationDropdownTimer.current)
+        clearTimeout(medicationDropdownTimer.current);
     };
   }, []);
 
@@ -32,7 +73,7 @@ const Navbar = () => {
     <nav className="bg-white shadow-lg w-full sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex justify-between items-center h-20">
-          {/* Logo */}
+          {/* Logo - Left */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
               <svg
@@ -83,8 +124,8 @@ const Navbar = () => {
           </div>
 
           {/* Navigation Links - Middle */}
-          <div className="hidden lg:flex items-center justify-center flex-grow mx-10">
-            <div className="flex items-center space-x-8">
+          <div className="hidden lg:flex items-center justify-center flex-1 mx-4">
+            <div className="flex items-center space-x-6">
               <Link
                 to="/"
                 className="text-blue-600 font-medium px-3 py-2.5 rounded-md hover:bg-blue-50 transition-colors duration-200 flex flex-row items-center"
@@ -105,32 +146,14 @@ const Navbar = () => {
                 </svg>
                 <span>Trang chủ</span>
               </Link>
-              <Link
-                to="/tinh-nang"
-                className="text-gray-600 hover:text-blue-600 px-3 py-2.5 rounded-md hover:bg-blue-50 transition-colors duration-200 flex flex-row items-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-1.5 inline"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                  />
-                </svg>
-                <span>Tính năng</span>
-              </Link>
               {/* Hồ sơ sức khỏe with dropdown */}
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  className="text-gray-600 hover:text-blue-600 px-3 py-2.5 rounded-md hover:bg-blue-50 transition-colors duration-200 flex flex-row items-center"
-                  onMouseEnter={handleMouseEnter}
-                >
+              <div
+                className="relative"
+                ref={healthDropdownRef}
+                onMouseEnter={handleHealthMouseEnter}
+                onMouseLeave={handleHealthMouseLeave}
+              >
+                <button className="text-gray-600 hover:text-blue-600 px-3 py-2.5 rounded-md hover:bg-blue-50 transition-colors duration-200 flex flex-row items-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5 mr-1.5 inline"
@@ -163,25 +186,23 @@ const Navbar = () => {
                 </button>
                 {/* Dropdown menu with transition */}
                 <div
-                  className={`absolute mt-0 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 transition-all duration-300 transform origin-top ${
+                  className={`absolute mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 transition-all duration-200 ${
                     healthProfileDropdownOpen
-                      ? "opacity-100 scale-100 pointer-events-auto translate-y-2"
-                      : "opacity-0 scale-95 pointer-events-none -translate-y-1"
+                      ? "opacity-100 transform translate-y-0 pointer-events-auto"
+                      : "opacity-0 transform -translate-y-2 pointer-events-none"
                   }`}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
                 >
                   <div className="py-1" role="menu" aria-orientation="vertical">
                     <Link
                       to="/parent/health-profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
                       role="menuitem"
                     >
                       Danh sách hồ sơ sức khỏe
                     </Link>
                     <Link
                       to="/parent/health-profile/new"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
                       role="menuitem"
                     >
                       Tạo hồ sơ sức khỏe mới
@@ -209,6 +230,93 @@ const Navbar = () => {
                 </svg>
                 <span>Tiêm chủng</span>
               </Link>
+
+              {/* Quản lý thuốc dropdown */}
+              <div
+                className="relative"
+                ref={medicationDropdownRef}
+                onMouseEnter={handleMedicationMouseEnter}
+                onMouseLeave={handleMedicationMouseLeave}
+              >
+                <button className="text-gray-600 hover:text-blue-600 px-3 py-2.5 rounded-md hover:bg-blue-50 transition-colors duration-200 flex flex-row items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-1.5 inline"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                    />
+                  </svg>
+                  <span>Quản lý thuốc</span>
+                  <svg
+                    className={`ml-1 h-4 w-4 transition-transform duration-300 ${
+                      medicationDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                {/* Dropdown menu */}
+                <div
+                  className={`absolute mt-1 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 transition-all duration-200 ${
+                    medicationDropdownOpen
+                      ? "opacity-100 transform translate-y-0 pointer-events-auto"
+                      : "opacity-0 transform -translate-y-2 pointer-events-none"
+                  }`}
+                >
+                  <div className="py-1" role="menu" aria-orientation="vertical">
+                    <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider font-semibold border-b border-gray-100">
+                      Phụ huynh
+                    </div>
+                    <Link
+                      to="/parent/medication/request"
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Gửi yêu cầu thuốc
+                    </Link>
+                    <Link
+                      to="/parent/medication/history"
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Lịch sử yêu cầu thuốc
+                    </Link>
+                    <Link
+                      to="/parent/dashboard"
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Bảng điều khiển
+                    </Link>
+
+                    <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider font-semibold border-b border-t border-gray-100">
+                      Nhân viên y tế
+                    </div>
+                    <Link
+                      to="/staff/medication"
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Danh sách quản lý thuốc
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -431,6 +539,87 @@ const Navbar = () => {
             </svg>
             <span>Tiêm chủng</span>
           </Link>
+
+          {/* Mobile dropdown for Quan ly thuoc */}
+          <div className="relative">
+            <button
+              onClick={() => setMedicationDropdownOpen(!medicationDropdownOpen)}
+              className="text-gray-600 hover:text-blue-600 w-full text-left px-4 py-3.5 rounded-md hover:bg-blue-50 transition flex items-center justify-between"
+            >
+              <div className="flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2.5 inline"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                  />
+                </svg>
+                <span>Quản lý thuốc</span>
+              </div>
+              <svg
+                className={`h-5 w-5 transition-transform duration-300 ${
+                  medicationDropdownOpen ? "rotate-180" : ""
+                }`}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+
+            {/* Mobile dropdown menu for Quan ly thuoc */}
+            <div
+              className={`transition-all duration-300 overflow-hidden ${
+                medicationDropdownOpen
+                  ? "max-h-72 opacity-100"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="pl-12 pr-4 py-2 text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                Phụ huynh
+              </div>
+              <Link
+                to="/parent/medication/request"
+                className="block pl-12 pr-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition"
+              >
+                Gửi yêu cầu thuốc
+              </Link>
+              <Link
+                to="/parent/medication/history"
+                className="block pl-12 pr-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition"
+              >
+                Lịch sử yêu cầu thuốc
+              </Link>
+              <Link
+                to="/parent/dashboard"
+                className="block pl-12 pr-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition"
+              >
+                Bảng điều khiển
+              </Link>
+
+              <div className="pl-12 pr-4 py-2 text-xs text-gray-500 uppercase tracking-wider font-semibold border-t border-gray-100 mt-2">
+                Nhân viên y tế
+              </div>
+              <Link
+                to="/staff/medication"
+                className="block pl-12 pr-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition"
+              >
+                Danh sách quản lý thuốc
+              </Link>
+            </div>
+          </div>
         </div>
 
         <div className="px-5 pt-2 pb-5 border-t border-gray-200 space-y-3">

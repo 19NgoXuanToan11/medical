@@ -129,7 +129,7 @@ const HealthProfileList = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen pb-12">
+    <div className="min-h-screen pb-12">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="flex items-center justify-between mb-8">
           <Link
