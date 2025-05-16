@@ -18,6 +18,9 @@ import MedicationDetail from "./pages/parent/medication/MedicationDetail";
 import ParentDashboard from "./pages/parent/dashboard/ParentDashboard";
 import StaffMedicationList from "./pages/staff/medication/StaffMedicationList";
 import MedicationAdminister from "./pages/staff/medication/MedicationAdminister";
+import HealthEventList from "./pages/staff/health-events/HealthEventList";
+import HealthEventForm from "./pages/staff/health-events/HealthEventForm";
+import HealthEventDetail from "./pages/staff/health-events/HealthEventDetail";
 import MainLayout from "./components/layout/MainLayout";
 
 function App() {
@@ -78,6 +81,21 @@ function App() {
           <Route
             path="/staff/medication/administer/:id"
             element={<MedicationAdminister />}
+          />
+
+          {/* Staff Health Events Routes */}
+          <Route path="/staff/health-events" element={<HealthEventList />} />
+          <Route
+            path="/staff/health-events/new"
+            element={<HealthEventForm />}
+          />
+          <Route
+            path="/staff/health-events/:id"
+            element={<HealthEventDetail />}
+          />
+          <Route
+            path="/staff/health-events/edit/:id"
+            element={<HealthEventForm />}
           />
         </Route>
       </Routes>
