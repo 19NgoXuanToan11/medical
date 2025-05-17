@@ -26,6 +26,9 @@ import HealthEventForm from "./pages/staff/health-events/HealthEventForm";
 import HealthEventDetail from "./pages/staff/health-events/HealthEventDetail";
 import MedicalEventSupplies from "./pages/staff/health-events/MedicalEventSupplies";
 import MainLayout from "./components/layout/MainLayout";
+import VaccinationManagement from "./pages/staff/VaccinationManagement";
+import VaccinationFlowDiagram from "./pages/staff/VaccinationFlowDiagram";
+import VaccinationConsent from "./pages/parent/VaccinationConsent";
 
 function App() {
   return (
@@ -80,6 +83,16 @@ function App() {
             element={<MedicationDetail />}
           />
 
+          {/* Parent Vaccination Routes */}
+          <Route
+            path="/parent/vaccination/consent/:id"
+            element={<VaccinationConsent />}
+          />
+          <Route
+            path="/parent/vaccination/consent/new"
+            element={<VaccinationConsent />}
+          />
+
           {/* Staff Medication Routes */}
           <Route path="/staff/medication" element={<StaffMedicationList />} />
           <Route
@@ -120,6 +133,16 @@ function App() {
           <Route
             path="/staff/health-events/:id/supplies"
             element={<MedicalEventSupplies />}
+          />
+
+          {/* Staff Vaccination Management Routes */}
+          <Route
+            path="/staff/vaccination"
+            element={<VaccinationManagement />}
+          />
+          <Route
+            path="/staff/vaccination/flow"
+            element={<VaccinationFlowDiagram />}
           />
         </Route>
       </Routes>
