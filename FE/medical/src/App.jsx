@@ -18,9 +18,13 @@ import MedicationDetail from "./pages/parent/medication/MedicationDetail";
 import ParentDashboard from "./pages/parent/dashboard/ParentDashboard";
 import StaffMedicationList from "./pages/staff/medication/StaffMedicationList";
 import MedicationAdminister from "./pages/staff/medication/MedicationAdminister";
+import MedicalInventory from "./pages/staff/medication/MedicalInventory";
+import InventoryTransaction from "./pages/staff/medication/InventoryTransaction";
+import TransactionHistory from "./pages/staff/medication/TransactionHistory";
 import HealthEventList from "./pages/staff/health-events/HealthEventList";
 import HealthEventForm from "./pages/staff/health-events/HealthEventForm";
 import HealthEventDetail from "./pages/staff/health-events/HealthEventDetail";
+import MedicalEventSupplies from "./pages/staff/health-events/MedicalEventSupplies";
 import MainLayout from "./components/layout/MainLayout";
 
 function App() {
@@ -82,6 +86,22 @@ function App() {
             path="/staff/medication/administer/:id"
             element={<MedicationAdminister />}
           />
+          <Route
+            path="/staff/medication/inventory"
+            element={<MedicalInventory />}
+          />
+          <Route
+            path="/staff/medication/inventory/transaction"
+            element={<InventoryTransaction />}
+          />
+          <Route
+            path="/staff/medication/inventory/transaction/:id"
+            element={<InventoryTransaction />}
+          />
+          <Route
+            path="/staff/medication/inventory/history"
+            element={<TransactionHistory />}
+          />
 
           {/* Staff Health Events Routes */}
           <Route path="/staff/health-events" element={<HealthEventList />} />
@@ -96,6 +116,10 @@ function App() {
           <Route
             path="/staff/health-events/edit/:id"
             element={<HealthEventForm />}
+          />
+          <Route
+            path="/staff/health-events/:id/supplies"
+            element={<MedicalEventSupplies />}
           />
         </Route>
       </Routes>
