@@ -7,14 +7,17 @@ const Navbar = () => {
     useState(false);
   const [medicationDropdownOpen, setMedicationDropdownOpen] = useState(false);
   const [healthEventDropdownOpen, setHealthEventDropdownOpen] = useState(false);
+  const [vaccinationDropdownOpen, setVaccinationDropdownOpen] = useState(false);
   const healthDropdownRef = useRef(null);
   const medicationDropdownRef = useRef(null);
   const healthEventDropdownRef = useRef(null);
+  const vaccinationDropdownRef = useRef(null);
 
   // Add timers to control delayed closing of dropdowns
   const healthDropdownTimer = useRef(null);
   const medicationDropdownTimer = useRef(null);
   const healthEventDropdownTimer = useRef(null);
+  const vaccinationDropdownTimer = useRef(null);
 
   const handleHealthMouseEnter = () => {
     if (healthDropdownTimer.current) {
@@ -58,6 +61,20 @@ const Navbar = () => {
     }, 300); // 300ms delay before closing
   };
 
+  const handleVaccinationMouseEnter = () => {
+    if (vaccinationDropdownTimer.current) {
+      clearTimeout(vaccinationDropdownTimer.current);
+      vaccinationDropdownTimer.current = null;
+    }
+    setVaccinationDropdownOpen(true);
+  };
+
+  const handleVaccinationMouseLeave = () => {
+    vaccinationDropdownTimer.current = setTimeout(() => {
+      setVaccinationDropdownOpen(false);
+    }, 300); // 300ms delay before closing
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -80,6 +97,13 @@ const Navbar = () => {
       ) {
         setHealthEventDropdownOpen(false);
       }
+
+      if (
+        vaccinationDropdownRef.current &&
+        !vaccinationDropdownRef.current.contains(event.target)
+      ) {
+        setVaccinationDropdownOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -92,6 +116,8 @@ const Navbar = () => {
         clearTimeout(medicationDropdownTimer.current);
       if (healthEventDropdownTimer.current)
         clearTimeout(healthEventDropdownTimer.current);
+      if (vaccinationDropdownTimer.current)
+        clearTimeout(vaccinationDropdownTimer.current);
     };
   }, []);
 
@@ -236,26 +262,84 @@ const Navbar = () => {
                   </div>
                 </div>
               </div>
-              <Link
-                to="/tiem-chung"
-                className="text-gray-600 hover:text-blue-600 px-2 py-2 rounded-md hover:bg-blue-50 transition-colors duration-200 flex items-center whitespace-nowrap"
+              <div
+                className="relative"
+                ref={vaccinationDropdownRef}
+                onMouseEnter={handleVaccinationMouseEnter}
+                onMouseLeave={handleVaccinationMouseLeave}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+                <button className="text-gray-600 hover:text-blue-600 px-2 py-2 rounded-md hover:bg-blue-50 transition-colors duration-200 flex items-center group whitespace-nowrap">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 14l9-5-9-5-9 5 9 5m0 0l9-5-9-5-9 5 9 5m0 0v6"
+                    />
+                  </svg>
+                  <span className="whitespace-nowrap">Tiêm chủng</span>
+                  <svg
+                    className={`ml-1 h-4 w-4 transition-transform duration-300 ${
+                      vaccinationDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                {/* Dropdown menu for vaccination */}
+                <div
+                  className={`absolute mt-1 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 transition-all duration-200 ${
+                    vaccinationDropdownOpen
+                      ? "opacity-100 transform translate-y-0 pointer-events-auto"
+                      : "opacity-0 transform -translate-y-2 pointer-events-none"
+                  }`}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 14l9-5-9-5-9 5 9 5m0 0l9-5-9-5-9 5 9 5m0 0v6"
-                  />
-                </svg>
-                <span className="whitespace-nowrap">Tiêm chủng</span>
-              </Link>
+                  <div className="py-1" role="menu" aria-orientation="vertical">
+                    <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider font-semibold border-b border-gray-100">
+                      Phụ huynh
+                    </div>
+                    <Link
+                      to="/parent/vaccination/consent/new"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Phiếu đồng ý tiêm chủng
+                    </Link>
+
+                    <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider font-semibold border-b border-t border-gray-100">
+                      Nhân viên y tế
+                    </div>
+                    <Link
+                      to="/staff/vaccination"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Quản lý tiêm chủng
+                    </Link>
+                    <Link
+                      to="/staff/vaccination/flow"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Quy trình tiêm chủng
+                    </Link>
+                  </div>
+                </div>
+              </div>
 
               {/* Quản lý thuốc dropdown */}
               <div
@@ -687,6 +771,81 @@ const Navbar = () => {
                 className="block text-gray-600 hover:text-blue-600 py-2.5 px-3 text-sm transition"
               >
                 Danh sách quản lý thuốc
+              </Link>
+            </div>
+          </div>
+
+          {/* Mobile dropdown for Tiêm chủng */}
+          <div className="relative">
+            <button
+              onClick={() =>
+                setVaccinationDropdownOpen(!vaccinationDropdownOpen)
+              }
+              className="text-gray-600 hover:text-blue-600 w-full text-left px-4 py-3 rounded-md hover:bg-blue-50 transition flex items-center justify-between"
+            >
+              <div className="flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 14l9-5-9-5-9 5 9 5m0 0l9-5-9-5-9 5 9 5m0 0v6"
+                  />
+                </svg>
+                Tiêm chủng
+              </div>
+              <svg
+                className={`h-5 w-5 transition-transform duration-300 ${
+                  vaccinationDropdownOpen ? "rotate-180" : ""
+                }`}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+
+            {/* Mobile dropdown menu */}
+            <div
+              className={`${
+                vaccinationDropdownOpen ? "block" : "hidden"
+              } mt-2 pl-10 pr-4 pb-2`}
+            >
+              <p className="text-xs text-gray-500 px-3 py-2 uppercase font-semibold">
+                Phụ huynh
+              </p>
+              <Link
+                to="/parent/vaccination/consent/new"
+                className="block text-gray-600 hover:text-blue-600 py-2.5 px-3 text-sm transition"
+              >
+                Phiếu đồng ý tiêm chủng
+              </Link>
+
+              <p className="text-xs text-gray-500 px-3 py-2 mt-2 uppercase font-semibold">
+                Nhân viên y tế
+              </p>
+              <Link
+                to="/staff/vaccination"
+                className="block text-gray-600 hover:text-blue-600 py-2.5 px-3 text-sm transition"
+              >
+                Quản lý tiêm chủng
+              </Link>
+              <Link
+                to="/staff/vaccination/flow"
+                className="block text-gray-600 hover:text-blue-600 py-2.5 px-3 text-sm transition"
+              >
+                Quy trình tiêm chủng
               </Link>
             </div>
           </div>
