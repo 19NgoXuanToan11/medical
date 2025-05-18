@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
+import logo from "../../../../public/logo/logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,16 +9,19 @@ const Navbar = () => {
   const [medicationDropdownOpen, setMedicationDropdownOpen] = useState(false);
   const [healthEventDropdownOpen, setHealthEventDropdownOpen] = useState(false);
   const [vaccinationDropdownOpen, setVaccinationDropdownOpen] = useState(false);
+  const [healthCheckDropdownOpen, setHealthCheckDropdownOpen] = useState(false);
   const healthDropdownRef = useRef(null);
   const medicationDropdownRef = useRef(null);
   const healthEventDropdownRef = useRef(null);
   const vaccinationDropdownRef = useRef(null);
+  const healthCheckDropdownRef = useRef(null);
 
   // Add timers to control delayed closing of dropdowns
   const healthDropdownTimer = useRef(null);
   const medicationDropdownTimer = useRef(null);
   const healthEventDropdownTimer = useRef(null);
   const vaccinationDropdownTimer = useRef(null);
+  const healthCheckDropdownTimer = useRef(null);
 
   const handleHealthMouseEnter = () => {
     if (healthDropdownTimer.current) {
@@ -75,6 +79,20 @@ const Navbar = () => {
     }, 300); // 300ms delay before closing
   };
 
+  const handleHealthCheckMouseEnter = () => {
+    if (healthCheckDropdownTimer.current) {
+      clearTimeout(healthCheckDropdownTimer.current);
+      healthCheckDropdownTimer.current = null;
+    }
+    setHealthCheckDropdownOpen(true);
+  };
+
+  const handleHealthCheckMouseLeave = () => {
+    healthCheckDropdownTimer.current = setTimeout(() => {
+      setHealthCheckDropdownOpen(false);
+    }, 300); // 300ms delay before closing
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -104,6 +122,13 @@ const Navbar = () => {
       ) {
         setVaccinationDropdownOpen(false);
       }
+
+      if (
+        healthCheckDropdownRef.current &&
+        !healthCheckDropdownRef.current.contains(event.target)
+      ) {
+        setHealthCheckDropdownOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -118,57 +143,19 @@ const Navbar = () => {
         clearTimeout(healthEventDropdownTimer.current);
       if (vaccinationDropdownTimer.current)
         clearTimeout(vaccinationDropdownTimer.current);
+      if (healthCheckDropdownTimer.current)
+        clearTimeout(healthCheckDropdownTimer.current);
     };
   }, []);
 
   return (
     <nav className="bg-white shadow-md w-full sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+      <div className="w-full px-0">
+        <div className="flex items-center h-16">
           {/* Logo - Left */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 pl-4">
             <Link to="/" className="flex items-center">
-              <svg
-                className="h-8 w-8 mr-2"
-                viewBox="0 0 512 512"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Medical Cross Background Circle */}
-                <circle cx="256" cy="256" r="240" fill="#EBF5FF" />
-
-                {/* Medical Cross */}
-                <rect
-                  x="156"
-                  y="226"
-                  width="200"
-                  height="60"
-                  rx="8"
-                  fill="#FF4757"
-                />
-                <rect
-                  x="226"
-                  y="156"
-                  width="60"
-                  height="200"
-                  rx="8"
-                  fill="#FF4757"
-                />
-
-                {/* Medical Snake Symbol (Caduceus) Stylized */}
-                <path
-                  d="M256 380C256 380 320 340 320 300C320 260 256 280 256 240C256 200 320 220 320 180C320 140 256 100 256 100"
-                  stroke="#2E86DE"
-                  strokeWidth="16"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M256 380C256 380 192 340 192 300C192 260 256 280 256 240C256 200 192 220 192 180C192 140 256 100 256 100"
-                  stroke="#10AC84"
-                  strokeWidth="16"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <img src={logo} alt="logo" className="h-8 w-8 mr-2" />
               <span className="text-blue-600 font-bold text-xl tracking-tight">
                 Med<span className="text-blue-800">School</span>
               </span>
@@ -177,7 +164,7 @@ const Navbar = () => {
 
           {/* Navigation Links - Middle */}
           <div className="hidden lg:flex items-center justify-center flex-1 mx-4">
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center justify-center space-x-12">
               <Link
                 to="/"
                 className="text-blue-600 font-medium px-2 py-2 rounded-md hover:bg-blue-50 transition-colors duration-200 flex items-center whitespace-nowrap"
@@ -496,11 +483,98 @@ const Navbar = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Kiểm tra y tế định kỳ dropdown */}
+              <div
+                className="relative"
+                ref={healthCheckDropdownRef}
+                onMouseEnter={handleHealthCheckMouseEnter}
+                onMouseLeave={handleHealthCheckMouseLeave}
+              >
+                <button className="text-gray-600 hover:text-blue-600 px-2 py-2 rounded-md hover:bg-blue-50 transition-colors duration-200 flex items-center group whitespace-nowrap">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                    />
+                  </svg>
+                  <span className="whitespace-nowrap">Kiểm tra định kỳ</span>
+                  <svg
+                    className={`ml-1 h-4 w-4 transition-transform duration-300 ${
+                      healthCheckDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                {/* Dropdown menu for health checks */}
+                <div
+                  className={`absolute mt-1 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 transition-all duration-200 ${
+                    healthCheckDropdownOpen
+                      ? "opacity-100 transform translate-y-0 pointer-events-auto"
+                      : "opacity-0 transform -translate-y-2 pointer-events-none"
+                  }`}
+                >
+                  <div className="py-1" role="menu" aria-orientation="vertical">
+                    <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider font-semibold border-b border-gray-100">
+                      Phụ huynh
+                    </div>
+                    <Link
+                      to="/parent/health-check"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Xác nhận kiểm tra
+                    </Link>
+                    <Link
+                      to="/parent/health-check/results"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Xem kết quả kiểm tra
+                    </Link>
+
+                    <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider font-semibold border-b border-t border-gray-100">
+                      Nhân viên y tế
+                    </div>
+                    <Link
+                      to="/staff/health-check"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Quản lý kiểm tra
+                    </Link>
+                    <Link
+                      to="/staff/health-check/new"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                      role="menuitem"
+                    >
+                      Lên lịch kiểm tra mới
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Authentication - Right */}
-          <div className="hidden lg:flex items-center space-x-2">
+          <div className="hidden lg:flex items-center space-x-4 ml-auto pr-4">
             <Link
               to="/login"
               className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md border border-blue-200 hover:border-blue-400 transition-all duration-200 font-medium flex items-center bg-blue-50 hover:bg-blue-100 whitespace-nowrap"
@@ -911,6 +985,87 @@ const Navbar = () => {
                 className="block text-gray-600 hover:text-blue-600 py-2.5 px-3 text-sm transition"
               >
                 Thêm sự kiện mới
+              </Link>
+            </div>
+          </div>
+
+          {/* Mobile dropdown for Kiểm tra y tế định kỳ */}
+          <div className="relative">
+            <button
+              onClick={() =>
+                setHealthCheckDropdownOpen(!healthCheckDropdownOpen)
+              }
+              className="text-gray-600 hover:text-blue-600 w-full text-left px-4 py-3 rounded-md hover:bg-blue-50 transition flex items-center justify-between"
+            >
+              <div className="flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                  />
+                </svg>
+                Kiểm tra định kỳ
+              </div>
+              <svg
+                className={`h-5 w-5 transition-transform duration-300 ${
+                  healthCheckDropdownOpen ? "rotate-180" : ""
+                }`}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+
+            {/* Mobile dropdown menu */}
+            <div
+              className={`${
+                healthCheckDropdownOpen ? "block" : "hidden"
+              } mt-2 pl-10 pr-4 pb-2`}
+            >
+              <p className="text-xs text-gray-500 px-3 py-2 uppercase font-semibold">
+                Phụ huynh
+              </p>
+              <Link
+                to="/parent/health-check"
+                className="block text-gray-600 hover:text-blue-600 py-2.5 px-3 text-sm transition"
+              >
+                Xác nhận kiểm tra
+              </Link>
+              <Link
+                to="/parent/health-check/results"
+                className="block text-gray-600 hover:text-blue-600 py-2.5 px-3 text-sm transition"
+              >
+                Xem kết quả kiểm tra
+              </Link>
+
+              <p className="text-xs text-gray-500 px-3 py-2 mt-2 uppercase font-semibold">
+                Nhân viên y tế
+              </p>
+              <Link
+                to="/staff/health-check"
+                className="block text-gray-600 hover:text-blue-600 py-2.5 px-3 text-sm transition"
+              >
+                Quản lý kiểm tra
+              </Link>
+              <Link
+                to="/staff/health-check/new"
+                className="block text-gray-600 hover:text-blue-600 py-2.5 px-3 text-sm transition"
+              >
+                Lên lịch kiểm tra mới
               </Link>
             </div>
           </div>
