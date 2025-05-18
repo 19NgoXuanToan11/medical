@@ -26,6 +26,8 @@ import HealthEventForm from "./pages/staff/health-events/HealthEventForm";
 import HealthEventDetail from "./pages/staff/health-events/HealthEventDetail";
 import MedicalEventSupplies from "./pages/staff/health-events/MedicalEventSupplies";
 import MainLayout from "./components/layout/MainLayout";
+import AdminLayout from "./components/layout/AdminLayout";
+import AuthLayout from "./components/layout/AuthLayout";
 import VaccinationManagement from "./pages/staff/VaccinationManagement";
 import VaccinationFlowDiagram from "./pages/staff/VaccinationFlowDiagram";
 import VaccinationConsent from "./pages/parent/VaccinationConsent";
@@ -33,15 +35,35 @@ import HealthCheckManagement from "./pages/staff/HealthCheckManagement";
 import HealthCheckExecution from "./pages/staff/HealthCheckExecution";
 import HealthCheckResults from "./pages/staff/HealthCheckResults";
 import HealthCheckConfirmation from "./pages/parent/HealthCheckConfirmation";
+// Import admin components
+import {
+  AdminDashboard,
+  UserManagement,
+  ReportsAnalytics,
+  SystemSettings,
+} from "./pages/admin";
 
 function App() {
   return (
     <div>
       <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<HomePage />} />
+        {/* Auth Routes - No Navbar/Footer */}
+        <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+        </Route>
+
+        {/* Admin Routes - Custom Admin Layout */}
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<UserManagement />} />
+          <Route path="/admin/reports" element={<ReportsAnalytics />} />
+          <Route path="/admin/settings" element={<SystemSettings />} />
+        </Route>
+
+        {/* Main Routes - With Navbar and Footer */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<HomePage />} />
 
           {/* Health Resources Routes */}
           <Route path="/resources/nutrition" element={<Nutrition />} />

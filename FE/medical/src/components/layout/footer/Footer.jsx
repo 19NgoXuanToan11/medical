@@ -210,7 +210,7 @@ const Footer = () => {
                   />
                 </svg>
                 <span className="text-gray-600">
-                  Lô E2a-7, Đường D1, Đ. D1, Long Thạnh Mỹ, Thành Phố Thủ Đức
+                  FPT University
                 </span>
               </li>
               <li className="flex items-center">
@@ -227,7 +227,7 @@ const Footer = () => {
                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                   />
                 </svg>
-                <span className="text-gray-600">(028) 7300 5588</span>
+                <span className="text-gray-600">0786485999</span>
               </li>
               <li className="flex items-center">
                 <svg
@@ -243,7 +243,7 @@ const Footer = () => {
                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                <span className="text-gray-600">support@medschool.edu.vn</span>
+                <span className="text-gray-600">toannxse171299@fpt.edu.vn</span>
               </li>
             </ul>
             <div className="mt-6 flex space-x-4">
@@ -311,17 +311,6 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} MedSchool. Tất cả quyền được bảo
             lưu.
           </p>
-          <div className="flex mt-2 md:mt-0 space-x-4">
-            <a href="#" className="hover:text-blue-200 transition-colors">
-              Điều khoản sử dụng
-            </a>
-            <a href="#" className="hover:text-blue-200 transition-colors">
-              Chính sách bảo mật
-            </a>
-            <a href="#" className="hover:text-blue-200 transition-colors">
-              Sitemap
-            </a>
-          </div>
         </div>
       </div>
     </footer>
