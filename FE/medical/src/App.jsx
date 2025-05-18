@@ -29,6 +29,10 @@ import MainLayout from "./components/layout/MainLayout";
 import VaccinationManagement from "./pages/staff/VaccinationManagement";
 import VaccinationFlowDiagram from "./pages/staff/VaccinationFlowDiagram";
 import VaccinationConsent from "./pages/parent/VaccinationConsent";
+import HealthCheckManagement from "./pages/staff/HealthCheckManagement";
+import HealthCheckExecution from "./pages/staff/HealthCheckExecution";
+import HealthCheckResults from "./pages/staff/HealthCheckResults";
+import HealthCheckConfirmation from "./pages/parent/HealthCheckConfirmation";
 
 function App() {
   return (
@@ -93,6 +97,20 @@ function App() {
             element={<VaccinationConsent />}
           />
 
+          {/* Parent Health Check Routes */}
+          <Route
+            path="/parent/health-check"
+            element={<HealthCheckConfirmation />}
+          />
+          <Route
+            path="/parent/health-check/results"
+            element={<HealthCheckConfirmation initialTab="completed" />}
+          />
+          <Route
+            path="/parent/health-check/:id/results"
+            element={<HealthCheckConfirmation />}
+          />
+
           {/* Staff Medication Routes */}
           <Route path="/staff/medication" element={<StaffMedicationList />} />
           <Route
@@ -143,6 +161,28 @@ function App() {
           <Route
             path="/staff/vaccination/flow"
             element={<VaccinationFlowDiagram />}
+          />
+
+          {/* Staff Health Check Management Routes */}
+          <Route
+            path="/staff/health-check"
+            element={<HealthCheckManagement />}
+          />
+          <Route
+            path="/staff/health-check/new"
+            element={<HealthCheckManagement />}
+          />
+          <Route
+            path="/staff/health-check/:checkId"
+            element={<HealthCheckExecution />}
+          />
+          <Route
+            path="/staff/health-check/:checkId/results"
+            element={<HealthCheckResults />}
+          />
+          <Route
+            path="/staff/health-check/:checkId/edit"
+            element={<HealthCheckManagement />}
           />
         </Route>
       </Routes>
