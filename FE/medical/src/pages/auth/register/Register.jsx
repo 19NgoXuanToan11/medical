@@ -28,9 +28,9 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex">
       {/* Video Section - Left 50% */}
-      <div className="w-1/2 bg-gray-200 relative overflow-hidden">
+      <div className="w-1/2 relative overflow-hidden">
         <video
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
@@ -44,7 +44,7 @@ const Register = () => {
       </div>
 
       {/* Form Section - Right 50% */}
-      <div className="w-1/2 flex items-center justify-center relative">
+      <div className="w-1/2 flex items-center justify-center bg-white h-screen overflow-y-auto">
         {/* Back to Home Button */}
         <Link
           to="/"
@@ -61,7 +61,7 @@ const Register = () => {
           Back to Home
         </Link>
 
-        <div className="max-w-md w-full p-8 bg-white rounded-xl shadow-lg">
+        <div className="w-4/5 max-w-md mx-auto py-12 px-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Create Account
