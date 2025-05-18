@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import mother from "../../../../public/images/mother.jpg";
-import mother2 from "../../../../public/images/mother2.jpg";
+import featuresVideo from "../../../../public/videos/features1.mp4";
+import featuresVideo2 from "../../../../public/videos/features2.mp4";
 
 const Features = () => {
   const featureItems = [
@@ -242,13 +242,18 @@ const Features = () => {
       <section className="bg-white py-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center">
-            {/* Image - On the left for this section */}
+            {/* Video - On the left for this section */}
             <div className="w-full md:w-1/2 pr-0 md:pr-8 mb-8 md:mb-0">
-              <img
-                src={mother}
-                alt="Mother with baby"
+              <video
                 className="w-full h-auto rounded-lg shadow-lg"
-              />
+                autoPlay
+                muted
+                loop
+                playsInline
+              >
+                <source src={featuresVideo} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
 
             {/* Text Content - On the right for this section */}
@@ -288,13 +293,18 @@ const Features = () => {
               </button>
             </div>
 
-            {/* Image - On the right for this section */}
+            {/* Video - On the right for this section */}
             <div className="w-full md:w-1/2 pl-0 md:pl-8">
-              <img
-                src={mother2}
-                alt="Healthcare professional with student"
+              <video
                 className="w-full h-auto rounded-lg shadow-lg"
-              />
+                autoPlay
+                muted
+                loop
+                playsInline
+              >
+                <source src={featuresVideo2} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
         </div>

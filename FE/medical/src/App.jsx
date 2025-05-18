@@ -4,6 +4,7 @@ import "./App.css";
 import HomePage from "./components/home/HomePage";
 import Login from "./pages/auth/login/Login";
 import Register from "./pages/auth/register/Register";
+import RoleSelection from "./pages/auth/RoleSelection";
 import Nutrition from "./pages/resources/nutrition/Nutrition";
 import DiseasePrevention from "./pages/resources/disease-prevention/DiseasePrevention";
 import MentalHealth from "./pages/resources/mental-health/MentalHealth";
@@ -49,6 +50,7 @@ function App() {
       <Routes>
         {/* Auth Routes - No Navbar/Footer */}
         <Route element={<AuthLayout />}>
+          <Route path="/role-selection" element={<RoleSelection />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>

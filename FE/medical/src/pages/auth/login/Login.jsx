@@ -1,12 +1,31 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import medicalVideo from "../../../../public/videos/login.mp4";
 
 const Login = () => {
+  const location = useLocation();
+
+  // Get role from URL parameter if available
+  const getInitialRole = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const roleParam = searchParams.get("role");
+    return roleParam || "student"; // Default to student if not specified
+  };
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    role: getInitialRole(),
   });
+
+  // Update role if URL parameter changes
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const roleParam = searchParams.get("role");
+    if (roleParam) {
+      setFormData((prev) => ({ ...prev, role: roleParam }));
+    }
+  }, [location.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -15,9 +34,18 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically handle login logic
+    // Here you would typically handle login logic with role
     console.log("Login attempt with:", formData);
   };
+
+  // Available roles in the system
+  const roles = [
+    { id: "student", label: "Student" },
+    { id: "parent", label: "Parent" },
+    { id: "admin", label: "Administrator" },
+    { id: "manager", label: "School Manager" },
+    { id: "nurse", label: "School Nurse" },
+  ];
 
   return (
     <div className="min-h-screen flex">
@@ -62,6 +90,60 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Role Selection */}
+            <div className="space-y-2">
+              <label
+                htmlFor="role"
+                className="text-sm font-medium text-gray-700"
+              >
+                I am a
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  required
+                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 appearance-none"
+                >
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.id}>
+                      {role.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <label
                 htmlFor="username"
