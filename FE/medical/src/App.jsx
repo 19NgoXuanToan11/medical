@@ -4,7 +4,6 @@ import "./App.css";
 import HomePage from "./components/home/HomePage";
 import Login from "./pages/auth/login/Login";
 import Register from "./pages/auth/register/Register";
-import RoleSelection from "./pages/auth/RoleSelection";
 import Nutrition from "./pages/resources/nutrition/Nutrition";
 import DiseasePrevention from "./pages/resources/disease-prevention/DiseasePrevention";
 import MentalHealth from "./pages/resources/mental-health/MentalHealth";
@@ -37,12 +36,11 @@ import HealthCheckExecution from "./pages/staff/HealthCheckExecution";
 import HealthCheckResults from "./pages/staff/HealthCheckResults";
 import HealthCheckConfirmation from "./pages/parent/HealthCheckConfirmation";
 // Import admin components
-import {
-  AdminDashboard,
-  UserManagement,
-  ReportsAnalytics,
-  SystemSettings,
-} from "./pages/admin";
+import { AdminDashboard, ReportsAnalytics } from "./pages/admin";
+import UserManagement from "./pages/admin/UserManagement";
+import UserList from "./pages/admin/UserManagement/UserList";
+import UserRoles from "./pages/admin/UserManagement/UserRoles";
+import UserPermissions from "./pages/admin/UserManagement/UserPermissions";
 
 function App() {
   return (
@@ -50,7 +48,6 @@ function App() {
       <Routes>
         {/* Auth Routes - No Navbar/Footer */}
         <Route element={<AuthLayout />}>
-          <Route path="/role-selection" element={<RoleSelection />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
@@ -58,9 +55,15 @@ function App() {
         {/* Admin Routes - Custom Admin Layout */}
         <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<UserManagement />} />
+
+          {/* User Management routes */}
+          <Route path="/admin/users" element={<UserManagement />}>
+            <Route index element={<UserList />} />
+            <Route path="roles" element={<UserRoles />} />
+            <Route path="permissions" element={<UserPermissions />} />
+          </Route>
+
           <Route path="/admin/reports" element={<ReportsAnalytics />} />
-          <Route path="/admin/settings" element={<SystemSettings />} />
         </Route>
 
         {/* Main Routes - With Navbar and Footer */}

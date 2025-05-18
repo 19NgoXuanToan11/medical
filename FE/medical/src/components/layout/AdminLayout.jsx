@@ -28,11 +28,6 @@ const AdminLayout = () => {
       name: "Báo cáo",
       icon: <FiBarChart2 className="w-5 h-5" />,
     },
-    {
-      path: "/admin/settings",
-      name: "Cài đặt",
-      icon: <FiSettings className="w-5 h-5" />,
-    },
   ];
 
   return (
