@@ -1,8 +1,11 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import FormInput from "../../../components/FormInput";
 
-const StudentHealthProfile = () => {
+const StudentHealthProfile = ({ viewOnly = false }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   // State for form fields
   const [formData, setFormData] = useState({
     // Student Personal Information
@@ -68,6 +71,170 @@ const StudentHealthProfile = () => {
     emergencyContact: "",
     otherInfo: "",
   });
+
+  // Load profile data if in edit or view mode
+  useEffect(() => {
+    if (id) {
+      // Mock data - in a real app, you would fetch from API
+      const mockStudentProfiles = [
+        {
+          id: 1,
+          studentName: "Nguyễn Văn An",
+          studentId: "HS12345",
+          dateOfBirth: "2018-05-10",
+          age: "7",
+          class: "2A",
+          parentInfo: {
+            fatherName: "Nguyễn Văn Hoàng",
+            fatherPhone: "0912345678",
+            motherName: "Phạm Thị Lan",
+            motherPhone: "0987654321",
+          },
+          medicalHistory: {
+            hasPreviousTreatment: "yes",
+            treatmentDetails: "Điều trị cảm cúm tháng 2/2025",
+          },
+          vaccinationHistory: {
+            hasCompleteVaccinations: "yes",
+            vaccinationDetails: "Đã tiêm đầy đủ theo lịch",
+            vaccinations: ["Sởi", "Rubella", "Quai bị"],
+          },
+          vision: {
+            hasVisionIssues: "yes",
+            leftEye: "0.8",
+            rightEye: "1.0",
+            visionNotes: "Cần theo dõi mắt trái",
+          },
+          hearing: {
+            hasHearingIssues: "no",
+            leftEar: "Bình thường",
+            rightEar: "Bình thường",
+            hearingNotes: "",
+          },
+          allergies: {
+            hasAllergies: "yes",
+            allergyDetails: "Dị ứng với bụi và phấn hoa",
+          },
+          chronicDiseases: {
+            hasChronic: "no",
+            chronicDetails: "",
+          },
+          height: "125",
+          weight: "28",
+          bloodType: "A+",
+          emergencyContact: "Nguyễn Văn Hoàng - 0912345678",
+          otherInfo: "",
+        },
+        {
+          id: 2,
+          studentName: "Nguyễn Thị Bình",
+          studentId: "HS12346",
+          dateOfBirth: "2015-03-15",
+          age: "10",
+          class: "5B",
+          parentInfo: {
+            fatherName: "Nguyễn Văn Minh",
+            fatherPhone: "0912345679",
+            motherName: "Trần Thị Hoa",
+            motherPhone: "0987654322",
+          },
+          medicalHistory: {
+            hasPreviousTreatment: "yes",
+            treatmentDetails: "Điều trị viêm họng mãn tính từ năm 2024",
+          },
+          vaccinationHistory: {
+            hasCompleteVaccinations: "yes",
+            vaccinationDetails: "Đã tiêm đầy đủ theo lịch",
+            vaccinations: ["Sởi", "Rubella", "Quai bị", "HPV"],
+          },
+          vision: {
+            hasVisionIssues: "no",
+            leftEye: "1.0",
+            rightEye: "1.0",
+            visionNotes: "",
+          },
+          hearing: {
+            hasHearingIssues: "no",
+            leftEar: "Bình thường",
+            rightEar: "Bình thường",
+            hearingNotes: "",
+          },
+          allergies: {
+            hasAllergies: "yes",
+            allergyDetails: "Dị ứng với hải sản",
+          },
+          chronicDiseases: {
+            hasChronic: "yes",
+            chronicDetails: "Hen suyễn nhẹ, cần theo dõi",
+          },
+          height: "140",
+          weight: "35",
+          bloodType: "B+",
+          emergencyContact: "Trần Thị Hoa - 0987654322",
+          otherInfo: "Cần mang theo thuốc xịt định kỳ",
+        },
+        {
+          id: 3,
+          studentName: "Nguyễn Minh Cường",
+          studentId: "HS12347",
+          dateOfBirth: "2017-11-20",
+          age: "8",
+          class: "3C",
+          parentInfo: {
+            fatherName: "Nguyễn Thành Nam",
+            fatherPhone: "0912345680",
+            motherName: "Lê Thị Mai",
+            motherPhone: "0987654323",
+          },
+          medicalHistory: {
+            hasPreviousTreatment: "no",
+            treatmentDetails: "",
+          },
+          vaccinationHistory: {
+            hasCompleteVaccinations: "yes",
+            vaccinationDetails: "Đã tiêm đầy đủ theo lịch",
+            vaccinations: ["Sởi", "Rubella", "Quai bị", "Viêm não Nhật Bản"],
+          },
+          vision: {
+            hasVisionIssues: "no",
+            leftEye: "1.0",
+            rightEye: "1.0",
+            visionNotes: "",
+          },
+          hearing: {
+            hasHearingIssues: "no",
+            leftEar: "Bình thường",
+            rightEar: "Bình thường",
+            hearingNotes: "",
+          },
+          allergies: {
+            hasAllergies: "no",
+            allergyDetails: "",
+          },
+          chronicDiseases: {
+            hasChronic: "no",
+            chronicDetails: "",
+          },
+          height: "132",
+          weight: "30",
+          bloodType: "O+",
+          emergencyContact: "Lê Thị Mai - 0987654323",
+          otherInfo: "",
+        },
+      ];
+
+      const profile = mockStudentProfiles.find(
+        (p) => p.id === parseInt(id, 10)
+      );
+      if (profile) {
+        setFormData(profile);
+      } else {
+        // Handle not found
+        alert("Hồ sơ không tồn tại");
+        navigate("/parent/health-profile");
+      }
+    }
+  }, [id, navigate]);
 
   // Class options
   const classOptions = [
@@ -223,11 +390,16 @@ const StudentHealthProfile = () => {
           <div className="bg-blue-600 p-8 text-white">
             <div className="text-center">
               <h1 className="text-3xl font-bold mb-2">
-                Khai báo hồ sơ sức khỏe học sinh
+                {viewOnly
+                  ? "Hồ sơ sức khỏe học sinh"
+                  : id
+                  ? "Cập nhật hồ sơ sức khỏe học sinh"
+                  : "Khai báo hồ sơ sức khỏe học sinh"}
               </h1>
               <p className="text-blue-100 max-w-2xl mx-auto">
-                Cung cấp thông tin sức khỏe đầy đủ của học sinh để nhà trường có
-                thể theo dõi và chăm sóc tốt nhất
+                {viewOnly
+                  ? "Xem thông tin sức khỏe đầy đủ của học sinh"
+                  : "Cung cấp thông tin sức khỏe đầy đủ của học sinh để nhà trường có thể theo dõi và chăm sóc tốt nhất"}
               </p>
             </div>
           </div>
@@ -266,6 +438,7 @@ const StudentHealthProfile = () => {
                       onChange={handleChange}
                       required
                       placeholder="Nhập họ và tên học sinh"
+                      disabled={viewOnly}
                     />
 
                     <FormInput
@@ -276,6 +449,7 @@ const StudentHealthProfile = () => {
                       onChange={handleChange}
                       required
                       placeholder="Nhập mã học sinh"
+                      disabled={viewOnly}
                     />
 
                     <FormInput
@@ -286,6 +460,7 @@ const StudentHealthProfile = () => {
                       value={formData.dateOfBirth}
                       onChange={calculateAge}
                       required
+                      disabled={viewOnly}
                     />
 
                     <FormInput
@@ -295,7 +470,7 @@ const StudentHealthProfile = () => {
                       value={formData.age}
                       onChange={handleChange}
                       placeholder="Tuổi sẽ được tính tự động"
-                      disabled
+                      disabled={viewOnly}
                     />
 
                     <FormInput
@@ -308,6 +483,7 @@ const StudentHealthProfile = () => {
                       required
                       placeholder="Chọn lớp"
                       options={classOptions}
+                      disabled={viewOnly}
                     />
                   </div>
                 </div>
@@ -345,6 +521,7 @@ const StudentHealthProfile = () => {
                       onChange={handleChange}
                       required
                       placeholder="Nhập họ tên bố"
+                      disabled={viewOnly}
                     />
 
                     <FormInput
@@ -355,6 +532,7 @@ const StudentHealthProfile = () => {
                       onChange={handleChange}
                       required
                       placeholder="Nhập số điện thoại bố"
+                      disabled={viewOnly}
                     />
 
                     <FormInput
@@ -365,6 +543,7 @@ const StudentHealthProfile = () => {
                       onChange={handleChange}
                       required
                       placeholder="Nhập họ tên mẹ"
+                      disabled={viewOnly}
                     />
 
                     <FormInput
@@ -375,6 +554,7 @@ const StudentHealthProfile = () => {
                       onChange={handleChange}
                       required
                       placeholder="Nhập số điện thoại mẹ"
+                      disabled={viewOnly}
                     />
 
                     <FormInput
@@ -384,6 +564,7 @@ const StudentHealthProfile = () => {
                       value={formData.emergencyContact}
                       onChange={handleChange}
                       placeholder="Nhập tên và số điện thoại liên hệ khẩn cấp"
+                      disabled={viewOnly}
                     />
                   </div>
                 </div>
@@ -429,6 +610,7 @@ const StudentHealthProfile = () => {
                           }
                           onChange={handleChange}
                           className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          disabled={viewOnly}
                         />
                         <span className="ml-2 text-gray-700">Không</span>
                       </label>
@@ -443,6 +625,7 @@ const StudentHealthProfile = () => {
                           }
                           onChange={handleChange}
                           className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          disabled={viewOnly}
                         />
                         <span className="ml-2 text-gray-700">Có</span>
                       </label>
@@ -462,6 +645,7 @@ const StudentHealthProfile = () => {
                           formData.medicalHistory.hasPreviousTreatment === "yes"
                         }
                         placeholder="Mô tả chi tiết về các bệnh đã mắc phải, thời gian mắc bệnh, quá trình điều trị, và kết quả điều trị"
+                        disabled={viewOnly}
                       />
                     </div>
                   )}
@@ -508,6 +692,7 @@ const StudentHealthProfile = () => {
                           }
                           onChange={handleChange}
                           className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          disabled={viewOnly}
                         />
                         <span className="ml-2 text-gray-700">
                           Đã tiêm đầy đủ
@@ -524,6 +709,7 @@ const StudentHealthProfile = () => {
                           }
                           onChange={handleChange}
                           className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          disabled={viewOnly}
                         />
                         <span className="ml-2 text-gray-700">
                           Đã tiêm một phần
@@ -540,6 +726,7 @@ const StudentHealthProfile = () => {
                           }
                           onChange={handleChange}
                           className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          disabled={viewOnly}
                         />
                         <span className="ml-2 text-gray-700">Chưa tiêm</span>
                       </label>
@@ -569,6 +756,7 @@ const StudentHealthProfile = () => {
                               )}
                               onChange={handleVaccinationChange}
                               className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                              disabled={viewOnly}
                             />
                             <span className="ml-2 text-gray-700">
                               {vaccine.name}
@@ -586,6 +774,7 @@ const StudentHealthProfile = () => {
                           value={formData.vaccinationHistory.vaccinationDetails}
                           onChange={handleChange}
                           placeholder="Ghi chú thêm về lịch tiêm chủng (nếu có), các phản ứng sau tiêm, hoặc các loại vắc-xin khác không có trong danh sách"
+                          disabled={viewOnly}
                         />
                       </div>
                     </div>
@@ -639,6 +828,7 @@ const StudentHealthProfile = () => {
                             checked={formData.vision.hasVisionIssues === "no"}
                             onChange={handleChange}
                             className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                            disabled={viewOnly}
                           />
                           <span className="ml-2 text-gray-700">Không</span>
                         </label>
@@ -650,6 +840,7 @@ const StudentHealthProfile = () => {
                             checked={formData.vision.hasVisionIssues === "yes"}
                             onChange={handleChange}
                             className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                            disabled={viewOnly}
                           />
                           <span className="ml-2 text-gray-700">Có</span>
                         </label>
@@ -666,6 +857,7 @@ const StudentHealthProfile = () => {
                           onChange={handleChange}
                           required={formData.vision.hasVisionIssues === "yes"}
                           placeholder="Ví dụ: 20/20, 6/6, hoặc các chỉ số khác"
+                          disabled={viewOnly}
                         />
 
                         <FormInput
@@ -676,6 +868,7 @@ const StudentHealthProfile = () => {
                           onChange={handleChange}
                           required={formData.vision.hasVisionIssues === "yes"}
                           placeholder="Ví dụ: 20/20, 6/6, hoặc các chỉ số khác"
+                          disabled={viewOnly}
                         />
 
                         <div className="md:col-span-2">
@@ -687,6 +880,7 @@ const StudentHealthProfile = () => {
                             value={formData.vision.visionNotes}
                             onChange={handleChange}
                             placeholder="Mô tả về tình trạng thị lực (cận thị, viễn thị, loạn thị), có đeo kính không, các vấn đề khác liên quan đến mắt"
+                            disabled={viewOnly}
                           />
                         </div>
                       </div>
@@ -710,6 +904,7 @@ const StudentHealthProfile = () => {
                             checked={formData.hearing.hasHearingIssues === "no"}
                             onChange={handleChange}
                             className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                            disabled={viewOnly}
                           />
                           <span className="ml-2 text-gray-700">Không</span>
                         </label>
@@ -723,6 +918,7 @@ const StudentHealthProfile = () => {
                             }
                             onChange={handleChange}
                             className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                            disabled={viewOnly}
                           />
                           <span className="ml-2 text-gray-700">Có</span>
                         </label>
@@ -739,6 +935,7 @@ const StudentHealthProfile = () => {
                           onChange={handleChange}
                           required={formData.hearing.hasHearingIssues === "yes"}
                           placeholder="Nhập chỉ số thính lực tai trái"
+                          disabled={viewOnly}
                         />
 
                         <FormInput
@@ -749,6 +946,7 @@ const StudentHealthProfile = () => {
                           onChange={handleChange}
                           required={formData.hearing.hasHearingIssues === "yes"}
                           placeholder="Nhập chỉ số thính lực tai phải"
+                          disabled={viewOnly}
                         />
 
                         <div className="md:col-span-2">
@@ -760,6 +958,7 @@ const StudentHealthProfile = () => {
                             value={formData.hearing.hearingNotes}
                             onChange={handleChange}
                             placeholder="Mô tả về tình trạng thính lực, có sử dụng thiết bị trợ thính không, các vấn đề khác liên quan đến tai"
+                            disabled={viewOnly}
                           />
                         </div>
                       </div>
@@ -804,6 +1003,7 @@ const StudentHealthProfile = () => {
                           checked={formData.allergies.hasAllergies === "no"}
                           onChange={handleChange}
                           className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          disabled={viewOnly}
                         />
                         <span className="ml-2 text-gray-700">Không</span>
                       </label>
@@ -815,6 +1015,7 @@ const StudentHealthProfile = () => {
                           checked={formData.allergies.hasAllergies === "yes"}
                           onChange={handleChange}
                           className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          disabled={viewOnly}
                         />
                         <span className="ml-2 text-gray-700">Có</span>
                       </label>
@@ -832,6 +1033,7 @@ const StudentHealthProfile = () => {
                         onChange={handleChange}
                         required={formData.allergies.hasAllergies === "yes"}
                         placeholder="Mô tả chi tiết về tình trạng dị ứng, nguyên nhân gây dị ứng (thực phẩm, thuốc, phấn hoa...), mức độ nghiêm trọng, và cách xử lý khi xảy ra dị ứng"
+                        disabled={viewOnly}
                       />
                     </div>
                   )}
@@ -874,6 +1076,7 @@ const StudentHealthProfile = () => {
                           checked={formData.chronicDiseases.hasChronic === "no"}
                           onChange={handleChange}
                           className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                          disabled={viewOnly}
                         />
                         <span className="ml-2 text-gray-700">Không</span>
                       </label>
@@ -978,14 +1181,57 @@ const StudentHealthProfile = () => {
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="flex justify-center pt-6">
-                <button
-                  type="submit"
-                  className="px-10 py-3 bg-blue-600 text-white text-lg font-medium rounded-md shadow-md hover:bg-blue-700 transition-colors"
+              {/* Submit Button Section */}
+              <div className="flex justify-end pt-6">
+                {viewOnly ? (
+                  <Link
+                    to={`/parent/health-profile/edit/${id}`}
+                    className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-medium rounded-lg shadow-md transition-colors duration-200 mr-4"
+                  >
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                      />
+                    </svg>
+                    Chỉnh sửa hồ sơ
+                  </Link>
+                ) : (
+                  <button
+                    type="submit"
+                    className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-medium rounded-lg shadow-md transition-colors duration-200"
+                  >
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {id ? "Cập nhật hồ sơ" : "Tạo hồ sơ mới"}
+                  </button>
+                )}
+                <Link
+                  to="/parent/health-profile"
+                  className="inline-flex items-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 text-base font-medium rounded-lg shadow-sm transition-colors duration-200 ml-4"
                 >
-                  Lưu hồ sơ sức khỏe
-                </button>
+                  {viewOnly ? "Quay lại" : "Hủy"}
+                </Link>
               </div>
             </div>
           </form>
