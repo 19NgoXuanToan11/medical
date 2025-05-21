@@ -46,6 +46,10 @@ import UserRoles from "./pages/admin/UserManagement/UserRoles";
 import UserPermissions from "./pages/admin/UserManagement/UserPermissions";
 import NewUser from "./pages/admin/UserManagement/NewUser";
 
+// Import Teacher and Student components
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import StudentDashboard from "./pages/student/StudentDashboard";
+
 function App() {
   return (
     <div>
@@ -228,6 +232,76 @@ function App() {
           <Route
             path="/staff/health-check/:checkId/edit"
             element={<HealthCheckManagement />}
+          />
+
+          {/* Teacher Routes */}
+          <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+          <Route
+            path="/teacher/health-report/new"
+            element={
+              <div className="p-8">
+                Form báo cáo sức khỏe học sinh mới (đang phát triển)
+              </div>
+            }
+          />
+          <Route
+            path="/teacher/medical-pass"
+            element={
+              <div className="p-8">
+                Tạo phiếu xin phép đến phòng y tế (đang phát triển)
+              </div>
+            }
+          />
+          <Route
+            path="/teacher/notifications"
+            element={
+              <div className="p-8">
+                Thông báo y tế cho giáo viên (đang phát triển)
+              </div>
+            }
+          />
+          <Route
+            path="/teacher/student/:id"
+            element={
+              <div className="p-8">Chi tiết học sinh (đang phát triển)</div>
+            }
+          />
+          <Route
+            path="/teacher/health-report/:id"
+            element={
+              <div className="p-8">Chi tiết báo cáo y tế (đang phát triển)</div>
+            }
+          />
+
+          {/* Student Routes */}
+          <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route
+            path="/student/health-profile"
+            element={
+              <div className="p-8">
+                Hồ sơ sức khỏe của học sinh (đang phát triển)
+              </div>
+            }
+          />
+          <Route
+            path="/student/report-symptom"
+            element={
+              <div className="p-8">Báo cáo triệu chứng (đang phát triển)</div>
+            }
+          />
+          <Route
+            path="/student/request-visit"
+            element={
+              <div className="p-8">Yêu cầu gặp y tá (đang phát triển)</div>
+            }
+          />
+          <Route
+            path="/student/health-events"
+            element={
+              <div className="p-8">
+                Sự kiện y tế của học sinh (đang phát triển)
+              </div>
+            }
           />
         </Route>
       </Routes>

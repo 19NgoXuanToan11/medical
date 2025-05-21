@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import medicalVideo from "../../../../public/videos/login.mp4";
+import { useAuth, ROLES } from "../../../utils/AuthContext";
 
 const Login = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { loginWithRole } = useAuth();
 
   // Get role from URL parameter if available
   const getInitialRole = () => {
@@ -18,6 +21,9 @@ const Login = () => {
     role: getInitialRole(),
   });
 
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   // Update role if URL parameter changes
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -30,21 +36,65 @@ const Login = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user changes input
+    if (error) setError("");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically handle login logic with role
-    console.log("Login attempt with:", formData);
+    setIsLoading(true);
+    setError("");
+
+    // Map form roles to our ROLES constant
+    const roleMapping = {
+      student: ROLES.STUDENT,
+      parent: ROLES.PARENT,
+      admin: ROLES.ADMIN,
+      nurse: ROLES.STAFF,
+      teacher: ROLES.TEACHER,
+    };
+
+    // Simple validation for demo
+    if (formData.username.trim() === "" || formData.password.trim() === "") {
+      setError("Vui lòng nhập tên đăng nhập và mật khẩu");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      // In a real app, you would call an API here
+      setTimeout(() => {
+        // For the demo, we'll use a mock login function
+        const mappedRole = roleMapping[formData.role];
+        loginWithRole(mappedRole);
+
+        // Redirect to the appropriate dashboard based on role
+        const redirectMap = {
+          [ROLES.ADMIN]: "/admin/dashboard",
+          [ROLES.STAFF]: "/staff/medication",
+          [ROLES.TEACHER]: "/teacher/dashboard",
+          [ROLES.PARENT]: "/parent/dashboard",
+          [ROLES.STUDENT]: "/student/dashboard",
+        };
+
+        navigate(redirectMap[mappedRole]);
+        setIsLoading(false);
+      }, 1000); // Simulating API delay
+    } catch (err) {
+      setError(
+        "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập."
+      );
+      setIsLoading(false);
+    }
   };
 
   // Available roles in the system
   const roles = [
-    { id: "student", label: "Student" },
-    { id: "parent", label: "Parent" },
-    { id: "admin", label: "Administrator" },
-    { id: "manager", label: "School Manager" },
-    { id: "nurse", label: "School Nurse" },
+    { id: "student", label: "Học sinh" },
+    { id: "parent", label: "Phụ huynh" },
+    { id: "teacher", label: "Giáo viên" },
+    { id: "nurse", label: "Nhân viên y tế" },
+    { id: "admin", label: "Quản trị viên" },
   ];
 
   return (
@@ -78,16 +128,24 @@ const Login = () => {
           >
             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
           </svg>
-          Back to Home
+          Trang chủ
         </Link>
 
         <div className="w-4/5 max-w-md mx-auto py-12 px-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome Back
+              Chào mừng trở lại
             </h1>
-            <p className="text-gray-600">Sign in to access your account</p>
+            <p className="text-gray-600">
+              Đăng nhập để truy cập tài khoản của bạn
+            </p>
           </div>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Role Selection */}
@@ -96,7 +154,7 @@ const Login = () => {
                 htmlFor="role"
                 className="text-sm font-medium text-gray-700"
               >
-                I am a
+                Tôi là
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -149,7 +207,7 @@ const Login = () => {
                 htmlFor="username"
                 className="text-sm font-medium text-gray-700"
               >
-                Username
+                Tên đăng nhập
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -174,7 +232,7 @@ const Login = () => {
                   onChange={handleChange}
                   required
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
-                  placeholder="Enter your username"
+                  placeholder="Nhập tên đăng nhập"
                 />
               </div>
             </div>
@@ -184,7 +242,7 @@ const Login = () => {
                 htmlFor="password"
                 className="text-sm font-medium text-gray-700"
               >
-                Password
+                Mật khẩu
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -226,7 +284,7 @@ const Login = () => {
                   htmlFor="remember-me"
                   className="ml-2 block text-sm text-gray-700"
                 >
-                  Remember me
+                  Ghi nhớ đăng nhập
                 </label>
               </div>
 
@@ -235,7 +293,7 @@ const Login = () => {
                   href="#"
                   className="font-medium text-indigo-600 hover:text-indigo-500"
                 >
-                  Forgot password?
+                  Quên mật khẩu?
                 </a>
               </div>
             </div>
@@ -243,21 +301,48 @@ const Login = () => {
             <div>
               <button
                 type="submit"
-                className="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300"
+                disabled={isLoading}
+                className="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Sign In
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Đang xử lý...
+                  </span>
+                ) : (
+                  "Đăng nhập"
+                )}
               </button>
             </div>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
+              Chưa có tài khoản?{" "}
               <Link
                 to="/register"
                 className="font-medium text-indigo-600 hover:text-indigo-500"
               >
-                Register
+                Đăng ký
               </Link>
             </p>
           </div>
