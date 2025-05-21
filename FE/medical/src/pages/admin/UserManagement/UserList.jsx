@@ -7,6 +7,8 @@ import {
   FiTrash2,
   FiSearch,
   FiFilter,
+  FiSave,
+  FiX,
 } from "react-icons/fi";
 
 const UserList = () => {
@@ -20,6 +22,17 @@ const UserList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sortColumn, setSortColumn] = useState("name");
   const [sortDirection, setSortDirection] = useState("asc");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "parent",
+    status: "active",
+  });
+  const [formErrors, setFormErrors] = useState({});
 
   // Mock data - in a real application, this would come from an API
   useEffect(() => {
@@ -269,6 +282,103 @@ const UserList = () => {
     }
   };
 
+  // Handle input change in form
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Clear error when field is edited
+    if (formErrors[name]) {
+      setFormErrors({ ...formErrors, [name]: undefined });
+    }
+  };
+
+  // Validate form
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Vui lòng nhập họ tên";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Vui lòng nhập email";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Vui lòng nhập mật khẩu";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+    }
+
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle form submission
+  const handleAddUser = (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    // In a real app, submit to API
+    // For mock data, create a new user and add to the list
+    const newUser = {
+      id: users.length + 1,
+      name: formData.name,
+      email: formData.email,
+      role: formData.role,
+      status: formData.status,
+      lastLogin: null,
+      createdAt: new Date().toISOString(),
+    };
+
+    setUsers([...users, newUser]);
+
+    // Reset form and close modal
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      role: "parent",
+      status: "active",
+    });
+    setShowAddModal(false);
+  };
+
+  // Open add user modal
+  const openAddModal = () => {
+    // Set available roles
+    setRoles([
+      { id: 1, name: "admin", label: "Quản trị viên" },
+      { id: 2, name: "staff", label: "Nhân viên y tế" },
+      { id: 3, name: "teacher", label: "Giáo viên" },
+      { id: 4, name: "parent", label: "Phụ huynh" },
+    ]);
+
+    // Reset form
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      role: "parent",
+      status: "active",
+    });
+    setFormErrors({});
+
+    setShowAddModal(true);
+  };
+
   return (
     <>
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
@@ -281,13 +391,13 @@ const UserList = () => {
           </p>
         </div>
         <div>
-          <Link
-            to="/admin/users/new"
+          <button
+            onClick={openAddModal}
             className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <FiPlus className="mr-2" />
             Thêm người dùng mới
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -621,10 +731,217 @@ const UserList = () => {
         )}
       </div>
 
+      {/* Add User Modal */}
+      {showAddModal && (
+        <div className="fixed z-40 inset-0 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity"
+              aria-hidden="true"
+              onClick={() => setShowAddModal(false)}
+            >
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+
+            <span
+              className="hidden sm:inline-block sm:align-middle sm:h-screen"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+
+            <div
+              className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <form onSubmit={handleAddUser}>
+                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      Thêm người dùng mới
+                    </h3>
+                    <div className="mt-4 space-y-4">
+                      {/* Họ tên */}
+                      <div>
+                        <label
+                          htmlFor="name"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          Họ tên
+                        </label>
+                        <input
+                          type="text"
+                          id="name"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          className={`mt-1 block w-full px-3 py-2 border ${
+                            formErrors.name
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                        />
+                        {formErrors.name && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {formErrors.name}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Email */}
+                      <div>
+                        <label
+                          htmlFor="email"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          id="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className={`mt-1 block w-full px-3 py-2 border ${
+                            formErrors.email
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                        />
+                        {formErrors.email && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {formErrors.email}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Mật khẩu */}
+                      <div>
+                        <label
+                          htmlFor="password"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          Mật khẩu
+                        </label>
+                        <input
+                          type="password"
+                          id="password"
+                          name="password"
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          className={`mt-1 block w-full px-3 py-2 border ${
+                            formErrors.password
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                        />
+                        {formErrors.password && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {formErrors.password}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Xác nhận mật khẩu */}
+                      <div>
+                        <label
+                          htmlFor="confirmPassword"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          Xác nhận mật khẩu
+                        </label>
+                        <input
+                          type="password"
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleInputChange}
+                          className={`mt-1 block w-full px-3 py-2 border ${
+                            formErrors.confirmPassword
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                        />
+                        {formErrors.confirmPassword && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {formErrors.confirmPassword}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Vai trò */}
+                      <div>
+                        <label
+                          htmlFor="role"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          Vai trò
+                        </label>
+                        <select
+                          id="role"
+                          name="role"
+                          value={formData.role}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          {roles.map((role) => (
+                            <option key={role.id} value={role.name}>
+                              {role.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Trạng thái */}
+                      <div>
+                        <label
+                          htmlFor="status"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          Trạng thái
+                        </label>
+                        <select
+                          id="status"
+                          name="status"
+                          value={formData.status}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="active">Đang hoạt động</option>
+                          <option value="inactive">Không hoạt động</option>
+                          <option value="pending">Chờ xác nhận</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="submit"
+                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  >
+                    <FiSave className="mr-2" />
+                    Thêm
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddModal(false)}
+                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  >
+                    <FiX className="mr-2" />
+                    Hủy
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete User Modal */}
       {showDeleteModal && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div className="fixed z-40 inset-0 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
             <div
               className="fixed inset-0 transition-opacity"
               aria-hidden="true"
@@ -640,7 +957,10 @@ const UserList = () => {
               &#8203;
             </span>
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div
+              className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">

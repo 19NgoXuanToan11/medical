@@ -21,6 +21,9 @@ import MedicationAdminister from "./pages/staff/medication/MedicationAdminister"
 import MedicalInventory from "./pages/staff/medication/MedicalInventory";
 import InventoryTransaction from "./pages/staff/medication/InventoryTransaction";
 import TransactionHistory from "./pages/staff/medication/TransactionHistory";
+import AddMedicalItem from "./pages/staff/medication/AddMedicalItem";
+import MedicalItemDetail from "./pages/staff/medication/MedicalItemDetail";
+import EditMedicalItem from "./pages/staff/medication/EditMedicalItem";
 import HealthEventList from "./pages/staff/health-events/HealthEventList";
 import HealthEventForm from "./pages/staff/health-events/HealthEventForm";
 import HealthEventDetail from "./pages/staff/health-events/HealthEventDetail";
@@ -41,6 +44,7 @@ import UserManagement from "./pages/admin/UserManagement";
 import UserList from "./pages/admin/UserManagement/UserList";
 import UserRoles from "./pages/admin/UserManagement/UserRoles";
 import UserPermissions from "./pages/admin/UserManagement/UserPermissions";
+import NewUser from "./pages/admin/UserManagement/NewUser";
 
 function App() {
   return (
@@ -62,6 +66,8 @@ function App() {
             <Route path="roles" element={<UserRoles />} />
             <Route path="permissions" element={<UserPermissions />} />
           </Route>
+
+          <Route path="/admin/users/new" element={<NewUser />} />
 
           <Route path="/admin/reports" element={<ReportsAnalytics />} />
         </Route>
@@ -147,6 +153,18 @@ function App() {
           <Route
             path="/staff/medication/inventory"
             element={<MedicalInventory />}
+          />
+          <Route
+            path="/staff/medication/inventory/add"
+            element={<AddMedicalItem />}
+          />
+          <Route
+            path="/staff/medication/inventory/detail/:id"
+            element={<MedicalItemDetail />}
+          />
+          <Route
+            path="/staff/medication/inventory/edit/:id"
+            element={<EditMedicalItem />}
           />
           <Route
             path="/staff/medication/inventory/transaction"
