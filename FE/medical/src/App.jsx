@@ -109,6 +109,14 @@ function App() {
             path="/parent/health-profile"
             element={<HealthProfileList />}
           />
+          <Route
+            path="/parent/health-profile/:id"
+            element={<StudentHealthProfile viewOnly={true} />}
+          />
+          <Route
+            path="/parent/health-profile/edit/:id"
+            element={<StudentHealthProfile />}
+          />
 
           {/* Parent Medication Routes */}
           <Route

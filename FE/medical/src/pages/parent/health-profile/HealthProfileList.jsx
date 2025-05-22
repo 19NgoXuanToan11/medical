@@ -154,7 +154,7 @@ const HealthProfileList = () => {
             </span>
             <span className="font-medium">Quay lại trang chủ</span>
           </Link>
-          <div className="bg-blue-600 text-white py-1 px-3 rounded-full text-sm font-medium">
+          <div className="bg-blue-600 text-white py-1.5 px-4 rounded-full text-sm font-medium">
             Hồ sơ sức khỏe
           </div>
         </div>
@@ -186,7 +186,7 @@ const HealthProfileList = () => {
               </p>
               <Link
                 to="/parent/health-profile/new"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-200"
+                className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-base font-medium rounded-lg shadow-md transition-colors duration-200"
               >
                 <svg
                   className="w-5 h-5 mr-2"
@@ -253,11 +253,11 @@ const HealthProfileList = () => {
                     <div className="flex justify-between pt-3 border-t border-gray-100">
                       <Link
                         to={`/parent/health-profile/${profile.id}`}
-                        className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center transition-colors duration-200"
                       >
-                        Xem chi tiết
+                        <span className="mr-1">Xem chi tiết</span>
                         <svg
-                          className="w-4 h-4 ml-1"
+                          className="w-4 h-4"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -267,17 +267,23 @@ const HealthProfileList = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M9 5l7 7-7 7"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                           />
                         </svg>
                       </Link>
                       <Link
                         to={`/parent/health-profile/edit/${profile.id}`}
-                        className="text-sm text-gray-600 hover:text-gray-800 font-medium flex items-center"
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center transition-colors duration-200"
                       >
-                        Cập nhật
+                        <span className="mr-1">Cập nhật</span>
                         <svg
-                          className="w-4 h-4 ml-1"
+                          className="w-4 h-4"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
