@@ -281,12 +281,12 @@ const Features = () => {
             {/* Text Content - On the left for this section */}
             <div className="w-full md:w-1/2 pr-0 md:pr-8 mb-8 md:mb-0">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
-                Chăm sóc sức khỏe lấy học sinh làm trung tâm
+                Sức khỏe học đường lấy học sinh làm trọng tâm
               </h2>
               <p className="text-lg text-gray-700 mb-8">
-                Chúng tôi cung cấp giải pháp y tế đáng tin cậy, hỗ trợ học sinh
-                phát triển toàn diện trong môi trường học đường an toàn và lành
-                mạnh.
+                Nền tảng của chúng tôi mang đến dịch vụ y tế an toàn, đồng hành
+                cùng học sinh phát triển toàn diện trong môi trường giáo dục
+                thân thiện và bảo vệ sức khỏe.
               </p>
               <button className="border border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg text-base font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-200">
                 Tìm hiểu thêm

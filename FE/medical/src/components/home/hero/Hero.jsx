@@ -33,24 +33,6 @@ const Hero = () => {
         {/* Call-to-action buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mt-2">
           <Link
-            to="/role-selection"
-            className="px-8 py-3 bg-indigo-600 text-white font-medium rounded-lg shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105 flex items-center justify-center"
-          >
-            <span>Bắt Đầu Ngay</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 ml-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </Link>
-          <Link
             to="/login"
             className="px-8 py-3 bg-transparent text-white font-medium border border-white rounded-lg hover:bg-white/10 transition duration-300 flex items-center justify-center"
           >
