@@ -37,6 +37,7 @@ import VaccinationConsent from "./pages/parent/VaccinationConsent";
 import HealthCheckManagement from "./pages/staff/HealthCheckManagement";
 import HealthCheckExecution from "./pages/staff/HealthCheckExecution";
 import HealthCheckResults from "./pages/staff/HealthCheckResults";
+import HealthCheckForm from "./pages/staff/HealthCheckForm";
 import HealthCheckConfirmation from "./pages/parent/HealthCheckConfirmation";
 // Import admin components
 import { AdminDashboard, ReportsAnalytics } from "./pages/admin";
@@ -225,10 +226,7 @@ function App() {
             path="/staff/health-check"
             element={<HealthCheckManagement />}
           />
-          <Route
-            path="/staff/health-check/new"
-            element={<HealthCheckManagement />}
-          />
+          <Route path="/staff/health-check/new" element={<HealthCheckForm />} />
           <Route
             path="/staff/health-check/:checkId"
             element={<HealthCheckExecution />}
