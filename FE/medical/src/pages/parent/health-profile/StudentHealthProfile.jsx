@@ -469,7 +469,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                       label="Tuổi"
                       value={formData.age}
                       onChange={handleChange}
-                      placeholder="Tuổi sẽ được tính tự động"
+                      placeholder="Nhập số"
                       disabled={viewOnly}
                     />
 

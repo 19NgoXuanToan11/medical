@@ -454,19 +454,6 @@ const HealthEventForm = () => {
                     ]}
                   />
                 </div>
-
-                <div className="mb-4">
-                  <FormInput
-                    id="parentResponse"
-                    name="parentResponse"
-                    label="Phản hồi của phụ huynh"
-                    type="textarea"
-                    value={formData.parentResponse}
-                    onChange={handleChange}
-                    placeholder="Ghi nhận phản hồi của phụ huynh..."
-                    error={formErrors.parentResponse}
-                  />
-                </div>
               </>
             )}
           </div>
@@ -478,7 +465,7 @@ const HealthEventForm = () => {
 
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Đính kèm hình ảnh, tài liệu
+                Đính kèm hình ảnh
               </label>
               <div className="flex items-center justify-center w-full">
                 <label className="flex flex-col w-full h-32 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">

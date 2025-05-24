@@ -51,7 +51,7 @@ const Login = () => {
       parent: ROLES.PARENT,
       admin: ROLES.ADMIN,
       nurse: ROLES.STAFF,
-      teacher: ROLES.TEACHER,
+      manager: ROLES.MANAGER,
     };
 
     // Simple validation for demo
@@ -72,7 +72,7 @@ const Login = () => {
         const redirectMap = {
           [ROLES.ADMIN]: "/admin/dashboard",
           [ROLES.STAFF]: "/staff/medication",
-          [ROLES.TEACHER]: "/teacher/dashboard",
+          [ROLES.MANAGER]: "/manager/dashboard",
           [ROLES.PARENT]: "/parent/dashboard",
           [ROLES.STUDENT]: "/student/dashboard",
         };
@@ -92,7 +92,7 @@ const Login = () => {
   const roles = [
     { id: "student", label: "Học sinh" },
     { id: "parent", label: "Phụ huynh" },
-    { id: "teacher", label: "Giáo viên" },
+    { id: "manager", label: "Quản lý" },
     { id: "nurse", label: "Nhân viên y tế" },
     { id: "admin", label: "Quản trị viên" },
   ];
