@@ -1,0 +1,14 @@
+D:\Med_API\DB\bin\Debug\net8.0\DB.deps.json
+D:\Med_API\DB\bin\Debug\net8.0\DB.runtimeconfig.json
+D:\Med_API\DB\bin\Debug\net8.0\DB.dll
+D:\Med_API\DB\bin\Debug\net8.0\DB.pdb
+D:\Med_API\DB\obj\Debug\net8.0\DB.csproj.AssemblyReference.cache
+D:\Med_API\DB\obj\Debug\net8.0\DB.GeneratedMSBuildEditorConfig.editorconfig
+D:\Med_API\DB\obj\Debug\net8.0\DB.AssemblyInfoInputs.cache
+D:\Med_API\DB\obj\Debug\net8.0\DB.AssemblyInfo.cs
+D:\Med_API\DB\obj\Debug\net8.0\DB.csproj.CoreCompileInputs.cache
+D:\Med_API\DB\obj\Debug\net8.0\DB.dll
+D:\Med_API\DB\obj\Debug\net8.0\refint\DB.dll
+D:\Med_API\DB\obj\Debug\net8.0\DB.pdb
+D:\Med_API\DB\obj\Debug\net8.0\DB.genruntimeconfig.cache
+D:\Med_API\DB\obj\Debug\net8.0\ref\DB.dll

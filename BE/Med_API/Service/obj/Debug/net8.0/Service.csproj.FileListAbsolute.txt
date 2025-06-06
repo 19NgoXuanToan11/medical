@@ -1,0 +1,17 @@
+D:\Med_API\Service\bin\Debug\net8.0\Service.deps.json
+D:\Med_API\Service\bin\Debug\net8.0\Service.dll
+D:\Med_API\Service\bin\Debug\net8.0\Service.pdb
+D:\Med_API\Service\bin\Debug\net8.0\DB.dll
+D:\Med_API\Service\bin\Debug\net8.0\Repo.dll
+D:\Med_API\Service\bin\Debug\net8.0\Repo.pdb
+D:\Med_API\Service\bin\Debug\net8.0\DB.pdb
+D:\Med_API\Service\obj\Debug\net8.0\Service.csproj.AssemblyReference.cache
+D:\Med_API\Service\obj\Debug\net8.0\Service.GeneratedMSBuildEditorConfig.editorconfig
+D:\Med_API\Service\obj\Debug\net8.0\Service.AssemblyInfoInputs.cache
+D:\Med_API\Service\obj\Debug\net8.0\Service.AssemblyInfo.cs
+D:\Med_API\Service\obj\Debug\net8.0\Service.csproj.CoreCompileInputs.cache
+D:\Med_API\Service\obj\Debug\net8.0\Service.csproj.Up2Date
+D:\Med_API\Service\obj\Debug\net8.0\Service.dll
+D:\Med_API\Service\obj\Debug\net8.0\refint\Service.dll
+D:\Med_API\Service\obj\Debug\net8.0\Service.pdb
+D:\Med_API\Service\obj\Debug\net8.0\ref\Service.dll

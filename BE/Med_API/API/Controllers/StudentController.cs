@@ -1,0 +1,114 @@
+using Microsoft.AspNetCore.Mvc;
+using API.DTOs;
+using AutoMapper;
+using DB; // Assuming your DB entities are in the DB namespace
+using Service; // Reference to your Service layer
+
+namespace API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class StudentController : ControllerBase
+{
+    private readonly IMapper _mapper;
+    private readonly IStudentService _studentService;
+
+    public StudentController(IMapper mapper, IStudentService studentService)
+    {
+        _mapper = mapper;
+        _studentService = studentService;
+    }
+
+    // GET: api/Student
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<StudentDto.ViewModel>>> GetStudents()
+    {
+        var students = await _studentService.GetAllStudentsAsync();
+        var studentViewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(students);
+        return Ok(studentViewModels);
+    }
+
+    // GET: api/Student/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<StudentDto.ViewModel>> GetStudent(int id)
+    {
+        var student = await _studentService.GetStudentByIdAsync(id);
+
+        if (student == null)
+        {
+            return NotFound();
+        }
+
+        var studentViewModel = _mapper.Map<StudentDto.ViewModel>(student);
+        return Ok(studentViewModel);
+    }
+
+    // POST: api/Student
+    [HttpPost]
+    public async Task<ActionResult<StudentDto.ViewModel>> CreateStudent(StudentDto.Create createDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var student = _mapper.Map<Student>(createDto);
+        var createdStudent = await _studentService.CreateStudentAsync(student);
+
+        if (createdStudent == null)
+        {
+            // Assuming null indicates a conflict like duplicate student code
+            return Conflict("Student with the same code already exists.");
+        }
+
+        var studentViewModel = _mapper.Map<StudentDto.ViewModel>(createdStudent);
+        return CreatedAtAction(nameof(GetStudent), new { id = studentViewModel.StudentId }, studentViewModel);
+    }
+
+    // PUT: api/Student/5
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateStudent(int id, StudentDto.Update updateDto)
+    {
+        if (id != updateDto.StudentId)
+        {
+            return BadRequest("Student ID mismatch.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var existingStudent = await _studentService.GetStudentByIdAsync(id);
+        if (existingStudent == null)
+        {
+            return NotFound();
+        }
+
+        _mapper.Map(updateDto, existingStudent);
+
+        var success = await _studentService.UpdateStudentAsync(existingStudent);
+
+        if (!success)
+        {
+             // Assuming false indicates a conflict like duplicate student code or not found (though we already checked for not found)
+            return Conflict("Could not update student, possibly due to a duplicate student code.");
+        }
+
+        return NoContent();
+    }
+
+    // DELETE: api/Student/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteStudent(int id)
+    {
+        var success = await _studentService.DeleteStudentAsync(id);
+
+        if (!success)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+} 
