@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "cI8Fo8D76ng=",
+  "dgSpecHash": "QsBUVhcIpHg=",
   "success": true,
-  "projectFilePath": "D:\\Med_API\\DB\\DB.csproj",
+  "projectFilePath": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\lequa\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\lequa\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",

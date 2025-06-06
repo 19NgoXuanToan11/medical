@@ -221,13 +221,13 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.Treatment).HasMaxLength(1000);
 
             entity.HasOne(d => d.Staff)
-                .WithMany()
+                .WithMany(p => p.HealthEvents)
                 .HasForeignKey(d => d.StaffId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK__Health_Event__StaffID");
 
             entity.HasOne(d => d.Student)
-                .WithMany()
+                .WithMany(p => p.HealthEvents)
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK__Health_Event__StudentID");
@@ -272,7 +272,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.Weight).HasColumnType("decimal(5, 2)");
 
             entity.HasOne(d => d.Student)
-                .WithMany()
+                .WithMany(p => p.HealthProfiles)
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK__Health_Profile__StudentID");
@@ -508,13 +508,13 @@ public partial class MedicalContext : DbContext
                 .HasConstraintName("FK__Request_Result__RequestID");
 
             entity.HasOne(d => d.AdministeredByStaff)
-                .WithMany()
+                .WithMany(p => p.AdministeredRequestResults)
                 .HasForeignKey(d => d.AdministeredBy)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK__Request_Result__AdministeredBy");
 
             entity.HasOne(d => d.ActionByStaff)
-                .WithMany()
+                .WithMany(p => p.ActionedRequestResults)
                 .HasForeignKey(d => d.ActionBy)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK__Request_Result__ActionBy");

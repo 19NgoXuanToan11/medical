@@ -4685,11 +4685,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Med_API\\API\\API.csproj",
+      "projectUniqueName": "D:\\medical\\BE\\Med_API\\API\\API.csproj",
       "projectName": "API",
-      "projectPath": "D:\\Med_API\\API\\API.csproj",
+      "projectPath": "D:\\medical\\BE\\Med_API\\API\\API.csproj",
       "packagesPath": "C:\\Users\\lequa\\.nuget\\packages\\",
-      "outputPath": "D:\\Med_API\\API\\obj\\",
+      "outputPath": "D:\\medical\\BE\\Med_API\\API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -4710,11 +4710,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\Med_API\\DB\\DB.csproj": {
-              "projectPath": "D:\\Med_API\\DB\\DB.csproj"
+            "D:\\medical\\BE\\Med_API\\DB\\DB.csproj": {
+              "projectPath": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj"
             },
-            "D:\\Med_API\\Service\\Service.csproj": {
-              "projectPath": "D:\\Med_API\\Service\\Service.csproj"
+            "D:\\medical\\BE\\Med_API\\Service\\Service.csproj": {
+              "projectPath": "D:\\medical\\BE\\Med_API\\Service\\Service.csproj"
             }
           }
         }

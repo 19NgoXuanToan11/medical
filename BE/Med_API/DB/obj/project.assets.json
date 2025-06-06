@@ -4090,11 +4090,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Med_API\\DB\\DB.csproj",
+      "projectUniqueName": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj",
       "projectName": "DB",
-      "projectPath": "D:\\Med_API\\DB\\DB.csproj",
+      "projectPath": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj",
       "packagesPath": "C:\\Users\\lequa\\.nuget\\packages\\",
-      "outputPath": "D:\\Med_API\\DB\\obj\\",
+      "outputPath": "D:\\medical\\BE\\Med_API\\DB\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Se24tGeqwB4=",
+  "dgSpecHash": "s/O6X7nkrP0=",
   "success": true,
-  "projectFilePath": "D:\\Med_API\\API\\API.csproj",
+  "projectFilePath": "D:\\medical\\BE\\Med_API\\API\\API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\lequa\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\lequa\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
