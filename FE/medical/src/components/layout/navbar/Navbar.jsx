@@ -318,11 +318,11 @@ const Navbar = () => {
                       Quản lý tiêm chủng
                     </Link>
                     <Link
-                      to="/staff/vaccination/flow"
+                      to="/parent/vaccination"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
                       role="menuitem"
                     >
-                      Quy trình tiêm chủng
+                      Quản lý tiêm chủng
                     </Link>
                   </div>
                 </div>
@@ -896,10 +896,11 @@ const Navbar = () => {
                 Quản lý tiêm chủng
               </Link>
               <Link
-                to="/staff/vaccination/flow"
+                to="/parent/vaccination"
                 className="block text-gray-600 hover:text-blue-600 py-2.5 px-3 text-sm transition"
+                role="menuitem"
               >
-                Quy trình tiêm chủng
+                Quản lý tiêm chủng
               </Link>
             </div>
           </div>

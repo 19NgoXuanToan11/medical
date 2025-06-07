@@ -110,53 +110,55 @@ const MedicationRequest = () => {
 
   if (isSubmitted) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="bg-white rounded-lg shadow-md p-8 border-t-4 border-blue-500">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-green-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Yêu cầu đã được gửi thành công!
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Yêu cầu thuốc của bạn đã được gửi đến nhân viên y tế trường học.
-              Bạn sẽ nhận được thông báo khi yêu cầu được xác nhận.
-            </p>
-            <div className="bg-blue-50 rounded-lg p-4 mb-6">
-              <h3 className="font-medium text-blue-700 mb-2">
-                Mã theo dõi yêu cầu
-              </h3>
-              <p className="text-blue-800 font-bold text-xl">
-                #MED{Math.floor(Math.random() * 1000000)}
+      <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
+        <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+          <div className="p-8">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-6">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-semibold text-neutral-800 mb-2">
+                Yêu cầu đã được gửi thành công!
+              </h2>
+              <p className="text-neutral-600 mb-6">
+                Yêu cầu thuốc của bạn đã được gửi đến nhân viên y tế trường học.
+                Bạn sẽ nhận được thông báo khi yêu cầu được xác nhận.
               </p>
-            </div>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link
-                to="/parent/medication/history"
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-              >
-                Xem lịch sử yêu cầu
-              </Link>
-              <Link
-                to="/parent/dashboard"
-                className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors"
-              >
-                Quay lại trang chủ
-              </Link>
+              <div className="bg-primary-50 rounded-lg p-4 mb-6">
+                <h3 className="font-medium text-primary-700 mb-2">
+                  Mã theo dõi yêu cầu
+                </h3>
+                <p className="text-primary-800 font-bold text-xl">
+                  #MED{Math.floor(Math.random() * 1000000)}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Link
+                  to="/parent/medication/history"
+                  className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-black rounded-md transition-colors"
+                >
+                  Xem lịch sử yêu cầu
+                </Link>
+                <Link
+                  to="/parent/dashboard"
+                  className="px-6 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-md transition-colors"
+                >
+                  Quay lại trang chủ
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -165,35 +167,41 @@ const MedicationRequest = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          Gửi yêu cầu cấp thuốc
-        </h1>
-        <p className="text-gray-600">
-          Hoàn thành mẫu đơn này để gửi yêu cầu thuốc cho con bạn tại trường
-        </p>
-      </div>
+    <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
+      <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+        <div className="bg-primary-600 p-6">
+          <h1 className="text-2xl font-semibold text-black mb-2">
+            Gửi yêu cầu cấp thuốc
+          </h1>
+          <p className="text-primary-100 text-sm">
+            Hoàn thành mẫu đơn này để gửi yêu cầu thuốc cho con bạn tại trường
+          </p>
+        </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
         <div className="flex border-b">
           <div
             className={`flex-1 text-center py-3 ${
-              step === 1 ? "bg-blue-50 text-blue-600 font-medium" : "bg-gray-50"
+              step === 1
+                ? "bg-primary-50 text-primary-600 font-medium"
+                : "bg-neutral-50"
             }`}
           >
             1. Thông tin học sinh
           </div>
           <div
             className={`flex-1 text-center py-3 ${
-              step === 2 ? "bg-blue-50 text-blue-600 font-medium" : "bg-gray-50"
+              step === 2
+                ? "bg-primary-50 text-primary-600 font-medium"
+                : "bg-neutral-50"
             }`}
           >
             2. Thông tin thuốc
           </div>
           <div
             className={`flex-1 text-center py-3 ${
-              step === 3 ? "bg-blue-50 text-blue-600 font-medium" : "bg-gray-50"
+              step === 3
+                ? "bg-primary-50 text-primary-600 font-medium"
+                : "bg-neutral-50"
             }`}
           >
             3. Lịch sử uống thuốc
@@ -207,7 +215,7 @@ const MedicationRequest = () => {
                 <div>
                   <label
                     htmlFor="studentName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-neutral-700 mb-1"
                   >
                     Họ và tên học sinh <span className="text-red-500">*</span>
                   </label>
@@ -218,14 +226,14 @@ const MedicationRequest = () => {
                     value={formData.studentName}
                     onChange={handleStudentInfoChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     placeholder="Nhập họ tên học sinh"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="studentId"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-neutral-700 mb-1"
                   >
                     Mã học sinh <span className="text-red-500">*</span>
                   </label>
@@ -236,7 +244,7 @@ const MedicationRequest = () => {
                     value={formData.studentId}
                     onChange={handleStudentInfoChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     placeholder="Nhập mã học sinh"
                   />
                 </div>
@@ -244,7 +252,7 @@ const MedicationRequest = () => {
               <div>
                 <label
                   htmlFor="studentClass"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 mb-1"
                 >
                   Lớp <span className="text-red-500">*</span>
                 </label>
@@ -255,7 +263,7 @@ const MedicationRequest = () => {
                   value={formData.studentClass}
                   onChange={handleStudentInfoChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                   placeholder="Nhập lớp học sinh"
                 />
               </div>
@@ -266,7 +274,7 @@ const MedicationRequest = () => {
             <>
               {formData.medications.length > 1 && (
                 <div className="mb-6">
-                  <div className="text-sm text-gray-700 mb-2">
+                  <div className="text-sm text-neutral-700 mb-2">
                     Danh sách thuốc
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -276,8 +284,8 @@ const MedicationRequest = () => {
                         type="button"
                         className={`px-4 py-2 rounded-md text-sm ${
                           currentMedicationIndex === index
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                            ? "bg-primary-600 text-black"
+                            : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
                         }`}
                         onClick={() => selectMedication(index)}
                       >
@@ -297,7 +305,7 @@ const MedicationRequest = () => {
                     ))}
                     <button
                       type="button"
-                      className="px-4 py-2 bg-green-50 text-green-700 rounded-md hover:bg-green-100 text-sm flex items-center"
+                      className="px-4 py-2 bg-primary-50 text-primary-700 rounded-md hover:bg-primary-100 text-sm flex items-center"
                       onClick={addMedication}
                     >
                       <svg
@@ -324,7 +332,7 @@ const MedicationRequest = () => {
                 <div>
                   <label
                     htmlFor={`medicationName-${currentMedicationIndex}`}
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-neutral-700 mb-1"
                   >
                     Tên thuốc <span className="text-red-500">*</span>
                   </label>
@@ -340,7 +348,7 @@ const MedicationRequest = () => {
                       handleMedicationChange(e, currentMedicationIndex)
                     }
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     placeholder="Nhập tên thuốc"
                   />
                 </div>
@@ -348,7 +356,7 @@ const MedicationRequest = () => {
                   <div>
                     <label
                       htmlFor={`dosage-${currentMedicationIndex}`}
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="block text-sm font-medium text-neutral-700 mb-1"
                     >
                       Liều lượng <span className="text-red-500">*</span>
                     </label>
@@ -363,14 +371,14 @@ const MedicationRequest = () => {
                         handleMedicationChange(e, currentMedicationIndex)
                       }
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                       placeholder="Ví dụ: 1 viên, 5ml,..."
                     />
                   </div>
                   <div>
                     <label
                       htmlFor={`frequency-${currentMedicationIndex}`}
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="block text-sm font-medium text-neutral-700 mb-1"
                     >
                       Tần suất <span className="text-red-500">*</span>
                     </label>
@@ -384,7 +392,7 @@ const MedicationRequest = () => {
                         handleMedicationChange(e, currentMedicationIndex)
                       }
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     >
                       <option value="once">Một lần mỗi ngày</option>
                       <option value="twice">Hai lần mỗi ngày</option>
@@ -398,7 +406,7 @@ const MedicationRequest = () => {
                   <div>
                     <label
                       htmlFor={`startDate-${currentMedicationIndex}`}
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="block text-sm font-medium text-neutral-700 mb-1"
                     >
                       Ngày bắt đầu <span className="text-red-500">*</span>
                     </label>
@@ -413,13 +421,13 @@ const MedicationRequest = () => {
                         handleMedicationChange(e, currentMedicationIndex)
                       }
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     />
                   </div>
                   <div>
                     <label
                       htmlFor={`endDate-${currentMedicationIndex}`}
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="block text-sm font-medium text-neutral-700 mb-1"
                     >
                       Ngày kết thúc <span className="text-red-500">*</span>
                     </label>
@@ -434,17 +442,17 @@ const MedicationRequest = () => {
                         handleMedicationChange(e, currentMedicationIndex)
                       }
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <span className="block text-sm font-medium text-gray-700 mb-2">
+                  <span className="block text-sm font-medium text-neutral-700 mb-2">
                     Thời điểm uống thuốc <span className="text-red-500">*</span>
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <label className="flex items-center space-x-2 p-3 border rounded-md hover:bg-gray-50">
+                    <label className="flex items-center space-x-2 p-3 border border-neutral-200 rounded-md hover:bg-neutral-50">
                       <input
                         type="checkbox"
                         name="timeOfDay"
@@ -455,11 +463,11 @@ const MedicationRequest = () => {
                         onChange={(e) =>
                           handleMedicationChange(e, currentMedicationIndex)
                         }
-                        className="h-4 w-4 text-blue-600"
+                        className="h-4 w-4 text-primary-600"
                       />
                       <span>Buổi sáng</span>
                     </label>
-                    <label className="flex items-center space-x-2 p-3 border rounded-md hover:bg-gray-50">
+                    <label className="flex items-center space-x-2 p-3 border border-neutral-200 rounded-md hover:bg-neutral-50">
                       <input
                         type="checkbox"
                         name="timeOfDay"
@@ -470,11 +478,11 @@ const MedicationRequest = () => {
                         onChange={(e) =>
                           handleMedicationChange(e, currentMedicationIndex)
                         }
-                        className="h-4 w-4 text-blue-600"
+                        className="h-4 w-4 text-primary-600"
                       />
                       <span>Buổi trưa</span>
                     </label>
-                    <label className="flex items-center space-x-2 p-3 border rounded-md hover:bg-gray-50">
+                    <label className="flex items-center space-x-2 p-3 border border-neutral-200 rounded-md hover:bg-neutral-50">
                       <input
                         type="checkbox"
                         name="timeOfDay"
@@ -485,11 +493,11 @@ const MedicationRequest = () => {
                         onChange={(e) =>
                           handleMedicationChange(e, currentMedicationIndex)
                         }
-                        className="h-4 w-4 text-blue-600"
+                        className="h-4 w-4 text-primary-600"
                       />
                       <span>Buổi chiều</span>
                     </label>
-                    <label className="flex items-center space-x-2 p-3 border rounded-md hover:bg-gray-50">
+                    <label className="flex items-center space-x-2 p-3 border border-neutral-200 rounded-md hover:bg-neutral-50">
                       <input
                         type="checkbox"
                         name="timeOfDay"
@@ -593,7 +601,7 @@ const MedicationRequest = () => {
                 <div>
                   <label
                     htmlFor={`specialInstructions-${currentMedicationIndex}`}
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-neutral-700 mb-1"
                   >
                     Hướng dẫn đặc biệt
                   </label>
@@ -608,17 +616,17 @@ const MedicationRequest = () => {
                       handleMedicationChange(e, currentMedicationIndex)
                     }
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     placeholder="Các lưu ý khi sử dụng thuốc (nếu có)"
                   ></textarea>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Hình ảnh thuốc <span className="text-red-500">*</span>
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <div className="border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center">
                       {formData.medications[currentMedicationIndex]
                         .medicationImage ? (
                         <div className="flex flex-col items-center">
@@ -630,7 +638,7 @@ const MedicationRequest = () => {
                             alt="Medication preview"
                             className="max-h-36 mb-2 rounded"
                           />
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-neutral-500">
                             {
                               formData.medications[currentMedicationIndex]
                                 .medicationImage.name
@@ -659,7 +667,7 @@ const MedicationRequest = () => {
                       ) : (
                         <div className="space-y-2">
                           <svg
-                            className="mx-auto h-12 w-12 text-gray-400"
+                            className="mx-auto h-12 w-12 text-neutral-400"
                             stroke="currentColor"
                             fill="none"
                             viewBox="0 0 48 48"
@@ -671,10 +679,10 @@ const MedicationRequest = () => {
                               strokeLinejoin="round"
                             />
                           </svg>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-neutral-600">
                             <label
                               htmlFor={`medicationImage-${currentMedicationIndex}`}
-                              className="text-blue-600 hover:text-blue-700 cursor-pointer"
+                              className="text-primary-600 hover:text-primary-700 cursor-pointer"
                             >
                               Chọn hình ảnh
                             </label>
@@ -693,7 +701,7 @@ const MedicationRequest = () => {
                               className="sr-only"
                             />
                           </div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-neutral-500">
                             PNG, JPG, GIF lên đến 10MB
                           </p>
                         </div>
@@ -702,10 +710,10 @@ const MedicationRequest = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Đơn thuốc (nếu có)
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <div className="border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center">
                       {formData.medications[currentMedicationIndex]
                         .prescriptionImage ? (
                         <div className="flex flex-col items-center">
@@ -717,7 +725,7 @@ const MedicationRequest = () => {
                             alt="Prescription preview"
                             className="max-h-36 mb-2 rounded"
                           />
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-neutral-500">
                             {
                               formData.medications[currentMedicationIndex]
                                 .prescriptionImage.name
@@ -746,7 +754,7 @@ const MedicationRequest = () => {
                       ) : (
                         <div className="space-y-2">
                           <svg
-                            className="mx-auto h-12 w-12 text-gray-400"
+                            className="mx-auto h-12 w-12 text-neutral-400"
                             stroke="currentColor"
                             fill="none"
                             viewBox="0 0 48 48"
@@ -758,10 +766,10 @@ const MedicationRequest = () => {
                               strokeLinejoin="round"
                             />
                           </svg>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-neutral-600">
                             <label
                               htmlFor={`prescriptionImage-${currentMedicationIndex}`}
-                              className="text-blue-600 hover:text-blue-700 cursor-pointer"
+                              className="text-primary-600 hover:text-primary-700 cursor-pointer"
                             >
                               Chọn hình ảnh
                             </label>
@@ -779,7 +787,7 @@ const MedicationRequest = () => {
                               className="sr-only"
                             />
                           </div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-neutral-500">
                             PNG, JPG, GIF lên đến 10MB
                           </p>
                         </div>
@@ -821,7 +829,7 @@ const MedicationRequest = () => {
             {step > 1 ? (
               <button
                 type="button"
-                className="px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200"
+                className="px-4 py-2 bg-neutral-100 text-neutral-800 rounded-md hover:bg-neutral-200"
                 onClick={prevStep}
               >
                 Quay lại
@@ -833,7 +841,7 @@ const MedicationRequest = () => {
             {step < 3 ? (
               <button
                 type="button"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-4 py-2 bg-primary-600 text-black rounded-md hover:bg-primary-700"
                 onClick={nextStep}
               >
                 Tiếp theo
@@ -841,7 +849,7 @@ const MedicationRequest = () => {
             ) : (
               <button
                 type="submit"
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-6 py-2 bg-primary-600 text-black rounded-md hover:bg-primary-700"
               >
                 Gửi yêu cầu
               </button>

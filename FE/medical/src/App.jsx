@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import HomePage from "./components/home/HomePage";
 import Login from "./pages/auth/login/Login";
@@ -29,8 +29,10 @@ import HealthEventForm from "./pages/staff/health-events/HealthEventForm";
 import HealthEventDetail from "./pages/staff/health-events/HealthEventDetail";
 import MedicalEventSupplies from "./pages/staff/health-events/MedicalEventSupplies";
 import MainLayout from "./components/layout/MainLayout";
-import AdminLayout from "./components/layout/AdminLayout";
+import AdminLayout from "./components/layout/admin/AdminLayout";
+import ManagerLayout from "./components/layout/manager/ManagerLayout";
 import AuthLayout from "./components/layout/AuthLayout";
+import ParentLayout from "./components/layout/parent/ParentLayout";
 import VaccinationManagement from "./pages/staff/VaccinationManagement";
 import VaccinationFlowDiagram from "./pages/staff/VaccinationFlowDiagram";
 import VaccinationConsent from "./pages/parent/VaccinationConsent";
@@ -39,6 +41,9 @@ import HealthCheckExecution from "./pages/staff/HealthCheckExecution";
 import HealthCheckResults from "./pages/staff/HealthCheckResults";
 import HealthCheckForm from "./pages/staff/HealthCheckForm";
 import HealthCheckConfirmation from "./pages/parent/HealthCheckConfirmation";
+import HealthEventsList from "./pages/parent/health-events/HealthEventsList";
+import Notifications from "./pages/parent/notifications/Notifications";
+
 // Import admin components
 import { AdminDashboard, ReportsAnalytics } from "./pages/admin";
 import UserManagement from "./pages/admin/UserManagement";
@@ -47,9 +52,19 @@ import UserRoles from "./pages/admin/UserManagement/UserRoles";
 import UserPermissions from "./pages/admin/UserManagement/UserPermissions";
 import NewUser from "./pages/admin/UserManagement/NewUser";
 
+// Import Manager components
+import {
+  Dashboard as ManagerDashboard,
+  MedicineInventory,
+  SupplyInventory,
+} from "./pages/manager";
+
 // Import Teacher and Student components
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import StudentDashboard from "./pages/student/StudentDashboard";
+
+// Import the VaccinationIndex component
+import VaccinationIndex from "./pages/parent/vaccination";
 
 function App() {
   return (
@@ -77,6 +92,14 @@ function App() {
           <Route path="/admin/reports" element={<ReportsAnalytics />} />
         </Route>
 
+        {/* Manager Routes - Custom Manager Layout */}
+        <Route element={<ManagerLayout />}>
+          <Route path="/manager/dashboard" element={<ManagerDashboard />} />
+          {/* Medicine and Medical Supply management */}
+          <Route path="/manager/medicines" element={<MedicineInventory />} />
+          <Route path="/manager/supplies" element={<SupplyInventory />} />
+        </Route>
+
         {/* Main Routes - With Navbar and Footer */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
@@ -97,7 +120,10 @@ function App() {
             path="/resources/medical-procedures"
             element={<MedicalProcedures />}
           />
+        </Route>
 
+        {/* Parent Routes - With Parent Layout (No Main Header/Footer) */}
+        <Route element={<ParentLayout />}>
           {/* Parent Dashboard */}
           <Route path="/parent/dashboard" element={<ParentDashboard />} />
 
@@ -135,6 +161,11 @@ function App() {
 
           {/* Parent Vaccination Routes */}
           <Route
+            path="/parent/vaccination"
+            element={<Navigate to="/parent/vaccination/upcoming" replace />}
+          />
+          <Route path="/parent/vaccination/*" element={<VaccinationIndex />} />
+          <Route
             path="/parent/vaccination/consent/:id"
             element={<VaccinationConsent />}
           />
@@ -157,6 +188,19 @@ function App() {
             element={<HealthCheckConfirmation />}
           />
 
+          {/* Parent Health Events Routes */}
+          <Route path="/parent/health-events" element={<HealthEventsList />} />
+          <Route
+            path="/parent/health-events/:id"
+            element={<HealthEventDetail />}
+          />
+
+          {/* Parent Notifications Routes */}
+          <Route path="/parent/notifications" element={<Notifications />} />
+        </Route>
+
+        {/* Staff Routes - With MainLayout */}
+        <Route element={<MainLayout />}>
           {/* Staff Medication Routes */}
           <Route path="/staff/medication" element={<StaffMedicationList />} />
           <Route
@@ -250,65 +294,9 @@ function App() {
               </div>
             }
           />
-          <Route
-            path="/teacher/medical-pass"
-            element={
-              <div className="p-8">
-                Tạo phiếu xin phép đến phòng y tế (đang phát triển)
-              </div>
-            }
-          />
-          <Route
-            path="/teacher/notifications"
-            element={
-              <div className="p-8">
-                Thông báo y tế cho giáo viên (đang phát triển)
-              </div>
-            }
-          />
-          <Route
-            path="/teacher/student/:id"
-            element={
-              <div className="p-8">Chi tiết học sinh (đang phát triển)</div>
-            }
-          />
-          <Route
-            path="/teacher/health-report/:id"
-            element={
-              <div className="p-8">Chi tiết báo cáo y tế (đang phát triển)</div>
-            }
-          />
 
           {/* Student Routes */}
           <Route path="/student/dashboard" element={<StudentDashboard />} />
-          <Route
-            path="/student/health-profile"
-            element={
-              <div className="p-8">
-                Hồ sơ sức khỏe của học sinh (đang phát triển)
-              </div>
-            }
-          />
-          <Route
-            path="/student/report-symptom"
-            element={
-              <div className="p-8">Báo cáo triệu chứng (đang phát triển)</div>
-            }
-          />
-          <Route
-            path="/student/request-visit"
-            element={
-              <div className="p-8">Yêu cầu gặp y tá (đang phát triển)</div>
-            }
-          />
-          <Route
-            path="/student/health-events"
-            element={
-              <div className="p-8">
-                Sự kiện y tế của học sinh (đang phát triển)
-              </div>
-            }
-          />
         </Route>
       </Routes>
     </div>
