@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import VaccinationHistory from "./VaccinationHistory";
 import UpcomingVaccination from "./UpcomingVaccination";
-import VaccinationConsent from "../VaccinationConsent";
+import VaccinationConsent from "./VaccinationConsent";
 
 const VaccinationIndex = () => {
   return (

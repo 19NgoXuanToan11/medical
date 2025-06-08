@@ -267,19 +267,19 @@ const Dashboard = () => {
                 <table className="min-w-full divide-y divide-neutral-200">
                   <thead className="bg-neutral-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Hành động
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Mặt hàng
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Số lượng
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Người thực hiện
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Thời gian
                       </th>
                     </tr>
@@ -287,19 +287,19 @@ const Dashboard = () => {
                   <tbody className="bg-white divide-y divide-neutral-200">
                     {recentActivities.map((activity) => (
                       <tr key={activity.id} className="hover:bg-neutral-50">
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-neutral-800">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-center text-neutral-800">
                           {activity.action}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-neutral-600">
                           {activity.item}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-neutral-600">
                           {activity.quantity}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-neutral-600">
                           {activity.user}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-neutral-600">
                           {activity.timestamp}
                         </td>
                       </tr>

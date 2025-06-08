@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import VaccinationWidget from "./VaccinationWidget";
+import VaccinationWidget from "../vaccination/VaccinationWidget";
 
 const ParentDashboard = () => {
   // Sample data - in a real application, this would come from an API

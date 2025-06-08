@@ -24,19 +24,9 @@ const NurseLayout = () => {
       icon: <FiHome className="w-5 h-5" />,
     },
     {
-      path: "/nurse/students",
-      name: "Học sinh",
-      icon: <FiUsers className="w-5 h-5" />,
-    },
-    {
       path: "/nurse/medication",
       name: "Quản lý thuốc",
       icon: <FiTablet className="w-5 h-5" />,
-    },
-    {
-      path: "/nurse/supplies",
-      name: "Vật tư y tế",
-      icon: <FiPackage className="w-5 h-5" />,
     },
     {
       path: "/nurse/health-check",

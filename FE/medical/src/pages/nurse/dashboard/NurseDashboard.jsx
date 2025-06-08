@@ -11,6 +11,7 @@ import {
   FiBell,
   FiClipboard,
 } from "react-icons/fi";
+import MedicationReminders from "../../../components/medication/MedicationReminders";
 
 const NurseDashboard = () => {
   const [stats, setStats] = useState({
@@ -244,6 +245,11 @@ const NurseDashboard = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Medication Reminders Section */}
+          <div className="mb-8">
+            <MedicationReminders />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
