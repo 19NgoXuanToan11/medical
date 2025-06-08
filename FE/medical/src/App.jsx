@@ -122,17 +122,9 @@ function App() {
           <Route path="/manager/supply-inventory" element={<SupplyInventory />} />
         </Route>
 
-        {/* Main Routes - With Navbar and Footer */}
+        {/* Main Routes */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
-
-          {/* Health Resources Routes */}
-          <Route path="/resources/nutrition" element={<Nutrition />} />
-          <Route path="/resources/disease-prevention" element={<DiseasePrevention />} />
-          <Route path="/resources/mental-health" element={<MentalHealth />} />
-          <Route path="/resources/first-aid" element={<FirstAid />} />
-          <Route path="/resources/physical-development" element={<PhysicalDevelopment />} />
-          <Route path="/resources/medical-procedures" element={<MedicalProcedures />} />
         </Route>
 
         {/* Parent Routes - With Parent Layout (No Main Header/Footer) */}
