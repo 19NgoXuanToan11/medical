@@ -2,33 +2,41 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   FiHome,
-  FiUsers,
-  FiBarChart2,
-  FiSettings,
-  FiLogOut,
+  FiFileText,
+  FiCalendar,
+  FiActivity,
+  FiBookOpen,
   FiBell,
+  FiMessageSquare,
+  FiHelpCircle,
+  FiLogOut,
 } from "react-icons/fi";
 
-const AdminLayout = () => {
+const StudentLayout = () => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
     {
-      path: "/admin/dashboard",
-      name: "Tổng quan",
+      path: "/student/dashboard",
+      name: "Trang chủ",
       icon: <FiHome className="w-5 h-5" />,
     },
     {
-      path: "/admin/users",
-      name: "Người dùng",
-      icon: <FiUsers className="w-5 h-5" />,
+      path: "/student/medication",
+      name: "Lịch uống thuốc",
+      icon: <FiCalendar className="w-5 h-5" />,
     },
     {
-      path: "/admin/reports",
-      name: "Báo cáo",
-      icon: <FiBarChart2 className="w-5 h-5" />,
+      path: "/student/health-events",
+      name: "Sự kiện y tế",
+      icon: <FiActivity className="w-5 h-5" />,
+    },
+    {
+      path: "/student/resources",
+      name: "Tài liệu sức khỏe",
+      icon: <FiBookOpen className="w-5 h-5" />,
     },
   ];
 
@@ -44,7 +52,7 @@ const AdminLayout = () => {
         <div className="p-4 flex items-center justify-between border-b border-neutral-200">
           {!collapsed && (
             <div className="text-xl font-bold text-primary-700">
-              Medical Admin
+              Medical Student
             </div>
           )}
           <button
@@ -130,15 +138,18 @@ const AdminLayout = () => {
           <div>
             <h1 className="text-xl font-semibold text-neutral-800">
               {menuItems.find((item) => item.path === location.pathname)
-                ?.name || "Tổng quan"}
+                ?.name || "Trang chủ"}
             </h1>
           </div>
           <div className="flex items-center space-x-4">
-            <button className="p-1 rounded-full text-neutral-500 hover:bg-neutral-100">
+            <button className="p-1 rounded-full text-neutral-500 hover:bg-neutral-100 relative">
               <FiBell className="w-6 h-6" />
+              <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                3
+              </span>
             </button>
             <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
-              <span className="text-white font-medium text-sm">AD</span>
+              <span className="text-white font-medium text-sm">HS</span>
             </div>
           </div>
         </header>
@@ -152,4 +163,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default StudentLayout;

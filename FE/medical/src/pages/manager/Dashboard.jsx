@@ -24,12 +24,13 @@ const Dashboard = () => {
     lowStockSupplies: 0,
   });
   const [lowStockItems, setLowStockItems] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
 
   const API_URL = "http://localhost:7111/api";
 
   // Fetch data from API
   useEffect(() => {
-    Promise.all([fetchMedicines(), fetchSupplies()])
+    Promise.all([fetchMedicines(), fetchSupplies(), fetchRecentActivities()])
       .then(() => setLoading(false))
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -81,19 +82,18 @@ const Dashboard = () => {
       const total = supplies.length;
       const inactive = supplies.filter((supply) => !supply.isActive).length;
       const lowStock = supplies.filter(
-        (supply) => supply.stockQuantity < 50
+        (supply) => supply.stockQuantity < 30
       ).length;
 
       // Find low stock supplies
-      const lowStockSups = supplies
-        .filter((supply) => supply.stockQuantity < 50 && supply.isActive)
+      const lowStockSupp = supplies
+        .filter((supply) => supply.stockQuantity < 30 && supply.isActive)
         .map((supply) => ({
           id: supply.supplyId,
           name: supply.name,
           quantity: supply.stockQuantity,
           type: "supply",
-          category: supply.category,
-          threshold: 50,
+          threshold: 30,
         }))
         .slice(0, 3);
 
@@ -104,130 +104,136 @@ const Dashboard = () => {
         lowStockSupplies: lowStock,
       }));
 
-      setLowStockItems((prev) =>
-        [...prev, ...lowStockSups]
-          .sort((a, b) => a.quantity - b.quantity)
-          .slice(0, 6)
-      );
+      setLowStockItems((prev) => [...prev, ...lowStockSupp]);
     } catch (error) {
       console.error("Error fetching supplies:", error);
     }
   };
 
-  // Mock data for recent activities (would come from an API in a real application)
-  const recentActivities = [
-    {
-      id: 1,
-      action: "Thêm thuốc",
-      item: "Paracetamol 500mg",
-      quantity: "200",
-      user: "Nguyễn Văn A",
-      timestamp: "06/07/2025 09:15",
-    },
-    {
-      id: 2,
-      action: "Cập nhật vật tư",
-      item: "Băng gạc vô trùng",
-      quantity: "150",
-      user: "Trần Thị B",
-      timestamp: "06/07/2025 10:30",
-    },
-    {
-      id: 3,
-      action: "Đã ngừng sử dụng",
-      item: "Ống tiêm 5ml",
-      quantity: "N/A",
-      user: "Lê Văn C",
-      timestamp: "06/07/2025 11:45",
-    },
-    {
-      id: 4,
-      action: "Thêm vật tư",
-      item: "Khẩu trang phẫu thuật",
-      quantity: "300",
-      user: "Phạm Thị D",
-      timestamp: "05/07/2025 15:20",
-    },
-    {
-      id: 5,
-      action: "Cập nhật số lượng",
-      item: "Amoxicillin",
-      quantity: "180",
-      user: "Hoàng Văn E",
-      timestamp: "05/07/2025 16:10",
-    },
-  ];
+  const fetchRecentActivities = async () => {
+    // Simulated data - would be replaced with a real API call
+    const mockActivities = [
+      {
+        id: 1,
+        action: "Thêm thuốc",
+        item: "Paracetamol 500mg",
+        quantity: 200,
+        user: "Nguyễn Văn A",
+        timestamp: "06/07/2025 09:15",
+      },
+      {
+        id: 2,
+        action: "Cập nhật vật tư",
+        item: "Băng gạc vô trùng",
+        quantity: 150,
+        user: "Trần Thị B",
+        timestamp: "06/07/2025 10:30",
+      },
+      {
+        id: 3,
+        action: "Đã ngưng sử dụng",
+        item: "Ống tiêm 5ml",
+        quantity: "N/A",
+        user: "Lê Văn C",
+        timestamp: "06/07/2025 11:45",
+      },
+      {
+        id: 4,
+        action: "Thêm vật tư",
+        item: "Khẩu trang phẫu thuật",
+        quantity: 300,
+        user: "Phạm Thị D",
+        timestamp: "05/07/2025 15:20",
+      },
+      {
+        id: 5,
+        action: "Cập nhật số lượng",
+        item: "Amoxicillin",
+        quantity: 180,
+        user: "Hoàng Văn E",
+        timestamp: "05/07/2025 16:10",
+      },
+    ];
+
+    setRecentActivities(mockActivities);
+  };
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 max-w-6xl">
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div>
-          <p className="ml-2 text-gray-500">Đang tải dữ liệu...</p>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-700"></div>
+          <p className="ml-2 text-neutral-500">Đang tải dữ liệu...</p>
         </div>
       ) : (
         <>
-          {/* Inventory Stats */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
-              Quản lý kho thuốc và vật tư y tế
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="text-sm text-gray-500">
-                      Tổng số mặt hàng
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden mb-8">
+            <div className="p-6">
+              <h2 className="text-2xl font-semibold text-neutral-800 mb-4">
+                Quản lý kho thuốc và vật tư y tế
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-primary-50 p-6 rounded-lg border border-primary-100">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-sm text-neutral-600">
+                        Tổng số mặt hàng
+                      </div>
+                      <div className="text-3xl font-bold text-primary-700">
+                        {inventoryStats.totalMedicines +
+                          inventoryStats.totalSupplies}
+                      </div>
+                      <div className="text-xs text-neutral-500 mt-1">
+                        Thuốc: {inventoryStats.totalMedicines} | Vật tư:{" "}
+                        {inventoryStats.totalSupplies}
+                      </div>
                     </div>
-                    <div className="text-3xl font-bold">
-                      {inventoryStats.totalMedicines +
-                        inventoryStats.totalSupplies}
+                    <div className="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+                      <FiPackage className="h-6 w-6 text-primary-600" />
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Thuốc: {inventoryStats.totalMedicines} | Vật tư:{" "}
-                      {inventoryStats.totalSupplies}
-                    </div>
-                  </div>
-                  <div className="h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
-                    <FiPackage className="h-5 w-5 text-teal-600" />
                   </div>
                 </div>
-              </div>
 
-              <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-red-500">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="text-sm text-gray-500">Sắp hết hàng</div>
-                    <div className="text-3xl font-bold">
-                      {inventoryStats.lowStockMedicines +
-                        inventoryStats.lowStockSupplies}
+                <div className="bg-red-50 p-6 rounded-lg border border-red-100">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-sm text-neutral-600">
+                        Sắp hết hàng
+                      </div>
+                      <div className="text-3xl font-bold text-red-600">
+                        {inventoryStats.lowStockMedicines +
+                          inventoryStats.lowStockSupplies}
+                      </div>
+                      <div className="text-xs text-neutral-500 mt-1">
+                        Thuốc: {inventoryStats.lowStockMedicines} | Vật tư:{" "}
+                        {inventoryStats.lowStockSupplies}
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Thuốc: {inventoryStats.lowStockMedicines} | Vật tư:{" "}
-                      {inventoryStats.lowStockSupplies}
+                    <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+                      <FiAlertTriangle className="h-6 w-6 text-red-600" />
                     </div>
-                  </div>
-                  <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                    <FiAlertTriangle className="h-5 w-5 text-red-600" />
                   </div>
                 </div>
-              </div>
 
-              <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-gray-500">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="text-sm text-gray-500">Ngừng sử dụng</div>
-                    <div className="text-3xl font-bold">
-                      {inventoryStats.inactiveMedicines +
-                        inventoryStats.inactiveSupplies}
+                <div className="bg-neutral-50 p-6 rounded-lg border border-neutral-200">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-sm text-neutral-600">
+                        Ngừng sử dụng
+                      </div>
+                      <div className="text-3xl font-bold text-neutral-700">
+                        {inventoryStats.inactiveMedicines +
+                          inventoryStats.inactiveSupplies}
+                      </div>
+                      <div className="text-xs text-neutral-500 mt-1">
+                        Thuốc: {inventoryStats.inactiveMedicines} | Vật tư:{" "}
+                        {inventoryStats.inactiveSupplies}
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Thuốc: {inventoryStats.inactiveMedicines} | Vật tư:{" "}
-                      {inventoryStats.inactiveSupplies}
+                    <div className="h-12 w-12 rounded-full bg-neutral-200 flex items-center justify-center">
+                      <FiX className="h-6 w-6 text-neutral-600" />
                     </div>
-                  </div>
-                  <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
-                    <FiX className="h-5 w-5 text-gray-600" />
                   </div>
                 </div>
               </div>
@@ -235,64 +241,65 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Recent Activities */}
-            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-800">
-                  Hoạt động gần đây
-                </h2>
-                <div className="flex space-x-3">
-                  <Link
-                    to="/manager/medicines"
-                    className="text-teal-600 hover:text-teal-800 text-sm font-medium"
-                  >
-                    Kho thuốc
-                  </Link>
-                  <Link
-                    to="/manager/supplies"
-                    className="text-teal-600 hover:text-teal-800 text-sm font-medium"
-                  >
-                    Vật tư y tế
-                  </Link>
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+              <div className="bg-white p-6 border-b border-neutral-100">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-medium text-neutral-800">
+                    Hoạt động gần đây
+                  </h2>
+                  <div className="flex space-x-3">
+                    <Link
+                      to="/manager/medicine-inventory"
+                      className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                    >
+                      Kho thuốc
+                    </Link>
+                    <Link
+                      to="/manager/supply-inventory"
+                      className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                    >
+                      Vật tư y tế
+                    </Link>
+                  </div>
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead>
+                <table className="min-w-full divide-y divide-neutral-200">
+                  <thead className="bg-neutral-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Hành động
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Mặt hàng
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Số lượng
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Người thực hiện
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                         Thời gian
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-neutral-200">
                     {recentActivities.map((activity) => (
-                      <tr key={activity.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <tr key={activity.id} className="hover:bg-neutral-50">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-neutral-800">
                           {activity.action}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
                           {activity.item}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
                           {activity.quantity}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
                           {activity.user}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-600">
                           {activity.timestamp}
                         </td>
                       </tr>
@@ -302,74 +309,64 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Low Stock Items */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-800">
+            <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+              <div className="bg-white p-6 border-b border-neutral-100">
+                <h2 className="text-lg font-medium text-neutral-800">
                   Sắp hết hàng
                 </h2>
-                <div className="flex space-x-3">
-                  <Link
-                    to="/manager/medicines?filter=low-stock"
-                    className="text-teal-600 hover:text-teal-800 text-sm font-medium"
-                  >
-                    Kho thuốc
-                  </Link>
-                  <Link
-                    to="/manager/supplies?filter=low-stock"
-                    className="text-teal-600 hover:text-teal-800 text-sm font-medium"
-                  >
-                    Vật tư y tế
-                  </Link>
-                </div>
               </div>
-              <div className="space-y-4">
+              <div className="p-6">
                 {lowStockItems.length > 0 ? (
-                  lowStockItems.map((item) => (
-                    <div
-                      key={`${item.type}-${item.id}`}
-                      className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="flex items-start mb-2">
-                        {item.type === "medicine" ? (
-                          <FiTablet className="h-5 w-5 text-teal-600 mr-2 mt-0.5" />
-                        ) : (
-                          <FiPackage className="h-5 w-5 text-blue-600 mr-2 mt-0.5" />
-                        )}
-                        <h3 className="text-lg font-medium text-gray-800">
-                          {item.name}
-                        </h3>
+                  <div className="space-y-4">
+                    {lowStockItems.map((item) => (
+                      <div
+                        key={`${item.type}-${item.id}`}
+                        className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg"
+                      >
+                        <div className="flex items-center">
+                          <div
+                            className={`p-2 rounded-full ${
+                              item.type === "medicine"
+                                ? "bg-primary-100 text-primary-600"
+                                : "bg-green-100 text-green-600"
+                            }`}
+                          >
+                            {item.type === "medicine" ? (
+                              <FiTablet className="h-5 w-5" />
+                            ) : (
+                              <FiPackage className="h-5 w-5" />
+                            )}
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-neutral-800">
+                              {item.name}
+                            </div>
+                            <div className="text-xs text-neutral-500">
+                              {item.type === "medicine"
+                                ? "Thuốc"
+                                : "Vật tư y tế"}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-medium text-red-600">
+                            {item.quantity} / {item.threshold}
+                          </div>
+                          <div className="text-xs text-neutral-500">
+                            Số lượng
+                          </div>
+                        </div>
                       </div>
-                      <div className="ml-7 text-sm text-gray-600">
-                        <p className="flex items-center">
-                          <FiAlertTriangle className="h-4 w-4 text-amber-500 mr-1" />
-                          <span>
-                            Còn lại:{" "}
-                            <span className="font-medium text-red-600">
-                              {item.quantity}
-                            </span>
-                          </span>
-                        </p>
-                        {item.type === "supply" && item.category && (
-                          <p>Loại: {item.category}</p>
-                        )}
-                      </div>
-                      <div className="mt-3 ml-7">
-                        <Link
-                          to={`/manager/${
-                            item.type === "medicine" ? "medicines" : "supplies"
-                          }?filter=low-stock`}
-                          className="text-teal-600 hover:text-teal-800 text-sm font-medium"
-                        >
-                          Xem chi tiết
-                        </Link>
-                      </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <FiCheck className="mx-auto h-10 w-10 mb-3 text-green-500" />
-                    <p>Không có mặt hàng nào sắp hết</p>
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                      <FiCheck className="h-8 w-8 text-green-600" />
+                    </div>
+                    <p className="text-neutral-600 text-center">
+                      Không có mặt hàng nào sắp hết
+                    </p>
                   </div>
                 )}
               </div>

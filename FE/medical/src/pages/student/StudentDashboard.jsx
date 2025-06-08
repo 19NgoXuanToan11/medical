@@ -1,298 +1,495 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import {
+  FiCalendar,
+  FiActivity,
+  FiClock,
+  FiFileText,
+  FiBookOpen,
+  FiAward,
+  FiAlertCircle,
+  FiBell,
+} from "react-icons/fi";
 
 const StudentDashboard = () => {
-  // Sample data - in a real application, this would come from an API
-  const studentName = "Nguyễn Văn An";
-  const studentClass = "Lớp 3A";
-  const healthInfo = [
-    { title: "Tình trạng sức khỏe", value: "Tốt", status: "good" },
-    { title: "Dị ứng", value: "Không", status: "good" },
-    { title: "Bệnh mãn tính", value: "Không", status: "good" },
-    { title: "Chiều cao", value: "135 cm", status: "normal" },
-    { title: "Cân nặng", value: "32 kg", status: "normal" },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [studentInfo, setStudentInfo] = useState(null);
 
-  const medications = [
-    {
-      id: 1,
-      name: "Vitamin D",
-      schedule: "Hàng ngày, sau bữa sáng",
-      remainingDoses: 24,
-    },
-  ];
+  // Mock data - in a real application, this would come from an API
+  useEffect(() => {
+    setLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setStudentInfo({
+        name: "Nguyễn Văn An",
+        class: "Lớp 3A",
+        age: 9,
+        healthStatus: "Tốt",
+        allergies: ["Không"],
+        chronicConditions: ["Không"],
+        height: "135 cm",
+        weight: "32 kg",
+        bmi: 17.6,
+        lastCheckup: "15/05/2023",
+        upcomingMedications: [
+          {
+            id: 1,
+            name: "Vitamin D",
+            time: "Sau bữa sáng",
+            dosage: "1 viên",
+            remainingDays: 7,
+          },
+        ],
+        upcomingEvents: [
+          {
+            id: 1,
+            title: "Khám sức khỏe định kỳ",
+            date: "15/06/2023",
+            type: "health-check",
+          },
+          {
+            id: 2,
+            title: "Tiêm chủng vắc-xin",
+            date: "22/07/2023",
+            type: "vaccination",
+          },
+        ],
+        recentHealthEvents: [
+          {
+            id: 1,
+            date: "02/06/2023",
+            title: "Đau đầu nhẹ",
+            description: "Được cấp thuốc giảm đau",
+            severity: "minor",
+          },
+        ],
+        healthTips: [
+          {
+            id: 1,
+            title: "Uống đủ nước mỗi ngày",
+            description:
+              "Uống ít nhất 1.5 lít nước mỗi ngày để giữ cơ thể khỏe mạnh",
+          },
+          {
+            id: 2,
+            title: "Tập thể dục đều đặn",
+            description: "30 phút vận động mỗi ngày giúp tăng cường sức khỏe",
+          },
+          {
+            id: 3,
+            title: "Ăn nhiều rau củ quả",
+            description: "Bổ sung vitamin và khoáng chất từ rau củ quả tươi",
+          },
+        ],
+        completedHealthActivities: 8,
+        totalHealthActivities: 10,
+      });
+      setLoading(false);
+    }, 1000);
+  }, []);
 
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: "Khám sức khỏe định kỳ",
-      date: "15/06/2023",
-      type: "health-check",
-    },
-    {
-      id: 2,
-      title: "Tiêm chủng vắc-xin",
-      date: "22/07/2023",
-      type: "vaccination",
-    },
-  ];
+  // Get health status color
+  const getHealthStatusColor = (status) => {
+    switch (status) {
+      case "Tốt":
+        return "text-green-600 bg-green-100";
+      case "Cần chú ý":
+        return "text-yellow-600 bg-yellow-100";
+      case "Cần theo dõi":
+        return "text-orange-600 bg-orange-100";
+      case "Cần điều trị":
+        return "text-red-600 bg-red-100";
+      default:
+        return "text-blue-600 bg-blue-100";
+    }
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          Xin chào, {studentName}
-        </h1>
-        <p className="text-gray-600">
-          {studentClass} - Thông tin sức khỏe cá nhân
-        </p>
-      </div>
-
-      {/* Health overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="col-span-2">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="bg-blue-50 p-4 border-b border-blue-100">
-              <h2 className="text-lg font-medium text-blue-800">
-                Tổng quan sức khỏe
-              </h2>
-            </div>
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {healthInfo.map((item, index) => (
-                <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-1">{item.title}</p>
-                  <div className="flex items-center">
-                    <span
-                      className={`w-3 h-3 rounded-full mr-2 ${
-                        item.status === "good"
-                          ? "bg-green-500"
-                          : item.status === "warning"
-                          ? "bg-yellow-500"
-                          : item.status === "bad"
-                          ? "bg-red-500"
-                          : "bg-blue-500"
-                      }`}
-                    ></span>
-                    <p className="text-lg font-medium text-gray-800">
-                      {item.value}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="px-6 pb-6 text-center">
-              <Link
-                to="/student/health-profile"
-                className="inline-flex items-center text-blue-600 hover:text-blue-800"
-              >
-                Xem chi tiết hồ sơ sức khỏe
-                <svg
-                  className="w-3.5 h-3.5 ml-2"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 10"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M1 5h12m0 0L9 1m4 4L9 9"
-                  />
-                </svg>
-              </Link>
-            </div>
-          </div>
+    <div className="container mx-auto px-4 max-w-6xl">
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-700"></div>
+          <p className="ml-2 text-neutral-500">Đang tải dữ liệu...</p>
         </div>
-
-        <div>
-          <div className="bg-white rounded-lg shadow-md overflow-hidden h-full">
-            <div className="bg-blue-50 p-4 border-b border-blue-100">
-              <h2 className="text-lg font-medium text-blue-800">
-                Hành động nhanh
-              </h2>
-            </div>
-            <div className="p-6 flex flex-col gap-4">
-              <Link
-                to="/student/report-symptom"
-                className="bg-blue-50 p-4 rounded-lg hover:bg-blue-100 transition-colors flex items-center"
-              >
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                  <svg
-                    className="w-6 h-6 text-blue-600"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-medium text-blue-800">
-                    Báo cáo triệu chứng
-                  </p>
-                  <p className="text-xs text-blue-600">
-                    Báo cáo khi bạn cảm thấy không khỏe
-                  </p>
-                </div>
-              </Link>
-              <Link
-                to="/student/request-visit"
-                className="bg-green-50 p-4 rounded-lg hover:bg-green-100 transition-colors flex items-center"
-              >
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-4">
-                  <svg
-                    className="w-6 h-6 text-green-600"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-medium text-green-800">Yêu cầu gặp y tá</p>
-                  <p className="text-xs text-green-600">
-                    Đặt lịch đến phòng y tế
-                  </p>
-                </div>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Medication reminders */}
-      <div className="mb-8">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-blue-50 p-4 border-b border-blue-100">
-            <h2 className="text-lg font-medium text-blue-800">
-              Nhắc nhở thuốc
-            </h2>
-          </div>
-          {medications.length > 0 ? (
-            <div className="divide-y divide-gray-200">
-              {medications.map((medication) => (
-                <div
-                  key={medication.id}
-                  className="p-4 flex items-center justify-between"
-                >
-                  <div>
-                    <p className="font-medium text-gray-800">
-                      {medication.name}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {medication.schedule}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Còn lại: {medication.remainingDoses} liều
-                    </p>
-                  </div>
-                  <button className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm">
-                    Đã uống thuốc
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="p-6 text-center">
-              <p className="text-gray-600">Bạn không có lịch dùng thuốc nào.</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Upcoming health events */}
-      <div>
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="bg-blue-50 p-4 border-b border-blue-100">
-            <h2 className="text-lg font-medium text-blue-800">
-              Sự kiện y tế sắp tới
-            </h2>
-          </div>
-          {upcomingEvents.length > 0 ? (
-            <div className="divide-y divide-gray-200">
-              {upcomingEvents.map((event) => (
-                <div key={event.id} className="p-4 flex items-center">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${
-                      event.type === "health-check"
-                        ? "bg-blue-100"
-                        : event.type === "vaccination"
-                        ? "bg-green-100"
-                        : "bg-yellow-100"
-                    }`}
-                  >
-                    {event.type === "health-check" && (
-                      <svg
-                        className="w-6 h-6 text-blue-600"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    )}
-                    {event.type === "vaccination" && (
-                      <svg
-                        className="w-6 h-6 text-green-600"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-800">{event.title}</p>
-                    <p className="text-sm text-gray-600">Ngày: {event.date}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="p-6 text-center">
-              <p className="text-gray-600">
-                Không có sự kiện y tế nào sắp tới.
+      ) : (
+        <>
+          {/* Student Welcome Card */}
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden mb-8">
+            <div className="p-6">
+              <h1 className="text-2xl font-semibold text-neutral-800 mb-2">
+                Xin chào, {studentInfo.name}
+              </h1>
+              <p className="text-neutral-600">
+                {studentInfo.class} - Thông tin sức khỏe cá nhân
               </p>
+
+              {/* Health Status Overview */}
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-primary-50 p-4 rounded-lg border border-primary-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-neutral-600">
+                        Tình trạng sức khỏe
+                      </p>
+                      <div className="flex items-center mt-1">
+                        <span
+                          className={`inline-block px-2 py-1 text-sm font-medium rounded-full ${getHealthStatusColor(
+                            studentInfo.healthStatus
+                          )}`}
+                        >
+                          {studentInfo.healthStatus}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                      <FiActivity className="h-5 w-5 text-primary-600" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-neutral-600">Chiều cao</p>
+                      <p className="text-lg font-semibold text-neutral-800 mt-1">
+                        {studentInfo.height}
+                      </p>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
+                      <FiAward className="h-5 w-5 text-neutral-700" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-neutral-600">Cân nặng</p>
+                      <p className="text-lg font-semibold text-neutral-800 mt-1">
+                        {studentInfo.weight}
+                      </p>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
+                      <FiAward className="h-5 w-5 text-neutral-700" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-neutral-600">Chỉ số BMI</p>
+                      <p className="text-lg font-semibold text-neutral-800 mt-1">
+                        {studentInfo.bmi}
+                      </p>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center">
+                      <FiAward className="h-5 w-5 text-neutral-700" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Health Progress */}
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold text-neutral-800 mb-2">
+                  Tiến độ sức khỏe
+                </h3>
+                <div className="w-full bg-neutral-200 rounded-full h-2.5">
+                  <div
+                    className="bg-primary-600 h-2.5 rounded-full"
+                    style={{
+                      width: `${
+                        (studentInfo.completedHealthActivities /
+                          studentInfo.totalHealthActivities) *
+                        100
+                      }%`,
+                    }}
+                  ></div>
+                </div>
+                <div className="flex justify-between mt-2">
+                  <span className="text-sm text-neutral-600">
+                    Hoàn thành {studentInfo.completedHealthActivities}/
+                    {studentInfo.totalHealthActivities} hoạt động
+                  </span>
+                  <span className="text-sm font-medium text-primary-700">
+                    {Math.round(
+                      (studentInfo.completedHealthActivities /
+                        studentInfo.totalHealthActivities) *
+                        100
+                    )}
+                    %
+                  </span>
+                </div>
+              </div>
             </div>
-          )}
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 text-center">
-            <Link
-              to="/student/health-events"
-              className="text-blue-600 hover:text-blue-800 text-sm"
-            >
-              Xem tất cả sự kiện
-            </Link>
           </div>
-        </div>
-      </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Upcoming Medications */}
+            <div className="lg:col-span-1 bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+              <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
+                <h3 className="text-lg font-medium text-neutral-800">
+                  Lịch uống thuốc
+                </h3>
+                <Link
+                  to="/student/medication"
+                  className="text-sm text-primary-600 hover:text-primary-800"
+                >
+                  Xem tất cả
+                </Link>
+              </div>
+              <div className="p-4">
+                {studentInfo.upcomingMedications.length > 0 ? (
+                  <div className="space-y-4">
+                    {studentInfo.upcomingMedications.map((med) => (
+                      <div
+                        key={med.id}
+                        className="flex p-3 bg-neutral-50 rounded-lg"
+                      >
+                        <div className="bg-blue-100 p-2 rounded-full">
+                          <FiClock className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="ml-3 flex-1">
+                          <div className="text-sm font-medium text-neutral-800">
+                            {med.name}
+                          </div>
+                          <div className="text-xs text-neutral-500 mt-1">
+                            {med.dosage} - {med.time}
+                          </div>
+                          <div className="text-xs font-medium text-primary-600 mt-1">
+                            Còn {med.remainingDays} ngày
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-neutral-500">
+                    Không có thuốc cần uống
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Upcoming Health Events */}
+            <div className="lg:col-span-1 bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+              <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
+                <h3 className="text-lg font-medium text-neutral-800">
+                  Sự kiện sắp tới
+                </h3>
+                <Link
+                  to="/student/health-events"
+                  className="text-sm text-primary-600 hover:text-primary-800"
+                >
+                  Xem tất cả
+                </Link>
+              </div>
+              <div className="p-4">
+                {studentInfo.upcomingEvents.length > 0 ? (
+                  <div className="space-y-4">
+                    {studentInfo.upcomingEvents.map((event) => (
+                      <div
+                        key={event.id}
+                        className="flex p-3 bg-neutral-50 rounded-lg"
+                      >
+                        <div
+                          className={`p-2 rounded-full ${
+                            event.type === "health-check"
+                              ? "bg-green-100"
+                              : "bg-purple-100"
+                          }`}
+                        >
+                          <FiCalendar
+                            className={`h-5 w-5 ${
+                              event.type === "health-check"
+                                ? "text-green-600"
+                                : "text-purple-600"
+                            }`}
+                          />
+                        </div>
+                        <div className="ml-3 flex-1">
+                          <div className="text-sm font-medium text-neutral-800">
+                            {event.title}
+                          </div>
+                          <div className="text-xs text-neutral-500 mt-1">
+                            Ngày: {event.date}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-neutral-500">
+                    Không có sự kiện sắp tới
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Health Tips */}
+            <div className="lg:col-span-1 bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+              <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
+                <h3 className="text-lg font-medium text-neutral-800">
+                  Lời khuyên sức khỏe
+                </h3>
+                <Link
+                  to="/student/resources"
+                  className="text-sm text-primary-600 hover:text-primary-800"
+                >
+                  Xem thêm
+                </Link>
+              </div>
+              <div className="p-4">
+                <div className="space-y-4">
+                  {studentInfo.healthTips.map((tip) => (
+                    <div key={tip.id} className="p-3 bg-neutral-50 rounded-lg">
+                      <div className="flex items-center">
+                        <div className="bg-primary-100 p-2 rounded-full">
+                          <FiBookOpen className="h-4 w-4 text-primary-600" />
+                        </div>
+                        <div className="ml-3 font-medium text-sm text-neutral-800">
+                          {tip.title}
+                        </div>
+                      </div>
+                      <div className="mt-2 text-xs text-neutral-600 pl-11">
+                        {tip.description}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Health Events */}
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden mb-8">
+            <div className="p-4 border-b border-neutral-100">
+              <h3 className="text-lg font-medium text-neutral-800">
+                Lịch sử sức khỏe gần đây
+              </h3>
+            </div>
+            <div className="p-4">
+              {studentInfo.recentHealthEvents.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-neutral-200 table-fixed max-w-4xl mx-auto">
+                    <thead className="bg-neutral-50">
+                      <tr>
+                        <th
+                          scope="col"
+                          className="w-1/6 px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                          style={{ minWidth: "120px" }}
+                        >
+                          Ngày
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-1/4 px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                          style={{ minWidth: "200px" }}
+                        >
+                          Sự kiện
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-5/12 px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                          style={{ minWidth: "300px" }}
+                        >
+                          Mô tả
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-1/6 px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                          style={{ minWidth: "120px" }}
+                        >
+                          Mức độ
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-neutral-200">
+                      {studentInfo.recentHealthEvents.map((event) => (
+                        <tr key={event.id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-700 text-left">
+                            {event.date}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-800 text-left">
+                            {event.title}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-neutral-600 truncate text-left">
+                            {event.description}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                            <span
+                              className={`px-2 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${
+                                event.severity === "minor"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : event.severity === "moderate"
+                                  ? "bg-orange-100 text-orange-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {event.severity === "minor"
+                                ? "Nhẹ"
+                                : event.severity === "moderate"
+                                ? "Trung bình"
+                                : "Nghiêm trọng"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-6 text-neutral-500">
+                  Không có sự kiện y tế gần đây
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Health Resources */}
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+            <div className="p-4 border-b border-neutral-100">
+              <h3 className="text-lg font-medium text-neutral-800">
+                Tài liệu sức khỏe học đường
+              </h3>
+            </div>
+            <div className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Link
+                  to="/student/resources/nutrition"
+                  className="bg-green-50 p-4 rounded-lg border border-green-100 hover:bg-green-100 transition-colors"
+                >
+                  <h4 className="font-medium text-green-800">Dinh dưỡng</h4>
+                  <p className="text-sm text-neutral-600 mt-1">
+                    Thông tin về chế độ ăn uống lành mạnh
+                  </p>
+                </Link>
+                <Link
+                  to="/student/resources/physical"
+                  className="bg-blue-50 p-4 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors"
+                >
+                  <h4 className="font-medium text-blue-800">Thể chất</h4>
+                  <p className="text-sm text-neutral-600 mt-1">
+                    Hướng dẫn về vận động và tập luyện
+                  </p>
+                </Link>
+                <Link
+                  to="/student/resources/mental"
+                  className="bg-purple-50 p-4 rounded-lg border border-purple-100 hover:bg-purple-100 transition-colors"
+                >
+                  <h4 className="font-medium text-purple-800">
+                    Sức khỏe tinh thần
+                  </h4>
+                  <p className="text-sm text-neutral-600 mt-1">
+                    Kỹ năng quản lý cảm xúc và stress
+                  </p>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

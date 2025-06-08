@@ -12,11 +12,11 @@ const ParentDashboard = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
       <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
-        <div className="bg-primary-600 p-6">
+        <div className="p-6">
           <h1 className="text-2xl font-semibold text-black mb-2">
             Xin chào, phụ huynh của {studentName}
           </h1>
-          <p className="text-primary-100 text-sm">
+          <p className="text-black text-sm">
             Theo dõi sức khỏe và các yêu cầu của con bạn tại trường
           </p>
         </div>

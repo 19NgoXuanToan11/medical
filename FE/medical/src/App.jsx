@@ -28,10 +28,10 @@ import HealthEventList from "./pages/staff/health-events/HealthEventList";
 import HealthEventForm from "./pages/staff/health-events/HealthEventForm";
 import HealthEventDetail from "./pages/staff/health-events/HealthEventDetail";
 import MedicalEventSupplies from "./pages/staff/health-events/MedicalEventSupplies";
-import MainLayout from "./components/layout/MainLayout";
+import MainLayout from "./components/layout/main/MainLayout";
 import AdminLayout from "./components/layout/admin/AdminLayout";
 import ManagerLayout from "./components/layout/manager/ManagerLayout";
-import AuthLayout from "./components/layout/AuthLayout";
+import AuthLayout from "./components/layout/auth/AuthLayout";
 import ParentLayout from "./components/layout/parent/ParentLayout";
 import VaccinationManagement from "./pages/staff/VaccinationManagement";
 import VaccinationFlowDiagram from "./pages/staff/VaccinationFlowDiagram";
@@ -41,8 +41,22 @@ import HealthCheckExecution from "./pages/staff/HealthCheckExecution";
 import HealthCheckResults from "./pages/staff/HealthCheckResults";
 import HealthCheckForm from "./pages/staff/HealthCheckForm";
 import HealthCheckConfirmation from "./pages/parent/HealthCheckConfirmation";
+import HealthCheckResultDetail from "./pages/parent/HealthCheckResultDetail";
 import HealthEventsList from "./pages/parent/health-events/HealthEventsList";
+import HealthEventResultDetail from "./pages/parent/health-events/HealthEventResultDetail";
 import Notifications from "./pages/parent/notifications/Notifications";
+import NurseLayout from "./components/layout/nurse/NurseLayout";
+import NurseHealthCheckLayout from "./components/layout/nurse/NurseHealthCheckLayout";
+import NurseDashboard from "./pages/nurse/NurseDashboard";
+import NurseHealthCheck from "./pages/nurse/NurseHealthCheck";
+import NurseHealthCheckCreate from "./pages/nurse/NurseHealthCheckCreate";
+import NurseHealthCheckDetail from "./pages/nurse/NurseHealthCheckDetail";
+import StudentHealthHistory from "./pages/nurse/StudentHealthHistory";
+import StudentLayout from "./components/layout/student/StudentLayout";
+import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentMedication from "./pages/student/StudentMedication";
+import StudentHealthEvents from "./pages/student/StudentHealthEvents";
+import StudentHealthResources from "./pages/student/StudentHealthResources";
 
 // Import admin components
 import { AdminDashboard, ReportsAnalytics } from "./pages/admin";
@@ -58,10 +72,8 @@ import {
   MedicineInventory,
   SupplyInventory,
 } from "./pages/manager";
-
-// Import Teacher and Student components
-import TeacherDashboard from "./pages/teacher/TeacherDashboard";
-import StudentDashboard from "./pages/student/StudentDashboard";
+import ParentManagement from "./pages/manager/ParentManagement";
+import StudentManagement from "./pages/manager/StudentManagement";
 
 // Import the VaccinationIndex component
 import VaccinationIndex from "./pages/parent/vaccination";
@@ -95,9 +107,22 @@ function App() {
         {/* Manager Routes - Custom Manager Layout */}
         <Route element={<ManagerLayout />}>
           <Route path="/manager/dashboard" element={<ManagerDashboard />} />
-          {/* Medicine and Medical Supply management */}
-          <Route path="/manager/medicines" element={<MedicineInventory />} />
-          <Route path="/manager/supplies" element={<SupplyInventory />} />
+          <Route
+            path="/manager/parent-management"
+            element={<ParentManagement />}
+          />
+          <Route
+            path="/manager/student-management"
+            element={<StudentManagement />}
+          />
+          <Route
+            path="/manager/medicine-inventory"
+            element={<MedicineInventory />}
+          />
+          <Route
+            path="/manager/supply-inventory"
+            element={<SupplyInventory />}
+          />
         </Route>
 
         {/* Main Routes - With Navbar and Footer */}
@@ -185,7 +210,7 @@ function App() {
           />
           <Route
             path="/parent/health-check/:id/results"
-            element={<HealthCheckConfirmation />}
+            element={<HealthCheckResultDetail />}
           />
 
           {/* Parent Health Events Routes */}
@@ -193,6 +218,10 @@ function App() {
           <Route
             path="/parent/health-events/:id"
             element={<HealthEventDetail />}
+          />
+          <Route
+            path="/parent/health-events/:id/results"
+            element={<HealthEventResultDetail />}
           />
 
           {/* Parent Notifications Routes */}
@@ -284,8 +313,6 @@ function App() {
             element={<HealthCheckManagement />}
           />
 
-          {/* Teacher Routes */}
-          <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
           <Route
             path="/teacher/health-report/new"
             element={
@@ -294,9 +321,82 @@ function App() {
               </div>
             }
           />
+        </Route>
 
-          {/* Student Routes */}
+        {/* Nurse Routes - With NurseLayout */}
+        <Route element={<NurseLayout />}>
+          <Route path="/nurse/dashboard" element={<NurseDashboard />} />
+          <Route
+            path="/nurse/students"
+            element={
+              <div className="p-8">
+                Quản lý hồ sơ học sinh (đang phát triển)
+              </div>
+            }
+          />
+          <Route path="/nurse/medication" element={<StaffMedicationList />} />
+          <Route path="/nurse/supplies" element={<MedicalInventory />} />
+          <Route path="/nurse/health-events" element={<HealthEventList />} />
+          <Route
+            path="/nurse/vaccination"
+            element={<VaccinationManagement />}
+          />
+        </Route>
+
+        {/* Nurse Health Check Routes - Without Header/Footer */}
+        <Route element={<NurseHealthCheckLayout />}>
+          <Route path="/nurse/health-check" element={<NurseHealthCheck />} />
+          <Route
+            path="/nurse/health-check/new"
+            element={<NurseHealthCheckCreate />}
+          />
+          <Route
+            path="/nurse/health-check/:id"
+            element={<NurseHealthCheckDetail />}
+          />
+          <Route
+            path="/nurse/student/:id/health-history"
+            element={<StudentHealthHistory />}
+          />
+          {/* Keep legacy routes for backward compatibility */}
+          <Route
+            path="/nurse/health-check/:checkId"
+            element={<HealthCheckExecution />}
+          />
+          <Route
+            path="/nurse/health-check/:checkId/results"
+            element={<HealthCheckResults />}
+          />
+          <Route
+            path="/nurse/health-check/:checkId/edit"
+            element={<HealthCheckManagement />}
+          />
+        </Route>
+
+        {/* Student Routes - With StudentLayout */}
+        <Route element={<StudentLayout />}>
           <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route
+            path="/student/health-profile"
+            element={<StudentHealthProfile />}
+          />
+          <Route path="/student/medication" element={<StudentMedication />} />
+          <Route
+            path="/student/health-events"
+            element={<StudentHealthEvents />}
+          />
+          <Route
+            path="/student/resources"
+            element={<StudentHealthResources />}
+          />
+          <Route
+            path="/student/help"
+            element={<div className="p-8">Trợ giúp (đang phát triển)</div>}
+          />
+          <Route
+            path="/student/messages"
+            element={<div className="p-8">Tin nhắn (đang phát triển)</div>}
+          />
         </Route>
       </Routes>
     </div>

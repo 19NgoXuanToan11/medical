@@ -113,19 +113,19 @@ const MedicationHistory = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
       <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
-        <div className="bg-primary-600 p-6">
+        <div className="p-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-semibold text-black mb-2">
                 Lịch sử yêu cầu thuốc
               </h1>
-              <p className="text-primary-100 text-sm">
+              <p className="text-black text-sm">
                 Theo dõi tình trạng và lịch sử uống thuốc của học sinh
               </p>
             </div>
             <Link
               to="/parent/medication/request"
-              className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-black border border-black rounded-md shadow-sm transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white border rounded-md shadow-sm transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

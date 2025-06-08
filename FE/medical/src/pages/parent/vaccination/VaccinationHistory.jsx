@@ -143,7 +143,7 @@ const VaccinationHistory = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
       <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
-        <div className="bg-primary-600 p-6">
+        <div className="p-6">
           <h1 className="text-2xl font-semibold text-black mb-2">Tiêm chủng</h1>
         </div>
 
@@ -160,7 +160,7 @@ const VaccinationHistory = () => {
                   onClick={() => handleChildSelect(child.id)}
                   className={`px-4 py-2 rounded-md transition-colors ${
                     selectedChild?.id === child.id
-                      ? "bg-primary-600 text-black"
+                      ? "bg-primary-600 text-white"
                       : "bg-neutral-100 hover:bg-neutral-200 text-neutral-800"
                   }`}
                 >
@@ -341,7 +341,7 @@ const VaccinationHistory = () => {
                               <div className="mt-4 flex justify-end">
                                 <Link
                                   to={`/parent/vaccination/consent/${vaccination.id}`}
-                                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                                 >
                                   Xác nhận đồng ý
                                 </Link>
@@ -400,25 +400,29 @@ const VaccinationHistory = () => {
                           <tr>
                             <th
                               scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                              className="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                              style={{ width: "30%" }}
                             >
                               Loại vaccine
                             </th>
                             <th
                               scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                              className="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                              style={{ width: "20%" }}
                             >
                               Ngày tiêm
                             </th>
                             <th
                               scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                              className="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                              style={{ width: "30%" }}
                             >
                               Địa điểm
                             </th>
                             <th
                               scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                              className="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider"
+                              style={{ width: "20%" }}
                             >
                               Trạng thái
                             </th>
@@ -431,22 +435,22 @@ const VaccinationHistory = () => {
                                 key={vaccination.id}
                                 className="hover:bg-neutral-50"
                               >
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-6 py-4 text-center">
                                   <div className="text-sm font-medium text-neutral-900">
                                     {vaccination.name}
                                   </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-6 py-4 text-center">
                                   <div className="text-sm text-neutral-500">
                                     {vaccination.date}
                                   </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-6 py-4 text-center">
                                   <div className="text-sm text-neutral-500">
                                     {vaccination.location}
                                   </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-6 py-4 text-center">
                                   <span
                                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                       vaccination.status === "Đã tiêm"

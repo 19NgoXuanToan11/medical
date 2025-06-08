@@ -36,11 +36,11 @@ const VaccinationConsent = () => {
     <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
       {!submitted ? (
         <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
-          <div className="bg-primary-600 p-6">
+          <div className="p-6">
             <h1 className="text-2xl font-semibold text-black mb-2">
               Phiếu đồng ý tiêm chủng
             </h1>
-            <p className="text-primary-100 text-sm">Trường Tiểu học XYZ</p>
+            <p className="text-black text-sm">Trường Tiểu học XYZ</p>
           </div>
 
           <div className="p-6">
@@ -177,7 +177,7 @@ const VaccinationConsent = () => {
                   <div className="flex justify-end">
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-primary-600 text-black rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                     >
                       Xác nhận
                     </button>

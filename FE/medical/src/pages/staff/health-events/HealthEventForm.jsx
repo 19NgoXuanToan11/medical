@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import FormInput from "../../../components/FormInput";
+import FormInput from "../../../components/layout/form/FormInput";
 
 const HealthEventForm = () => {
   const { id } = useParams();

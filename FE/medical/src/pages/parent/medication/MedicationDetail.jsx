@@ -213,13 +213,13 @@ const MedicationDetail = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
       <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
-        <div className="bg-primary-600 p-6">
+        <div className="p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Link
                   to="/parent/medication/history"
-                  className="text-primary-100 hover:text-white"
+                  className="text-black hover:text-white"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -239,7 +239,7 @@ const MedicationDetail = () => {
                 </h1>
                 {getStatusBadge(medication.status)}
               </div>
-              <p className="text-primary-100 text-sm">
+              <p className="text-black text-sm">
                 Mã yêu cầu: #{medication.id} | Ngày tạo:{" "}
                 {new Date(medication.requestDate).toLocaleString("vi-VN")}
               </p>
@@ -262,7 +262,7 @@ const MedicationDetail = () => {
               </button>
               <Link
                 to={`/parent/medication/edit/${medication.id}`}
-                className="px-4 py-2 bg-primary-600 text-black rounded-md hover:bg-primary-700 flex items-center gap-2"
+                className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 flex items-center gap-2"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -451,53 +451,39 @@ const MedicationDetail = () => {
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
-                    >
+              <table className="min-w-full">
+                <thead>
+                  <tr className="bg-neutral-50 border-b border-neutral-200">
+                    <th className="text-xs font-medium text-neutral-500 uppercase tracking-wider py-3 px-6 text-center">
                       Ngày & Thời gian
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
-                    >
+                    <th className="text-xs font-medium text-neutral-500 uppercase tracking-wider py-3 px-6 text-center">
                       Trạng thái
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
-                    >
+                    <th className="text-xs font-medium text-neutral-500 uppercase tracking-wider py-3 px-6 text-center">
                       Người thực hiện
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider"
-                    >
+                    <th className="text-xs font-medium text-neutral-500 uppercase tracking-wider py-3 px-6 text-center">
                       Ghi chú
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-neutral-200">
+                <tbody>
                   {medication.administrationLog.map((log, index) => (
                     <tr
                       key={index}
-                      className={
-                        log.status === "upcoming" ? "bg-neutral-50" : ""
-                      }
+                      className="border-b border-neutral-200 hover:bg-neutral-50"
                     >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                      <td className="py-4 px-6 text-center text-sm text-neutral-900">
                         {new Date(log.date).toLocaleString("vi-VN")}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="py-4 px-6 text-center">
                         {getAdministrationStatusBadge(log.status)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                      <td className="py-4 px-6 text-center text-sm text-neutral-900">
                         {log.administrator || "-"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                      <td className="py-4 px-6 text-center text-sm text-neutral-500">
                         {log.notes || "-"}
                       </td>
                     </tr>

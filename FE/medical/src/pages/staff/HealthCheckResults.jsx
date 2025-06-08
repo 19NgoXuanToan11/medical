@@ -216,8 +216,8 @@ const HealthCheckResults = () => {
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white shadow rounded-lg p-5">
-          <div className="flex items-center">
+        <div className="bg-white shadow rounded-lg p-5 flex flex-col items-center justify-center">
+          <div className="flex items-center justify-center">
             <div className="flex-shrink-0 rounded-full p-3 bg-blue-100">
               <svg
                 className="h-6 w-6 text-blue-600"
@@ -234,23 +234,19 @@ const HealthCheckResults = () => {
                 />
               </svg>
             </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Tổng số học sinh
-                </dt>
-                <dd>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {healthCheck.totalStudents}
-                  </div>
-                </dd>
-              </dl>
+          </div>
+          <div className="mt-3 text-center">
+            <div className="text-sm font-medium text-gray-500">
+              Tổng số học sinh
+            </div>
+            <div className="text-lg font-semibold text-gray-900">
+              {healthCheck.totalStudents}
             </div>
           </div>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-5">
-          <div className="flex items-center">
+        <div className="bg-white shadow rounded-lg p-5 flex flex-col items-center justify-center">
+          <div className="flex items-center justify-center">
             <div className="flex-shrink-0 rounded-full p-3 bg-green-100">
               <svg
                 className="h-6 w-6 text-green-600"
@@ -267,23 +263,19 @@ const HealthCheckResults = () => {
                 />
               </svg>
             </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Kết quả bình thường
-                </dt>
-                <dd>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {results.filter((r) => !r.isAbnormal).length}
-                  </div>
-                </dd>
-              </dl>
+          </div>
+          <div className="mt-3 text-center">
+            <div className="text-sm font-medium text-gray-500">
+              Kết quả bình thường
+            </div>
+            <div className="text-lg font-semibold text-gray-900">
+              {results.filter((r) => !r.isAbnormal).length}
             </div>
           </div>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-5">
-          <div className="flex items-center">
+        <div className="bg-white shadow rounded-lg p-5 flex flex-col items-center justify-center">
+          <div className="flex items-center justify-center">
             <div className="flex-shrink-0 rounded-full p-3 bg-red-100">
               <svg
                 className="h-6 w-6 text-red-600"
@@ -300,23 +292,19 @@ const HealthCheckResults = () => {
                 />
               </svg>
             </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Cần theo dõi
-                </dt>
-                <dd>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {healthCheck.abnormalResults}
-                  </div>
-                </dd>
-              </dl>
+          </div>
+          <div className="mt-3 text-center">
+            <div className="text-sm font-medium text-gray-500">
+              Cần theo dõi
+            </div>
+            <div className="text-lg font-semibold text-gray-900">
+              {healthCheck.abnormalResults}
             </div>
           </div>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-5">
-          <div className="flex items-center">
+        <div className="bg-white shadow rounded-lg p-5 flex flex-col items-center justify-center">
+          <div className="flex items-center justify-center">
             <div className="flex-shrink-0 rounded-full p-3 bg-purple-100">
               <svg
                 className="h-6 w-6 text-purple-600"
@@ -333,17 +321,13 @@ const HealthCheckResults = () => {
                 />
               </svg>
             </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Lịch hẹn đã xếp
-                </dt>
-                <dd>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {results.filter((r) => r.appointmentScheduled).length}
-                  </div>
-                </dd>
-              </dl>
+          </div>
+          <div className="mt-3 text-center">
+            <div className="text-sm font-medium text-gray-500">
+              Lịch hẹn đã xếp
+            </div>
+            <div className="text-lg font-semibold text-gray-900">
+              {results.filter((r) => r.appointmentScheduled).length}
             </div>
           </div>
         </div>
@@ -351,7 +335,7 @@ const HealthCheckResults = () => {
 
       {/* Results table */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="px-4 py-5 sm:px-6 bg-gray-50">
+        <div className="px-4 py-5 sm:px-6 bg-gray-50 text-center">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             Kết quả chi tiết
           </h3>
@@ -362,37 +346,37 @@ const HealthCheckResults = () => {
               <tr>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Học sinh
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Chiều cao / Cân nặng
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Thị lực
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Ghi chú
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Trạng thái
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Hành động
                 </th>
@@ -401,34 +385,32 @@ const HealthCheckResults = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {results.map((student) => (
                 <tr key={student.studentId}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="ml-0">
-                        <div className="text-sm font-medium text-gray-900">
-                          {student.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {student.age} tuổi • {student.gender}
-                        </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="text-sm font-medium text-gray-900">
+                        {student.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {student.age} tuổi • {student.gender}
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="text-sm text-gray-900">
                       {`${student.height} cm / ${student.weight} kg`}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="text-sm text-gray-900">
                       {student.vision}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900 max-w-xs">
+                  <td className="px-6 py-4 text-center">
+                    <div className="text-sm text-gray-900 max-w-xs mx-auto">
                       {student.notes}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
                     {student.isAbnormal ? (
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                         Cần theo dõi
@@ -446,11 +428,11 @@ const HealthCheckResults = () => {
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                     {student.isAbnormal && !student.appointmentScheduled ? (
                       <button
                         onClick={() => openAppointmentModal(student)}
-                        className="text-blue-600 hover:text-blue-900 ml-4"
+                        className="text-blue-600 hover:text-blue-900"
                       >
                         Lịch hẹn
                       </button>

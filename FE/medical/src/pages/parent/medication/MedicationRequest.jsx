@@ -169,11 +169,11 @@ const MedicationRequest = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
       <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
-        <div className="bg-primary-600 p-6">
+        <div className="p-6">
           <h1 className="text-2xl font-semibold text-black mb-2">
             Gửi yêu cầu cấp thuốc
           </h1>
-          <p className="text-primary-100 text-sm">
+          <p className="text-black text-sm">
             Hoàn thành mẫu đơn này để gửi yêu cầu thuốc cho con bạn tại trường
           </p>
         </div>
@@ -841,7 +841,7 @@ const MedicationRequest = () => {
             {step < 3 ? (
               <button
                 type="button"
-                className="px-4 py-2 bg-primary-600 text-black rounded-md hover:bg-primary-700"
+                className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
                 onClick={nextStep}
               >
                 Tiếp theo

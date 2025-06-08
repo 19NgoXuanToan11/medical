@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import FormInput from "../../../components/FormInput";
+import FormInput from "../../../components/layout/form/FormInput";
 
 const StudentHealthProfile = ({ viewOnly = false }) => {
   const { id } = useParams();
@@ -71,6 +71,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
     emergencyContact: "",
     otherInfo: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   // Load profile data if in edit or view mode
   useEffect(() => {
@@ -349,10 +351,25 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     // Logic to submit data to backend would go here
     console.log("Submitting health profile:", formData);
-    // Show success notification
-    alert("Hồ sơ sức khỏe đã được lưu thành công!");
+
+    // Simulate API call with a delay
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitSuccess(true);
+
+      // Reset success message after a delay
+      setTimeout(() => {
+        setSubmitSuccess(false);
+        if (!id) {
+          // If creating a new profile, redirect to the list
+          navigate("/parent/health-profile");
+        }
+      }, 3000);
+    }, 1000);
   };
 
   return (
@@ -381,7 +398,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
           </Link>
         </div>
 
-        <div className="bg-primary-600 p-6">
+        <div className="p-6">
           <div className="text-center">
             <h1 className="text-2xl font-semibold text-black mb-2">
               {viewOnly
@@ -390,7 +407,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 ? "Cập nhật hồ sơ sức khỏe học sinh"
                 : "Khai báo hồ sơ sức khỏe học sinh"}
             </h1>
-            <p className="text-primary-100 text-sm">
+            <p className="text-sm">
               {viewOnly
                 ? "Xem thông tin sức khỏe đầy đủ của học sinh"
                 : "Cung cấp thông tin sức khỏe đầy đủ của học sinh để nhà trường có thể theo dõi và chăm sóc tốt nhất"}
@@ -422,7 +439,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Thông tin cơ bản học sinh
               </h2>
 
-              <div className="bg-primary-50 rounded-lg p-6 border border-primary-100">
+              <div className="rounded-lg p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
                     id="studentName"
@@ -505,7 +522,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Thông tin phụ huynh
               </h2>
 
-              <div className="bg-primary-50 rounded-lg p-6 border border-primary-100">
+              <div className="rounded-lg p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
                     id="fatherName"
@@ -586,7 +603,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Tiền sử bệnh
               </h2>
 
-              <div className="bg-primary-50 rounded-lg p-6 border border-primary-100">
+              <div className="rounded-lg p-6">
                 <div className="mb-4">
                   <p className="text-sm text-neutral-600 mb-3 font-medium">
                     Học sinh có tiền sử mắc bệnh nặng hoặc phải điều trị y tế
@@ -666,7 +683,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Tiền sử tiêm chủng
               </h2>
 
-              <div className="bg-primary-50 rounded-lg p-6 border border-primary-100">
+              <div className="rounded-lg p-6">
                 <div className="mb-4">
                   <p className="text-sm text-neutral-600 mb-3 font-medium">
                     Học sinh đã được tiêm chủng đầy đủ theo lịch tiêm chủng quốc
@@ -802,7 +819,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Thị lực & Thính lực
               </h2>
 
-              <div className="bg-primary-50 rounded-lg p-6 border border-primary-100">
+              <div className="rounded-lg p-6">
                 <div className="mb-6">
                   <h3 className="font-medium text-neutral-800 mb-3">
                     Thông tin thị lực
@@ -979,7 +996,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Thông tin dị ứng
               </h2>
 
-              <div className="bg-primary-50 rounded-lg p-6 border border-primary-100">
+              <div className="rounded-lg p-6">
                 <div className="mb-4">
                   <p className="text-sm text-neutral-600 mb-3 font-medium">
                     Học sinh có bị dị ứng không?
@@ -1052,7 +1069,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Bệnh mãn tính
               </h2>
 
-              <div className="bg-primary-50 rounded-lg p-6 border border-primary-100">
+              <div className="rounded-lg p-6">
                 <div className="mb-4">
                   <p className="text-sm text-neutral-600 mb-3 font-medium">
                     Học sinh có mắc bệnh mãn tính nào không?
@@ -1123,7 +1140,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Thông tin sức khỏe khác
               </h2>
 
-              <div className="bg-primary-50 rounded-lg p-6 border border-primary-100">
+              <div className="rounded-lg p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <FormInput
                     id="height"
@@ -1174,7 +1191,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
               {viewOnly ? (
                 <Link
                   to={`/parent/health-profile/edit/${id}`}
-                  className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-black text-sm font-medium rounded shadow-md transition-colors duration-200 mr-4"
+                  className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded shadow-md transition-colors duration-200 mr-4"
                 >
                   <svg
                     className="w-4 h-4 mr-2"
@@ -1193,26 +1210,78 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                   Chỉnh sửa hồ sơ
                 </Link>
               ) : (
-                <button
-                  type="submit"
-                  className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-black text-sm font-medium rounded shadow-md transition-colors duration-200"
-                >
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
+                <>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded shadow-md transition-colors duration-200 ${
+                      isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  {id ? "Cập nhật hồ sơ" : "Tạo hồ sơ mới"}
-                </button>
+                    {isSubmitting ? (
+                      <>
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Đang xử lý...
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="w-4 h-4 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        {id ? "Cập nhật hồ sơ" : "Tạo hồ sơ mới"}
+                      </>
+                    )}
+                  </button>
+                  {submitSuccess && (
+                    <div className="ml-4 text-green-600 flex items-center">
+                      <svg
+                        className="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Hồ sơ đã được lưu thành công
+                    </div>
+                  )}
+                </>
               )}
               <Link
                 to="/parent/health-profile"

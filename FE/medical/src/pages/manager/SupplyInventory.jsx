@@ -304,19 +304,19 @@ const SupplyInventory = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-semibold text-neutral-800">
             Quản lý vật tư y tế
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-neutral-600 mt-1">
             Theo dõi và quản lý danh sách vật tư y tế tại trường
           </p>
         </div>
         <button
           onClick={() => handleAddEditSupply()}
-          className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
+          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
         >
           <FiPlus className="mr-2" />
           Thêm vật tư mới
@@ -325,51 +325,55 @@ const SupplyInventory = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-gradient-to-r from-teal-50 to-teal-100 p-4 rounded-lg border border-teal-200 flex justify-between">
+        <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 flex justify-between">
           <div>
-            <p className="text-teal-800 text-sm font-medium">Tổng số vật tư</p>
-            <p className="text-3xl font-bold text-teal-900">{stats.total}</p>
+            <p className="text-neutral-600 text-sm font-medium">
+              Tổng số vật tư
+            </p>
+            <p className="text-3xl font-bold text-primary-700">{stats.total}</p>
           </div>
-          <div className="bg-teal-200 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiPackage className="h-6 w-6 text-teal-700" />
+          <div className="bg-primary-100 h-12 w-12 rounded-full flex items-center justify-center">
+            <FiPackage className="h-6 w-6 text-primary-600" />
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-amber-50 to-amber-100 p-4 rounded-lg border border-amber-200 flex justify-between">
+        <div className="bg-red-50 p-4 rounded-lg border border-red-100 flex justify-between">
           <div>
-            <p className="text-amber-800 text-sm font-medium">Sắp hết hàng</p>
-            <p className="text-3xl font-bold text-amber-900">
-              {stats.lowStock}
+            <p className="text-neutral-600 text-sm font-medium">Sắp hết hàng</p>
+            <p className="text-3xl font-bold text-red-600">{stats.lowStock}</p>
+          </div>
+          <div className="bg-red-100 h-12 w-12 rounded-full flex items-center justify-center">
+            <FiAlertTriangle className="h-6 w-6 text-red-600" />
+          </div>
+        </div>
+
+        <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200 flex justify-between">
+          <div>
+            <p className="text-neutral-600 text-sm font-medium">
+              Ngừng sử dụng
+            </p>
+            <p className="text-3xl font-bold text-neutral-700">
+              {stats.inactive}
             </p>
           </div>
-          <div className="bg-amber-200 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiAlertTriangle className="h-6 w-6 text-amber-700" />
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200 flex justify-between">
-          <div>
-            <p className="text-gray-800 text-sm font-medium">Ngừng sử dụng</p>
-            <p className="text-3xl font-bold text-gray-900">{stats.inactive}</p>
-          </div>
-          <div className="bg-gray-200 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiX className="h-6 w-6 text-gray-700" />
+          <div className="bg-neutral-200 h-12 w-12 rounded-full flex items-center justify-center">
+            <FiX className="h-6 w-6 text-neutral-600" />
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-gray-50 p-4 rounded-lg mb-6">
+      <div className="bg-neutral-50 p-4 rounded-lg mb-6 border border-neutral-200">
         <div className="flex flex-col md:flex-row gap-4 md:items-center">
           <div className="flex-1">
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <FiSearch className="h-5 w-5 text-gray-400" />
+                <FiSearch className="h-5 w-5 text-neutral-400" />
               </span>
               <input
                 type="text"
                 placeholder="Tìm kiếm theo tên, mã hoặc loại vật tư..."
-                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-teal-600"
+                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary-600"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -378,7 +382,7 @@ const SupplyInventory = () => {
 
           <div>
             <select
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600 bg-white"
+              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white"
               value={filterStatus}
               onChange={(e) => handleFilterChange(e.target.value)}
             >
@@ -391,7 +395,7 @@ const SupplyInventory = () => {
 
           <button
             onClick={resetFilters}
-            className="md:ml-auto flex items-center text-teal-600 hover:text-teal-800 transition-colors duration-300"
+            className="md:ml-auto flex items-center text-primary-600 hover:text-primary-800 transition-colors duration-300"
           >
             <FiRefreshCw className="mr-1" />
             Đặt lại
@@ -403,9 +407,9 @@ const SupplyInventory = () => {
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border-collapse">
           <thead>
-            <tr className="bg-gray-100">
+            <tr className="bg-neutral-50 border-y border-neutral-200">
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
                 onClick={() => handleSortChange("id")}
               >
                 <div className="flex items-center">
@@ -418,7 +422,7 @@ const SupplyInventory = () => {
                 </div>
               </th>
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
                 onClick={() => handleSortChange("name")}
               >
                 <div className="flex items-center">
@@ -431,7 +435,7 @@ const SupplyInventory = () => {
                 </div>
               </th>
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
                 onClick={() => handleSortChange("category")}
               >
                 <div className="flex items-center">
@@ -444,7 +448,7 @@ const SupplyInventory = () => {
                 </div>
               </th>
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
                 onClick={() => handleSortChange("stock")}
               >
                 <div className="flex items-center">
@@ -456,21 +460,21 @@ const SupplyInventory = () => {
                   )}
                 </div>
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">
+              <th className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider">
                 Trạng thái
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">
+              <th className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider">
                 Thao tác
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-neutral-200">
             {loading ? (
               <tr>
                 <td colSpan="6" className="text-center py-4">
                   <div className="flex justify-center items-center">
                     <svg
-                      className="animate-spin h-5 w-5 text-teal-600 mr-3"
+                      className="animate-spin h-5 w-5 text-primary-600 mr-3"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -497,27 +501,27 @@ const SupplyInventory = () => {
               sortedSupplies.map((item) => (
                 <tr
                   key={item.supplyId}
-                  className="hover:bg-gray-50 transition-colors duration-200"
+                  className="hover:bg-neutral-50 transition-colors duration-200"
                 >
-                  <td className="py-3 px-4 text-sm text-gray-900">
+                  <td className="py-3 px-4 text-sm text-neutral-900">
                     {item.supplyId}
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center">
-                      <FiPackage className="h-5 w-5 text-teal-600 mr-2" />
-                      <span className="font-medium text-gray-900">
+                      <FiPackage className="h-5 w-5 text-primary-600 mr-2" />
+                      <span className="font-medium text-neutral-900">
                         {item.name}
                       </span>
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-900">
+                  <td className="py-3 px-4 text-sm text-neutral-900">
                     {item.category || "-"}
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center">
                       <span
                         className={`font-medium ${
-                          isLowStock(item) ? "text-red-600" : "text-gray-900"
+                          isLowStock(item) ? "text-red-600" : "text-neutral-900"
                         }`}
                       >
                         {item.stockQuantity}
@@ -532,7 +536,7 @@ const SupplyInventory = () => {
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
                         item.isActive
                           ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
+                          : "bg-neutral-100 text-neutral-800"
                       }`}
                     >
                       {item.isActive ? "Đang sử dụng" : "Ngừng sử dụng"}
@@ -551,7 +555,7 @@ const SupplyInventory = () => {
                         onClick={() => toggleSupplyStatus(item)}
                         className={`${
                           item.isActive
-                            ? "text-gray-600 hover:text-gray-800"
+                            ? "text-neutral-600 hover:text-neutral-800"
                             : "text-green-600 hover:text-green-800"
                         }`}
                         title={
@@ -582,7 +586,7 @@ const SupplyInventory = () => {
                 <td colSpan="6" className="text-center py-6">
                   <div className="flex flex-col items-center justify-center">
                     <svg
-                      className="w-12 h-12 text-gray-400 mb-3"
+                      className="w-12 h-12 text-neutral-400 mb-3"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -595,15 +599,15 @@ const SupplyInventory = () => {
                         d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       ></path>
                     </svg>
-                    <p className="text-gray-600 text-lg">
+                    <p className="text-neutral-600 text-lg">
                       Không có vật tư nào phù hợp
                     </p>
-                    <p className="text-gray-500 text-sm mt-1">
+                    <p className="text-neutral-500 text-sm mt-1">
                       Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác
                     </p>
                     <button
                       onClick={resetFilters}
-                      className="mt-3 bg-teal-100 text-teal-700 hover:bg-teal-200 px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
+                      className="mt-3 bg-primary-100 text-primary-700 hover:bg-primary-200 px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
                     >
                       <FiRefreshCw className="mr-2" />
                       Đặt lại bộ lọc
@@ -621,12 +625,12 @@ const SupplyInventory = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+              <h3 className="text-xl font-bold text-neutral-900 mb-4">
                 {selectedItem ? "Chỉnh sửa vật tư" : "Thêm vật tư mới"}
               </h3>
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label className="block text-neutral-700 font-medium mb-2">
                     Tên vật tư
                   </label>
                   <input
@@ -634,8 +638,8 @@ const SupplyInventory = () => {
                     name="name"
                     value={itemForm.name}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 ${
-                      formErrors.name ? "border-red-500" : "border-gray-300"
+                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 ${
+                      formErrors.name ? "border-red-500" : "border-neutral-300"
                     }`}
                   />
                   {formErrors.name && (
@@ -646,7 +650,7 @@ const SupplyInventory = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label className="block text-neutral-700 font-medium mb-2">
                     Loại vật tư
                   </label>
                   <input
@@ -654,12 +658,12 @@ const SupplyInventory = () => {
                     name="category"
                     value={itemForm.category}
                     onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600"
+                    className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
                   />
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label className="block text-neutral-700 font-medium mb-2">
                     Mô tả
                   </label>
                   <textarea
@@ -667,12 +671,12 @@ const SupplyInventory = () => {
                     value={itemForm.description}
                     onChange={handleInputChange}
                     rows="3"
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600"
+                    className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
                   ></textarea>
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label className="block text-neutral-700 font-medium mb-2">
                     Số lượng
                   </label>
                   <input
@@ -681,10 +685,10 @@ const SupplyInventory = () => {
                     value={itemForm.stockQuantity}
                     onChange={handleInputChange}
                     min="0"
-                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 ${
+                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 ${
                       formErrors.stockQuantity
                         ? "border-red-500"
-                        : "border-gray-300"
+                        : "border-neutral-300"
                     }`}
                   />
                   {formErrors.stockQuantity && (
@@ -701,9 +705,9 @@ const SupplyInventory = () => {
                       name="isActive"
                       checked={itemForm.isActive}
                       onChange={handleInputChange}
-                      className="form-checkbox h-5 w-5 text-teal-600 rounded focus:ring-teal-600 focus:ring-2"
+                      className="form-checkbox h-5 w-5 text-primary-600 rounded focus:ring-primary-600 focus:ring-2"
                     />
-                    <span className="ml-2 text-gray-700">Đang sử dụng</span>
+                    <span className="ml-2 text-neutral-700">Đang sử dụng</span>
                   </label>
                 </div>
 
@@ -711,13 +715,13 @@ const SupplyInventory = () => {
                   <button
                     type="button"
                     onClick={() => setShowItemModal(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-300"
+                    className="px-4 py-2 border border-neutral-300 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors duration-300"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-teal-600 rounded-lg text-white hover:bg-teal-700 transition-colors duration-300"
+                    className="px-4 py-2 bg-primary-600 rounded-lg text-white hover:bg-primary-700 transition-colors duration-300"
                   >
                     {selectedItem ? "Cập nhật" : "Thêm mới"}
                   </button>
