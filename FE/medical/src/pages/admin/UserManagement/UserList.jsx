@@ -473,12 +473,12 @@ const UserList = () => {
               <p className="text-gray-600">Đang tải dữ liệu...</p>
             </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="min-w-full divide-y divide-gray-200 table-fixed">
               <thead className="bg-gray-50">
                 <tr>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/4"
                     onClick={() => handleSort("name")}
                   >
                     <div className="flex items-center">
@@ -492,10 +492,10 @@ const UserList = () => {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
                     onClick={() => handleSort("role")}
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                       Vai trò
                       {sortColumn === "role" && (
                         <span className="ml-1">
@@ -506,10 +506,10 @@ const UserList = () => {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
                     onClick={() => handleSort("status")}
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                       Trạng thái
                       {sortColumn === "status" && (
                         <span className="ml-1">
@@ -520,10 +520,10 @@ const UserList = () => {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
                     onClick={() => handleSort("lastLogin")}
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                       Đăng nhập cuối
                       {sortColumn === "lastLogin" && (
                         <span className="ml-1">
@@ -534,10 +534,10 @@ const UserList = () => {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
                     onClick={() => handleSort("createdAt")}
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                       Ngày tạo
                       {sortColumn === "createdAt" && (
                         <span className="ml-1">
@@ -548,7 +548,7 @@ const UserList = () => {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12"
                   >
                     Thao tác
                   </th>
@@ -568,13 +568,13 @@ const UserList = () => {
                           <div className="text-sm font-medium text-gray-900">
                             {user.name}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 truncate max-w-xs">
                             {user.email}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleClass(
                           user.role
@@ -583,7 +583,7 @@ const UserList = () => {
                         {getRoleLabel(user.role)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(
                           user.status
@@ -592,14 +592,14 @@ const UserList = () => {
                         {getStatusLabel(user.status)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                       {formatDate(user.lastLogin)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                       {formatDate(user.createdAt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                      <div className="flex justify-center space-x-2">
                         <Link
                           to={`/admin/users/${user.id}`}
                           className="text-blue-600 hover:text-blue-900"

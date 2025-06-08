@@ -42,14 +42,14 @@ const UpcomingVaccination = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
       <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
-        <div className="bg-primary-600 p-6">
+        <div className="p-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-semibold text-black">
               Tiêm chủng sắp tới
             </h1>
             <Link
               to="/parent/vaccination/history"
-              className="text-primary-100 hover:text-white flex items-center"
+              className="text-black hover:text-white flex items-center"
             >
               <span>Xem lịch sử tiêm chủng</span>
               <svg
@@ -180,7 +180,7 @@ const UpcomingVaccination = () => {
                           </button>
                           <Link
                             to={`/parent/vaccination/consent/${vaccination.id}`}
-                            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                           >
                             Xác nhận đồng ý
                           </Link>

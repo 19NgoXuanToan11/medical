@@ -3,32 +3,53 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   FiHome,
   FiUsers,
-  FiBarChart2,
-  FiSettings,
+  FiTablet,
+  FiPackage,
+  FiCalendar,
+  FiActivity,
+  FiClipboard,
   FiLogOut,
-  FiBell,
 } from "react-icons/fi";
 
-const AdminLayout = () => {
+const NurseHealthCheckLayout = () => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
     {
-      path: "/admin/dashboard",
+      path: "/nurse/dashboard",
       name: "Tổng quan",
       icon: <FiHome className="w-5 h-5" />,
     },
     {
-      path: "/admin/users",
-      name: "Người dùng",
+      path: "/nurse/students",
+      name: "Học sinh",
       icon: <FiUsers className="w-5 h-5" />,
     },
     {
-      path: "/admin/reports",
-      name: "Báo cáo",
-      icon: <FiBarChart2 className="w-5 h-5" />,
+      path: "/nurse/medication",
+      name: "Quản lý thuốc",
+      icon: <FiTablet className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/supplies",
+      name: "Vật tư y tế",
+      icon: <FiPackage className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/health-check",
+      name: "Kiểm tra sức khỏe",
+      icon: <FiClipboard className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/health-events",
+      name: "Sự kiện y tế",
+      icon: <FiActivity className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/vaccination",
+      name: "Tiêm chủng",
+      icon: <FiCalendar className="w-5 h-5" />,
     },
   ];
 
@@ -44,7 +65,7 @@ const AdminLayout = () => {
         <div className="p-4 flex items-center justify-between border-b border-neutral-200">
           {!collapsed && (
             <div className="text-xl font-bold text-primary-700">
-              Medical Admin
+              Medical Nurse
             </div>
           )}
           <button
@@ -123,33 +144,16 @@ const AdminLayout = () => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header */}
-        <header className="bg-white shadow-sm py-4 px-6 flex items-center justify-between border-b border-neutral-200">
-          <div>
-            <h1 className="text-xl font-semibold text-neutral-800">
-              {menuItems.find((item) => item.path === location.pathname)
-                ?.name || "Tổng quan"}
-            </h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button className="p-1 rounded-full text-neutral-500 hover:bg-neutral-100">
-              <FiBell className="w-6 h-6" />
-            </button>
-            <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
-              <span className="text-white font-medium text-sm">AD</span>
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="flex-1 overflow-y-auto bg-neutral-50 p-6">
-          <Outlet />
-        </main>
+      {/* Main Content - without header and footer */}
+      <div className="flex-1 overflow-y-auto bg-neutral-50 p-6">
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <main className="flex-1">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );
 };
 
-export default AdminLayout;
+export default NurseHealthCheckLayout;

@@ -5,6 +5,7 @@ import {
   FaClock,
   FaMapMarkerAlt,
   FaInfoCircle,
+  FaCheckCircle,
 } from "react-icons/fa";
 
 const HealthEventsList = () => {
@@ -166,8 +167,8 @@ const HealthEventsList = () => {
                     <div className="flex flex-wrap gap-2 mt-4">
                       {event.status === "needConsent" && (
                         <Link
-                          to={`/parent/health-events/${event.id}/consent`}
-                          className="inline-flex items-center px-4 py-2 text-sm font-medium text-black bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                          to={`/parent/vaccination/consent/new`}
+                          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                         >
                           Xác nhận tham gia
                         </Link>
@@ -224,19 +225,27 @@ const HealthEventsList = () => {
                         <h3 className="text-sm font-medium text-neutral-700 mb-2">
                           Kết quả:
                         </h3>
-                        <p className="text-sm text-neutral-600">
-                          {event.result}
-                        </p>
+                        <div className="flex items-center">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <FaCheckCircle className="mr-1" />
+                            {event.result}
+                          </span>
+                          <span className="ml-2 text-sm text-neutral-500">
+                            {event.id === 3
+                              ? "Đã hoàn thành khám răng miệng, nhấn nút bên dưới để xem chi tiết"
+                              : "Đã hoàn thành tiêm chủng, nhấn nút bên dưới để xem chi tiết"}
+                          </span>
+                        </div>
                       </div>
                     )}
 
                     <div className="flex flex-wrap gap-2 mt-4">
                       <Link
                         to={`/parent/health-events/${event.id}/results`}
-                        className="inline-flex items-center px-4 py-2 text-sm font-medium text-black bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                       >
                         <FaInfoCircle className="mr-2" />
-                        Xem kết quả
+                        Xem kết quả chi tiết
                       </Link>
                     </div>
                   </div>

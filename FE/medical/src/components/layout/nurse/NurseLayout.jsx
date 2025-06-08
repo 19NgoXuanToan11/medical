@@ -3,32 +3,55 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   FiHome,
   FiUsers,
-  FiBarChart2,
-  FiSettings,
+  FiTablet,
+  FiPackage,
+  FiCalendar,
+  FiActivity,
+  FiClipboard,
   FiLogOut,
   FiBell,
 } from "react-icons/fi";
 
-const AdminLayout = () => {
+const NurseLayout = () => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
     {
-      path: "/admin/dashboard",
+      path: "/nurse/dashboard",
       name: "Tổng quan",
       icon: <FiHome className="w-5 h-5" />,
     },
     {
-      path: "/admin/users",
-      name: "Người dùng",
+      path: "/nurse/students",
+      name: "Học sinh",
       icon: <FiUsers className="w-5 h-5" />,
     },
     {
-      path: "/admin/reports",
-      name: "Báo cáo",
-      icon: <FiBarChart2 className="w-5 h-5" />,
+      path: "/nurse/medication",
+      name: "Quản lý thuốc",
+      icon: <FiTablet className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/supplies",
+      name: "Vật tư y tế",
+      icon: <FiPackage className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/health-check",
+      name: "Kiểm tra sức khỏe",
+      icon: <FiClipboard className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/health-events",
+      name: "Sự kiện y tế",
+      icon: <FiActivity className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/vaccination",
+      name: "Tiêm chủng",
+      icon: <FiCalendar className="w-5 h-5" />,
     },
   ];
 
@@ -44,7 +67,7 @@ const AdminLayout = () => {
         <div className="p-4 flex items-center justify-between border-b border-neutral-200">
           {!collapsed && (
             <div className="text-xl font-bold text-primary-700">
-              Medical Admin
+              Medical Nurse
             </div>
           )}
           <button
@@ -138,7 +161,7 @@ const AdminLayout = () => {
               <FiBell className="w-6 h-6" />
             </button>
             <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
-              <span className="text-white font-medium text-sm">AD</span>
+              <span className="text-white font-medium text-sm">YT</span>
             </div>
           </div>
         </header>
@@ -152,4 +175,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default NurseLayout;

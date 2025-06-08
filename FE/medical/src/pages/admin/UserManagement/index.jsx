@@ -33,36 +33,46 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Quản lý người dùng</h1>
-        <p className="text-gray-600">
-          Quản lý tài khoản, vai trò và quyền hạn người dùng trong hệ thống
-        </p>
-      </div>
+    <div className="container mx-auto px-4 py-6 max-w-6xl">
+      <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden mb-6">
+        <div className="p-6">
+          <h2 className="text-2xl font-semibold text-neutral-800 mb-2">
+            Quản lý người dùng
+          </h2>
+          <p className="text-neutral-600 mb-6">
+            Quản lý tài khoản, vai trò và quyền hạn người dùng trong hệ thống
+          </p>
 
-      {/* Navigation Tabs */}
-      <div className="mb-6 border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {tabs.map((tab) => (
-            <Link
-              key={tab.path}
-              to={tab.path}
-              className={`${
-                isActive(tab)
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
-            >
-              {tab.icon}
-              {tab.name}
-            </Link>
-          ))}
-        </nav>
+          {/* Navigation Tabs */}
+          <div className="border-b border-neutral-200">
+            <nav className="-mb-px flex space-x-8">
+              {tabs.map((tab) => (
+                <Link
+                  key={tab.path}
+                  to={tab.path}
+                  className={`${
+                    isActive(tab)
+                      ? "border-primary-600 text-primary-700"
+                      : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"
+                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-colors duration-200`}
+                >
+                  {isActive(tab) ? (
+                    <span className="text-primary-600">{tab.icon}</span>
+                  ) : (
+                    tab.icon
+                  )}
+                  {tab.name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </div>
       </div>
 
       {/* Content area for child routes */}
-      <Outlet />
+      <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-6">
+        <Outlet />
+      </div>
     </div>
   );
 };

@@ -1,0 +1,196 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+const NurseHealthCheckCreate = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    scheduledDate: "",
+    gradeId: "",
+    description: "",
+    notifyParents: true,
+  });
+  const [grades, setGrades] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Mock data - in a real application, this would come from an API
+  useEffect(() => {
+    // Simulate API call to get grades
+    setGrades([
+      { id: "1A", name: "Lớp 1A" },
+      { id: "1B", name: "Lớp 1B" },
+      { id: "2A", name: "Lớp 2A" },
+      { id: "2B", name: "Lớp 2B" },
+      { id: "3A", name: "Lớp 3A" },
+      { id: "3B", name: "Lớp 3B" },
+      { id: "3C", name: "Lớp 3C" },
+    ]);
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      // Validate form
+      if (!formData.scheduledDate || !formData.gradeId) {
+        throw new Error("Vui lòng nhập đầy đủ các trường bắt buộc");
+      }
+
+      // Simulate API call
+      console.log("Submitting health check schedule:", formData);
+
+      // Wait for a moment to simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Navigate back to health check list
+      navigate("/nurse/health-check");
+    } catch (err) {
+      setError(err.message || "Có lỗi xảy ra khi lên lịch kiểm tra");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">
+          Lên lịch kiểm tra y tế mới
+        </h1>
+        <p className="text-gray-600 mt-1">
+          Tạo lịch kiểm tra sức khỏe định kỳ mới cho học sinh
+        </p>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6">
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="col-span-1">
+              <label
+                htmlFor="scheduledDate"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Ngày kiểm tra <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                id="scheduledDate"
+                name="scheduledDate"
+                value={formData.scheduledDate}
+                onChange={handleChange}
+                min={new Date().toISOString().split("T")[0]}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div className="col-span-1">
+              <label
+                htmlFor="gradeId"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Lớp <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="gradeId"
+                name="gradeId"
+                value={formData.gradeId}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">-- Chọn lớp --</option>
+                {grades.map((grade) => (
+                  <option key={grade.id} value={grade.id}>
+                    {grade.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-span-2">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Mô tả kiểm tra
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Nhập thông tin chi tiết về đợt kiểm tra sức khỏe..."
+              />
+            </div>
+
+            <div className="col-span-2">
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="notifyParents"
+                    name="notifyParents"
+                    type="checkbox"
+                    checked={formData.notifyParents}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label
+                    htmlFor="notifyParents"
+                    className="font-medium text-gray-700"
+                  >
+                    Thông báo cho phụ huynh
+                  </label>
+                  <p className="text-gray-500">
+                    Gửi thông báo đến phụ huynh của học sinh trong lớp được chọn
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={() => navigate("/nurse/health-check")}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+            >
+              {loading ? "Đang xử lý..." : "Lên lịch kiểm tra"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default NurseHealthCheckCreate;
