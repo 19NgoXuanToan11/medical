@@ -154,9 +154,12 @@ const HealthEventDetail = () => {
               <h2 className="text-lg font-semibold text-neutral-800 mb-3">
                 Nhân viên y tế phụ trách
               </h2>
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {event.medicalPersonnel.map((person, index) => (
-                  <div key={index} className="flex items-start">
+                  <div
+                    key={index}
+                    className="flex items-start bg-neutral-50 p-4 rounded-lg border border-neutral-200"
+                  >
                     <div className="flex-shrink-0 mr-3">
                       <div className="bg-primary-100 rounded-full p-2">
                         <FaUserMd className="h-5 w-5 text-primary-600" />
@@ -194,7 +197,7 @@ const HealthEventDetail = () => {
               {!showConsentForm ? (
                 <button
                   onClick={() => setShowConsentForm(true)}
-                  className="inline-flex items-center px-4 py-2 bg-primary-600 text-black rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 >
                   <FaCheck className="mr-2" />
                   Xác nhận tham gia

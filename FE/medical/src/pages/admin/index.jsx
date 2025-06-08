@@ -1,6 +1,5 @@
-import AdminDashboard from "./Dashboard";
-import UserManagement from "./UserManagement";
-import ReportsAnalytics from "./ReportsAnalytics";
-import SystemSettings from "./SystemSettings";
+import AdminDashboard from "./dashboard/AdminDashboard";
+import UserManagement from "./manage/UserManagement";
+import ReportsAnalytics from "./report/ReportsAnalytics";
 
-export { AdminDashboard, UserManagement, ReportsAnalytics, SystemSettings };
+export { AdminDashboard, UserManagement, ReportsAnalytics };

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import {
+  FiCalendar,
+  FiClock,
+  FiCheckCircle,
+  FiAlertTriangle,
+  FiPlus,
+} from "react-icons/fi";
 
 const NurseHealthCheck = () => {
   const [activeTab, setActiveTab] = useState("upcoming");
@@ -36,10 +43,55 @@ const NurseHealthCheck = () => {
           confirmedParents: 29,
           abnormalResults: 3,
         },
+        {
+          id: 4,
+          scheduledDate: "2023-07-05",
+          grade: "Lớp 4A",
+          status: "upcoming",
+          totalStudents: 32,
+          confirmedParents: 25,
+        },
+        {
+          id: 5,
+          scheduledDate: "2023-05-15",
+          grade: "Lớp 5B",
+          status: "completed",
+          totalStudents: 30,
+          confirmedParents: 30,
+          abnormalResults: 2,
+        },
       ]);
       setLoading(false);
     }, 1000);
   }, []);
+
+  // Calculate statistics
+  const getStats = () => {
+    const upcomingCount = healthCheckList.filter(
+      (check) => check.status === "upcoming"
+    ).length;
+
+    const pendingCount = healthCheckList.filter(
+      (check) => check.status === "pending"
+    ).length;
+
+    const completedCount = healthCheckList.filter(
+      (check) => check.status === "completed"
+    ).length;
+
+    const abnormalCount = healthCheckList
+      .filter((check) => check.status === "completed")
+      .reduce((sum, check) => sum + (check.abnormalResults || 0), 0);
+
+    return {
+      upcoming: upcomingCount,
+      pending: pendingCount,
+      completed: completedCount,
+      abnormal: abnormalCount,
+    };
+  };
+
+  const stats = getStats();
 
   return (
     <div>
@@ -50,6 +102,65 @@ const NurseHealthCheck = () => {
         <p className="text-gray-600 mt-1">
           Quản lý quá trình kiểm tra sức khỏe định kỳ cho học sinh
         </p>
+      </div>
+
+      {/* Dashboard Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm">Sắp tới</p>
+              <p className="text-2xl font-bold mt-1 text-blue-600">
+                {stats.upcoming}
+              </p>
+            </div>
+            <div className="p-3 bg-blue-100 rounded-full">
+              <FiCalendar className="h-5 w-5 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm">Chờ xác nhận</p>
+              <p className="text-2xl font-bold mt-1 text-yellow-600">
+                {stats.pending}
+              </p>
+            </div>
+            <div className="p-3 bg-yellow-100 rounded-full">
+              <FiClock className="h-5 w-5 text-yellow-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm">Đã hoàn thành</p>
+              <p className="text-2xl font-bold mt-1 text-green-600">
+                {stats.completed}
+              </p>
+            </div>
+            <div className="p-3 bg-green-100 rounded-full">
+              <FiCheckCircle className="h-5 w-5 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm">Kết quả bất thường</p>
+              <p className="text-2xl font-bold mt-1 text-red-600">
+                {stats.abnormal}
+              </p>
+            </div>
+            <div className="p-3 bg-red-100 rounded-full">
+              <FiAlertTriangle className="h-5 w-5 text-red-600" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Action buttons */}
@@ -90,20 +201,7 @@ const NurseHealthCheck = () => {
           to="/nurse/health-check/new"
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors duration-200 flex items-center"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
-          </svg>
+          <FiPlus className="h-5 w-5 mr-1" />
           Lên lịch kiểm tra mới
         </Link>
       </div>
@@ -180,7 +278,22 @@ const NurseHealthCheck = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      {check.confirmedParents}/{check.totalStudents}
+                      <div>
+                        {check.confirmedParents}/{check.totalStudents}
+                      </div>
+                      {check.status !== "completed" && (
+                        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                          <div
+                            className="bg-blue-600 h-2 rounded-full"
+                            style={{
+                              width: `${Math.round(
+                                (check.confirmedParents / check.totalStudents) *
+                                  100
+                              )}%`,
+                            }}
+                          ></div>
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                       <div className="flex justify-center space-x-4">
@@ -197,6 +310,11 @@ const NurseHealthCheck = () => {
                           >
                             Kết quả
                           </Link>
+                        )}
+                        {check.status === "pending" && (
+                          <button className="text-yellow-600 hover:text-yellow-900">
+                            Gửi nhắc
+                          </button>
                         )}
                       </div>
                     </td>
