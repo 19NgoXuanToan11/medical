@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { FloatingCards, SpotlightCard, FadeIn } from "../../animation";
 
 const RoleDemo = () => {
   const [activeRole, setActiveRole] = useState("parent");
@@ -456,7 +457,6 @@ const RoleDemo = () => {
         },
       ],
     },
-    
   ];
 
   return (
@@ -507,23 +507,37 @@ const RoleDemo = () => {
                 {/* Features grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {role.features.map((feature, index) => (
-                    <div
-                      key={index}
-                      className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200 relative overflow-hidden group"
-                    >
-                      <div className="absolute top-0 right-0 p-2 bg-blue-100 text-blue-600 rounded-bl-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        Đăng nhập để truy cập
-                      </div>
-                      <div className="flex flex-col items-center text-center">
-                        <div className="text-blue-600 mb-4">{feature.icon}</div>
-                        <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                          {feature.title}
-                        </h4>
-                        <p className="text-gray-600 text-sm">
-                          {feature.description}
-                        </p>
-                      </div>
-                    </div>
+                    <FadeIn key={index} delay={index * 0.1} direction="up">
+                      <FloatingCards
+                        className="h-full"
+                        scale={1.03}
+                        perspective={800}
+                        tiltDegree={10}
+                      >
+                        <SpotlightCard
+                          className="bg-white rounded-lg shadow-md p-6 h-full relative overflow-hidden group"
+                          spotlightSize={250}
+                          spotlightColor="rgba(59, 130, 246, 0.15)"
+                          background="white"
+                          border="none"
+                        >
+                          <div className="absolute top-0 right-0 p-2 bg-blue-100 text-blue-600 rounded-bl-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            Đăng nhập để truy cập
+                          </div>
+                          <div className="flex flex-col items-center text-center">
+                            <div className="text-blue-600 mb-4">
+                              {feature.icon}
+                            </div>
+                            <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                              {feature.title}
+                            </h4>
+                            <p className="text-gray-600 text-sm">
+                              {feature.description}
+                            </p>
+                          </div>
+                        </SpotlightCard>
+                      </FloatingCards>
+                    </FadeIn>
                   ))}
                 </div>
               </div>
@@ -531,14 +545,16 @@ const RoleDemo = () => {
         )}
 
         {/* Login CTA */}
-        <div className="text-center mt-10">
-          <Link
-            to="/login"
-            className="inline-block px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-300"
-          >
-            Đăng nhập để trải nghiệm
-          </Link>
-        </div>
+        <FadeIn direction="up" delay={0.3}>
+          <div className="text-center mt-10">
+            <Link
+              to="/login"
+              className="inline-block px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 hover:shadow-lg"
+            >
+              Đăng nhập để trải nghiệm
+            </Link>
+          </div>
+        </FadeIn>
       </div>
     </section>
   );

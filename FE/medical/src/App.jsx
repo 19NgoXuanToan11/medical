@@ -18,14 +18,6 @@ import StudentLayout from "./components/layout/student/StudentLayout";
 import Login from "./pages/auth/login/Login";
 import Register from "./pages/auth/register/Register";
 
-// resources
-import Nutrition from "./pages/resources/nutrition/Nutrition";
-import DiseasePrevention from "./pages/resources/disease-prevention/DiseasePrevention";
-import MentalHealth from "./pages/resources/mental-health/MentalHealth";
-import FirstAid from "./pages/resources/first-aid/FirstAid";
-import PhysicalDevelopment from "./pages/resources/physical-development/PhysicalDevelopment";
-import MedicalProcedures from "./pages/resources/medical-procedures/MedicalProcedures";
-
 // admin
 import AdminDashboard from "./pages/admin/dashboard/AdminDashboard";
 import UserManagement from "./pages/admin/manage/UserManagement";

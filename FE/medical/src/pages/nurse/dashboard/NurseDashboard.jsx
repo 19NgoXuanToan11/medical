@@ -11,7 +11,7 @@ import {
   FiBell,
   FiClipboard,
 } from "react-icons/fi";
-import MedicationReminders from "../../../components/medication/MedicationReminders";
+import MedicationReminders from "../medication/MedicationReminders";
 
 const NurseDashboard = () => {
   const [stats, setStats] = useState({
