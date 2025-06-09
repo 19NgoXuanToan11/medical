@@ -45,7 +45,7 @@ const MedicineInventory = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
-  const API_URL = "http://localhost:7111/api";
+  const API_URL = "https://localhost:7111/api";
 
   // Fetch inventory items
   useEffect(() => {
@@ -288,8 +288,8 @@ const MedicineInventory = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
+      <div className="flex flex-col mb-6">
+        <div className="mb-4">
           <h2 className="text-2xl font-semibold text-neutral-800">
             Quản lý kho thuốc
           </h2>
@@ -297,13 +297,15 @@ const MedicineInventory = () => {
             Theo dõi và quản lý danh sách thuốc tại trường
           </p>
         </div>
-        <button
-          onClick={() => handleAddEditMedicine()}
-          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
-        >
-          <FiPlus className="mr-2" />
-          Thêm thuốc mới
-        </button>
+        <div className="flex justify-end">
+          <button
+            onClick={() => handleAddEditMedicine()}
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
+          >
+            <FiPlus className="mr-2" />
+            Thêm thuốc mới
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -392,10 +394,10 @@ const MedicineInventory = () => {
           <thead>
             <tr className="bg-neutral-50 border-y border-neutral-200">
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("id")}
               >
-                <div className="flex items-center">
+                <div className="flex items-center justify-center">
                   Mã thuốc
                   {sortBy === "id" && (
                     <span className="ml-1">
@@ -405,10 +407,10 @@ const MedicineInventory = () => {
                 </div>
               </th>
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("name")}
               >
-                <div className="flex items-center">
+                <div className="flex items-center justify-center">
                   Tên thuốc
                   {sortBy === "name" && (
                     <span className="ml-1">
@@ -418,10 +420,10 @@ const MedicineInventory = () => {
                 </div>
               </th>
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("stock")}
               >
-                <div className="flex items-center">
+                <div className="flex items-center justify-center">
                   Số lượng
                   {sortBy === "stock" && (
                     <span className="ml-1">
@@ -430,10 +432,10 @@ const MedicineInventory = () => {
                   )}
                 </div>
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider">
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
                 Trạng thái
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider">
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
                 Thao tác
               </th>
             </tr>
@@ -471,21 +473,20 @@ const MedicineInventory = () => {
               sortedMedicines.map((item) => (
                 <tr
                   key={item.medicineId}
-                  className="hover:bg-neutral-50 transition-colors duration-200"
+                  className="hover:bg-neutral-50 transition-colors duration-200 h-16"
                 >
-                  <td className="py-3 px-4 text-sm text-neutral-900">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
                     {item.medicineId}
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center">
-                      <FiTablet className="h-5 w-5 text-primary-600 mr-2" />
+                  <td className="py-4 px-6 align-middle">
+                    <div className="flex items-center justify-center">
                       <span className="font-medium text-neutral-900">
                         {item.name}
                       </span>
                     </div>
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center">
+                  <td className="py-4 px-6 align-middle">
+                    <div className="flex items-center justify-center">
                       <span
                         className={`font-medium ${
                           isLowStock(item) ? "text-red-600" : "text-neutral-900"
@@ -498,7 +499,7 @@ const MedicineInventory = () => {
                       )}
                     </div>
                   </td>
-                  <td className="py-3 px-4">
+                  <td className="py-4 px-6 text-center align-middle">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
                         item.isActive
@@ -509,8 +510,8 @@ const MedicineInventory = () => {
                       {item.isActive ? "Đang sử dụng" : "Ngừng sử dụng"}
                     </span>
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex space-x-2">
+                  <td className="py-4 px-6 text-center align-middle">
+                    <div className="flex space-x-2 justify-center">
                       <button
                         onClick={() => handleAddEditMedicine(item)}
                         className="text-blue-600 hover:text-blue-800"

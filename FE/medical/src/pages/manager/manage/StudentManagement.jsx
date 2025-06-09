@@ -12,6 +12,7 @@ import {
   FiCheck,
   FiX,
   FiUser,
+  FiAlertTriangle,
 } from "react-icons/fi";
 
 const StudentManagement = () => {
@@ -46,9 +47,6 @@ const StudentManagement = () => {
     isActive: true,
   });
   const [formErrors, setFormErrors] = useState({});
-
-  // Filter Dropdown
-  const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   const API_URL = "http://localhost:7111/api";
 
@@ -250,7 +248,7 @@ const StudentManagement = () => {
         fullName: item.fullName,
         dateOfBirth: item.dateOfBirth ? item.dateOfBirth.split("T")[0] : "",
         gender: item.gender || "Nam",
-        parentId: item.parentId.toString(),
+        parentId: item.parentId ? item.parentId.toString() : "",
         classId: item.classId ? item.classId.toString() : "",
         isActive: item.isActive,
       });
@@ -279,19 +277,15 @@ const StudentManagement = () => {
   // Validate form
   const validateForm = () => {
     const errors = {};
-
     if (!studentForm.fullName.trim()) {
-      errors.fullName = "Vui lòng nhập họ tên";
+      errors.fullName = "Họ tên không được để trống";
     }
-
     if (!studentForm.dateOfBirth) {
-      errors.dateOfBirth = "Vui lòng chọn ngày sinh";
+      errors.dateOfBirth = "Ngày sinh không được để trống";
     }
-
     if (!studentForm.parentId) {
       errors.parentId = "Vui lòng chọn phụ huynh";
     }
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -329,280 +323,240 @@ const StudentManagement = () => {
   };
 
   return (
-    <div className="container mx-auto">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="text-sm text-gray-500">Tổng số học sinh</div>
-              <div className="text-3xl font-bold">{stats.total}</div>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
-              <FiUser className="h-5 w-5 text-teal-600" />
-            </div>
-          </div>
+    <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-6">
+      <div className="flex flex-col mb-6">
+        <div className="mb-4">
+          <h2 className="text-2xl font-semibold text-neutral-800">
+            Quản lý học sinh
+          </h2>
+          <p className="text-neutral-600 mt-1">
+            Theo dõi và quản lý danh sách học sinh tại trường
+          </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-gray-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="text-sm text-gray-500">
-                Học sinh ngừng hoạt động
-              </div>
-              <div className="text-3xl font-bold">{stats.inactive}</div>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
-              <FiX className="h-5 w-5 text-gray-600" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Toolbar */}
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
-            {/* Search */}
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiSearch className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-                placeholder="Tìm kiếm học sinh..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
-            {/* Filter Dropdown */}
-            <div className="relative inline-block text-left">
-              <div>
-                <button
-                  type="button"
-                  className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
-                  id="filter-menu"
-                  aria-expanded="true"
-                  aria-haspopup="true"
-                  onClick={() => setShowFilterMenu(!showFilterMenu)}
-                >
-                  <FiFilter className="mr-2 h-5 w-5 text-gray-400" />
-                  {filterStatus === "all"
-                    ? "Tất cả"
-                    : filterStatus === "active"
-                    ? "Đang hoạt động"
-                    : "Ngừng hoạt động"}
-                </button>
-              </div>
-
-              {showFilterMenu && (
-                <div className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                  <div
-                    className="py-1"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="filter-menu"
-                  >
-                    <button
-                      onClick={() => {
-                        handleFilterChange("all");
-                        setShowFilterMenu(false);
-                      }}
-                      className={`${
-                        filterStatus === "all"
-                          ? "bg-gray-100 text-gray-900"
-                          : "text-gray-700"
-                      } block px-4 py-2 text-sm w-full text-left hover:bg-gray-100`}
-                      role="menuitem"
-                    >
-                      Tất cả
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleFilterChange("active");
-                        setShowFilterMenu(false);
-                      }}
-                      className={`${
-                        filterStatus === "active"
-                          ? "bg-gray-100 text-gray-900"
-                          : "text-gray-700"
-                      } block px-4 py-2 text-sm w-full text-left hover:bg-gray-100`}
-                      role="menuitem"
-                    >
-                      Đang hoạt động
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleFilterChange("inactive");
-                        setShowFilterMenu(false);
-                      }}
-                      className={`${
-                        filterStatus === "inactive"
-                          ? "bg-gray-100 text-gray-900"
-                          : "text-gray-700"
-                      } block px-4 py-2 text-sm w-full text-left hover:bg-gray-100`}
-                      role="menuitem"
-                    >
-                      Ngừng hoạt động
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Reset Filters */}
-            <button
-              onClick={resetFilters}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
-            >
-              <FiRefreshCw className="mr-2 h-4 w-4 text-gray-500" />
-              Đặt lại
-            </button>
-          </div>
-
-          {/* Add Student */}
+        <div className="flex justify-end">
           <button
             onClick={() => handleAddEditStudent()}
-            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
           >
-            <FiPlus className="mr-2 h-5 w-5" />
-            Thêm học sinh
+            <FiPlus className="mr-2" />
+            Thêm học sinh mới
           </button>
         </div>
       </div>
 
-      {/* Student List */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div>
-            <p className="ml-2 text-gray-500">Đang tải dữ liệu...</p>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 flex justify-between">
+          <div>
+            <p className="text-neutral-600 text-sm font-medium">
+              Tổng số học sinh
+            </p>
+            <p className="text-3xl font-bold text-primary-700">{stats.total}</p>
           </div>
-        ) : sortedStudents.length === 0 ? (
-          <div className="text-center py-8">
-            <FiUser className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
-              Không tìm thấy học sinh
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {searchTerm
-                ? "Không tìm thấy học sinh nào phù hợp với tìm kiếm của bạn."
-                : "Bắt đầu bằng cách thêm học sinh mới."}
+          <div className="bg-primary-100 h-12 w-12 rounded-full flex items-center justify-center">
+            <FiUser className="h-6 w-6 text-primary-600" />
+          </div>
+        </div>
+
+        <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200 flex justify-between">
+          <div>
+            <p className="text-neutral-600 text-sm font-medium">
+              Ngừng hoạt động
+            </p>
+            <p className="text-3xl font-bold text-neutral-700">
+              {stats.inactive}
             </p>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortChange("id")}
-                  >
-                    ID
-                    {sortBy === "id" && (
-                      <span className="ml-1">
-                        {sortOrder === "asc" ? "↑" : "↓"}
-                      </span>
-                    )}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortChange("name")}
-                  >
-                    Họ tên
-                    {sortBy === "name" && (
-                      <span className="ml-1">
-                        {sortOrder === "asc" ? "↑" : "↓"}
-                      </span>
-                    )}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortChange("dob")}
-                  >
-                    Ngày sinh
-                    {sortBy === "dob" && (
-                      <span className="ml-1">
-                        {sortOrder === "asc" ? "↑" : "↓"}
-                      </span>
-                    )}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Giới tính
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Phụ huynh
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Trạng thái
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Hành động
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {sortedStudents.map((student) => (
-                  <tr key={student.studentId}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {student.studentId}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+          <div className="bg-neutral-200 h-12 w-12 rounded-full flex items-center justify-center">
+            <FiX className="h-6 w-6 text-neutral-600" />
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-neutral-50 p-4 rounded-lg mb-6 border border-neutral-200">
+        <div className="flex flex-col md:flex-row gap-4 md:items-center">
+          <div className="flex-1">
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <FiSearch className="h-5 w-5 text-neutral-400" />
+              </span>
+              <input
+                type="text"
+                placeholder="Tìm kiếm theo tên hoặc mã học sinh..."
+                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary-600"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <select
+              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white"
+              value={filterStatus}
+              onChange={(e) => handleFilterChange(e.target.value)}
+            >
+              <option value="all">Tất cả trạng thái</option>
+              <option value="active">Đang hoạt động</option>
+              <option value="inactive">Ngừng hoạt động</option>
+            </select>
+          </div>
+
+          <button
+            onClick={resetFilters}
+            className="md:ml-auto flex items-center text-primary-600 hover:text-primary-800 transition-colors duration-300"
+          >
+            <FiRefreshCw className="mr-1" />
+            Đặt lại
+          </button>
+        </div>
+      </div>
+
+      {/* Student Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border-collapse">
+          <thead>
+            <tr className="bg-neutral-50 border-y border-neutral-200">
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("id")}
+              >
+                <div className="flex items-center justify-center">
+                  Mã học sinh
+                  {sortBy === "id" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("name")}
+              >
+                <div className="flex items-center justify-center">
+                  Họ tên
+                  {sortBy === "name" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("dob")}
+              >
+                <div className="flex items-center justify-center">
+                  Ngày sinh
+                  {sortBy === "dob" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+                Giới tính
+              </th>
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+                Phụ huynh
+              </th>
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+                Trạng thái
+              </th>
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+                Thao tác
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-neutral-200">
+            {loading ? (
+              <tr>
+                <td colSpan="7" className="text-center py-4">
+                  <div className="flex justify-center items-center">
+                    <svg
+                      className="animate-spin h-5 w-5 text-primary-600 mr-3"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Đang tải...
+                  </div>
+                </td>
+              </tr>
+            ) : sortedStudents.length > 0 ? (
+              sortedStudents.map((student) => (
+                <tr
+                  key={student.studentId}
+                  className="hover:bg-neutral-50 transition-colors duration-200 h-16"
+                >
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {student.studentId}
+                  </td>
+                  <td className="py-4 px-6 align-middle">
+                    <div className="flex items-center justify-center">
+                      <span className="font-medium text-neutral-900">
                         {student.fullName}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(student.dateOfBirth)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {student.gender}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {getParentName(student.parentId)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          student.isActive
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {student.isActive ? "Hoạt động" : "Ngừng hoạt động"}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {formatDate(student.dateOfBirth)}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {student.gender}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {getParentName(student.parentId)}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        student.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-neutral-100 text-neutral-800"
+                      }`}
+                    >
+                      {student.isActive ? "Hoạt động" : "Ngừng hoạt động"}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle">
+                    <div className="flex space-x-2 justify-center">
                       <button
                         onClick={() => handleAddEditStudent(student)}
-                        className="text-teal-600 hover:text-teal-900 mr-3"
+                        className="text-blue-600 hover:text-blue-800"
+                        title="Chỉnh sửa"
                       >
                         <FiEdit className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => toggleStudentStatus(student)}
-                        className={`mr-3 ${
+                        className={`${
                           student.isActive
-                            ? "text-gray-600 hover:text-gray-900"
-                            : "text-green-600 hover:text-green-900"
+                            ? "text-neutral-600 hover:text-neutral-800"
+                            : "text-green-600 hover:text-green-800"
                         }`}
+                        title={
+                          student.isActive
+                            ? "Đánh dấu ngừng hoạt động"
+                            : "Đánh dấu đang hoạt động"
+                        }
                       >
                         {student.isActive ? (
                           <FiX className="h-5 w-5" />
@@ -612,95 +566,116 @@ const StudentManagement = () => {
                       </button>
                       <button
                         onClick={() => deleteStudent(student.studentId)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-red-600 hover:text-red-800"
+                        title="Xóa"
                       >
                         <FiTrash2 className="h-5 w-5" />
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center py-6">
+                  <div className="flex flex-col items-center justify-center">
+                    <svg
+                      className="w-12 h-12 text-neutral-400 mb-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                    <p className="text-neutral-600 text-lg">
+                      Không tìm thấy học sinh nào phù hợp
+                    </p>
+                    <p className="text-neutral-500 text-sm mt-1">
+                      Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác
+                    </p>
+                    <button
+                      onClick={resetFilters}
+                      className="mt-3 bg-primary-100 text-primary-700 hover:bg-primary-200 px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
+                    >
+                      <FiRefreshCw className="mr-2" />
+                      Đặt lại bộ lọc
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
-      {/* Modal */}
+      {/* Add/Edit Student Modal */}
       {showStudentModal && (
-        <div className="fixed inset-0 z-50 overflow-auto bg-smoke-light flex">
-          <div
-            className="fixed inset-0 bg-black opacity-50"
-            onClick={() => setShowStudentModal(false)}
-          ></div>
-          <div className="relative bg-white w-full max-w-md m-auto flex-col flex rounded-lg shadow-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+              <h3 className="text-xl font-bold text-neutral-900 mb-4">
                 {selectedStudent ? "Chỉnh sửa học sinh" : "Thêm học sinh mới"}
               </h3>
-              <form onSubmit={handleSubmit} className="mt-4">
+              <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                  <label
-                    htmlFor="fullName"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-neutral-700 font-medium mb-2">
                     Họ tên
                   </label>
                   <input
                     type="text"
                     name="fullName"
-                    id="fullName"
-                    className={`mt-1 block w-full border ${
-                      formErrors.fullName ? "border-red-500" : "border-gray-300"
-                    } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
                     value={studentForm.fullName}
                     onChange={handleInputChange}
+                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 ${
+                      formErrors.fullName
+                        ? "border-red-500"
+                        : "border-neutral-300"
+                    }`}
                   />
                   {formErrors.fullName && (
-                    <p className="mt-1 text-sm text-red-500">
+                    <p className="text-red-500 text-sm mt-1">
                       {formErrors.fullName}
                     </p>
                   )}
                 </div>
 
                 <div className="mb-4">
-                  <label
-                    htmlFor="dateOfBirth"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-neutral-700 font-medium mb-2">
                     Ngày sinh
                   </label>
                   <input
                     type="date"
                     name="dateOfBirth"
-                    id="dateOfBirth"
-                    className={`mt-1 block w-full border ${
-                      formErrors.dateOfBirth
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
                     value={studentForm.dateOfBirth}
                     onChange={handleInputChange}
+                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 ${
+                      formErrors.dateOfBirth
+                        ? "border-red-500"
+                        : "border-neutral-300"
+                    }`}
                   />
                   {formErrors.dateOfBirth && (
-                    <p className="mt-1 text-sm text-red-500">
+                    <p className="text-red-500 text-sm mt-1">
                       {formErrors.dateOfBirth}
                     </p>
                   )}
                 </div>
 
                 <div className="mb-4">
-                  <label
-                    htmlFor="gender"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-neutral-700 font-medium mb-2">
                     Giới tính
                   </label>
                   <select
-                    id="gender"
                     name="gender"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                     value={studentForm.gender}
                     onChange={handleInputChange}
+                    className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
                   >
                     <option value="Nam">Nam</option>
                     <option value="Nữ">Nữ</option>
@@ -708,20 +683,18 @@ const StudentManagement = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label
-                    htmlFor="parentId"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-neutral-700 font-medium mb-2">
                     Phụ huynh
                   </label>
                   <select
-                    id="parentId"
                     name="parentId"
-                    className={`mt-1 block w-full border ${
-                      formErrors.parentId ? "border-red-500" : "border-gray-300"
-                    } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
                     value={studentForm.parentId}
                     onChange={handleInputChange}
+                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 ${
+                      formErrors.parentId
+                        ? "border-red-500"
+                        : "border-neutral-300"
+                    }`}
                   >
                     <option value="">-- Chọn phụ huynh --</option>
                     {parents.map((parent) => (
@@ -731,62 +704,53 @@ const StudentManagement = () => {
                     ))}
                   </select>
                   {formErrors.parentId && (
-                    <p className="mt-1 text-sm text-red-500">
+                    <p className="text-red-500 text-sm mt-1">
                       {formErrors.parentId}
                     </p>
                   )}
                 </div>
 
                 <div className="mb-4">
-                  <label
-                    htmlFor="classId"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-neutral-700 font-medium mb-2">
                     Lớp học (nếu có)
                   </label>
                   <input
                     type="text"
                     name="classId"
-                    id="classId"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                     value={studentForm.classId}
                     onChange={handleInputChange}
+                    className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
                   />
                 </div>
 
-                <div className="flex items-center mb-4">
-                  <input
-                    id="isActive"
-                    name="isActive"
-                    type="checkbox"
-                    className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
-                    checked={studentForm.isActive}
-                    onChange={handleInputChange}
-                  />
-                  <label
-                    htmlFor="isActive"
-                    className="ml-2 block text-sm text-gray-900"
-                  >
-                    Học sinh đang hoạt động
+                <div className="mb-6">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="isActive"
+                      checked={studentForm.isActive}
+                      onChange={handleInputChange}
+                      className="form-checkbox h-5 w-5 text-primary-600 rounded focus:ring-primary-600 focus:ring-2"
+                    />
+                    <span className="ml-2 text-neutral-700">
+                      Học sinh đang hoạt động
+                    </span>
                   </label>
                 </div>
 
-                <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3">
+                <div className="flex justify-end space-x-2">
                   <button
                     type="button"
-                    className="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:text-sm"
-                    onClick={() => {
-                      setShowStudentModal(false);
-                      resetForm();
-                    }}
+                    onClick={() => setShowStudentModal(false)}
+                    className="px-4 py-2 border border-neutral-300 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors duration-300"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-teal-600 text-base font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:text-sm"
+                    className="px-4 py-2 bg-primary-600 rounded-lg text-white hover:bg-primary-700 transition-colors duration-300"
                   >
-                    {selectedStudent ? "Cập nhật" : "Thêm"}
+                    {selectedStudent ? "Cập nhật" : "Thêm mới"}
                   </button>
                 </div>
               </form>

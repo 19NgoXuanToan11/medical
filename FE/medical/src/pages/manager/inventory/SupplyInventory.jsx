@@ -47,7 +47,7 @@ const SupplyInventory = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
-  const API_URL = "http://localhost:7111/api";
+  const API_URL = "https://localhost:7111/api";
 
   // Fetch inventory items
   useEffect(() => {
@@ -217,6 +217,9 @@ const SupplyInventory = () => {
       case "category":
         comparison = (a.category || "").localeCompare(b.category || "");
         break;
+      case "description":
+        comparison = (a.description || "").localeCompare(b.description || "");
+        break;
       default:
         comparison = 0;
     }
@@ -305,8 +308,8 @@ const SupplyInventory = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
+      <div className="flex flex-col mb-6">
+        <div className="mb-4">
           <h2 className="text-2xl font-semibold text-neutral-800">
             Quản lý vật tư y tế
           </h2>
@@ -314,13 +317,15 @@ const SupplyInventory = () => {
             Theo dõi và quản lý danh sách vật tư y tế tại trường
           </p>
         </div>
-        <button
-          onClick={() => handleAddEditSupply()}
-          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
-        >
-          <FiPlus className="mr-2" />
-          Thêm vật tư mới
-        </button>
+        <div className="flex justify-end">
+          <button
+            onClick={() => handleAddEditSupply()}
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
+          >
+            <FiPlus className="mr-2" />
+            Thêm vật tư mới
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -409,10 +414,10 @@ const SupplyInventory = () => {
           <thead>
             <tr className="bg-neutral-50 border-y border-neutral-200">
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("id")}
               >
-                <div className="flex items-center">
+                <div className="flex items-center justify-center">
                   Mã vật tư
                   {sortBy === "id" && (
                     <span className="ml-1">
@@ -422,10 +427,10 @@ const SupplyInventory = () => {
                 </div>
               </th>
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("name")}
               >
-                <div className="flex items-center">
+                <div className="flex items-center justify-center">
                   Tên vật tư
                   {sortBy === "name" && (
                     <span className="ml-1">
@@ -435,10 +440,10 @@ const SupplyInventory = () => {
                 </div>
               </th>
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("category")}
               >
-                <div className="flex items-center">
+                <div className="flex items-center justify-center">
                   Loại
                   {sortBy === "category" && (
                     <span className="ml-1">
@@ -448,10 +453,23 @@ const SupplyInventory = () => {
                 </div>
               </th>
               <th
-                className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("description")}
+              >
+                <div className="flex items-center justify-center">
+                  Mô tả
+                  {sortBy === "description" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("stock")}
               >
-                <div className="flex items-center">
+                <div className="flex items-center justify-center">
                   Số lượng
                   {sortBy === "stock" && (
                     <span className="ml-1">
@@ -460,10 +478,10 @@ const SupplyInventory = () => {
                   )}
                 </div>
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider">
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
                 Trạng thái
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-neutral-600 uppercase tracking-wider">
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
                 Thao tác
               </th>
             </tr>
@@ -471,7 +489,7 @@ const SupplyInventory = () => {
           <tbody className="divide-y divide-neutral-200">
             {loading ? (
               <tr>
-                <td colSpan="6" className="text-center py-4">
+                <td colSpan="7" className="text-center py-4">
                   <div className="flex justify-center items-center">
                     <svg
                       className="animate-spin h-5 w-5 text-primary-600 mr-3"
@@ -501,24 +519,26 @@ const SupplyInventory = () => {
               sortedSupplies.map((item) => (
                 <tr
                   key={item.supplyId}
-                  className="hover:bg-neutral-50 transition-colors duration-200"
+                  className="hover:bg-neutral-50 transition-colors duration-200 h-16"
                 >
-                  <td className="py-3 px-4 text-sm text-neutral-900">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
                     {item.supplyId}
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center">
-                      <FiPackage className="h-5 w-5 text-primary-600 mr-2" />
+                  <td className="py-4 px-6 align-middle">
+                    <div className="flex items-center justify-center">
                       <span className="font-medium text-neutral-900">
                         {item.name}
                       </span>
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-sm text-neutral-900">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
                     {item.category || "-"}
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {item.description || "-"}
+                  </td>
+                  <td className="py-4 px-6 align-middle">
+                    <div className="flex items-center justify-center">
                       <span
                         className={`font-medium ${
                           isLowStock(item) ? "text-red-600" : "text-neutral-900"
@@ -531,7 +551,7 @@ const SupplyInventory = () => {
                       )}
                     </div>
                   </td>
-                  <td className="py-3 px-4">
+                  <td className="py-4 px-6 text-center align-middle">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
                         item.isActive
@@ -542,8 +562,8 @@ const SupplyInventory = () => {
                       {item.isActive ? "Đang sử dụng" : "Ngừng sử dụng"}
                     </span>
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex space-x-2">
+                  <td className="py-4 px-6 text-center align-middle">
+                    <div className="flex space-x-2 justify-center">
                       <button
                         onClick={() => handleAddEditSupply(item)}
                         className="text-blue-600 hover:text-blue-800"
@@ -583,7 +603,7 @@ const SupplyInventory = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center py-6">
+                <td colSpan="7" className="text-center py-6">
                   <div className="flex flex-col items-center justify-center">
                     <svg
                       className="w-12 h-12 text-neutral-400 mb-3"
