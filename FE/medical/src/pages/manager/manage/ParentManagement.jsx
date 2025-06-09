@@ -324,271 +324,244 @@ const ParentManagement = () => {
   };
 
   return (
-    <div className="container mx-auto">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="text-sm text-gray-500">Tổng số phụ huynh</div>
-              <div className="text-3xl font-bold">{stats.total}</div>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
-              <FiUser className="h-5 w-5 text-teal-600" />
-            </div>
-          </div>
+    <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-6">
+      <div className="flex flex-col mb-6">
+        <div className="mb-4">
+          <h2 className="text-2xl font-semibold text-neutral-800">
+            Quản lý phụ huynh
+          </h2>
+          <p className="text-neutral-600 mt-1">
+            Theo dõi và quản lý danh sách phụ huynh tại trường
+          </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-gray-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="text-sm text-gray-500">
-                Tài khoản ngừng hoạt động
-              </div>
-              <div className="text-3xl font-bold">{stats.inactive}</div>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
-              <FiX className="h-5 w-5 text-gray-600" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Toolbar */}
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
-            {/* Search */}
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiSearch className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
-                placeholder="Tìm kiếm phụ huynh..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
-            {/* Filter Dropdown */}
-            <div className="relative inline-block text-left">
-              <div>
-                <button
-                  type="button"
-                  className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
-                  id="filter-menu"
-                  aria-expanded="true"
-                  aria-haspopup="true"
-                  onClick={() => setShowFilterMenu(!showFilterMenu)}
-                >
-                  <FiFilter className="mr-2 h-5 w-5 text-gray-400" />
-                  {filterStatus === "all"
-                    ? "Tất cả"
-                    : filterStatus === "active"
-                    ? "Đang hoạt động"
-                    : "Ngừng hoạt động"}
-                </button>
-              </div>
-
-              {showFilterMenu && (
-                <div className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                  <div
-                    className="py-1"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="filter-menu"
-                  >
-                    <button
-                      onClick={() => {
-                        handleFilterChange("all");
-                        setShowFilterMenu(false);
-                      }}
-                      className={`${
-                        filterStatus === "all"
-                          ? "bg-gray-100 text-gray-900"
-                          : "text-gray-700"
-                      } block px-4 py-2 text-sm w-full text-left hover:bg-gray-100`}
-                      role="menuitem"
-                    >
-                      Tất cả
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleFilterChange("active");
-                        setShowFilterMenu(false);
-                      }}
-                      className={`${
-                        filterStatus === "active"
-                          ? "bg-gray-100 text-gray-900"
-                          : "text-gray-700"
-                      } block px-4 py-2 text-sm w-full text-left hover:bg-gray-100`}
-                      role="menuitem"
-                    >
-                      Đang hoạt động
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleFilterChange("inactive");
-                        setShowFilterMenu(false);
-                      }}
-                      className={`${
-                        filterStatus === "inactive"
-                          ? "bg-gray-100 text-gray-900"
-                          : "text-gray-700"
-                      } block px-4 py-2 text-sm w-full text-left hover:bg-gray-100`}
-                      role="menuitem"
-                    >
-                      Ngừng hoạt động
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Reset Filters */}
-            <button
-              onClick={resetFilters}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
-            >
-              <FiRefreshCw className="mr-2 h-4 w-4 text-gray-500" />
-              Đặt lại
-            </button>
-          </div>
-
-          {/* Add Parent */}
+        <div className="flex justify-end">
           <button
             onClick={() => handleAddEditParent()}
-            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
           >
-            <FiPlus className="mr-2 h-5 w-5" />
-            Thêm phụ huynh
+            <FiPlus className="mr-2" />
+            Thêm phụ huynh mới
           </button>
         </div>
       </div>
 
-      {/* Parent List */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div>
-            <p className="ml-2 text-gray-500">Đang tải dữ liệu...</p>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 flex justify-between">
+          <div>
+            <p className="text-neutral-600 text-sm font-medium">
+              Tổng số phụ huynh
+            </p>
+            <p className="text-3xl font-bold text-primary-700">{stats.total}</p>
           </div>
-        ) : sortedParents.length === 0 ? (
-          <div className="text-center py-8">
-            <FiUser className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
-              Không tìm thấy phụ huynh
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {searchTerm
-                ? "Không tìm thấy phụ huynh nào phù hợp với tìm kiếm của bạn."
-                : "Bắt đầu bằng cách thêm phụ huynh mới."}
+          <div className="bg-primary-100 h-12 w-12 rounded-full flex items-center justify-center">
+            <FiUser className="h-6 w-6 text-primary-600" />
+          </div>
+        </div>
+
+        <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200 flex justify-between">
+          <div>
+            <p className="text-neutral-600 text-sm font-medium">
+              Ngừng hoạt động
+            </p>
+            <p className="text-3xl font-bold text-neutral-700">
+              {stats.inactive}
             </p>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortChange("id")}
-                  >
-                    ID
-                    {sortBy === "id" && (
-                      <span className="ml-1">
-                        {sortOrder === "asc" ? "↑" : "↓"}
-                      </span>
-                    )}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortChange("name")}
-                  >
-                    Họ tên
-                    {sortBy === "name" && (
-                      <span className="ml-1">
-                        {sortOrder === "asc" ? "↑" : "↓"}
-                      </span>
-                    )}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSortChange("email")}
-                  >
-                    Email
-                    {sortBy === "email" && (
-                      <span className="ml-1">
-                        {sortOrder === "asc" ? "↑" : "↓"}
-                      </span>
-                    )}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Số điện thoại
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Trạng thái
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Hành động
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {sortedParents.map((parent) => (
-                  <tr key={parent.parentId}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {parent.parentId}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+          <div className="bg-neutral-200 h-12 w-12 rounded-full flex items-center justify-center">
+            <FiX className="h-6 w-6 text-neutral-600" />
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-neutral-50 p-4 rounded-lg mb-6 border border-neutral-200">
+        <div className="flex flex-col md:flex-row gap-4 md:items-center">
+          <div className="flex-1">
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <FiSearch className="h-5 w-5 text-neutral-400" />
+              </span>
+              <input
+                type="text"
+                placeholder="Tìm kiếm phụ huynh..."
+                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary-600"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <select
+              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white"
+              value={filterStatus}
+              onChange={(e) => handleFilterChange(e.target.value)}
+            >
+              <option value="all">Tất cả trạng thái</option>
+              <option value="active">Đang hoạt động</option>
+              <option value="inactive">Ngừng hoạt động</option>
+            </select>
+          </div>
+
+          <button
+            onClick={resetFilters}
+            className="md:ml-auto flex items-center text-primary-600 hover:text-primary-800 transition-colors duration-300"
+          >
+            <FiRefreshCw className="mr-1" />
+            Đặt lại
+          </button>
+        </div>
+      </div>
+
+      {/* Parent Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border-collapse">
+          <thead>
+            <tr className="bg-neutral-50 border-y border-neutral-200">
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("id")}
+              >
+                <div className="flex items-center justify-center">
+                  ID
+                  {sortBy === "id" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("name")}
+              >
+                <div className="flex items-center justify-center">
+                  Họ tên
+                  {sortBy === "name" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("email")}
+              >
+                <div className="flex items-center justify-center">
+                  Email
+                  {sortBy === "email" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("phone")}
+              >
+                <div className="flex items-center justify-center">
+                  Số điện thoại
+                  {sortBy === "phone" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+                Trạng thái
+              </th>
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+                Thao tác
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-neutral-200">
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="text-center py-4">
+                  <div className="flex justify-center items-center">
+                    <svg
+                      className="animate-spin h-5 w-5 text-primary-600 mr-3"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Đang tải...
+                  </div>
+                </td>
+              </tr>
+            ) : sortedParents.length > 0 ? (
+              sortedParents.map((parent) => (
+                <tr
+                  key={parent.parentId}
+                  className="hover:bg-neutral-50 transition-colors duration-200 h-16"
+                >
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {parent.parentId}
+                  </td>
+                  <td className="py-4 px-6 align-middle">
+                    <div className="flex items-center justify-center">
+                      <span className="font-medium text-neutral-900">
                         {parent.fullName}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {parent.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {parent.phone}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          parent.isActive
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {parent.isActive ? "Hoạt động" : "Ngừng hoạt động"}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {parent.email}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {parent.phone}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        parent.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-neutral-100 text-neutral-800"
+                      }`}
+                    >
+                      {parent.isActive ? "Hoạt động" : "Ngừng hoạt động"}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle">
+                    <div className="flex space-x-2 justify-center">
                       <button
                         onClick={() => handleAddEditParent(parent)}
-                        className="text-teal-600 hover:text-teal-900 mr-3"
+                        className="text-blue-600 hover:text-blue-800"
+                        title="Chỉnh sửa"
                       >
                         <FiEdit className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => toggleParentStatus(parent)}
-                        className={`mr-3 ${
+                        className={`${
                           parent.isActive
-                            ? "text-gray-600 hover:text-gray-900"
-                            : "text-green-600 hover:text-green-900"
+                            ? "text-neutral-600 hover:text-neutral-800"
+                            : "text-green-600 hover:text-green-800"
                         }`}
+                        title={
+                          parent.isActive
+                            ? "Đánh dấu ngừng hoạt động"
+                            : "Đánh dấu đang hoạt động"
+                        }
                       >
                         {parent.isActive ? (
                           <FiX className="h-5 w-5" />
@@ -598,32 +571,63 @@ const ParentManagement = () => {
                       </button>
                       <button
                         onClick={() => deleteParent(parent.parentId)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-red-600 hover:text-red-800"
+                        title="Xóa"
                       >
                         <FiTrash2 className="h-5 w-5" />
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="text-center py-6">
+                  <div className="flex flex-col items-center justify-center">
+                    <svg
+                      className="w-12 h-12 text-neutral-400 mb-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                    <p className="text-neutral-600 text-lg">
+                      Không tìm thấy phụ huynh nào phù hợp
+                    </p>
+                    <p className="text-neutral-500 text-sm mt-1">
+                      Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác
+                    </p>
+                    <button
+                      onClick={resetFilters}
+                      className="mt-3 bg-primary-100 text-primary-700 hover:bg-primary-200 px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
+                    >
+                      <FiRefreshCw className="mr-2" />
+                      Đặt lại bộ lọc
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
-      {/* Modal */}
+      {/* Add/Edit Parent Modal */}
       {showParentModal && (
-        <div className="fixed inset-0 z-50 overflow-auto bg-smoke-light flex">
-          <div
-            className="fixed inset-0 bg-black opacity-50"
-            onClick={() => setShowParentModal(false)}
-          ></div>
-          <div className="relative bg-white w-full max-w-md m-auto flex-col flex rounded-lg shadow-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+              <h3 className="text-xl font-bold text-neutral-900 mb-4">
                 {selectedParent ? "Chỉnh sửa phụ huynh" : "Thêm phụ huynh mới"}
               </h3>
-              <form onSubmit={handleSubmit} className="mt-4">
+              <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label
                     htmlFor="fullName"
