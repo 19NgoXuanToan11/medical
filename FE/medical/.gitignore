@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+bin/
+obj/
+*.nupkg
+*.dgspec.json
+*.csproj.nuget.*
