@@ -8,8 +8,6 @@ public static class StudentDto
     {
         public int StudentId { get; set; }
 
-        public int? StaffId { get; set; }
-
         [Required]
         [StringLength(20)]
         public string StudentCode { get; set; } = null!;
@@ -43,7 +41,6 @@ public static class StudentDto
         public bool? IsActive { get; set; }
 
         // Navigation properties that might be useful in the API
-        public string? StaffName { get; set; } // Will be mapped from Staff.FirstName + Staff.LastName
         public int HealthProfileCount { get; set; }
         public int HealthEventCount { get; set; }
         public int ParentCount { get; set; }
@@ -51,9 +48,6 @@ public static class StudentDto
 
     public class Create
     {
-        [Required]
-        public int? StaffId { get; set; }
-
         [Required]
         [StringLength(20)]
         [RegularExpression(@"^[A-Za-z0-9]+$", ErrorMessage = "Student code can only contain letters and numbers")]
@@ -97,8 +91,6 @@ public static class StudentDto
     {
         [Required]
         public int StudentId { get; set; }
-
-        public int? StaffId { get; set; }
 
         [StringLength(20)]
         [RegularExpression(@"^[A-Za-z0-9]+$", ErrorMessage = "Student code can only contain letters and numbers")]

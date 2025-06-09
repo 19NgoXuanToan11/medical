@@ -3576,55 +3576,6 @@
         }
       }
     },
-    "/api/Parent/staff/{staffId}": {
-      "get": {
-        "tags": [
-          "Parent"
-        ],
-        "parameters": [
-          {
-            "name": "staffId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.DTOs.ParentDto_ViewModel"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.DTOs.ParentDto_ViewModel"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.DTOs.ParentDto_ViewModel"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Report": {
       "get": {
         "tags": [
@@ -5444,11 +5395,6 @@
         ],
         "type": "object",
         "properties": {
-          "staffId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
           "studentId": {
             "type": "integer",
             "format": "int32",
@@ -5514,11 +5460,6 @@
       "API.DTOs.ParentDto_Update": {
         "type": "object",
         "properties": {
-          "staffId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
           "studentId": {
             "type": "integer",
             "format": "int32",
@@ -5592,11 +5533,6 @@
             "type": "integer",
             "format": "int32"
           },
-          "staffId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
           "studentId": {
             "type": "integer",
             "format": "int32",
@@ -5640,10 +5576,6 @@
           },
           "isActive": {
             "type": "boolean",
-            "nullable": true
-          },
-          "staffName": {
-            "type": "string",
             "nullable": true
           },
           "studentName": {
@@ -5967,15 +5899,10 @@
           "gender",
           "gradeLevel",
           "lastName",
-          "staffId",
           "studentCode"
         ],
         "type": "object",
         "properties": {
-          "staffId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "studentCode": {
             "maxLength": 20,
             "minLength": 0,
@@ -6036,11 +5963,6 @@
           "studentId": {
             "type": "integer",
             "format": "int32"
-          },
-          "staffId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
           },
           "studentCode": {
             "maxLength": 20,
@@ -6117,11 +6039,6 @@
             "type": "integer",
             "format": "int32"
           },
-          "staffId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
           "studentCode": {
             "maxLength": 20,
             "minLength": 0,
@@ -6165,10 +6082,6 @@
           },
           "isActive": {
             "type": "boolean",
-            "nullable": true
-          },
-          "staffName": {
-            "type": "string",
             "nullable": true
           },
           "healthProfileCount": {

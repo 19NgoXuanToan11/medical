@@ -16,9 +16,7 @@ public class StaffRepository : IStaffRepository
     {
         return await _context.Staff
             .Include(s => s.Role)
-            .Include(s => s.Students)
             .Include(s => s.HealthEvents)
-            .Include(s => s.Parents)
             .ToListAsync();
     }
 
@@ -26,9 +24,7 @@ public class StaffRepository : IStaffRepository
     {
         return await _context.Staff
             .Include(s => s.Role)
-            .Include(s => s.Students)
             .Include(s => s.HealthEvents)
-            .Include(s => s.Parents)
             .FirstOrDefaultAsync(s => s.StaffId == id);
     }
 
@@ -48,9 +44,7 @@ public class StaffRepository : IStaffRepository
     public async Task<bool> DeleteStaffAsync(int id)
     {
         var staff = await _context.Staff
-            .Include(s => s.Students)
             .Include(s => s.HealthEvents)
-            .Include(s => s.Parents)
             .FirstOrDefaultAsync(s => s.StaffId == id);
 
         if (staff == null)
@@ -59,7 +53,7 @@ public class StaffRepository : IStaffRepository
         }
 
         // Check if staff has any associated records
-        if (staff.Students.Any() || staff.HealthEvents.Any() || staff.Parents.Any())
+        if (staff.HealthEvents.Any())
         {
             return false; // Staff has associated records, cannot delete
         }

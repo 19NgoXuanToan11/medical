@@ -7,7 +7,6 @@ public static class ParentDto
     public class ViewModel
     {
         public int ParentId { get; set; }
-        public int? StaffId { get; set; }
         public int? StudentId { get; set; }
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
@@ -21,13 +20,11 @@ public static class ParentDto
         public bool? IsActive { get; set; }
 
         // Navigation properties that might be useful in the API
-        public string? StaffName { get; set; } // Will be mapped from Staff.FirstName + Staff.LastName
         public string? StudentName { get; set; } // Will be mapped from Student.FirstName + Student.LastName
     }
 
     public class Create
     {
-        public int? StaffId { get; set; }
         public int? StudentId { get; set; }
 
         [Required]
@@ -66,7 +63,6 @@ public static class ParentDto
 
     public class Update
     {
-        public int? StaffId { get; set; }
         public int? StudentId { get; set; }
 
         [StringLength(50)]

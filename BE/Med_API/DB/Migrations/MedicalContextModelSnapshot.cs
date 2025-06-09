@@ -859,18 +859,12 @@ namespace DB.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<int?>("StaffId")
-                        .HasColumnType("int")
-                        .HasColumnName("StaffID");
-
                     b.Property<int?>("StudentId")
                         .HasColumnType("int")
                         .HasColumnName("StudentID");
 
                     b.HasKey("ParentId")
                         .HasName("PK__Parent__D339510FC35C248C");
-
-                    b.HasIndex("StaffId");
 
                     b.HasIndex("StudentId");
 
@@ -1117,10 +1111,6 @@ namespace DB.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("StaffId")
-                        .HasColumnType("int")
-                        .HasColumnName("StaffID");
-
                     b.Property<string>("StudentCode")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1128,8 +1118,6 @@ namespace DB.Migrations
 
                     b.HasKey("StudentId")
                         .HasName("PK__Student__32C52A7964894850");
-
-                    b.HasIndex("StaffId");
 
                     b.HasIndex(new[] { "StudentCode" }, "UQ__Student__1FC8860437093A19")
                         .IsUnique();
@@ -1143,17 +1131,11 @@ namespace DB.Migrations
                         .WithMany()
                         .HasForeignKey("ParentId");
 
-                    b.HasOne("DB.Staff", "Staff")
-                        .WithMany()
-                        .HasForeignKey("StaffId");
-
                     b.HasOne("DB.Student", "Student")
                         .WithMany()
                         .HasForeignKey("StudentId");
 
                     b.Navigation("Parent");
-
-                    b.Navigation("Staff");
 
                     b.Navigation("Student");
                 });
@@ -1301,11 +1283,6 @@ namespace DB.Migrations
                         .HasForeignKey("ParentId")
                         .HasConstraintName("FK__Medicine_Request__ParentID");
 
-                    b.HasOne("DB.Staff", "Staff")
-                        .WithMany("MedicineRequests")
-                        .HasForeignKey("StaffId")
-                        .HasConstraintName("FK__Medicine_Request__StaffID");
-
                     b.HasOne("DB.Student", "Student")
                         .WithMany("MedicineRequests")
                         .HasForeignKey("StudentId")
@@ -1313,24 +1290,15 @@ namespace DB.Migrations
 
                     b.Navigation("Parent");
 
-                    b.Navigation("Staff");
-
                     b.Navigation("Student");
                 });
 
             modelBuilder.Entity("DB.Parent", b =>
                 {
-                    b.HasOne("DB.Staff", "Staff")
-                        .WithMany("Parents")
-                        .HasForeignKey("StaffId")
-                        .HasConstraintName("FK__Parent__StaffID__70DDC3D8");
-
                     b.HasOne("DB.Student", "Student")
                         .WithMany("Parents")
                         .HasForeignKey("StudentId")
                         .HasConstraintName("FK__Parent__StudentI__6FE99F9F");
-
-                    b.Navigation("Staff");
 
                     b.Navigation("Student");
                 });
@@ -1389,12 +1357,9 @@ namespace DB.Migrations
 
             modelBuilder.Entity("DB.Student", b =>
                 {
-                    b.HasOne("DB.Staff", "Staff")
+                    b.HasOne("DB.Staff", null)
                         .WithMany("Students")
-                        .HasForeignKey("StaffId")
-                        .HasConstraintName("FK__Student__StaffID__6EF57B66");
-
-                    b.Navigation("Staff");
+                        .HasForeignKey("StaffId");
                 });
 
             modelBuilder.Entity("DB.HealthCheckForm", b =>
@@ -1433,8 +1398,6 @@ namespace DB.Migrations
                     b.Navigation("HealthEvents");
 
                     b.Navigation("MedicineRequests");
-
-                    b.Navigation("Parents");
 
                     b.Navigation("Students");
                 });

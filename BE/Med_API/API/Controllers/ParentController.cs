@@ -52,15 +52,6 @@ public class ParentController : ControllerBase
         return Ok(parentViewModels);
     }
 
-    // GET: api/Parent/staff/5
-    [HttpGet("staff/{staffId}")]
-    public async Task<ActionResult<IEnumerable<ParentDto.ViewModel>>> GetParentsByStaff(int staffId)
-    {
-        var parents = await _parentService.GetParentsByStaffIdAsync(staffId);
-        var parentViewModels = _mapper.Map<IEnumerable<ParentDto.ViewModel>>(parents);
-        return Ok(parentViewModels);
-    }
-
     // POST: api/Parent
     [HttpPost]
     public async Task<ActionResult<ParentDto.ViewModel>> CreateParent(ParentDto.Create createDto)
@@ -75,7 +66,7 @@ public class ParentController : ControllerBase
 
         if (createdParent == null)
         {
-            return BadRequest("Parent must be associated with either a student or staff member.");
+            return BadRequest("Parent must be associated with a student.");
         }
 
         var parentViewModel = _mapper.Map<ParentDto.ViewModel>(createdParent);
@@ -115,4 +106,4 @@ public class ParentController : ControllerBase
 
         return NoContent();
     }
-} 
+}

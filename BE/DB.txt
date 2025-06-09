@@ -16,7 +16,6 @@ CREATE TABLE [Staff] (
 
 CREATE TABLE [Student] (
   [StudentID] int IDENTITY(1,1) PRIMARY KEY,
-  [StaffID] int,
   [StudentCode] nvarchar(20) UNIQUE NOT NULL,
   [FirstName] nvarchar(50) NOT NULL,
   [LastName] nvarchar(50) NOT NULL,
@@ -30,7 +29,6 @@ CREATE TABLE [Student] (
 
 CREATE TABLE [Parent] (
   [ParentID] int IDENTITY(1,1) PRIMARY KEY,
-  [StaffID] int,
   [StudentID] int,
   [FirstName] nvarchar(50) NOT NULL,
   [LastName] nvarchar(50) NOT NULL,

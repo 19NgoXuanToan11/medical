@@ -15,7 +15,6 @@ public class ParentRepository : IParentRepository
     public async Task<IEnumerable<Parent>> GetAllParentsAsync()
     {
         return await _context.Parents
-            .Include(p => p.Staff)
             .Include(p => p.Student)
             .ToListAsync();
     }
@@ -23,7 +22,6 @@ public class ParentRepository : IParentRepository
     public async Task<Parent?> GetParentByIdAsync(int id)
     {
         return await _context.Parents
-            .Include(p => p.Staff)
             .Include(p => p.Student)
             .FirstOrDefaultAsync(p => p.ParentId == id);
     }
@@ -64,18 +62,8 @@ public class ParentRepository : IParentRepository
     public async Task<IEnumerable<Parent>> GetParentsByStudentIdAsync(int studentId)
     {
         return await _context.Parents
-            .Include(p => p.Staff)
             .Include(p => p.Student)
             .Where(p => p.StudentId == studentId)
-            .ToListAsync();
-    }
-
-    public async Task<IEnumerable<Parent>> GetParentsByStaffIdAsync(int staffId)
-    {
-        return await _context.Parents
-            .Include(p => p.Staff)
-            .Include(p => p.Student)
-            .Where(p => p.StaffId == staffId)
             .ToListAsync();
     }
 } 

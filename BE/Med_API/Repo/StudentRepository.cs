@@ -15,7 +15,6 @@ public class StudentRepository : IStudentRepository
     public async Task<IEnumerable<Student>> GetAllStudentsAsync()
     {
         return await _context.Students
-            .Include(s => s.Staff)
             .Include(s => s.HealthProfiles)
             .Include(s => s.HealthEvents)
             .Include(s => s.Parents)
@@ -25,7 +24,6 @@ public class StudentRepository : IStudentRepository
     public async Task<Student?> GetStudentByIdAsync(int id)
     {
         return await _context.Students
-            .Include(s => s.Staff)
             .Include(s => s.HealthProfiles)
             .Include(s => s.HealthEvents)
             .Include(s => s.Parents)

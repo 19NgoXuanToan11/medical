@@ -23,8 +23,6 @@ public partial class Staff
 
     // Navigation properties
     public virtual Role? Role { get; set; }
-    public virtual ICollection<Student> Students { get; set; } = new List<Student>();
-    public virtual ICollection<Parent> Parents { get; set; } = new List<Parent>();
     public virtual ICollection<HealthEvent> HealthEvents { get; set; } = new List<HealthEvent>();
     public virtual ICollection<MedicineRequest> MedicineRequests { get; set; } = new List<MedicineRequest>();
     public virtual ICollection<RequestResult> AdministeredRequestResults { get; set; } = new List<RequestResult>();

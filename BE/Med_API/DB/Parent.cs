@@ -7,8 +7,6 @@ public partial class Parent
 {
     public int ParentId { get; set; }
 
-    public int? StaffId { get; set; }
-
     public int? StudentId { get; set; }
 
     public string FirstName { get; set; } = null!;
@@ -30,8 +28,6 @@ public partial class Parent
     public bool? IsMainContact { get; set; }
 
     public bool? IsActive { get; set; }
-
-    public virtual Staff? Staff { get; set; }
 
     public virtual Student? Student { get; set; }
 

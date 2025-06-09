@@ -25,9 +25,9 @@ public class ParentService : IParentService
     public async Task<Parent?> CreateParentAsync(Parent parent)
     {
         // Validate required relationships
-        if (parent.StudentId == null && parent.StaffId == null)
+        if (parent.StudentId == null)
         {
-            return null; // Parent must be associated with either a student or staff
+            return null; // Parent must be associated with a student
         }
 
         return await _parentRepository.CreateParentAsync(parent);
@@ -43,13 +43,12 @@ public class ParentService : IParentService
         }
 
         // Validate required relationships
-        if (parent.StudentId == null && parent.StaffId == null)
+        if (parent.StudentId == null)
         {
-            return false; // Parent must be associated with either a student or staff
+            return false; // Parent must be associated with a student
         }
 
         // Update only necessary properties
-        existingParent.StaffId = parent.StaffId;
         existingParent.StudentId = parent.StudentId;
         existingParent.FirstName = parent.FirstName;
         existingParent.LastName = parent.LastName;
@@ -74,10 +73,5 @@ public class ParentService : IParentService
     public async Task<IEnumerable<Parent>> GetParentsByStudentIdAsync(int studentId)
     {
         return await _parentRepository.GetParentsByStudentIdAsync(studentId);
-    }
-
-    public async Task<IEnumerable<Parent>> GetParentsByStaffIdAsync(int staffId)
-    {
-        return await _parentRepository.GetParentsByStaffIdAsync(staffId);
     }
 } 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(MedicalContext))]
-    [Migration("20250607070651_FixRelationshipConfigurations")]
-    partial class FixRelationshipConfigurations
+    [Migration("20250609102513_EmptyMigration")]
+    partial class EmptyMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -863,8 +863,7 @@ namespace DB.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<int?>("StaffId")
-                        .HasColumnType("int")
-                        .HasColumnName("StaffID");
+                        .HasColumnType("int");
 
                     b.Property<int?>("StudentId")
                         .HasColumnType("int")
@@ -1121,8 +1120,7 @@ namespace DB.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("StaffId")
-                        .HasColumnType("int")
-                        .HasColumnName("StaffID");
+                        .HasColumnType("int");
 
                     b.Property<string>("StudentCode")
                         .IsRequired()
@@ -1323,17 +1321,14 @@ namespace DB.Migrations
 
             modelBuilder.Entity("DB.Parent", b =>
                 {
-                    b.HasOne("DB.Staff", "Staff")
+                    b.HasOne("DB.Staff", null)
                         .WithMany("Parents")
-                        .HasForeignKey("StaffId")
-                        .HasConstraintName("FK__Parent__StaffID__70DDC3D8");
+                        .HasForeignKey("StaffId");
 
                     b.HasOne("DB.Student", "Student")
                         .WithMany("Parents")
                         .HasForeignKey("StudentId")
                         .HasConstraintName("FK__Parent__StudentI__6FE99F9F");
-
-                    b.Navigation("Staff");
 
                     b.Navigation("Student");
                 });
@@ -1392,12 +1387,9 @@ namespace DB.Migrations
 
             modelBuilder.Entity("DB.Student", b =>
                 {
-                    b.HasOne("DB.Staff", "Staff")
+                    b.HasOne("DB.Staff", null)
                         .WithMany("Students")
-                        .HasForeignKey("StaffId")
-                        .HasConstraintName("FK__Student__StaffID__6EF57B66");
-
-                    b.Navigation("Staff");
+                        .HasForeignKey("StaffId");
                 });
 
             modelBuilder.Entity("DB.HealthCheckForm", b =>

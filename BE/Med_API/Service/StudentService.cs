@@ -54,7 +54,6 @@ public class StudentService : IStudentService
         }
 
         // Update only necessary properties
-        existingStudent.StaffId = student.StaffId;
         existingStudent.StudentCode = student.StudentCode;
         existingStudent.FirstName = student.FirstName;
         existingStudent.LastName = student.LastName;

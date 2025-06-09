@@ -10,5 +10,4 @@ public interface IParentRepository
     Task UpdateParentAsync(Parent parent);
     Task<bool> DeleteParentAsync(int id);
     Task<IEnumerable<Parent>> GetParentsByStudentIdAsync(int studentId);
-    Task<IEnumerable<Parent>> GetParentsByStaffIdAsync(int staffId);
 } 

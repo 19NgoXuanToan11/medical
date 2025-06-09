@@ -443,12 +443,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.Relationship)
                 .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.StaffId).HasColumnName("StaffID");
             entity.Property(e => e.StudentId).HasColumnName("StudentID");
-
-            entity.HasOne(d => d.Staff).WithMany(p => p.Parents)
-                .HasForeignKey(d => d.StaffId)
-                .HasConstraintName("FK__Parent__StaffID__70DDC3D8");
 
             entity.HasOne(d => d.Student).WithMany(p => p.Parents)
                 .HasForeignKey(d => d.StudentId)
@@ -570,12 +565,7 @@ public partial class MedicalContext : DbContext
                 .IsFixedLength();
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LastName).HasMaxLength(50);
-            entity.Property(e => e.StaffId).HasColumnName("StaffID");
             entity.Property(e => e.StudentCode).HasMaxLength(20);
-
-            entity.HasOne(d => d.Staff).WithMany(p => p.Students)
-                .HasForeignKey(d => d.StaffId)
-                .HasConstraintName("FK__Student__StaffID__6EF57B66");
         });
 
         OnModelCreatingPartial(modelBuilder);
