@@ -49,6 +49,8 @@ public partial class MedicalContext : DbContext
 
     public virtual DbSet<Student> Students { get; set; }
 
+    public virtual DbSet<StudentParent> StudentParents { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=(local);Database=Medical;User Id=sa;Password=123456;TrustServerCertificate=True;");
@@ -443,11 +445,29 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.Relationship)
                 .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.StudentId).HasColumnName("StudentID");
+        });
 
-            entity.HasOne(d => d.Student).WithMany(p => p.Parents)
+        modelBuilder.Entity<StudentParent>(entity =>
+        {
+            entity.HasKey(e => e.StudentParentId);
+
+            entity.ToTable("Student_Parent");
+
+            entity.Property(e => e.StudentParentId).HasColumnName("StudentParentID");
+            entity.Property(e => e.StudentId).HasColumnName("StudentID");
+            entity.Property(e => e.ParentId).HasColumnName("ParentID");
+
+            entity.HasOne(d => d.Student)
+                .WithMany(p => p.StudentParents)
                 .HasForeignKey(d => d.StudentId)
-                .HasConstraintName("FK__Parent__StudentI__6FE99F9F");
+                .OnDelete(DeleteBehavior.Cascade) // Or .NoAction, depending on desired behavior
+                .HasConstraintName("FK_StudentParent_Student");
+
+            entity.HasOne(d => d.Parent)
+                .WithMany(p => p.StudentParents)
+                .HasForeignKey(d => d.ParentId)
+                .OnDelete(DeleteBehavior.Cascade) // Or .NoAction
+                .HasConstraintName("FK_StudentParent_Parent");
         });
 
         modelBuilder.Entity<Report>(entity =>
@@ -505,13 +525,13 @@ public partial class MedicalContext : DbContext
             entity.HasOne(d => d.AdministeredByStaff)
                 .WithMany(p => p.AdministeredRequestResults)
                 .HasForeignKey(d => d.AdministeredBy)
-                .OnDelete(DeleteBehavior.SetNull)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK__Request_Result__AdministeredBy");
 
             entity.HasOne(d => d.ActionByStaff)
                 .WithMany(p => p.ActionedRequestResults)
                 .HasForeignKey(d => d.ActionBy)
-                .OnDelete(DeleteBehavior.SetNull)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK__Request_Result__ActionBy");
         });
 
@@ -560,9 +580,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.ClassName).HasMaxLength(50);
             entity.Property(e => e.FirstName).HasMaxLength(50);
             entity.Property(e => e.Gender)
-                .HasMaxLength(1)
-                .IsUnicode(false)
-                .IsFixedLength();
+                .HasMaxLength(10);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LastName).HasMaxLength(50);
             entity.Property(e => e.StudentCode).HasMaxLength(20);

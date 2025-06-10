@@ -24,10 +24,24 @@ public class ParentService : IParentService
 
     public async Task<Parent?> CreateParentAsync(Parent parent)
     {
-        // Validate required relationships
-        if (parent.StudentId == null)
+        // Check for unique phone
+        if (!string.IsNullOrEmpty(parent.Phone))
         {
-            return null; // Parent must be associated with a student
+            var existingParentWithPhone = await _parentRepository.GetParentByPhoneAsync(parent.Phone);
+            if (existingParentWithPhone != null)
+            {
+                return null; // Phone number already exists
+            }
+        }
+
+        // Check for unique email
+        if (!string.IsNullOrEmpty(parent.Email))
+        {
+            var existingParentWithEmail = await _parentRepository.GetParentByEmailAsync(parent.Email);
+            if (existingParentWithEmail != null)
+            {
+                return null; // Email already exists
+            }
         }
 
         return await _parentRepository.CreateParentAsync(parent);
@@ -42,36 +56,31 @@ public class ParentService : IParentService
             return false; // Parent not found
         }
 
-        // Validate required relationships
-        if (parent.StudentId == null)
+        // Check for unique phone if it's being updated
+        if (!string.IsNullOrEmpty(parent.Phone) && existingParent.Phone != parent.Phone)
         {
-            return false; // Parent must be associated with a student
+            var parentWithSamePhone = await _parentRepository.GetParentByPhoneAsync(parent.Phone);
+            if (parentWithSamePhone != null && parentWithSamePhone.ParentId != parent.ParentId)
+            {
+                return false; // Phone number not unique
+            }
         }
 
-        // Update only necessary properties
-        existingParent.StudentId = parent.StudentId;
-        existingParent.FirstName = parent.FirstName;
-        existingParent.LastName = parent.LastName;
-        existingParent.Relationship = parent.Relationship;
-        existingParent.Phone = parent.Phone;
-        existingParent.Email = parent.Email;
-        existingParent.Address = parent.Address;
-        existingParent.Occupation = parent.Occupation;
-        existingParent.IsEmergencyContact = parent.IsEmergencyContact;
-        existingParent.IsMainContact = parent.IsMainContact;
-        existingParent.IsActive = parent.IsActive;
+        // Check for unique email if it's being updated
+        if (!string.IsNullOrEmpty(parent.Email) && existingParent.Email != parent.Email)
+        {
+            var parentWithSameEmail = await _parentRepository.GetParentByEmailAsync(parent.Email);
+            if (parentWithSameEmail != null && parentWithSameEmail.ParentId != parent.ParentId)
+            {
+                return false; // Email not unique
+            }
+        }
 
-        await _parentRepository.UpdateParentAsync(existingParent);
-        return true;
+        return await _parentRepository.UpdateParentAsync(parent);
     }
 
     public async Task<bool> DeleteParentAsync(int id)
     {
         return await _parentRepository.DeleteParentAsync(id);
-    }
-
-    public async Task<IEnumerable<Parent>> GetParentsByStudentIdAsync(int studentId)
-    {
-        return await _parentRepository.GetParentsByStudentIdAsync(studentId);
     }
 } 

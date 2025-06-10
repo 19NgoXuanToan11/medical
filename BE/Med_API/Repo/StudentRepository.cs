@@ -17,7 +17,8 @@ public class StudentRepository : IStudentRepository
         return await _context.Students
             .Include(s => s.HealthProfiles)
             .Include(s => s.HealthEvents)
-            .Include(s => s.Parents)
+            .Include(s => s.StudentParents)
+                .ThenInclude(sp => sp.Parent)
             .ToListAsync();
     }
 
@@ -26,7 +27,8 @@ public class StudentRepository : IStudentRepository
         return await _context.Students
             .Include(s => s.HealthProfiles)
             .Include(s => s.HealthEvents)
-            .Include(s => s.Parents)
+            .Include(s => s.StudentParents)
+                .ThenInclude(sp => sp.Parent)
             .FirstOrDefaultAsync(s => s.StudentId == id);
     }
 
@@ -37,10 +39,17 @@ public class StudentRepository : IStudentRepository
         return student;
     }
 
-    public async Task UpdateStudentAsync(Student student)
+    public async Task<bool> UpdateStudentAsync(Student student)
     {
-        _context.Students.Update(student);
+        var existingStudent = await _context.Students.FindAsync(student.StudentId);
+        if (existingStudent == null)
+        {
+            return false;
+        }
+
+        _context.Entry(existingStudent).CurrentValues.SetValues(student);
         await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteStudentAsync(int id)
@@ -59,6 +68,10 @@ public class StudentRepository : IStudentRepository
     public async Task<Student?> GetStudentByCodeAsync(string studentCode)
     {
         return await _context.Students
+            .Include(s => s.HealthProfiles)
+            .Include(s => s.HealthEvents)
+            .Include(s => s.StudentParents)
+                .ThenInclude(sp => sp.Parent)
             .FirstOrDefaultAsync(s => s.StudentCode == studentCode);
     }
 } 

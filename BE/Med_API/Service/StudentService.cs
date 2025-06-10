@@ -53,19 +53,7 @@ public class StudentService : IStudentService
             }
         }
 
-        // Update only necessary properties
-        existingStudent.StudentCode = student.StudentCode;
-        existingStudent.FirstName = student.FirstName;
-        existingStudent.LastName = student.LastName;
-        existingStudent.DateOfBirth = student.DateOfBirth;
-        existingStudent.Gender = student.Gender;
-        existingStudent.ClassName = student.ClassName;
-        existingStudent.GradeLevel = student.GradeLevel;
-        existingStudent.Address = student.Address;
-        existingStudent.IsActive = student.IsActive;
-
-        await _studentRepository.UpdateStudentAsync(existingStudent);
-        return true;
+        return await _studentRepository.UpdateStudentAsync(student);
     }
 
     public async Task<bool> DeleteStudentAsync(int id)

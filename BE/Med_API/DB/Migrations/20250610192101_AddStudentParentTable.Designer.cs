@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(MedicalContext))]
-    [Migration("20250609102513_EmptyMigration")]
-    partial class EmptyMigration
+    [Migration("20250610192101_AddStudentParentTable")]
+    partial class AddStudentParentTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -862,17 +862,11 @@ namespace DB.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<int?>("StaffId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("StudentId")
-                        .HasColumnType("int")
-                        .HasColumnName("StudentID");
+                        .HasColumnType("int");
 
                     b.HasKey("ParentId")
                         .HasName("PK__Parent__D339510FC35C248C");
-
-                    b.HasIndex("StaffId");
 
                     b.HasIndex("StudentId");
 
@@ -1101,10 +1095,8 @@ namespace DB.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Gender")
-                        .HasMaxLength(1)
-                        .IsUnicode(false)
-                        .HasColumnType("char(1)")
-                        .IsFixedLength();
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("GradeLevel")
                         .HasColumnType("int");
@@ -1119,9 +1111,6 @@ namespace DB.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("StaffId")
-                        .HasColumnType("int");
-
                     b.Property<string>("StudentCode")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1130,12 +1119,36 @@ namespace DB.Migrations
                     b.HasKey("StudentId")
                         .HasName("PK__Student__32C52A7964894850");
 
-                    b.HasIndex("StaffId");
-
                     b.HasIndex(new[] { "StudentCode" }, "UQ__Student__1FC8860437093A19")
                         .IsUnique();
 
                     b.ToTable("Student", (string)null);
+                });
+
+            modelBuilder.Entity("DB.StudentParent", b =>
+                {
+                    b.Property<int>("StudentParentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("StudentParentID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudentParentId"));
+
+                    b.Property<int>("ParentId")
+                        .HasColumnType("int")
+                        .HasColumnName("ParentID");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int")
+                        .HasColumnName("StudentID");
+
+                    b.HasKey("StudentParentId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Student_Parent", (string)null);
                 });
 
             modelBuilder.Entity("DB.Appointment", b =>
@@ -1321,16 +1334,9 @@ namespace DB.Migrations
 
             modelBuilder.Entity("DB.Parent", b =>
                 {
-                    b.HasOne("DB.Staff", null)
+                    b.HasOne("DB.Student", null)
                         .WithMany("Parents")
-                        .HasForeignKey("StaffId");
-
-                    b.HasOne("DB.Student", "Student")
-                        .WithMany("Parents")
-                        .HasForeignKey("StudentId")
-                        .HasConstraintName("FK__Parent__StudentI__6FE99F9F");
-
-                    b.Navigation("Student");
+                        .HasForeignKey("StudentId");
                 });
 
             modelBuilder.Entity("DB.Report", b =>
@@ -1355,13 +1361,13 @@ namespace DB.Migrations
                     b.HasOne("DB.Staff", "ActionByStaff")
                         .WithMany("ActionedRequestResults")
                         .HasForeignKey("ActionBy")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK__Request_Result__ActionBy");
 
                     b.HasOne("DB.Staff", "AdministeredByStaff")
                         .WithMany("AdministeredRequestResults")
                         .HasForeignKey("AdministeredBy")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK__Request_Result__AdministeredBy");
 
                     b.HasOne("DB.MedicineRequest", "Request")
@@ -1385,11 +1391,25 @@ namespace DB.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("DB.Student", b =>
+            modelBuilder.Entity("DB.StudentParent", b =>
                 {
-                    b.HasOne("DB.Staff", null)
-                        .WithMany("Students")
-                        .HasForeignKey("StaffId");
+                    b.HasOne("DB.Parent", "Parent")
+                        .WithMany("StudentParents")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_StudentParent_Parent");
+
+                    b.HasOne("DB.Student", "Student")
+                        .WithMany("StudentParents")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_StudentParent_Student");
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("DB.HealthCheckForm", b =>
@@ -1412,6 +1432,8 @@ namespace DB.Migrations
                     b.Navigation("InjectionForms");
 
                     b.Navigation("MedicineRequests");
+
+                    b.Navigation("StudentParents");
                 });
 
             modelBuilder.Entity("DB.Role", b =>
@@ -1428,10 +1450,6 @@ namespace DB.Migrations
                     b.Navigation("HealthEvents");
 
                     b.Navigation("MedicineRequests");
-
-                    b.Navigation("Parents");
-
-                    b.Navigation("Students");
                 });
 
             modelBuilder.Entity("DB.Student", b =>
@@ -1447,6 +1465,8 @@ namespace DB.Migrations
                     b.Navigation("MedicineRequests");
 
                     b.Navigation("Parents");
+
+                    b.Navigation("StudentParents");
                 });
 #pragma warning restore 612, 618
         }

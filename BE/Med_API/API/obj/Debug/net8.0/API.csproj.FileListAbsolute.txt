@@ -296,4 +296,11 @@ D:\medical\BE\Med_API\API\obj\Debug\net8.0\refint\API.dll
 D:\medical\BE\Med_API\API\obj\Debug\net8.0\API.pdb
 D:\medical\BE\Med_API\API\obj\Debug\net8.0\API.genruntimeconfig.cache
 D:\medical\BE\Med_API\API\obj\Debug\net8.0\ref\API.dll
-D:\medical\BE\Med_API\API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\EPPlus.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\EPPlus.Interfaces.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.IO.RecyclableMemoryStream.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Security.Cryptography.Xml.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
