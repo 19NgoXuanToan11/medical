@@ -37,12 +37,19 @@ const ParentManagement = () => {
   const [selectedParent, setSelectedParent] = useState(null);
   const [parentForm, setParentForm] = useState({
     id: 0,
-    fullName: "",
+    firstName: "",
+    lastName: "",
+    studentId: null,
+    relationship: "",
     email: "",
     phone: "",
     address: "",
+    occupation: "",
+    isEmergencyContact: false,
+    isMainContact: false,
     isActive: true,
     password: "",
+    studentName: "",
   });
   const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +57,7 @@ const ParentManagement = () => {
   // Filter Dropdown
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
-  const API_URL = "http://localhost:7111/api";
+  const API_URL = "https://localhost:7111/api";
 
   // Fetch parent accounts
   useEffect(() => {
@@ -87,12 +94,19 @@ const ParentManagement = () => {
 
     try {
       const data = {
-        fullName: parentForm.fullName,
+        firstName: parentForm.firstName,
+        lastName: parentForm.lastName,
+        studentId: parentForm.studentId,
+        relationship: parentForm.relationship,
         email: parentForm.email,
         phone: parentForm.phone,
         address: parentForm.address,
-        password: parentForm.password,
+        occupation: parentForm.occupation,
+        isEmergencyContact: parentForm.isEmergencyContact,
+        isMainContact: parentForm.isMainContact,
         isActive: parentForm.isActive,
+        password: parentForm.password,
+        studentName: parentForm.studentName,
       };
 
       await axios.post(`${API_URL}/Parent`, data);
@@ -111,11 +125,18 @@ const ParentManagement = () => {
     try {
       const data = {
         parentId: parentForm.id,
-        fullName: parentForm.fullName,
+        firstName: parentForm.firstName,
+        lastName: parentForm.lastName,
+        studentId: parentForm.studentId,
+        relationship: parentForm.relationship,
         email: parentForm.email,
         phone: parentForm.phone,
         address: parentForm.address,
+        occupation: parentForm.occupation,
+        isEmergencyContact: parentForm.isEmergencyContact,
+        isMainContact: parentForm.isMainContact,
         isActive: parentForm.isActive,
+        studentName: parentForm.studentName,
       };
 
       // Only include password if it's been changed
@@ -151,11 +172,18 @@ const ParentManagement = () => {
     try {
       const data = {
         parentId: item.parentId,
-        fullName: item.fullName,
+        firstName: item.firstName,
+        lastName: item.lastName,
+        studentId: item.studentId,
+        relationship: item.relationship,
         email: item.email,
         phone: item.phone,
         address: item.address,
+        occupation: item.occupation,
+        isEmergencyContact: item.isEmergencyContact,
+        isMainContact: item.isMainContact,
         isActive: !item.isActive,
+        studentName: item.studentName,
       };
 
       await axios.put(`${API_URL}/Parent/${item.parentId}`, data);
@@ -191,10 +219,12 @@ const ParentManagement = () => {
   // Filter parents based on search term and status
   const filteredParents = parents.filter((item) => {
     // Filter by search term
+    const fullName = `${item.firstName} ${item.lastName}`.toLowerCase();
     const matchesSearch =
-      item.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.phone.includes(searchTerm) ||
+      fullName.includes(searchTerm.toLowerCase()) ||
+      item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.phone?.includes(searchTerm) ||
+      item.occupation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (item.parentId && item.parentId.toString().includes(searchTerm));
 
     // Filter by status
@@ -214,13 +244,24 @@ const ParentManagement = () => {
 
     switch (sortBy) {
       case "name":
-        comparison = a.fullName.localeCompare(b.fullName);
+        const fullNameA = `${a.firstName} ${a.lastName}`;
+        const fullNameB = `${b.firstName} ${b.lastName}`;
+        comparison = fullNameA.localeCompare(fullNameB);
         break;
       case "id":
         comparison = a.parentId - b.parentId;
         break;
       case "email":
-        comparison = a.email.localeCompare(b.email);
+        comparison = (a.email || "").localeCompare(b.email || "");
+        break;
+      case "relationship":
+        comparison = (a.relationship || "").localeCompare(b.relationship || "");
+        break;
+      case "occupation":
+        comparison = (a.occupation || "").localeCompare(b.occupation || "");
+        break;
+      case "address":
+        comparison = (a.address || "").localeCompare(b.address || "");
         break;
       default:
         comparison = 0;
@@ -244,12 +285,19 @@ const ParentManagement = () => {
     if (item) {
       setParentForm({
         id: item.parentId,
-        fullName: item.fullName,
-        email: item.email,
-        phone: item.phone,
+        firstName: item.firstName || "",
+        lastName: item.lastName || "",
+        studentId: item.studentId,
+        relationship: item.relationship || "",
+        email: item.email || "",
+        phone: item.phone || "",
         address: item.address || "",
+        occupation: item.occupation || "",
+        isEmergencyContact: item.isEmergencyContact || false,
+        isMainContact: item.isMainContact || false,
         isActive: item.isActive,
         password: "", // Don't include the password when editing
+        studentName: item.studentName || "",
       });
       setSelectedParent(item);
     } else {
@@ -263,12 +311,19 @@ const ParentManagement = () => {
   const resetForm = () => {
     setParentForm({
       id: 0,
-      fullName: "",
+      firstName: "",
+      lastName: "",
+      studentId: null,
+      relationship: "",
       email: "",
       phone: "",
       address: "",
+      occupation: "",
+      isEmergencyContact: false,
+      isMainContact: false,
       isActive: true,
       password: "",
+      studentName: "",
     });
     setFormErrors({});
     setShowPassword(false);
@@ -278,8 +333,12 @@ const ParentManagement = () => {
   const validateForm = () => {
     const errors = {};
 
-    if (!parentForm.fullName.trim()) {
-      errors.fullName = "Vui lòng nhập họ tên";
+    if (!parentForm.firstName.trim()) {
+      errors.firstName = "Vui lòng nhập họ";
+    }
+
+    if (!parentForm.lastName.trim()) {
+      errors.lastName = "Vui lòng nhập tên";
     }
 
     if (!parentForm.email.trim()) {
@@ -292,6 +351,10 @@ const ParentManagement = () => {
       errors.phone = "Vui lòng nhập số điện thoại";
     } else if (!/^[0-9]{10,11}$/.test(parentForm.phone)) {
       errors.phone = "Số điện thoại không hợp lệ";
+    }
+
+    if (!parentForm.relationship.trim()) {
+      errors.relationship = "Vui lòng nhập mối quan hệ";
     }
 
     if (!selectedParent && !parentForm.password.trim()) {
@@ -447,6 +510,19 @@ const ParentManagement = () => {
               </th>
               <th
                 className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("relationship")}
+              >
+                <div className="flex items-center justify-center">
+                  Mối quan hệ
+                  {sortBy === "relationship" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("email")}
               >
                 <div className="flex items-center justify-center">
@@ -471,6 +547,35 @@ const ParentManagement = () => {
                   )}
                 </div>
               </th>
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("occupation")}
+              >
+                <div className="flex items-center justify-center">
+                  Nghề nghiệp
+                  {sortBy === "occupation" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("address")}
+              >
+                <div className="flex items-center justify-center">
+                  Địa chỉ
+                  {sortBy === "address" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+                Liên hệ
+              </th>
               <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
                 Trạng thái
               </th>
@@ -482,7 +587,7 @@ const ParentManagement = () => {
           <tbody className="divide-y divide-neutral-200">
             {loading ? (
               <tr>
-                <td colSpan="6" className="text-center py-4">
+                <td colSpan="10" className="text-center py-4">
                   <div className="flex justify-center items-center">
                     <svg
                       className="animate-spin h-5 w-5 text-primary-600 mr-3"
@@ -520,15 +625,46 @@ const ParentManagement = () => {
                   <td className="py-4 px-6 align-middle">
                     <div className="flex items-center justify-center">
                       <span className="font-medium text-neutral-900">
-                        {parent.fullName}
+                        {parent.firstName} {parent.lastName}
                       </span>
                     </div>
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {parent.relationship}
                   </td>
                   <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
                     {parent.email}
                   </td>
                   <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
                     {parent.phone}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {parent.occupation}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {parent.address}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle">
+                    <div className="flex flex-col items-center space-y-1">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          parent.isEmergencyContact
+                            ? "bg-red-100 text-red-800"
+                            : "bg-neutral-100 text-neutral-800"
+                        }`}
+                      >
+                        {parent.isEmergencyContact ? "Khẩn cấp" : "Thường"}
+                      </span>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          parent.isMainContact
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-neutral-100 text-neutral-800"
+                        }`}
+                      >
+                        {parent.isMainContact ? "Chính" : "Phụ"}
+                      </span>
+                    </div>
                   </td>
                   <td className="py-4 px-6 text-center align-middle">
                     <span
@@ -582,7 +718,7 @@ const ParentManagement = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center py-6">
+                <td colSpan="10" className="text-center py-6">
                   <div className="flex flex-col items-center justify-center">
                     <svg
                       className="w-12 h-12 text-neutral-400 mb-3"
@@ -628,26 +764,122 @@ const ParentManagement = () => {
                 {selectedParent ? "Chỉnh sửa phụ huynh" : "Thêm phụ huynh mới"}
               </h3>
               <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label
+                      htmlFor="firstName"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Họ
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      id="firstName"
+                      className={`mt-1 block w-full border ${
+                        formErrors.firstName
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
+                      value={parentForm.firstName}
+                      onChange={handleInputChange}
+                    />
+                    {formErrors.firstName && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {formErrors.firstName}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="lastName"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Tên
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      id="lastName"
+                      className={`mt-1 block w-full border ${
+                        formErrors.lastName
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
+                      value={parentForm.lastName}
+                      onChange={handleInputChange}
+                    />
+                    {formErrors.lastName && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {formErrors.lastName}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 <div className="mb-4">
                   <label
-                    htmlFor="fullName"
+                    htmlFor="studentId"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Họ tên
+                    Mã học sinh
                   </label>
                   <input
                     type="text"
-                    name="fullName"
-                    id="fullName"
-                    className={`mt-1 block w-full border ${
-                      formErrors.fullName ? "border-red-500" : "border-gray-300"
-                    } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
-                    value={parentForm.fullName}
+                    name="studentId"
+                    id="studentId"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                    value={parentForm.studentId || ""}
                     onChange={handleInputChange}
                   />
-                  {formErrors.fullName && (
+                </div>
+
+                <div className="mb-4">
+                  <label
+                    htmlFor="studentName"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Tên học sinh
+                  </label>
+                  <input
+                    type="text"
+                    name="studentName"
+                    id="studentName"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                    value={parentForm.studentName}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label
+                    htmlFor="relationship"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Mối quan hệ
+                  </label>
+                  <select
+                    name="relationship"
+                    id="relationship"
+                    className={`mt-1 block w-full border ${
+                      formErrors.relationship
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
+                    value={parentForm.relationship}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">-- Chọn mối quan hệ --</option>
+                    <option value="Mẹ">Mẹ</option>
+                    <option value="Bố">Bố</option>
+                    <option value="Ông">Ông</option>
+                    <option value="Bà">Bà</option>
+                    <option value="Khác">Khác</option>
+                  </select>
+                  {formErrors.relationship && (
                     <p className="mt-1 text-sm text-red-500">
-                      {formErrors.fullName}
+                      {formErrors.relationship}
                     </p>
                   )}
                 </div>
@@ -719,6 +951,23 @@ const ParentManagement = () => {
 
                 <div className="mb-4">
                   <label
+                    htmlFor="occupation"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Nghề nghiệp
+                  </label>
+                  <input
+                    type="text"
+                    name="occupation"
+                    id="occupation"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                    value={parentForm.occupation}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label
                     htmlFor="password"
                     className="block text-sm font-medium text-gray-700"
                   >
@@ -754,21 +1003,57 @@ const ParentManagement = () => {
                   )}
                 </div>
 
-                <div className="flex items-center mb-4">
-                  <input
-                    id="isActive"
-                    name="isActive"
-                    type="checkbox"
-                    className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
-                    checked={parentForm.isActive}
-                    onChange={handleInputChange}
-                  />
-                  <label
-                    htmlFor="isActive"
-                    className="ml-2 block text-sm text-gray-900"
-                  >
-                    Tài khoản đang hoạt động
-                  </label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="flex items-center">
+                    <input
+                      id="isActive"
+                      name="isActive"
+                      type="checkbox"
+                      className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                      checked={parentForm.isActive}
+                      onChange={handleInputChange}
+                    />
+                    <label
+                      htmlFor="isActive"
+                      className="ml-2 block text-sm text-gray-900"
+                    >
+                      Đang hoạt động
+                    </label>
+                  </div>
+
+                  <div className="flex items-center">
+                    <input
+                      id="isEmergencyContact"
+                      name="isEmergencyContact"
+                      type="checkbox"
+                      className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                      checked={parentForm.isEmergencyContact}
+                      onChange={handleInputChange}
+                    />
+                    <label
+                      htmlFor="isEmergencyContact"
+                      className="ml-2 block text-sm text-gray-900"
+                    >
+                      Liên hệ khẩn cấp
+                    </label>
+                  </div>
+
+                  <div className="flex items-center">
+                    <input
+                      id="isMainContact"
+                      name="isMainContact"
+                      type="checkbox"
+                      className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                      checked={parentForm.isMainContact}
+                      onChange={handleInputChange}
+                    />
+                    <label
+                      htmlFor="isMainContact"
+                      className="ml-2 block text-sm text-gray-900"
+                    >
+                      Liên hệ chính
+                    </label>
+                  </div>
                 </div>
 
                 <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3">

@@ -38,17 +38,21 @@ const StudentManagement = () => {
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [studentForm, setStudentForm] = useState({
-    id: 0,
-    fullName: "",
+    studentId: 0,
+    studentCode: "",
+    firstName: "",
+    lastName: "",
     dateOfBirth: "",
     gender: "Nam",
-    parentId: "",
-    classId: "",
+    className: "",
+    gradeLevel: "",
+    address: "",
+    parentId: 0,
     isActive: true,
   });
   const [formErrors, setFormErrors] = useState({});
 
-  const API_URL = "http://localhost:7111/api";
+  const API_URL = "https://localhost:7111/api";
 
   // Fetch student accounts and parent list for dropdown
   useEffect(() => {
@@ -62,7 +66,6 @@ const StudentManagement = () => {
 
   const fetchStudents = async () => {
     try {
-      // Replace with your actual API endpoint
       const response = await axios.get(`${API_URL}/Student`);
       const items = response.data;
       setStudents(items);
@@ -95,20 +98,28 @@ const StudentManagement = () => {
 
     try {
       const data = {
-        fullName: studentForm.fullName,
+        studentCode: studentForm.studentCode,
+        firstName: studentForm.firstName,
+        lastName: studentForm.lastName,
         dateOfBirth: studentForm.dateOfBirth,
         gender: studentForm.gender,
+        className: studentForm.className,
+        gradeLevel: parseInt(studentForm.gradeLevel) || 0,
+        address: studentForm.address,
         parentId: parseInt(studentForm.parentId),
-        classId: studentForm.classId ? parseInt(studentForm.classId) : null,
-        isActive: studentForm.isActive,
+        isActive: true  
       };
 
-      await axios.post(`${API_URL}/Student`, data);
-      fetchStudents();
-      setShowStudentModal(false);
-      resetForm();
+      const response = await axios.post(`${API_URL}/Student`, data);
+      if (response.status === 200) {
+        alert("Thêm học sinh thành công");
+        fetchStudents();
+        setShowStudentModal(false);
+        resetForm();
+      }
     } catch (error) {
       console.error("Error creating student:", error);
+      alert("Có lỗi xảy ra khi thêm học sinh. Vui lòng thử lại!");
     }
   };
 
@@ -118,16 +129,19 @@ const StudentManagement = () => {
 
     try {
       const data = {
-        studentId: studentForm.id,
-        fullName: studentForm.fullName,
+        studentId: studentForm.studentId,
+        studentCode: studentForm.studentCode,
+        firstName: studentForm.firstName,
+        lastName: studentForm.lastName,
         dateOfBirth: studentForm.dateOfBirth,
         gender: studentForm.gender,
+        className: studentForm.className,
+        gradeLevel: parseInt(studentForm.gradeLevel) || 0,
+        address: studentForm.address,
         parentId: parseInt(studentForm.parentId),
-        classId: studentForm.classId ? parseInt(studentForm.classId) : null,
-        isActive: studentForm.isActive,
       };
 
-      await axios.put(`${API_URL}/Student/${studentForm.id}`, data);
+      await axios.put(`${API_URL}/Student/${studentForm.studentId}`, data);
       fetchStudents();
       setShowStudentModal(false);
       resetForm();
@@ -153,11 +167,15 @@ const StudentManagement = () => {
     try {
       const data = {
         studentId: item.studentId,
-        fullName: item.fullName,
+        studentCode: item.studentCode,
+        firstName: item.firstName,
+        lastName: item.lastName,
         dateOfBirth: item.dateOfBirth,
         gender: item.gender,
+        className: item.className,
+        gradeLevel: item.gradeLevel,
+        address: item.address,
         parentId: item.parentId,
-        classId: item.classId,
         isActive: !item.isActive,
       };
 
@@ -194,8 +212,11 @@ const StudentManagement = () => {
   // Filter students based on search term and status
   const filteredStudents = students.filter((item) => {
     // Filter by search term
+    const fullName = `${item.firstName || ""} ${item.lastName || ""}`.trim();
     const matchesSearch =
-      item.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.studentCode &&
+        item.studentCode.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (item.studentId && item.studentId.toString().includes(searchTerm));
 
     // Filter by status
@@ -215,13 +236,18 @@ const StudentManagement = () => {
 
     switch (sortBy) {
       case "name":
-        comparison = a.fullName.localeCompare(b.fullName);
+        const fullNameA = `${a.firstName || ""} ${a.lastName || ""}`.trim();
+        const fullNameB = `${b.firstName || ""} ${b.lastName || ""}`.trim();
+        comparison = fullNameA.localeCompare(fullNameB);
         break;
       case "id":
         comparison = a.studentId - b.studentId;
         break;
       case "dob":
         comparison = new Date(a.dateOfBirth) - new Date(b.dateOfBirth);
+        break;
+      case "gradeLevel":
+        comparison = a.gradeLevel - b.gradeLevel;
         break;
       default:
         comparison = 0;
@@ -244,12 +270,16 @@ const StudentManagement = () => {
   const handleAddEditStudent = (item = null) => {
     if (item) {
       setStudentForm({
-        id: item.studentId,
-        fullName: item.fullName,
+        studentId: item.studentId,
+        studentCode: item.studentCode || "",
+        firstName: item.firstName || "",
+        lastName: item.lastName || "",
         dateOfBirth: item.dateOfBirth ? item.dateOfBirth.split("T")[0] : "",
         gender: item.gender || "Nam",
+        className: item.className || "",
+        gradeLevel: item.gradeLevel ? item.gradeLevel.toString() : "",
+        address: item.address || "",
         parentId: item.parentId ? item.parentId.toString() : "",
-        classId: item.classId ? item.classId.toString() : "",
         isActive: item.isActive,
       });
       setSelectedStudent(item);
@@ -263,12 +293,16 @@ const StudentManagement = () => {
   // Reset form
   const resetForm = () => {
     setStudentForm({
-      id: 0,
-      fullName: "",
+      studentId: 0,
+      studentCode: "",
+      firstName: "",
+      lastName: "",
       dateOfBirth: "",
       gender: "Nam",
+      className: "",
+      gradeLevel: "",
+      address: "",
       parentId: "",
-      classId: "",
       isActive: true,
     });
     setFormErrors({});
@@ -277,8 +311,11 @@ const StudentManagement = () => {
   // Validate form
   const validateForm = () => {
     const errors = {};
-    if (!studentForm.fullName.trim()) {
-      errors.fullName = "Họ tên không được để trống";
+    if (!studentForm.firstName.trim()) {
+      errors.firstName = "Họ không được để trống";
+    }
+    if (!studentForm.lastName.trim()) {
+      errors.lastName = "Tên không được để trống";
     }
     if (!studentForm.dateOfBirth) {
       errors.dateOfBirth = "Ngày sinh không được để trống";
@@ -320,6 +357,11 @@ const StudentManagement = () => {
   const getParentName = (parentId) => {
     const parent = parents.find((p) => p.parentId === parentId);
     return parent ? parent.fullName : "Không xác định";
+  };
+
+  // Get full name
+  const getFullName = (student) => {
+    return `${student.lastName || ""} ${student.firstName || ""}`.trim();
   };
 
   return (
@@ -418,17 +460,9 @@ const StudentManagement = () => {
         <table className="min-w-full bg-white border-collapse">
           <thead>
             <tr className="bg-neutral-50 border-y border-neutral-200">
-              <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
-                onClick={() => handleSortChange("id")}
-              >
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14">
                 <div className="flex items-center justify-center">
                   Mã học sinh
-                  {sortBy === "id" && (
-                    <span className="ml-1">
-                      {sortOrder === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
                 </div>
               </th>
               <th
@@ -460,6 +494,25 @@ const StudentManagement = () => {
               <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
                 Giới tính
               </th>
+              <th
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                onClick={() => handleSortChange("gradeLevel")}
+              >
+                <div className="flex items-center justify-center">
+                  Lớp
+                  {sortBy === "gradeLevel" && (
+                    <span className="ml-1">
+                      {sortOrder === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+                Khối
+              </th>
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+                Địa chỉ
+              </th>
               <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
                 Phụ huynh
               </th>
@@ -474,7 +527,7 @@ const StudentManagement = () => {
           <tbody className="divide-y divide-neutral-200">
             {loading ? (
               <tr>
-                <td colSpan="7" className="text-center py-4">
+                <td colSpan="10" className="text-center py-4">
                   <div className="flex justify-center items-center">
                     <svg
                       className="animate-spin h-5 w-5 text-primary-600 mr-3"
@@ -507,12 +560,12 @@ const StudentManagement = () => {
                   className="hover:bg-neutral-50 transition-colors duration-200 h-16"
                 >
                   <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
-                    {student.studentId}
+                    {student.studentCode}
                   </td>
                   <td className="py-4 px-6 align-middle">
                     <div className="flex items-center justify-center">
                       <span className="font-medium text-neutral-900">
-                        {student.fullName}
+                        {getFullName(student)}
                       </span>
                     </div>
                   </td>
@@ -521,6 +574,15 @@ const StudentManagement = () => {
                   </td>
                   <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
                     {student.gender}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {student.className}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                    {student.gradeLevel}
+                  </td>
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 max-w-xs truncate">
+                    {student.address}
                   </td>
                   <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
                     {getParentName(student.parentId)}
@@ -577,7 +639,7 @@ const StudentManagement = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-6">
+                <td colSpan="10" className="text-center py-6">
                   <div className="flex flex-col items-center justify-center">
                     <svg
                       className="w-12 h-12 text-neutral-400 mb-3"
@@ -625,24 +687,62 @@ const StudentManagement = () => {
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label className="block text-neutral-700 font-medium mb-2">
-                    Họ tên
+                    Mã học sinh
                   </label>
                   <input
                     type="text"
-                    name="fullName"
-                    value={studentForm.fullName}
+                    name="studentCode"
+                    value={studentForm.studentCode}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 ${
-                      formErrors.fullName
-                        ? "border-red-500"
-                        : "border-neutral-300"
-                    }`}
+                    placeholder="Tự động tạo nếu để trống"
+                    className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
                   />
-                  {formErrors.fullName && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.fullName}
-                    </p>
-                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="mb-4">
+                    <label className="block text-neutral-700 font-medium mb-2">
+                      Họ
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={studentForm.firstName}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 ${
+                        formErrors.firstName
+                          ? "border-red-500"
+                          : "border-neutral-300"
+                      }`}
+                    />
+                    {formErrors.firstName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.firstName}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-neutral-700 font-medium mb-2">
+                      Tên
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={studentForm.lastName}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 ${
+                        formErrors.lastName
+                          ? "border-red-500"
+                          : "border-neutral-300"
+                      }`}
+                    />
+                    {formErrors.lastName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.lastName}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="mb-4">
@@ -682,6 +782,55 @@ const StudentManagement = () => {
                   </select>
                 </div>
 
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="mb-4">
+                    <label className="block text-neutral-700 font-medium mb-2">
+                      Lớp học
+                    </label>
+                    <input
+                      type="text"
+                      name="className"
+                      value={studentForm.className}
+                      onChange={handleInputChange}
+                      className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
+                      placeholder="VD: 1A, 2B, 3C..."
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-neutral-700 font-medium mb-2">
+                      Khối lớp
+                    </label>
+                    <select
+                      name="gradeLevel"
+                      value={studentForm.gradeLevel}
+                      onChange={handleInputChange}
+                      className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
+                    >
+                      <option value="">-- Chọn khối --</option>
+                      <option value="1">Khối 1</option>
+                      <option value="2">Khối 2</option>
+                      <option value="3">Khối 3</option>
+                      <option value="4">Khối 4</option>
+                      <option value="5">Khối 5</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-neutral-700 font-medium mb-2">
+                    Địa chỉ
+                  </label>
+                  <textarea
+                    name="address"
+                    value={studentForm.address}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
+                    rows="2"
+                    placeholder="Nhập địa chỉ học sinh"
+                  ></textarea>
+                </div>
+
                 <div className="mb-4">
                   <label className="block text-neutral-700 font-medium mb-2">
                     Phụ huynh
@@ -699,7 +848,7 @@ const StudentManagement = () => {
                     <option value="">-- Chọn phụ huynh --</option>
                     {parents.map((parent) => (
                       <option key={parent.parentId} value={parent.parentId}>
-                        {parent.fullName} ({parent.email})
+                        {parent.fullName || `${parent.firstName} ${parent.lastName}`} {parent.email ? `(${parent.email})` : ''}
                       </option>
                     ))}
                   </select>
@@ -710,35 +859,7 @@ const StudentManagement = () => {
                   )}
                 </div>
 
-                <div className="mb-4">
-                  <label className="block text-neutral-700 font-medium mb-2">
-                    Lớp học (nếu có)
-                  </label>
-                  <input
-                    type="text"
-                    name="classId"
-                    value={studentForm.classId}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="isActive"
-                      checked={studentForm.isActive}
-                      onChange={handleInputChange}
-                      className="form-checkbox h-5 w-5 text-primary-600 rounded focus:ring-primary-600 focus:ring-2"
-                    />
-                    <span className="ml-2 text-neutral-700">
-                      Học sinh đang hoạt động
-                    </span>
-                  </label>
-                </div>
-
-                <div className="flex justify-end space-x-2">
+                <div className="flex justify-end space-x-2 mt-6">
                   <button
                     type="button"
                     onClick={() => setShowStudentModal(false)}
