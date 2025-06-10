@@ -15,14 +15,20 @@ public class ParentRepository : IParentRepository
     public async Task<IEnumerable<Parent>> GetAllParentsAsync()
     {
         return await _context.Parents
-            .Include(p => p.Student)
+            .Include(p => p.StudentParents)
+                .ThenInclude(sp => sp.Student)
+            .Include(p => p.MedicineRequests)
+            .Include(p => p.InjectionForms)
             .ToListAsync();
     }
 
     public async Task<Parent?> GetParentByIdAsync(int id)
     {
         return await _context.Parents
-            .Include(p => p.Student)
+            .Include(p => p.StudentParents)
+                .ThenInclude(sp => sp.Student)
+            .Include(p => p.MedicineRequests)
+            .Include(p => p.InjectionForms)
             .FirstOrDefaultAsync(p => p.ParentId == id);
     }
 
@@ -33,25 +39,36 @@ public class ParentRepository : IParentRepository
         return parent;
     }
 
-    public async Task UpdateParentAsync(Parent parent)
+    public async Task<bool> UpdateParentAsync(Parent parent)
     {
-        _context.Parents.Update(parent);
-        await _context.SaveChangesAsync();
+        var existingParent = await _context.Parents.FindAsync(parent.ParentId);
+        if (existingParent == null)
+        {
+            return false;
+        }
+
+        _context.Entry(existingParent).CurrentValues.SetValues(parent);
+        var result = await _context.SaveChangesAsync();
+        return result > 0;
     }
 
     public async Task<bool> DeleteParentAsync(int id)
     {
-        var parent = await _context.Parents.FindAsync(id);
+        var parent = await _context.Parents
+            .Include(p => p.StudentParents)
+            .Include(p => p.MedicineRequests)
+            .Include(p => p.InjectionForms)
+            .FirstOrDefaultAsync(p => p.ParentId == id);
+
         if (parent == null)
         {
             return false;
         }
 
-        // Check if parent has any associated appointments
-        var hasAppointments = await _context.Appointments.AnyAsync(a => a.ParentId == id);
-        if (hasAppointments)
+        // Check if parent has any associated records
+        if (parent.StudentParents.Any() || parent.MedicineRequests.Any() || parent.InjectionForms.Any())
         {
-            return false; // Parent has appointments, cannot delete
+            return false; // Parent has associated records, cannot delete
         }
 
         _context.Parents.Remove(parent);
@@ -59,11 +76,23 @@ public class ParentRepository : IParentRepository
         return true;
     }
 
-    public async Task<IEnumerable<Parent>> GetParentsByStudentIdAsync(int studentId)
+    public async Task<Parent?> GetParentByPhoneAsync(string phone)
     {
         return await _context.Parents
-            .Include(p => p.Student)
-            .Where(p => p.StudentId == studentId)
-            .ToListAsync();
+            .Include(p => p.StudentParents)
+                .ThenInclude(sp => sp.Student)
+            .Include(p => p.MedicineRequests)
+            .Include(p => p.InjectionForms)
+            .FirstOrDefaultAsync(p => p.Phone == phone);
+    }
+
+    public async Task<Parent?> GetParentByEmailAsync(string email)
+    {
+        return await _context.Parents
+            .Include(p => p.StudentParents)
+                .ThenInclude(sp => sp.Student)
+            .Include(p => p.MedicineRequests)
+            .Include(p => p.InjectionForms)
+            .FirstOrDefaultAsync(p => p.Email == email);
     }
 } 

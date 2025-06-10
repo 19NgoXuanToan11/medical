@@ -79,20 +79,12 @@ public class StudentController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var existingStudent = await _studentService.GetStudentByIdAsync(id);
-        if (existingStudent == null)
-        {
-            return NotFound();
-        }
-
-        _mapper.Map(updateDto, existingStudent);
-
-        var success = await _studentService.UpdateStudentAsync(existingStudent);
+        var student = _mapper.Map<Student>(updateDto);
+        var success = await _studentService.UpdateStudentAsync(student);
 
         if (!success)
         {
-             // Assuming false indicates a conflict like duplicate student code or not found (though we already checked for not found)
-            return Conflict("Could not update student, possibly due to a duplicate student code.");
+            return NotFound("Student not found or student code already exists.");
         }
 
         return NoContent();

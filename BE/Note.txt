@@ -1,3 +1,0 @@
-Chạy cái DB trc 
-R vô project vào cái nuget package console chọn Cái DB r chạy 
-lệnh Update-Database -Verbose

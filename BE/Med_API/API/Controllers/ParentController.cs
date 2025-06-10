@@ -43,15 +43,6 @@ public class ParentController : ControllerBase
         return Ok(parentViewModel);
     }
 
-    // GET: api/Parent/student/5
-    [HttpGet("student/{studentId}")]
-    public async Task<ActionResult<IEnumerable<ParentDto.ViewModel>>> GetParentsByStudent(int studentId)
-    {
-        var parents = await _parentService.GetParentsByStudentIdAsync(studentId);
-        var parentViewModels = _mapper.Map<IEnumerable<ParentDto.ViewModel>>(parents);
-        return Ok(parentViewModels);
-    }
-
     // POST: api/Parent
     [HttpPost]
     public async Task<ActionResult<ParentDto.ViewModel>> CreateParent(ParentDto.Create createDto)

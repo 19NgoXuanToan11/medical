@@ -1,24 +1,90 @@
 using API.MappingProfiles;
+using API.Swagger;
 using AutoMapper;
 using DB;
 using Microsoft.EntityFrameworkCore;
 using Repo;
 using Service;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Http;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.SwaggerUI;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Handle enum values as strings
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        // Handle DateOnly serialization
+        options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+    });
+
 builder.Services.AddEndpointsApiExplorer();
+
+// Add JWT Authentication
+
+
+// Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Medical API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "Medical API", 
+        Version = "v1",
+        Description = "API for Medical Management System",
+        Contact = new OpenApiContact
+        {
+            Name = "Medical API Support",
+            Email = "support@medicalapi.com"
+        }
+    });
+
+    // Use full type names to avoid conflicts
     c.CustomSchemaIds(type => type.FullName?.Replace("+", "_"));
+
+    // Include XML comments if available
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
+
+    // Add JWT Authentication to Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+    // Add support for DateOnly type
+    c.SchemaFilter<DateOnlySchemaFilter>();
 });
 
 // Add AutoMapper
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(StaffProfile).Assembly, typeof(ExcelImportProfile).Assembly, typeof(StudentParentProfile).Assembly);
 
 // Add DbContext with all entities
 builder.Services.AddDbContext<MedicalContext>(options =>
@@ -45,6 +111,8 @@ builder.Services.AddScoped<IHealthProfileRepository, HealthProfileRepository>();
 builder.Services.AddScoped<IDashboardSummaryRepository, DashboardSummaryRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IExcelImportRepository, ExcelImportRepository>();
+builder.Services.AddScoped<IStudentParentRepository, StudentParentRepository>();
 
 // Register Services
 builder.Services.AddScoped<IStudentService, StudentService>();
@@ -64,6 +132,8 @@ builder.Services.AddScoped<IHealthProfileService, HealthProfileService>();
 builder.Services.AddScoped<IDashboardSummaryService, DashboardSummaryService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IExcelImportService, ExcelImportService>();
+builder.Services.AddScoped<IStudentParentService, StudentParentService>();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -71,9 +141,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll",
         builder =>
         {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
+            builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .WithExposedHeaders("Content-Disposition", "Content-Length", "Content-Type");
         });
 });
 
@@ -83,14 +155,33 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Medical API V1");
+        c.RoutePrefix = "swagger";
+        c.DocExpansion(DocExpansion.None);
+        c.DefaultModelsExpandDepth(-1);
+        c.DisplayRequestDuration();
+        c.EnableDeepLinking();
+        c.EnableFilter();
+    });
 }
 
-app.UseHttpsRedirection();
-
-// Use CORS
+// Important: Use CORS before other middleware
 app.UseCors("AllowAll");
 
+// Enable HTTPS redirection in both development and production
+app.UseHttpsRedirection();
+
+// Increase the maximum request body size for file uploads
+app.Use(async (context, next) =>
+{
+    context.Features.Get<Microsoft.AspNetCore.Http.Features.IHttpMaxRequestBodySizeFeature>()!.MaxRequestBodySize = 30 * 1024 * 1024; // 30MB
+    await next();
+});
+
+// Add Authentication & Authorization middleware
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

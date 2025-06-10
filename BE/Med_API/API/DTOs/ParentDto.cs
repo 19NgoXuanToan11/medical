@@ -7,7 +7,6 @@ public static class ParentDto
     public class ViewModel
     {
         public int ParentId { get; set; }
-        public int? StudentId { get; set; }
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string Relationship { get; set; } = null!;
@@ -18,15 +17,10 @@ public static class ParentDto
         public bool? IsEmergencyContact { get; set; }
         public bool? IsMainContact { get; set; }
         public bool? IsActive { get; set; }
-
-        // Navigation properties that might be useful in the API
-        public string? StudentName { get; set; } // Will be mapped from Student.FirstName + Student.LastName
     }
 
     public class Create
     {
-        public int? StudentId { get; set; }
-
         [Required]
         [StringLength(50)]
         [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
@@ -63,8 +57,6 @@ public static class ParentDto
 
     public class Update
     {
-        public int? StudentId { get; set; }
-
         [StringLength(50)]
         [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
         public string? FirstName { get; set; }

@@ -7,8 +7,6 @@ public partial class Parent
 {
     public int ParentId { get; set; }
 
-    public int? StudentId { get; set; }
-
     public string FirstName { get; set; } = null!;
 
     public string LastName { get; set; } = null!;
@@ -29,7 +27,7 @@ public partial class Parent
 
     public bool? IsActive { get; set; }
 
-    public virtual Student? Student { get; set; }
+    public virtual ICollection<StudentParent> StudentParents { get; set; } = new List<StudentParent>();
 
     public virtual ICollection<MedicineRequest> MedicineRequests { get; set; } = new List<MedicineRequest>();
 

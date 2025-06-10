@@ -24,7 +24,7 @@ public static class StudentDto
         public DateOnly DateOfBirth { get; set; }
 
         [Required]
-        [StringLength(1)]
+        [StringLength(10)]
         public string Gender { get; set; } = null!;
 
         [Required]
@@ -69,8 +69,8 @@ public static class StudentDto
         public DateOnly DateOfBirth { get; set; }
 
         [Required]
-        [StringLength(1)]
-        [RegularExpression(@"^[MF]$", ErrorMessage = "Gender must be either 'M' or 'F'")]
+        [StringLength(10)]
+        [RegularExpression(@"^[MF]$", ErrorMessage = "Gender must be either 'Male' or 'Female'")]
         public string Gender { get; set; } = null!;
 
         [Required]
@@ -108,7 +108,7 @@ public static class StudentDto
         [Display(Name = "Date of Birth")]
         public DateOnly? DateOfBirth { get; set; }
 
-        [StringLength(1)]
+        [StringLength(10)]
         [RegularExpression(@"^[MF]$", ErrorMessage = "Gender must be either 'M' or 'F'")]
         public string? Gender { get; set; }
 

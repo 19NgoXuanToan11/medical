@@ -29,7 +29,7 @@ public partial class Student
 
     public virtual ICollection<HealthProfile> HealthProfiles { get; set; } = new List<HealthProfile>();
 
-    public virtual ICollection<Parent> Parents { get; set; } = new List<Parent>();
+    public virtual ICollection<StudentParent> StudentParents { get; set; } = new List<StudentParent>();
 
     public virtual ICollection<MedicineRequest> MedicineRequests { get; set; } = new List<MedicineRequest>();
 
