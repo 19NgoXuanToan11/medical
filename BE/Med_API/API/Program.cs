@@ -138,15 +138,15 @@ builder.Services.AddScoped<IStudentParentService, StudentParentService>();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        builder =>
-        {
-            builder
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .WithExposedHeaders("Content-Disposition", "Content-Length", "Content-Type");
-        });
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder
+            .SetIsOriginAllowed(_ => true) // Allow any origin
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+            .WithExposedHeaders("Content-Disposition", "Content-Length", "Content-Type");
+    });
 });
 
 var app = builder.Build();

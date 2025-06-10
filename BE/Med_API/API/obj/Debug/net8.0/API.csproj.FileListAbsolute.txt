@@ -304,3 +304,4 @@ D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.IO.RecyclableMemoryStream.d
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Security.Cryptography.Xml.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
+D:\medical\BE\Med_API\API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

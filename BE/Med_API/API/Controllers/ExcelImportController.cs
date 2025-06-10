@@ -13,7 +13,8 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[EnableCors("AllowAll")] // Enable CORS for this controller
+[EnableCors("AllowAll")]
+[Produces("application/json")]
 public class ExcelImportController : ControllerBase
 {
     private readonly IExcelImportService _excelImportService;
