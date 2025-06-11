@@ -74,4 +74,24 @@ public class StudentRepository : IStudentRepository
                 .ThenInclude(sp => sp.Parent)
             .FirstOrDefaultAsync(s => s.StudentCode == studentCode);
     }
+
+    public async Task<Student?> GetStudentByUsernameAsync(string username)
+    {
+        return await _context.Students
+            .Include(s => s.HealthProfiles)
+            .Include(s => s.HealthEvents)
+            .Include(s => s.StudentParents)
+                .ThenInclude(sp => sp.Parent)
+            .FirstOrDefaultAsync(s => s.Username == username);
+    }
+
+    public async Task<Student?> GetStudentByEmailAsync(string email)
+    {
+        return await _context.Students
+            .Include(s => s.HealthProfiles)
+            .Include(s => s.HealthEvents)
+            .Include(s => s.StudentParents)
+                .ThenInclude(sp => sp.Parent)
+            .FirstOrDefaultAsync(s => s.Email == email);
+    }
 } 

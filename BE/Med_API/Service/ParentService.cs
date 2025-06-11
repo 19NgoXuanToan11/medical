@@ -27,7 +27,7 @@ public class ParentService : IParentService
         // Check for unique phone
         if (!string.IsNullOrEmpty(parent.Phone))
         {
-            var existingParentWithPhone = await _parentRepository.GetParentByPhoneAsync(parent.Phone);
+            var existingParentWithPhone = await _parentRepository.GetParentByIdAsync(parent.ParentId);
             if (existingParentWithPhone != null)
             {
                 return null; // Phone number already exists
@@ -59,7 +59,7 @@ public class ParentService : IParentService
         // Check for unique phone if it's being updated
         if (!string.IsNullOrEmpty(parent.Phone) && existingParent.Phone != parent.Phone)
         {
-            var parentWithSamePhone = await _parentRepository.GetParentByPhoneAsync(parent.Phone);
+            var parentWithSamePhone = await _parentRepository.GetParentByIdAsync(parent.ParentId);
             if (parentWithSamePhone != null && parentWithSamePhone.ParentId != parent.ParentId)
             {
                 return false; // Phone number not unique
@@ -83,4 +83,6 @@ public class ParentService : IParentService
     {
         return await _parentRepository.DeleteParentAsync(id);
     }
+
+  
 } 

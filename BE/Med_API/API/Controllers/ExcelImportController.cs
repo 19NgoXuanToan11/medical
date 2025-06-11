@@ -68,7 +68,7 @@ public class ExcelImportController : ControllerBase
                 // Create Parents sheet
                 var parentSheet = package.Workbook.Worksheets.Add("Parents");
                 AddHeaders(parentSheet, new[] {
-                    "StudentCode*", "FirstName*", "LastName*", "Relationship*", "Phone*", 
+                    "StudentId*", "FirstName*", "LastName*", "Relationship*", "Phone*", 
                     "Email*", "Address", "Occupation", "IsEmergencyContact*", "IsMainContact*"
                 });
                 AddParentExampleData(parentSheet);
@@ -77,7 +77,7 @@ public class ExcelImportController : ControllerBase
                 // Create HealthProfiles sheet
                 var healthSheet = package.Workbook.Worksheets.Add("HealthProfiles");
                 AddHeaders(healthSheet, new[] {
-                    "StudentCode*", "HasAllergies*", "AllergyDetails", "HasChronicDiseases*", 
+                    "StudentId*", "HasAllergies*", "AllergyDetails", "HasChronicDiseases*", 
                     "ChronicDetails", "BloodType", "HasVisionIssues*", "VisionNotes", 
                     "LeftEye", "RightEye", "HasHearingIssues*", "HearingNotes", 
                     "LeftEar", "RightEar", "HasCompleteVaccinations*", "Vaccinations", 
