@@ -1,47 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import HealthProfileCard from "./HealthProfileCard";
+import axios from "axios";
+
+const API_URL = "https://localhost:7111/api";
 
 const HealthProfileList = () => {
-  // Mock data for demonstration
-  const studentProfiles = [
-    {
-      id: 1,
-      name: "Nguyễn Văn An",
-      studentId: "HS12345",
-      class: "2A",
-      healthStatus: "Tốt",
-      lastUpdated: "15/05/2025",
-      hasAllergies: true,
-      hasChronicDiseases: false,
-      hasVisionIssues: true,
-      hasHearingIssues: false,
-    },
-    {
-      id: 2,
-      name: "Nguyễn Thị Bình",
-      studentId: "HS12346",
-      class: "5B",
-      healthStatus: "Cần theo dõi",
-      lastUpdated: "10/05/2025",
-      hasAllergies: true,
-      hasChronicDiseases: true,
-      hasVisionIssues: false,
-      hasHearingIssues: false,
-    },
-    {
-      id: 3,
-      name: "Nguyễn Minh Cường",
-      studentId: "HS12347",
-      class: "3C",
-      healthStatus: "Tốt",
-      lastUpdated: "12/05/2025",
-      hasAllergies: false,
-      hasChronicDiseases: false,
-      hasVisionIssues: false,
-      hasHearingIssues: false,
-    },
-  ];
+  const [studentProfiles, setStudentProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/HealthProfile`);
+        setStudentProfiles(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching health profiles:", err);
+        setError(
+          "Không thể tải danh sách hồ sơ sức khỏe. Vui lòng thử lại sau."
+        );
+        setLoading(false);
+      }
+    };
+
+    fetchProfiles();
+  }, []);
 
   return (
     <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
@@ -83,12 +68,54 @@ const HealthProfileList = () => {
             </Link>
           </div>
 
+          {/* Error state */}
+          {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded mb-4">
+              {error}
+            </div>
+          )}
+
+          {/* Loading state */}
+          {loading && (
+            <div className="flex justify-center items-center p-8">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600"></div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!loading && studentProfiles.length === 0 && !error && (
+            <div className="text-center py-8">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                Chưa có hồ sơ nào
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Bạn chưa tạo hồ sơ sức khỏe nào. Hãy tạo hồ sơ mới ngay.
+              </p>
+            </div>
+          )}
+
           {/* Health Profile Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {studentProfiles.map((profile) => (
-              <HealthProfileCard key={profile.id} profile={profile} />
-            ))}
-          </div>
+          {!loading && studentProfiles.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {studentProfiles.map((profile) => (
+                <HealthProfileCard key={profile.id} profile={profile} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

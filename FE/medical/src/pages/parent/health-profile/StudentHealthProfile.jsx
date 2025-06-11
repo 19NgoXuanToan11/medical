@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import FormInput from "../../../components/layout/form/FormInput";
+import axios from "axios";
+
+const API_URL = "https://localhost:7111/api";
 
 const StudentHealthProfile = ({ viewOnly = false }) => {
   const { id } = useParams();
@@ -73,170 +76,24 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [error, setError] = useState(null);
 
   // Load profile data if in edit or view mode
   useEffect(() => {
-    if (id) {
-      // Mock data - in a real app, you would fetch from API
-      const mockStudentProfiles = [
-        {
-          id: 1,
-          studentName: "Nguyễn Văn An",
-          studentId: "HS12345",
-          dateOfBirth: "2018-05-10",
-          age: "7",
-          class: "2A",
-          parentInfo: {
-            fatherName: "Nguyễn Văn Hoàng",
-            fatherPhone: "0912345678",
-            motherName: "Phạm Thị Lan",
-            motherPhone: "0987654321",
-          },
-          medicalHistory: {
-            hasPreviousTreatment: "yes",
-            treatmentDetails: "Điều trị cảm cúm tháng 2/2025",
-          },
-          vaccinationHistory: {
-            hasCompleteVaccinations: "yes",
-            vaccinationDetails: "Đã tiêm đầy đủ theo lịch",
-            vaccinations: ["Sởi", "Rubella", "Quai bị"],
-          },
-          vision: {
-            hasVisionIssues: "yes",
-            leftEye: "0.8",
-            rightEye: "1.0",
-            visionNotes: "Cần theo dõi mắt trái",
-          },
-          hearing: {
-            hasHearingIssues: "no",
-            leftEar: "Bình thường",
-            rightEar: "Bình thường",
-            hearingNotes: "",
-          },
-          allergies: {
-            hasAllergies: "yes",
-            allergyDetails: "Dị ứng với bụi và phấn hoa",
-          },
-          chronicDiseases: {
-            hasChronic: "no",
-            chronicDetails: "",
-          },
-          height: "125",
-          weight: "28",
-          bloodType: "A+",
-          emergencyContact: "Nguyễn Văn Hoàng - 0912345678",
-          otherInfo: "",
-        },
-        {
-          id: 2,
-          studentName: "Nguyễn Thị Bình",
-          studentId: "HS12346",
-          dateOfBirth: "2015-03-15",
-          age: "10",
-          class: "5B",
-          parentInfo: {
-            fatherName: "Nguyễn Văn Minh",
-            fatherPhone: "0912345679",
-            motherName: "Trần Thị Hoa",
-            motherPhone: "0987654322",
-          },
-          medicalHistory: {
-            hasPreviousTreatment: "yes",
-            treatmentDetails: "Điều trị viêm họng mãn tính từ năm 2024",
-          },
-          vaccinationHistory: {
-            hasCompleteVaccinations: "yes",
-            vaccinationDetails: "Đã tiêm đầy đủ theo lịch",
-            vaccinations: ["Sởi", "Rubella", "Quai bị", "HPV"],
-          },
-          vision: {
-            hasVisionIssues: "no",
-            leftEye: "1.0",
-            rightEye: "1.0",
-            visionNotes: "",
-          },
-          hearing: {
-            hasHearingIssues: "no",
-            leftEar: "Bình thường",
-            rightEar: "Bình thường",
-            hearingNotes: "",
-          },
-          allergies: {
-            hasAllergies: "yes",
-            allergyDetails: "Dị ứng với hải sản",
-          },
-          chronicDiseases: {
-            hasChronic: "yes",
-            chronicDetails: "Hen suyễn nhẹ, cần theo dõi",
-          },
-          height: "140",
-          weight: "35",
-          bloodType: "B+",
-          emergencyContact: "Trần Thị Hoa - 0987654322",
-          otherInfo: "Cần mang theo thuốc xịt định kỳ",
-        },
-        {
-          id: 3,
-          studentName: "Nguyễn Minh Cường",
-          studentId: "HS12347",
-          dateOfBirth: "2017-11-20",
-          age: "8",
-          class: "3C",
-          parentInfo: {
-            fatherName: "Nguyễn Thành Nam",
-            fatherPhone: "0912345680",
-            motherName: "Lê Thị Mai",
-            motherPhone: "0987654323",
-          },
-          medicalHistory: {
-            hasPreviousTreatment: "no",
-            treatmentDetails: "",
-          },
-          vaccinationHistory: {
-            hasCompleteVaccinations: "yes",
-            vaccinationDetails: "Đã tiêm đầy đủ theo lịch",
-            vaccinations: ["Sởi", "Rubella", "Quai bị", "Viêm não Nhật Bản"],
-          },
-          vision: {
-            hasVisionIssues: "no",
-            leftEye: "1.0",
-            rightEye: "1.0",
-            visionNotes: "",
-          },
-          hearing: {
-            hasHearingIssues: "no",
-            leftEar: "Bình thường",
-            rightEar: "Bình thường",
-            hearingNotes: "",
-          },
-          allergies: {
-            hasAllergies: "no",
-            allergyDetails: "",
-          },
-          chronicDiseases: {
-            hasChronic: "no",
-            chronicDetails: "",
-          },
-          height: "132",
-          weight: "30",
-          bloodType: "O+",
-          emergencyContact: "Lê Thị Mai - 0987654323",
-          otherInfo: "",
-        },
-      ];
+    if (id && id !== "new") {
+      const fetchHealthProfile = async () => {
+        try {
+          const response = await axios.get(`${API_URL}/HealthProfile/${id}`);
+          setFormData(response.data);
+        } catch (error) {
+          console.error("Error fetching health profile:", error);
+          setError("Không thể tải hồ sơ sức khỏe. Vui lòng thử lại sau.");
+        }
+      };
 
-      const profile = mockStudentProfiles.find(
-        (p) => p.id === parseInt(id, 10)
-      );
-      if (profile) {
-        setFormData(profile);
-      } else {
-        // Handle not found
-        alert("Hồ sơ không tồn tại");
-        navigate("/parent/health-profile");
-      }
+      fetchHealthProfile();
     }
-  }, [id, navigate]);
+  }, [id]);
 
   // Class options
   const classOptions = [
@@ -349,27 +206,31 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
-    // Logic to submit data to backend would go here
-    console.log("Submitting health profile:", formData);
+    try {
+      if (id && id !== "new") {
+        // Update existing profile
+        await axios.put(`${API_URL}/HealthProfile/${id}`, formData);
+      } else {
+        // Create new profile
+        await axios.post(`${API_URL}/HealthProfile`, formData);
+      }
 
-    // Simulate API call with a delay
-    setTimeout(() => {
-      setIsSubmitting(false);
       setSubmitSuccess(true);
 
-      // Reset success message after a delay
+      // Navigate after short delay to show success message
       setTimeout(() => {
-        setSubmitSuccess(false);
-        if (!id) {
-          // If creating a new profile, redirect to the list
-          navigate("/parent/health-profile");
-        }
-      }, 3000);
-    }, 1000);
+        navigate("/parent/health-profile");
+      }, 1500);
+    } catch (error) {
+      console.error("Error saving health profile:", error);
+      setError("Có lỗi xảy ra khi lưu hồ sơ. Vui lòng thử lại.");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -416,6 +277,47 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6">
+          {/* Error and Success Messages */}
+          {error && (
+            <div className="mb-6 p-4 rounded bg-red-50 border border-red-200 text-red-700">
+              <p className="flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {error}
+              </p>
+            </div>
+          )}
+
+          {submitSuccess && (
+            <div className="mb-6 p-4 rounded bg-green-50 border border-green-200 text-green-700">
+              <p className="flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {id && id !== "new"
+                  ? "Cập nhật hồ sơ thành công!"
+                  : "Tạo hồ sơ mới thành công. Đang chuyển hướng..."}
+              </p>
+            </div>
+          )}
+
           <div className="space-y-8">
             {/* Section 1: Student Basic Information */}
             <div>

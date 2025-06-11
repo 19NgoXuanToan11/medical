@@ -234,10 +234,10 @@ const StudentManagement = () => {
   const sortedStudents = [...filteredStudents].sort((a, b) => {
     let comparison = 0;
 
-    switch (sortBy) {
+    switch (sortBy) { 
       case "name":
-        const fullNameA = `${a.firstName || ""} ${a.lastName || ""}`.trim();
-        const fullNameB = `${b.firstName || ""} ${b.lastName || ""}`.trim();
+        const fullNameA = `${a.lastName || ""} ${a.firstName || ""}`.trim();
+        const fullNameB = `${b.lastName || ""} ${b.firstName || ""}`.trim();
         comparison = fullNameA.localeCompare(fullNameB);
         break;
       case "id":
@@ -361,7 +361,7 @@ const StudentManagement = () => {
 
   // Get full name
   const getFullName = (student) => {
-    return `${student.lastName || ""} ${student.firstName || ""}`.trim();
+    return `${student.firstName || ""} ${student.lastName || ""}`.trim();
   };
 
   return (

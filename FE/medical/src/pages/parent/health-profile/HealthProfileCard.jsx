@@ -2,23 +2,37 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const HealthProfileCard = ({ profile }) => {
+  // Function to determine health status based on profile data
+  const getHealthStatus = () => {
+    const hasIssues =
+      (profile.allergies && profile.allergies.hasAllergies === "yes") ||
+      (profile.chronicDiseases &&
+        profile.chronicDiseases.hasChronic === "yes") ||
+      (profile.vision && profile.vision.hasVisionIssues === "yes") ||
+      (profile.hearing && profile.hearing.hasHearingIssues === "yes");
+
+    return hasIssues ? "Cần theo dõi" : "Tốt";
+  };
+
+  const healthStatus = getHealthStatus();
+
   // Function to get status badge based on health status
   const getStatusBadge = (status) => {
     if (status === "Tốt") {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 ring-1 ring-green-600/20">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 ring-1 ring-green-600/20">
           {status}
         </span>
       );
     } else if (status === "Cần theo dõi") {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20">
           {status}
         </span>
       );
     } else {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 ring-1 ring-red-600/20">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 ring-1 ring-red-600/20">
           {status}
         </span>
       );
@@ -29,7 +43,7 @@ const HealthProfileCard = ({ profile }) => {
   const getHealthFlags = (profile) => {
     const flags = [];
 
-    if (profile.hasAllergies) {
+    if (profile.allergies && profile.allergies.hasAllergies === "yes") {
       flags.push(
         <span
           key="allergy"
@@ -42,7 +56,10 @@ const HealthProfileCard = ({ profile }) => {
       );
     }
 
-    if (profile.hasChronicDiseases) {
+    if (
+      profile.chronicDiseases &&
+      profile.chronicDiseases.hasChronic === "yes"
+    ) {
       flags.push(
         <span
           key="chronic"
@@ -55,7 +72,7 @@ const HealthProfileCard = ({ profile }) => {
       );
     }
 
-    if (profile.hasVisionIssues) {
+    if (profile.vision && profile.vision.hasVisionIssues === "yes") {
       flags.push(
         <span
           key="vision"
@@ -68,7 +85,7 @@ const HealthProfileCard = ({ profile }) => {
       );
     }
 
-    if (profile.hasHearingIssues) {
+    if (profile.hearing && profile.hearing.hasHearingIssues === "yes") {
       flags.push(
         <span
           key="hearing"
@@ -88,13 +105,25 @@ const HealthProfileCard = ({ profile }) => {
     );
   };
 
+  // Format date to display
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("vi-VN");
+    } catch (err) {
+      return dateString;
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden hover:shadow-sm transition-shadow duration-200">
       <div className="border-b border-neutral-100 px-4 py-3 flex justify-between items-center">
         <h3 className="font-medium text-neutral-800 truncate">
-          {profile.name}
+          {profile.studentName}
         </h3>
-        {getStatusBadge(profile.healthStatus)}
+        {getStatusBadge(healthStatus)}
       </div>
       <div className="p-4">
         <div className="grid grid-cols-2 gap-4 mb-4">
@@ -113,8 +142,10 @@ const HealthProfileCard = ({ profile }) => {
         </div>
 
         <div className="mb-4">
-          <p className="text-xs text-neutral-500 mb-1">Cập nhật lần cuối</p>
-          <p className="text-sm text-neutral-700">{profile.lastUpdated}</p>
+          <p className="text-xs text-neutral-500 mb-1">Ngày sinh</p>
+          <p className="text-sm text-neutral-700">
+            {formatDate(profile.dateOfBirth)}
+          </p>
         </div>
 
         <div className="mb-4">

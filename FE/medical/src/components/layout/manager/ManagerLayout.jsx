@@ -7,6 +7,7 @@ import {
   FiTablet,
   FiUser,
   FiBell,
+  FiUpload,
 } from "react-icons/fi";
 
 const ManagerLayout = () => {
@@ -39,6 +40,11 @@ const ManagerLayout = () => {
       path: "/manager/supply-inventory",
       name: "Vật tư y tế",
       icon: <FiPackage className="w-5 h-5" />,
+    },
+    {
+      path: "/manager/upload",
+      name: "Tải lên Excel",
+      icon: <FiUpload className="w-5 h-5" />,
     },
   ];
 

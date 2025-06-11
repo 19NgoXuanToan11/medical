@@ -11,6 +11,7 @@ import {
   FiEdit,
   FiTrash2,
   FiFileText,
+  FiPackage,
 } from "react-icons/fi";
 
 const HealthEventDetail = () => {
@@ -50,6 +51,20 @@ const HealthEventDetail = () => {
             dosage: "250mg",
             time: "09:30",
             administeredBy: "Y tá Trần Thị B",
+          },
+        ],
+        medicalSupplies: [
+          {
+            name: "Nhiệt kế điện tử",
+            quantity: 1,
+            time: "09:25",
+            usedBy: "Y tá Trần Thị B",
+          },
+          {
+            name: "Băng dính y tế",
+            quantity: 2,
+            time: "09:30",
+            usedBy: "Y tá Trần Thị B",
           },
         ],
         parentContacted: {
@@ -320,6 +335,53 @@ const HealthEventDetail = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
                         {medication.administeredBy}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Medical Supplies */}
+        {event.medicalSupplies && event.medicalSupplies.length > 0 && (
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-800 mb-3">
+              Vật tư y tế đã sử dụng
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tên vật tư
+                    </th>
+                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Số lượng
+                    </th>
+                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Thời gian
+                    </th>
+                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Người sử dụng
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {event.medicalSupplies.map((supply, index) => (
+                    <tr key={index}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center">
+                        {supply.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
+                        {supply.quantity}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
+                        {supply.time}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
+                        {supply.usedBy}
                       </td>
                     </tr>
                   ))}

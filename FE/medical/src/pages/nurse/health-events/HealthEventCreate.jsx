@@ -7,6 +7,7 @@ import {
   FiUser,
   FiCheck,
   FiX,
+  FiPackage,
 } from "react-icons/fi";
 
 const HealthEventCreate = () => {
@@ -23,6 +24,7 @@ const HealthEventCreate = () => {
     bloodPressure: "",
     respiratoryRate: "",
     medications: [{ name: "", dosage: "", time: "" }],
+    medicalSupplies: [{ name: "", quantity: 1, time: "" }],
     parentContacted: {
       contacted: false,
       time: "",
@@ -55,6 +57,15 @@ const HealthEventCreate = () => {
     setFormData((prev) => ({ ...prev, medications: updatedMedications }));
   };
 
+  const handleMedicalSupplyChange = (index, field, value) => {
+    const updatedSupplies = [...formData.medicalSupplies];
+    updatedSupplies[index] = {
+      ...updatedSupplies[index],
+      [field]: value,
+    };
+    setFormData((prev) => ({ ...prev, medicalSupplies: updatedSupplies }));
+  };
+
   const addMedication = () => {
     setFormData((prev) => ({
       ...prev,
@@ -62,10 +73,26 @@ const HealthEventCreate = () => {
     }));
   };
 
+  const addMedicalSupply = () => {
+    setFormData((prev) => ({
+      ...prev,
+      medicalSupplies: [
+        ...prev.medicalSupplies,
+        { name: "", quantity: 1, time: "" },
+      ],
+    }));
+  };
+
   const removeMedication = (index) => {
     const updatedMedications = [...formData.medications];
     updatedMedications.splice(index, 1);
     setFormData((prev) => ({ ...prev, medications: updatedMedications }));
+  };
+
+  const removeMedicalSupply = (index) => {
+    const updatedSupplies = [...formData.medicalSupplies];
+    updatedSupplies.splice(index, 1);
+    setFormData((prev) => ({ ...prev, medicalSupplies: updatedSupplies }));
   };
 
   const handleSubmit = async (e) => {
@@ -369,6 +396,99 @@ const HealthEventCreate = () => {
                   <button
                     type="button"
                     onClick={() => removeMedication(index)}
+                    className="inline-flex items-center px-3 py-2 border border-red-600 text-red-600 rounded-md hover:bg-red-50"
+                  >
+                    <FiX className="mr-1 h-4 w-4" /> Xóa
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Medical Supplies Section */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-medium text-gray-800">
+              Vật tư y tế đã sử dụng
+            </h2>
+            <button
+              type="button"
+              onClick={addMedicalSupply}
+              className="inline-flex items-center px-3 py-1.5 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50"
+            >
+              <FiPackage className="mr-1 h-4 w-4" /> Thêm vật tư
+            </button>
+          </div>
+
+          {formData.medicalSupplies.map((supply, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-end border-b border-gray-100 pb-4"
+            >
+              <div>
+                <label
+                  htmlFor={`supply-name-${index}`}
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Tên vật tư
+                </label>
+                <input
+                  type="text"
+                  id={`supply-name-${index}`}
+                  value={supply.name}
+                  onChange={(e) =>
+                    handleMedicalSupplyChange(index, "name", e.target.value)
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Ví dụ: Băng dính y tế"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor={`supply-quantity-${index}`}
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Số lượng
+                </label>
+                <input
+                  type="number"
+                  id={`supply-quantity-${index}`}
+                  min="1"
+                  value={supply.quantity}
+                  onChange={(e) =>
+                    handleMedicalSupplyChange(
+                      index,
+                      "quantity",
+                      parseInt(e.target.value) || 1
+                    )
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor={`supply-time-${index}`}
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Thời gian
+                </label>
+                <input
+                  type="text"
+                  id={`supply-time-${index}`}
+                  value={supply.time}
+                  onChange={(e) =>
+                    handleMedicalSupplyChange(index, "time", e.target.value)
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Ví dụ: 09:30"
+                />
+              </div>
+              <div>
+                {index > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => removeMedicalSupply(index)}
                     className="inline-flex items-center px-3 py-2 border border-red-600 text-red-600 rounded-md hover:bg-red-50"
                   >
                     <FiX className="mr-1 h-4 w-4" /> Xóa

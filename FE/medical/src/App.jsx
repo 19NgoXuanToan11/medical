@@ -32,6 +32,7 @@ import ParentManagement from "./pages/manager/manage/ParentManagement";
 import StudentManagement from "./pages/manager/manage/StudentManagement";
 import MedicineInventory from "./pages/manager/inventory/MedicineInventory";
 import SupplyInventory from "./pages/manager/inventory/SupplyInventory";
+import ExcelImport from "./pages/manager/inventory/ExcelImport";
 
 // nurse
 import NurseDashboard from "./pages/nurse/dashboard/NurseDashboard";
@@ -112,6 +113,9 @@ function App() {
 
           {/* Manager Supply Inventory Routes */}
           <Route path="/manager/supply-inventory" element={<SupplyInventory />} />
+          
+          {/* Manager Excel Import Route */}
+          <Route path="/manager/upload" element={<ExcelImport />} />
         </Route>
 
         {/* Main Routes */}

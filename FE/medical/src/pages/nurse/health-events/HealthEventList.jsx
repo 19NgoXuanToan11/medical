@@ -7,6 +7,7 @@ import {
   FiClock,
   FiCalendar,
   FiActivity,
+  FiPackage,
 } from "react-icons/fi";
 
 const HealthEventList = () => {
@@ -29,6 +30,8 @@ const HealthEventList = () => {
           time: "2023-06-15T09:30:00",
           status: "resolved",
           actionTaken: "Đã cho uống thuốc hạ sốt và thông báo cho phụ huynh",
+          hasMedications: true,
+          hasMedicalSupplies: true,
         },
         {
           id: 2,
@@ -39,6 +42,8 @@ const HealthEventList = () => {
           time: "2023-06-15T10:15:00",
           status: "resolved",
           actionTaken: "Đã rửa vết thương và băng bó, thông báo cho phụ huynh",
+          hasMedications: false,
+          hasMedicalSupplies: true,
         },
         {
           id: 3,
@@ -49,6 +54,8 @@ const HealthEventList = () => {
           time: "2023-06-15T12:30:00",
           status: "pending",
           actionTaken: "Đã cách ly và liên hệ phụ huynh đến đón",
+          hasMedications: true,
+          hasMedicalSupplies: false,
         },
         {
           id: 4,
@@ -59,6 +66,8 @@ const HealthEventList = () => {
           time: "2023-06-14T14:20:00",
           status: "resolved",
           actionTaken: "Đã xịt thuốc theo kế hoạch điều trị có sẵn",
+          hasMedications: true,
+          hasMedicalSupplies: false,
         },
         {
           id: 5,
@@ -69,6 +78,8 @@ const HealthEventList = () => {
           time: "2023-06-14T11:10:00",
           status: "pending",
           actionTaken: "Đang theo dõi, đã liên hệ phụ huynh",
+          hasMedications: false,
+          hasMedicalSupplies: false,
         },
       ]);
       setLoading(false);
@@ -94,18 +105,22 @@ const HealthEventList = () => {
     switch (status) {
       case "pending":
         return (
-          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+          <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 w-24">
             Đang xử lý
           </span>
         );
       case "resolved":
         return (
-          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+          <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 w-24">
             Đã xử lý
           </span>
         );
       default:
-        return null;
+        return (
+          <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 w-24">
+            {status}
+          </span>
+        );
     }
   };
 
@@ -345,91 +360,126 @@ const HealthEventList = () => {
         </div>
       )}
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 table-fixed">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="w-1/6 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    HỌC SINH
-                  </th>
-                  <th className="w-2/6 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    SỰ KIỆN
-                  </th>
-                  <th className="w-1/6 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    THỜI GIAN
-                  </th>
-                  <th className="w-1/6 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    TRẠNG THÁI
-                  </th>
-                  <th className="w-1/6 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    HÀNH ĐỘNG
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredEvents.map((event, index) => (
-                  <tr
-                    key={event.id}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
+      {/* Event Table */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="overflow-x-auto">
+          {/* Table Header */}
+          <div className="min-w-full bg-gray-50 border-b border-gray-200">
+            <div className="flex flex-row text-xs">
+              <div className="w-60 px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center">
+                Học sinh
+              </div>
+              <div className="w-40 px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center">
+                Loại sự kiện
+              </div>
+              <div className="flex-1 px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center">
+                Mô tả
+              </div>
+              <div className="w-64 px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center">
+                Thời gian
+              </div>
+              <div className="w-40 px-6 py-3 text-center font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center justify-center">
+                Tài nguyên
+              </div>
+              <div className="w-40 px-6 py-3 text-center font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center justify-center">
+                Trạng thái
+              </div>
+            </div>
+          </div>
+
+          {/* Table Body */}
+          <div className="divide-y divide-gray-200 bg-white">
+            {loading ? (
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : filteredEvents.length > 0 ? (
+              filteredEvents.map((event) => (
+                <div
+                  key={event.id}
+                  className="flex flex-row hover:bg-gray-50 cursor-pointer transition duration-150 border-b border-gray-100"
+                  onClick={() =>
+                    (window.location.href = `/nurse/health-events/${event.id}`)
+                  }
+                >
+                  <div className="w-60 px-6 py-4 flex items-center">
+                    <div>
                       <div className="text-sm font-medium text-gray-900">
                         {event.studentName}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        Lớp {event.class}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm text-gray-500">{event.class}</div>
+                    </div>
+                  </div>
+                  <div className="w-40 px-6 py-4 flex items-center">
+                    <div className="flex items-center whitespace-nowrap">
+                      <span
+                        className={`h-2.5 w-2.5 rounded-full mr-2 flex-shrink-0 ${
+                          event.type === "illness"
+                            ? "bg-red-500"
+                            : event.type === "injury"
+                            ? "bg-orange-500"
+                            : event.type === "allergy"
+                            ? "bg-purple-500"
+                            : "bg-blue-500"
+                        }`}
+                      ></span>
+                      <span className="text-sm text-gray-700">
                         {getEventTypeLabel(event.type)}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {event.description}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm text-gray-900">
-                        {new Date(event.time).toLocaleDateString("vi-VN")}
-                      </div>
-                      <div className="text-sm text-gray-500">
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 px-6 py-4 flex items-center">
+                    <div className="text-sm text-gray-900 truncate">
+                      {event.description}
+                    </div>
+                  </div>
+                  <div className="w-64 px-6 py-4 flex items-center">
+                    <div className="flex items-center text-sm text-gray-500">
+                      <FiClock className="mr-1 h-4 w-4 text-gray-400 flex-shrink-0" />
+                      <span>
                         {new Date(event.time).toLocaleTimeString("vi-VN", {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <span className="mx-1">-</span>
+                        {new Date(event.time).toLocaleDateString("vi-VN")}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-40 px-6 py-4 flex items-center justify-center">
+                    <div className="flex justify-center space-x-2">
+                      {event.hasMedications && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          <FiActivity className="mr-1 h-3 w-3 flex-shrink-0" />{" "}
+                          Thuốc
+                        </span>
+                      )}
+                      {event.hasMedicalSupplies && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          <FiPackage className="mr-1 h-3 w-3 flex-shrink-0" />{" "}
+                          Vật tư
+                        </span>
+                      )}
+                      {!event.hasMedications && !event.hasMedicalSupplies && (
+                        <span className="text-xs text-gray-400">Không có</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="w-40 px-6 py-4 flex items-center justify-center">
+                    <div className="flex justify-center">
                       {getStatusBadge(event.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex justify-center space-x-3">
-                        <Link
-                          to={`/nurse/health-events/${event.id}`}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          Chi tiết
-                        </Link>
-                        {event.status === "pending" && (
-                          <button className="text-green-600 hover:text-green-900 ml-3">
-                            Đánh dấu đã xử lý
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                Không tìm thấy sự kiện nào
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Add New Event Button */}
       <div className="fixed bottom-8 right-8">
