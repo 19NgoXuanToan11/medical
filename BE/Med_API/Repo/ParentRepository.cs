@@ -76,15 +76,7 @@ public class ParentRepository : IParentRepository
         return true;
     }
 
-    public async Task<Parent?> GetParentByPhoneAsync(string phone)
-    {
-        return await _context.Parents
-            .Include(p => p.StudentParents)
-                .ThenInclude(sp => sp.Student)
-            .Include(p => p.MedicineRequests)
-            .Include(p => p.InjectionForms)
-            .FirstOrDefaultAsync(p => p.Phone == phone);
-    }
+  
 
     public async Task<Parent?> GetParentByEmailAsync(string email)
     {

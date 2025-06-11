@@ -1,7 +1,36 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\medical\\BE\\Med_API\\",
-  "Documents": [],
+  "WorkspaceRootPath": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|d:\\cn5\\swp\\medical\\medical\\be\\med_api\\api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|solutionrelative:api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|d:\\cn5\\swp\\medical\\medical\\be\\med_api\\api\\attributes\\requirepermissionattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|solutionrelative:api\\attributes\\requirepermissionattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{226E55D0-7482-430B-B08A-AB5EBC977F95}|DB\\DB.csproj|d:\\cn5\\swp\\medical\\medical\\be\\med_api\\db\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{226E55D0-7482-430B-B08A-AB5EBC977F95}|DB\\DB.csproj|solutionrelative:db\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D0F53DE-1B2A-4556-A96A-AD2CBBC8581D}|Service\\Service.csproj|d:\\cn5\\swp\\medical\\medical\\be\\med_api\\service\\parentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D0F53DE-1B2A-4556-A96A-AD2CBBC8581D}|Service\\Service.csproj|solutionrelative:service\\parentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|d:\\cn5\\swp\\medical\\medical\\be\\med_api\\api\\dtos\\staffdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|solutionrelative:api\\dtos\\staffdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{456789F4-9FEE-4AF1-A5DB-BCE1F2A59ED2}|Repo\\Repo.csproj|d:\\cn5\\swp\\medical\\medical\\be\\med_api\\repo\\parentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{456789F4-9FEE-4AF1-A5DB-BCE1F2A59ED2}|Repo\\Repo.csproj|solutionrelative:repo\\parentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{456789F4-9FEE-4AF1-A5DB-BCE1F2A59ED2}|Repo\\Repo.csproj|d:\\cn5\\swp\\medical\\medical\\be\\med_api\\repo\\iparentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{456789F4-9FEE-4AF1-A5DB-BCE1F2A59ED2}|Repo\\Repo.csproj|solutionrelative:repo\\iparentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 373,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -30,6 +59,94 @@
             {
               "$type": "Bookmark",
               "Name": "ST:3:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "RequirePermissionAttribute.cs",
+              "DocumentMoniker": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\API\\Attributes\\RequirePermissionAttribute.cs",
+              "RelativeDocumentMoniker": "API\\Attributes\\RequirePermissionAttribute.cs",
+              "ToolTip": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\API\\Attributes\\RequirePermissionAttribute.cs",
+              "RelativeToolTip": "API\\Attributes\\RequirePermissionAttribute.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACgAAAAwAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T06:22:32.263Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ParentService.cs",
+              "DocumentMoniker": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\Service\\ParentService.cs",
+              "RelativeDocumentMoniker": "Service\\ParentService.cs",
+              "ToolTip": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\Service\\ParentService.cs",
+              "RelativeToolTip": "Service\\ParentService.cs",
+              "ViewState": "AQIAAAkAAAAAAAAAAAAlwFAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T05:57:35.916Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Role.cs",
+              "DocumentMoniker": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\DB\\Role.cs",
+              "RelativeDocumentMoniker": "DB\\Role.cs",
+              "ToolTip": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\DB\\Role.cs",
+              "RelativeToolTip": "DB\\Role.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T05:48:32.867Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "StaffDto.cs",
+              "DocumentMoniker": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\API\\DTOs\\StaffDto.cs",
+              "RelativeDocumentMoniker": "API\\DTOs\\StaffDto.cs",
+              "ToolTip": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\API\\DTOs\\StaffDto.cs",
+              "RelativeToolTip": "API\\DTOs\\StaffDto.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T05:48:26.153Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\API\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "API\\Controllers\\AuthController.cs",
+              "ToolTip": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\API\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "API\\Controllers\\AuthController.cs",
+              "ViewState": "AQIAAD0AAAAAAAAAAAAMwFoAAAAWAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T05:47:28.418Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ParentRepository.cs",
+              "DocumentMoniker": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\Repo\\ParentRepository.cs",
+              "RelativeDocumentMoniker": "Repo\\ParentRepository.cs",
+              "ToolTip": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\Repo\\ParentRepository.cs",
+              "RelativeToolTip": "Repo\\ParentRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T05:47:28.34Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "IParentRepository.cs",
+              "DocumentMoniker": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\Repo\\IParentRepository.cs",
+              "RelativeDocumentMoniker": "Repo\\IParentRepository.cs",
+              "ToolTip": "D:\\CN5\\SWP\\Medical\\medical\\BE\\Med_API\\Repo\\IParentRepository.cs",
+              "RelativeToolTip": "Repo\\IParentRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-11T05:47:25.622Z"
             }
           ]
         }

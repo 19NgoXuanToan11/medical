@@ -9,6 +9,8 @@ public partial class Role
 
     public string RoleName { get; set; } = null!;
 
+    public Permissions Permissions { get; set; }
+
     // Navigation property
     public virtual ICollection<Staff> Staff { get; set; } = new List<Staff>();
 }

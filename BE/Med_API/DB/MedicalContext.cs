@@ -537,7 +537,7 @@ public partial class MedicalContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE3A8BFD5C33");
+            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE1A12345678");
 
             entity.ToTable("Role");
 
@@ -547,6 +547,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.Permissions).HasDefaultValue(0);
         });
 
         modelBuilder.Entity<Staff>(entity =>
