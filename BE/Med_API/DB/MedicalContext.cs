@@ -441,6 +441,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.IsMainContact).HasDefaultValue(false);
             entity.Property(e => e.LastName).HasMaxLength(50);
             entity.Property(e => e.Occupation).HasMaxLength(100);
+            entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.Relationship)
                 .HasMaxLength(20)
@@ -537,7 +538,7 @@ public partial class MedicalContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE3A8BFD5C33");
+            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE1A12345678");
 
             entity.ToTable("Role");
 
@@ -547,6 +548,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.Permissions).HasDefaultValueSql("0");
         });
 
         modelBuilder.Entity<Staff>(entity =>
@@ -573,17 +575,21 @@ public partial class MedicalContext : DbContext
 
             entity.ToTable("Student");
 
-            entity.HasIndex(e => e.StudentCode, "UQ__Student__1FC8860437093A19").IsUnique();
-
             entity.Property(e => e.StudentId).HasColumnName("StudentID");
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.ClassName).HasMaxLength(50);
+            entity.Property(e => e.DateOfBirth).HasColumnType("date");
             entity.Property(e => e.FirstName).HasMaxLength(50);
-            entity.Property(e => e.Gender)
-                .HasMaxLength(10);
+            entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LastName).HasMaxLength(50);
-            entity.Property(e => e.StudentCode).HasMaxLength(20);
+            entity.Property(e => e.Password).HasMaxLength(255);
+            entity.Property(e => e.StudentCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+
+            entity.HasIndex(e => e.StudentCode, "UQ__Student__1FC8860437093A19")
+                .IsUnique();
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -10,4 +10,6 @@ public interface IStudentRepository
     Task<bool> UpdateStudentAsync(Student student);
     Task<bool> DeleteStudentAsync(int id);
     Task<Student?> GetStudentByCodeAsync(string studentCode);
+    Task<Student?> GetStudentByUsernameAsync(string username);
+    Task<Student?> GetStudentByEmailAsync(string email);
 } 
