@@ -27,6 +27,11 @@ public partial class Parent
 
     public bool? IsActive { get; set; }
 
+    // Thông tin đăng nhập
+    public string? Username { get; set; }
+    public string? PasswordHash { get; set; }
+    public DateTime? LastLogin { get; set; }
+
     public virtual ICollection<StudentParent> StudentParents { get; set; } = new List<StudentParent>();
 
     public virtual ICollection<MedicineRequest> MedicineRequests { get; set; } = new List<MedicineRequest>();

@@ -37,6 +37,8 @@ public class AuthController : ControllerBase
         {
             case "staff":
             case "admin":
+            case "manager":
+            case "nurse":
                 var staff = await _staffService.GetStaffByUsernameAsync(request.Username);
                 if (staff != null && await _staffService.ValidateCredentialsAsync(request.Username, request.Password))
                 {

@@ -25,6 +25,12 @@ public partial class Student
 
     public bool? IsActive { get; set; }
 
+    // Thông tin đăng nhập
+    public string? Username { get; set; }
+    public string? PasswordHash { get; set; }
+    public string? Email { get; set; }
+    public DateTime? LastLogin { get; set; }
+
     public virtual ICollection<HealthEvent> HealthEvents { get; set; } = new List<HealthEvent>();
 
     public virtual ICollection<HealthProfile> HealthProfiles { get; set; } = new List<HealthProfile>();

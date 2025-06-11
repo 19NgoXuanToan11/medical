@@ -547,7 +547,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.Permissions).HasDefaultValue(0);
+            entity.Property(e => e.Permissions).HasDefaultValueSql("0");
         });
 
         modelBuilder.Entity<Staff>(entity =>
