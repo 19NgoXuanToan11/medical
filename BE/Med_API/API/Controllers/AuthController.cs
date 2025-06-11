@@ -40,7 +40,7 @@ public class AuthController : ControllerBase
             case "manager":
             case "nurse":
                 var staff = await _staffService.GetStaffByUsernameAsync(request.Username);
-                if (staff != null && await _staffService.ValidateCredentialsAsync(request.Username, request.Password))
+                if (staff != null && staff.PasswordHash == HashPassword(request.Password))
                 {
                     return Ok(new
                     {
@@ -57,7 +57,7 @@ public class AuthController : ControllerBase
 
             case "student":
                 var student = await _studentService.GetStudentByCodeAsync(request.Username);
-                if (student != null && student.StudentCode == request.Username)
+                if (student != null && student.StudentCode == request.Username && student.Password == HashPassword(request.Password))
                 {
                     return Ok(new
                     {
@@ -76,7 +76,7 @@ public class AuthController : ControllerBase
                 if (int.TryParse(request.Username, out int parentId))
                 {
                     var parent = await _parentService.GetParentByIdAsync(parentId);
-                    if (parent != null)
+                    if (parent != null && parent.Password == HashPassword(request.Password))
                     {
                         return Ok(new
                         {
@@ -121,6 +121,15 @@ public class AuthController : ControllerBase
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private string HashPassword(string password)
+    {
+        using (var sha256 = SHA256.Create())
+        {
+            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(hashedBytes);
+        }
     }
 }
 
