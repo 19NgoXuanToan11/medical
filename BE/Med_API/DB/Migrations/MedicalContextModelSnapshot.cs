@@ -17,7 +17,7 @@ namespace DB.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.5")
+                .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -86,6 +86,65 @@ namespace DB.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("Appointment", (string)null);
+                });
+
+            modelBuilder.Entity("DB.Blog", b =>
+                {
+                    b.Property<int>("BlogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("BlogID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BlogId"));
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("StaffUsername")
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("Draft");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("BlogId")
+                        .HasName("PK__Blog__54379E30A73F0B1A");
+
+                    b.HasIndex("StaffUsername");
+
+                    b.ToTable("Blog", (string)null);
                 });
 
             modelBuilder.Entity("DB.DashboardSummary", b =>
@@ -497,9 +556,11 @@ namespace DB.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int")
-                        .HasColumnName("StudentID");
+                    b.Property<string>("StudentCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("TreatmentDetails")
                         .HasMaxLength(1000)
@@ -523,7 +584,7 @@ namespace DB.Migrations
                     b.HasKey("HealthProfileId")
                         .HasName("PK__Health_P__73C2C2B5FF5B2341");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentCode");
 
                     b.ToTable("Health_Profile", (string)null);
                 });
@@ -848,6 +909,11 @@ namespace DB.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -859,83 +925,10 @@ namespace DB.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
-
                     b.HasKey("ParentId")
                         .HasName("PK__Parent__D339510FC35C248C");
 
-                    b.HasIndex("StudentId");
-
                     b.ToTable("Parent", (string)null);
-                });
-
-            modelBuilder.Entity("DB.Report", b =>
-                {
-                    b.Property<int>("ReportId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("ReportID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportId"));
-
-                    b.Property<string>("AppointmentData")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("BasedOnDashboardId")
-                        .HasColumnType("int")
-                        .HasColumnName("BasedOnDashboardID");
-
-                    b.Property<DateOnly?>("DateRangeEnd")
-                        .HasColumnType("date")
-                        .HasColumnName("DateRange_End");
-
-                    b.Property<DateOnly?>("DateRangeStart")
-                        .HasColumnType("date")
-                        .HasColumnName("DateRange_Start");
-
-                    b.Property<int?>("GeneratedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("GeneratedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getdate())");
-
-                    b.Property<string>("HealthCheckData")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HealthEventData")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InjectionData")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InventoryData")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NonParticipantData")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReportName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("ReportType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
-
-                    b.HasKey("ReportId")
-                        .HasName("PK__Report__D5BD48E573B45ED0");
-
-                    b.HasIndex("BasedOnDashboardId");
-
-                    b.HasIndex("GeneratedBy");
-
-                    b.ToTable("Report", (string)null);
                 });
 
             modelBuilder.Entity("DB.RequestResult", b =>
@@ -994,6 +987,11 @@ namespace DB.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleId"));
 
+                    b.Property<int>("Permissions")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValueSql("0");
+
                     b.Property<string>("RoleName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1001,7 +999,7 @@ namespace DB.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.HasKey("RoleId")
-                        .HasName("PK__Role__8AFACE3A8BFD5C33");
+                        .HasName("PK__Role__8AFACE1A12345678");
 
                     b.HasIndex(new[] { "RoleName" }, "UQ__Role__8A2B616058FE1837")
                         .IsUnique();
@@ -1050,7 +1048,8 @@ namespace DB.Migrations
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
 
                     b.HasKey("StaffId")
                         .HasName("PK__Staff__96D4AAF731254C53");
@@ -1108,10 +1107,16 @@ namespace DB.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<string>("StudentCode")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
 
                     b.HasKey("StudentId")
                         .HasName("PK__Student__32C52A7964894850");
@@ -1135,15 +1140,17 @@ namespace DB.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ParentID");
 
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int")
-                        .HasColumnName("StudentID");
+                    b.Property<string>("StudentCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
 
                     b.HasKey("StudentParentId");
 
                     b.HasIndex("ParentId");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentCode");
 
                     b.ToTable("Student_Parent", (string)null);
                 });
@@ -1167,6 +1174,18 @@ namespace DB.Migrations
                     b.Navigation("Staff");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("DB.Blog", b =>
+                {
+                    b.HasOne("DB.Staff", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffUsername")
+                        .HasPrincipalKey("Username")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK__Blog__StaffUsername");
+
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("DB.DashboardSummary", b =>
@@ -1250,9 +1269,11 @@ namespace DB.Migrations
                 {
                     b.HasOne("DB.Student", "Student")
                         .WithMany("HealthProfiles")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK__Health_Profile__StudentID");
+                        .HasForeignKey("StudentCode")
+                        .HasPrincipalKey("StudentCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK__Health_Profile__StudentCode");
 
                     b.Navigation("Student");
                 });
@@ -1329,30 +1350,6 @@ namespace DB.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("DB.Parent", b =>
-                {
-                    b.HasOne("DB.Student", null)
-                        .WithMany("Parents")
-                        .HasForeignKey("StudentId");
-                });
-
-            modelBuilder.Entity("DB.Report", b =>
-                {
-                    b.HasOne("DB.DashboardSummary", "BasedOnDashboard")
-                        .WithMany()
-                        .HasForeignKey("BasedOnDashboardId")
-                        .HasConstraintName("FK__Report__BasedOnDashboardID");
-
-                    b.HasOne("DB.Staff", "GeneratedByStaff")
-                        .WithMany()
-                        .HasForeignKey("GeneratedBy")
-                        .HasConstraintName("FK__Report__GeneratedBy");
-
-                    b.Navigation("BasedOnDashboard");
-
-                    b.Navigation("GeneratedByStaff");
-                });
-
             modelBuilder.Entity("DB.RequestResult", b =>
                 {
                     b.HasOne("DB.Staff", "ActionByStaff")
@@ -1393,14 +1390,15 @@ namespace DB.Migrations
                     b.HasOne("DB.Parent", "Parent")
                         .WithMany("StudentParents")
                         .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_StudentParent_Parent");
 
                     b.HasOne("DB.Student", "Student")
                         .WithMany("StudentParents")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("StudentCode")
+                        .HasPrincipalKey("StudentCode")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_StudentParent_Student");
 
@@ -1460,8 +1458,6 @@ namespace DB.Migrations
                     b.Navigation("InjectionResults");
 
                     b.Navigation("MedicineRequests");
-
-                    b.Navigation("Parents");
 
                     b.Navigation("StudentParents");
                 });

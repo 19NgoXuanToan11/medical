@@ -55,7 +55,8 @@ public class ExcelImportService : IExcelImportService
                     Gender = studentSheet.Cells[row, GetColumnIndex(studentHeaders, "Gender*")].Text,
                     Address = studentSheet.Cells[row, GetColumnIndex(studentHeaders, "Address")].Text,
                     ClassName = studentSheet.Cells[row, GetColumnIndex(studentHeaders, "ClassName*")].Text,
-                    GradeLevel = int.Parse(studentSheet.Cells[row, GetColumnIndex(studentHeaders, "GradeLevel*")].Text)
+                    GradeLevel = int.Parse(studentSheet.Cells[row, GetColumnIndex(studentHeaders, "GradeLevel*")].Text),
+                    Password = studentSheet.Cells[row, GetColumnIndex(studentHeaders, "Password*")].Text
                 };
                 studentRows.Add(studentRow);
             }
@@ -81,7 +82,8 @@ public class ExcelImportService : IExcelImportService
                     Address = parentSheet.Cells[row, GetColumnIndex(parentHeaders, "Address")].Text,
                     Occupation = parentSheet.Cells[row, GetColumnIndex(parentHeaders, "Occupation")].Text,
                     IsEmergencyContact = bool.Parse(parentSheet.Cells[row, GetColumnIndex(parentHeaders, "IsEmergencyContact*")].Text),
-                    IsMainContact = bool.Parse(parentSheet.Cells[row, GetColumnIndex(parentHeaders, "IsMainContact*")].Text)
+                    IsMainContact = bool.Parse(parentSheet.Cells[row, GetColumnIndex(parentHeaders, "IsMainContact*")].Text),
+                    Password = parentSheet.Cells[row, GetColumnIndex(parentHeaders, "Password*")].Text
                 };
                 parentRows.Add(parentRow);
             }
@@ -352,7 +354,7 @@ public class ExcelImportService : IExcelImportService
             {
                 _logger.LogInformation("Processing student {StudentCode}", studentRow.StudentCode);
 
-                // Validate required fields
+                // Validate student data
                 var validationContext = new ValidationContext(studentRow);
                 var validationResults = new List<ValidationResult>();
                 if (!Validator.TryValidateObject(studentRow, validationContext, validationResults, true))
@@ -365,7 +367,7 @@ public class ExcelImportService : IExcelImportService
                     continue;
                 }
 
-                // Create student
+                // Create and validate student entity
                 var student = new Student
                 {
                     StudentCode = studentRow.StudentCode,
@@ -376,63 +378,116 @@ public class ExcelImportService : IExcelImportService
                     Address = studentRow.Address,
                     ClassName = studentRow.ClassName,
                     GradeLevel = studentRow.GradeLevel,
+                    Password = studentRow.Password,
                     IsActive = true
                 };
 
-                // Create parents
-                var parents = parentBatch
+                // Get and validate parents for this student
+                var studentParents = parentBatch
                     .Where(p => p.StudentCode == studentRow.StudentCode)
-                    .Select(p => new Parent
-                    {
-                        FirstName = p.FirstName,
-                        LastName = p.LastName,
-                        Relationship = p.Relationship,
-                        Phone = p.Phone,
-                        Email = p.Email,
-                        Address = p.Address,
-                        Occupation = p.Occupation,
-                        IsEmergencyContact = p.IsEmergencyContact,
-                        IsMainContact = p.IsMainContact,
-                        IsActive = true
-                    })
                     .ToList();
 
-                // Create health profile
-                var healthProfile = healthBatch
-                    .Where(h => h.StudentCode == studentRow.StudentCode)
-                    .Select(h => new HealthProfile
+                if (!studentParents.Any())
+                {
+                    result.FailedRows++;
+                    result.Errors.Add($"Student {studentRow.StudentCode} has no parent information");
+                    continue;
+                }
+
+                // Validate each parent
+                var validParents = new List<Parent>();
+                foreach (var parentRow in studentParents)
+                {
+                    var parentValidationContext = new ValidationContext(parentRow);
+                    var parentValidationResults = new List<ValidationResult>();
+                    if (!Validator.TryValidateObject(parentRow, parentValidationContext, parentValidationResults, true))
                     {
-                        HasAllergies = h.HasAllergies,
-                        AllergyDetails = h.AllergyDetails,
-                        HasChronicDiseases = h.HasChronicDiseases,
-                        ChronicDetails = h.ChronicDetails,
-                        BloodType = h.BloodType,
-                        HasVisionIssues = h.HasVisionIssues,
-                        VisionNotes = h.VisionNotes,
-                        LeftEye = h.LeftEye,
-                        RightEye = h.RightEye,
-                        HasHearingIssues = h.HasHearingIssues,
-                        HearingNotes = h.HearingNotes,
-                        LeftEar = h.LeftEar,
-                        RightEar = h.RightEar,
-                        HasCompleteVaccinations = h.HasCompleteVaccinations,
-                        Vaccinations = h.Vaccinations,
-                        VaccinationDetails = h.VaccinationDetails,
-                        HasPreviousTreatment = h.HasPreviousTreatment,
-                        TreatmentDetails = h.TreatmentDetails,
-                        Height = h.Height,
-                        Weight = h.Weight,
-                        EmergencyContact = h.EmergencyContact,
-                        OtherInfo = h.OtherInfo,
-                        LastUpdated = DateTime.Now
-                    })
-                    .First();
+                        var errors = string.Join(", ", parentValidationResults.Select(r => r.ErrorMessage));
+                        _logger.LogWarning("Validation failed for parent of student {StudentCode}: {Errors}", 
+                            studentRow.StudentCode, errors);
+                        result.Errors.Add($"Parent for student {studentRow.StudentCode}: {errors}");
+                        continue;
+                    }
+
+                    validParents.Add(new Parent
+                    {
+                        FirstName = parentRow.FirstName,
+                        LastName = parentRow.LastName,
+                        Relationship = parentRow.Relationship,
+                        Phone = parentRow.Phone,
+                        Email = parentRow.Email,
+                        Address = parentRow.Address,
+                        Occupation = parentRow.Occupation,
+                        IsEmergencyContact = parentRow.IsEmergencyContact,
+                        IsMainContact = parentRow.IsMainContact,
+                        Password = parentRow.Password,
+                        IsActive = true
+                    });
+                }
+
+                if (!validParents.Any())
+                {
+                    result.FailedRows++;
+                    result.Errors.Add($"No valid parents found for student {studentRow.StudentCode}");
+                    continue;
+                }
+
+                // Get and validate health profile
+                var healthProfileRow = healthBatch
+                    .FirstOrDefault(h => h.StudentCode == studentRow.StudentCode);
+
+                if (healthProfileRow == null)
+                {
+                    result.FailedRows++;
+                    result.Errors.Add($"Student {studentRow.StudentCode} has no health profile information");
+                    continue;
+                }
+
+                var healthValidationContext = new ValidationContext(healthProfileRow);
+                var healthValidationResults = new List<ValidationResult>();
+                if (!Validator.TryValidateObject(healthProfileRow, healthValidationContext, healthValidationResults, true))
+                {
+                    result.FailedRows++;
+                    var errors = string.Join(", ", healthValidationResults.Select(r => r.ErrorMessage));
+                    _logger.LogWarning("Validation failed for health profile of student {StudentCode}: {Errors}", 
+                        studentRow.StudentCode, errors);
+                    result.Errors.Add($"Health profile for student {studentRow.StudentCode}: {errors}");
+                    continue;
+                }
+
+                var healthProfile = new HealthProfile
+                {
+                    StudentCode = studentRow.StudentCode,
+                    HasAllergies = healthProfileRow.HasAllergies,
+                    AllergyDetails = healthProfileRow.AllergyDetails,
+                    HasChronicDiseases = healthProfileRow.HasChronicDiseases,
+                    ChronicDetails = healthProfileRow.ChronicDetails,
+                    BloodType = healthProfileRow.BloodType,
+                    HasVisionIssues = healthProfileRow.HasVisionIssues,
+                    VisionNotes = healthProfileRow.VisionNotes,
+                    LeftEye = healthProfileRow.LeftEye,
+                    RightEye = healthProfileRow.RightEye,
+                    HasHearingIssues = healthProfileRow.HasHearingIssues,
+                    HearingNotes = healthProfileRow.HearingNotes,
+                    LeftEar = healthProfileRow.LeftEar,
+                    RightEar = healthProfileRow.RightEar,
+                    HasCompleteVaccinations = healthProfileRow.HasCompleteVaccinations,
+                    Vaccinations = healthProfileRow.Vaccinations,
+                    VaccinationDetails = healthProfileRow.VaccinationDetails,
+                    HasPreviousTreatment = healthProfileRow.HasPreviousTreatment,
+                    TreatmentDetails = healthProfileRow.TreatmentDetails,
+                    Height = healthProfileRow.Height,
+                    Weight = healthProfileRow.Weight,
+                    EmergencyContact = healthProfileRow.EmergencyContact,
+                    OtherInfo = healthProfileRow.OtherInfo,
+                    LastUpdated = DateTime.Now
+                };
 
                 _logger.LogInformation("Adding student {StudentCode} to database with {ParentCount} parents", 
-                    student.StudentCode, parents.Count);
+                    student.StudentCode, validParents.Count);
 
                 // Add to database using repository
-                await _repository.AddStudentWithRelatedDataAsync(student, parents, healthProfile);
+                await _repository.AddStudentWithRelatedDataAsync(student, validParents, healthProfile);
                 result.SuccessfullyImported++;
                 
                 _logger.LogInformation("Successfully added student {StudentCode} to database", student.StudentCode);

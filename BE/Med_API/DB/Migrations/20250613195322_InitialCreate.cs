@@ -44,16 +44,40 @@ namespace DB.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Parent",
+                columns: table => new
+                {
+                    ParentID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Relationship = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Occupation = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    IsEmergencyContact = table.Column<bool>(type: "bit", nullable: true, defaultValue: false),
+                    IsMainContact = table.Column<bool>(type: "bit", nullable: true, defaultValue: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: true, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__Parent__D339510FC35C248C", x => x.ParentID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Role",
                 columns: table => new
                 {
                     RoleID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleName = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false)
+                    RoleName = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Permissions = table.Column<int>(type: "int", nullable: false, defaultValueSql: "0")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__Role__8AFACE3A8BFD5C33", x => x.RoleID);
+                    table.PrimaryKey("PK__Role__8AFACE1A12345678", x => x.RoleID);
                 });
 
             migrationBuilder.CreateTable(
@@ -62,19 +86,21 @@ namespace DB.Migrations
                 {
                     StudentID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    StudentCode = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    ClassName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     GradeLevel = table.Column<int>(type: "int", nullable: false),
+                    ClassName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: true, defaultValue: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK__Student__32C52A7964894850", x => x.StudentID);
+                    table.UniqueConstraint("AK_Student_StudentCode", x => x.StudentCode);
                 });
 
             migrationBuilder.CreateTable(
@@ -107,7 +133,7 @@ namespace DB.Migrations
                 {
                     HealthProfileID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentID = table.Column<int>(type: "int", nullable: true),
+                    StudentCode = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
                     BloodType = table.Column<string>(type: "varchar(5)", unicode: false, maxLength: 5, nullable: true),
                     Height = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
                     Weight = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
@@ -136,36 +162,69 @@ namespace DB.Migrations
                 {
                     table.PrimaryKey("PK__Health_P__73C2C2B5FF5B2341", x => x.HealthProfileID);
                     table.ForeignKey(
-                        name: "FK__Health_Profile__StudentID",
-                        column: x => x.StudentID,
+                        name: "FK__Health_Profile__StudentCode",
+                        column: x => x.StudentCode,
                         principalTable: "Student",
-                        principalColumn: "StudentID",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "StudentCode",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Parent",
+                name: "Student_Parent",
                 columns: table => new
                 {
-                    ParentID = table.Column<int>(type: "int", nullable: false)
+                    StudentParentID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentID = table.Column<int>(type: "int", nullable: true),
-                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Relationship = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Occupation = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    IsEmergencyContact = table.Column<bool>(type: "bit", nullable: true, defaultValue: false),
-                    IsMainContact = table.Column<bool>(type: "bit", nullable: true, defaultValue: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: true, defaultValue: true)
+                    StudentCode = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
+                    ParentID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__Parent__D339510FC35C248C", x => x.ParentID);
+                    table.PrimaryKey("PK_Student_Parent", x => x.StudentParentID);
                     table.ForeignKey(
-                        name: "FK__Parent__StudentI__6FE99F9F",
+                        name: "FK_StudentParent_Parent",
+                        column: x => x.ParentID,
+                        principalTable: "Parent",
+                        principalColumn: "ParentID");
+                    table.ForeignKey(
+                        name: "FK_StudentParent_Student",
+                        column: x => x.StudentCode,
+                        principalTable: "Student",
+                        principalColumn: "StudentCode");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Appointment",
+                columns: table => new
+                {
+                    AppointmentID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StudentID = table.Column<int>(type: "int", nullable: true),
+                    ParentID = table.Column<int>(type: "int", nullable: true),
+                    StaffID = table.Column<int>(type: "int", nullable: true),
+                    AppointmentDate = table.Column<DateTime>(type: "datetime", nullable: false),
+                    AppointmentType = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Status = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true, defaultValue: "Scheduled"),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__Appointm__8ECDFCA24A1FE88D", x => x.AppointmentID);
+                    table.ForeignKey(
+                        name: "FK_Appointment_Parent_ParentID",
+                        column: x => x.ParentID,
+                        principalTable: "Parent",
+                        principalColumn: "ParentID");
+                    table.ForeignKey(
+                        name: "FK_Appointment_Staff_StaffID",
+                        column: x => x.StaffID,
+                        principalTable: "Staff",
+                        principalColumn: "StaffID");
+                    table.ForeignKey(
+                        name: "FK_Appointment_Student_StudentID",
                         column: x => x.StudentID,
                         principalTable: "Student",
                         principalColumn: "StudentID");
@@ -211,79 +270,6 @@ namespace DB.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Health_Event",
-                columns: table => new
-                {
-                    EventID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentID = table.Column<int>(type: "int", nullable: true),
-                    StaffID = table.Column<int>(type: "int", nullable: true),
-                    EventDate = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "(getdate())"),
-                    EventType = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Symptoms = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    Assessment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    Treatment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    ParentNotified = table.Column<bool>(type: "bit", nullable: true, defaultValue: false),
-                    FollowUpRequired = table.Column<bool>(type: "bit", nullable: true, defaultValue: false),
-                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    MedicinesUsed = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    SuppliesUsed = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__Health_E__7944C870BB836071", x => x.EventID);
-                    table.ForeignKey(
-                        name: "FK__Health_Event__StaffID",
-                        column: x => x.StaffID,
-                        principalTable: "Staff",
-                        principalColumn: "StaffID",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK__Health_Event__StudentID",
-                        column: x => x.StudentID,
-                        principalTable: "Student",
-                        principalColumn: "StudentID",
-                        onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Appointment",
-                columns: table => new
-                {
-                    AppointmentID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentID = table.Column<int>(type: "int", nullable: true),
-                    ParentID = table.Column<int>(type: "int", nullable: true),
-                    StaffID = table.Column<int>(type: "int", nullable: true),
-                    AppointmentDate = table.Column<DateTime>(type: "datetime", nullable: false),
-                    AppointmentType = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Reason = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Status = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true, defaultValue: "Scheduled"),
-                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__Appointm__8ECDFCA24A1FE88D", x => x.AppointmentID);
-                    table.ForeignKey(
-                        name: "FK_Appointment_Parent_ParentID",
-                        column: x => x.ParentID,
-                        principalTable: "Parent",
-                        principalColumn: "ParentID");
-                    table.ForeignKey(
-                        name: "FK_Appointment_Staff_StaffID",
-                        column: x => x.StaffID,
-                        principalTable: "Staff",
-                        principalColumn: "StaffID");
-                    table.ForeignKey(
-                        name: "FK_Appointment_Student_StudentID",
-                        column: x => x.StudentID,
-                        principalTable: "Student",
-                        principalColumn: "StudentID");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Health_Check_Form",
                 columns: table => new
                 {
@@ -318,6 +304,42 @@ namespace DB.Migrations
                         column: x => x.StudentID,
                         principalTable: "Student",
                         principalColumn: "StudentID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Health_Event",
+                columns: table => new
+                {
+                    EventID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StudentID = table.Column<int>(type: "int", nullable: true),
+                    StaffID = table.Column<int>(type: "int", nullable: true),
+                    EventDate = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "(getdate())"),
+                    EventType = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+                    Symptoms = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Assessment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Treatment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    ParentNotified = table.Column<bool>(type: "bit", nullable: true, defaultValue: false),
+                    FollowUpRequired = table.Column<bool>(type: "bit", nullable: true, defaultValue: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    MedicinesUsed = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    SuppliesUsed = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__Health_E__7944C870BB836071", x => x.EventID);
+                    table.ForeignKey(
+                        name: "FK__Health_Event__StaffID",
+                        column: x => x.StaffID,
+                        principalTable: "Staff",
+                        principalColumn: "StaffID",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK__Health_Event__StudentID",
+                        column: x => x.StudentID,
+                        principalTable: "Student",
+                        principalColumn: "StudentID",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -604,9 +626,9 @@ namespace DB.Migrations
                 column: "StudentID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Health_Profile_StudentID",
+                name: "IX_Health_Profile_StudentCode",
                 table: "Health_Profile",
-                column: "StudentID");
+                column: "StudentCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Injection_Form_ConfirmedBy",
@@ -651,11 +673,6 @@ namespace DB.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Medicine_Request_StudentID",
                 table: "Medicine_Request",
-                column: "StudentID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Parent_StudentID",
-                table: "Parent",
                 column: "StudentID");
 
             migrationBuilder.CreateIndex(
@@ -711,6 +728,16 @@ namespace DB.Migrations
                 table: "Student",
                 column: "StudentCode",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Student_Parent_ParentID",
+                table: "Student_Parent",
+                column: "ParentID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Student_Parent_StudentCode",
+                table: "Student_Parent",
+                column: "StudentCode");
         }
 
         /// <inheritdoc />
@@ -742,6 +769,9 @@ namespace DB.Migrations
 
             migrationBuilder.DropTable(
                 name: "Request_Result");
+
+            migrationBuilder.DropTable(
+                name: "Student_Parent");
 
             migrationBuilder.DropTable(
                 name: "Health_Check_Form");

@@ -7,6 +7,7 @@ public static class ParentDto
     public class ViewModel
     {
         public int ParentId { get; set; }
+        public string StudentCode { get; set; } = null!;
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string Relationship { get; set; } = null!;
@@ -21,6 +22,10 @@ public static class ParentDto
 
     public class Create
     {
+        [Required]
+        [StringLength(20)]
+        public string StudentCode { get; set; } = null!;
+
         [Required]
         [StringLength(50)]
         [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
@@ -50,6 +55,12 @@ public static class ParentDto
         [StringLength(100)]
         public string? Occupation { get; set; }
 
+        [Required]
+        [StringLength(255, MinimumLength = 6)]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$", 
+            ErrorMessage = "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character")]
+        public string Password { get; set; } = null!;
+
         public bool? IsEmergencyContact { get; set; }
         public bool? IsMainContact { get; set; }
         public bool? IsActive { get; set; } = true;
@@ -57,6 +68,13 @@ public static class ParentDto
 
     public class Update
     {
+        [Required]
+        public int ParentId { get; set; }
+
+        [Required]
+        [StringLength(20)]
+        public string StudentCode { get; set; } = null!;
+
         [StringLength(50)]
         [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
         public string? FirstName { get; set; }

@@ -13,6 +13,9 @@ public class ExcelImportRepository : IExcelImportRepository
     {
         _context = context;
         _logger = logger;
+        // Enable SQL logging
+        _context.Database.SetCommandTimeout(120); // Increase timeout to 2 minutes
+        _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
     }
 
     public async Task<IEnumerable<string>> GetExistingStudentCodesAsync()
@@ -52,44 +55,108 @@ public class ExcelImportRepository : IExcelImportRepository
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            // Add student
+            // Verify student doesn't already exist
+            var existingStudent = await _context.Students
+                .FirstOrDefaultAsync(s => s.StudentCode == student.StudentCode);
+            if (existingStudent != null)
+            {
+                throw new InvalidOperationException($"Student with code {student.StudentCode} already exists.");
+            }
+
+            // Add student first
             _logger.LogInformation("Adding student {StudentCode} to database", student.StudentCode);
             _context.Students.Add(student);
             await _context.SaveChangesAsync();
             _logger.LogInformation("Student {StudentCode} added successfully with ID {StudentId}", 
                 student.StudentCode, student.StudentId);
 
-            // Add parents
-            _logger.LogInformation("Adding {ParentCount} parents to database for student {StudentCode}", parents.Count(), student.StudentCode);
-            _context.Parents.AddRange(parents);
-            await _context.SaveChangesAsync();
-
-            // Establish Student-Parent relationships
-            foreach (var parent in parents)
+            // Add parents one by one to ensure proper identity generation and relationship creation
+            var parentList = parents.ToList();
+            foreach (var parent in parentList)
             {
+                // Verify parent email and phone are unique if provided
+                if (!string.IsNullOrEmpty(parent.Email))
+                {
+                    var existingEmail = await _context.Parents
+                        .FirstOrDefaultAsync(p => p.Email == parent.Email);
+                    if (existingEmail != null)
+                    {
+                        throw new InvalidOperationException($"Parent with email {parent.Email} already exists.");
+                    }
+                }
+
+                var existingPhone = await _context.Parents
+                    .FirstOrDefaultAsync(p => p.Phone == parent.Phone);
+                if (existingPhone != null)
+                {
+                    throw new InvalidOperationException($"Parent with phone {parent.Phone} already exists.");
+                }
+
+                // Create new parent entity
+                var newParent = new Parent
+                {
+                    // StudentCode = student.StudentCode, // This links to the student we just created
+                    FirstName = parent.FirstName,
+                    LastName = parent.LastName,
+                    Relationship = parent.Relationship,
+                    Phone = parent.Phone,
+                    Email = parent.Email,
+                    Address = parent.Address,
+                    Occupation = parent.Occupation,
+                    IsEmergencyContact = parent.IsEmergencyContact,
+                    IsMainContact = parent.IsMainContact,
+                    Password = parent.Password,
+                    IsActive = true
+                };
+
+                // Removed direct reference to StudentCode for Parent. Use student.StudentCode for logging student context.
+                _logger.LogInformation("Adding parent {FirstName} {LastName} for student {StudentCode}", 
+                    newParent.FirstName, newParent.LastName, student.StudentCode);
+                
+                // Detailed logging for Parent properties before adding to context
+                _logger.LogInformation("Parent before Add - ParentId: {ParentId}, FirstName: {FirstName}, LastName: {LastName}, Relationship: {Relationship}, Phone: {Phone}, Email: {Email}, Password: {Password}",
+                    newParent.ParentId,
+                    newParent.FirstName,
+                    newParent.LastName,
+                    newParent.Relationship,
+                    newParent.Phone,
+                    newParent.Email,
+                    newParent.Password);
+
+                // Add parent and save to get the generated ParentId
+                _context.Parents.Add(newParent);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Parent after SaveChanges - ParentId: {ParentId}", newParent.ParentId);
+
+                // Create StudentParent relationship
                 var studentParent = new StudentParent
                 {
-                    StudentId = student.StudentId,
-                    ParentId = parent.ParentId
+                    StudentCode = student.StudentCode, // StudentCode comes from the student entity
+                    ParentId = newParent.ParentId // This will now have the correct generated ID
                 };
-                _context.StudentParents.Add(studentParent);
-            }
-            await _context.SaveChangesAsync();
-            _logger.LogInformation("Added {ParentCount} parent relationships for student {StudentCode}",
-                parents.Count(), student.StudentCode);
 
-            // Add health profile with student ID
-            healthProfile.StudentId = student.StudentId;
+                _context.StudentParents.Add(studentParent);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Created parent relationship for student {StudentCode} with parent {ParentId}", 
+                    student.StudentCode, newParent.ParentId);
+            }
+
+            // Add health profile
+            _logger.LogInformation("Adding health profile for student {StudentCode}", student.StudentCode);
+            healthProfile.StudentCode = student.StudentCode; // Ensure StudentCode is set
             _context.HealthProfiles.Add(healthProfile);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Added health profile for student {StudentCode}", student.StudentCode);
 
+            // Commit transaction
             await transaction.CommitAsync();
             _logger.LogInformation("Transaction committed successfully for student {StudentCode}", student.StudentCode);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during database transaction for student {StudentCode}", student.StudentCode);
+            _logger.LogError(ex, "Error during database transaction for student {StudentCode}. Error details: {ErrorDetails}", 
+                student.StudentCode, ex.ToString());
             await transaction.RollbackAsync();
             _logger.LogInformation("Transaction rolled back for student {StudentCode}", student.StudentCode);
             throw;

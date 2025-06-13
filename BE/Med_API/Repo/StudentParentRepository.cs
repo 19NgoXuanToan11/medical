@@ -12,15 +12,7 @@ public class StudentParentRepository : IStudentParentRepository
         _context = context;
     }
 
-    public async Task<StudentParent?> GetByIdAsync(int id)
-    {
-        return await _context.StudentParents
-            .Include(sp => sp.Student)
-            .Include(sp => sp.Parent)
-            .FirstOrDefaultAsync(sp => sp.StudentParentId == id);
-    }
-
-    public async Task<IEnumerable<StudentParent>> GetAllAsync()
+    public async Task<IEnumerable<StudentParent>> GetAllStudentParentsAsync()
     {
         return await _context.StudentParents
             .Include(sp => sp.Student)
@@ -28,14 +20,31 @@ public class StudentParentRepository : IStudentParentRepository
             .ToListAsync();
     }
 
-    public async Task<StudentParent> CreateAsync(StudentParent studentParent)
+    public async Task<StudentParent?> GetStudentParentByIdAsync(int id)
     {
+        return await _context.StudentParents
+            .Include(sp => sp.Student)
+            .Include(sp => sp.Parent)
+            .FirstOrDefaultAsync(sp => sp.StudentParentId == id);
+    }
+
+    public async Task<StudentParent?> CreateStudentParentAsync(StudentParent studentParent)
+    {
+        // Verify that both Student and Parent exist
+        var student = await _context.Students.FirstOrDefaultAsync(s => s.StudentCode == studentParent.StudentCode);
+        var parent = await _context.Parents.FirstOrDefaultAsync(p => p.ParentId == studentParent.ParentId);
+
+        if (student == null || parent == null)
+        {
+            return null;
+        }
+
         _context.StudentParents.Add(studentParent);
         await _context.SaveChangesAsync();
         return studentParent;
     }
 
-    public async Task<bool> UpdateAsync(StudentParent studentParent)
+    public async Task<bool> UpdateStudentParentAsync(StudentParent studentParent)
     {
         var existingStudentParent = await _context.StudentParents.FindAsync(studentParent.StudentParentId);
         if (existingStudentParent == null)
@@ -43,15 +52,19 @@ public class StudentParentRepository : IStudentParentRepository
             return false;
         }
 
-        // Since StudentParent is a linking table, we only need to update the IDs if they change
-        existingStudentParent.StudentId = studentParent.StudentId;
-        existingStudentParent.ParentId = studentParent.ParentId;
+        // Verify that the new Student exists
+        var student = await _context.Students.FirstOrDefaultAsync(s => s.StudentCode == studentParent.StudentCode);
+        if (student == null)
+        {
+            return false;
+        }
 
+        _context.Entry(existingStudentParent).CurrentValues.SetValues(studentParent);
         await _context.SaveChangesAsync();
         return true;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteStudentParentAsync(int id)
     {
         var studentParent = await _context.StudentParents.FindAsync(id);
         if (studentParent == null)
@@ -64,29 +77,21 @@ public class StudentParentRepository : IStudentParentRepository
         return true;
     }
 
-    public async Task<IEnumerable<StudentParent>> GetByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<StudentParent>> GetStudentParentsByStudentCodeAsync(string studentCode)
     {
         return await _context.StudentParents
             .Include(sp => sp.Student)
             .Include(sp => sp.Parent)
-            .Where(sp => sp.StudentId == studentId)
+            .Where(sp => sp.StudentCode == studentCode)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<StudentParent>> GetByParentIdAsync(int parentId)
+    public async Task<IEnumerable<StudentParent>> GetStudentParentsByParentIdAsync(int parentId)
     {
         return await _context.StudentParents
             .Include(sp => sp.Student)
             .Include(sp => sp.Parent)
             .Where(sp => sp.ParentId == parentId)
             .ToListAsync();
-    }
-
-    public async Task<StudentParent?> GetByStudentAndParentIdsAsync(int studentId, int parentId)
-    {
-        return await _context.StudentParents
-            .Include(sp => sp.Student)
-            .Include(sp => sp.Parent)
-            .FirstOrDefaultAsync(sp => sp.StudentId == studentId && sp.ParentId == parentId);
     }
 } 

@@ -22,7 +22,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetAll()
+        public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetStudentParents()
         {
             var studentParents = await _studentParentService.GetAllStudentParentsAsync();
             var viewModels = _mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(studentParents);
@@ -30,7 +30,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<StudentParentDto.ViewModel>> GetById(int id)
+        public async Task<ActionResult<StudentParentDto.ViewModel>> GetStudentParent(int id)
         {
             var studentParent = await _studentParentService.GetStudentParentByIdAsync(id);
             if (studentParent == null)
@@ -42,16 +42,16 @@ namespace API.Controllers
             return Ok(viewModel);
         }
 
-        [HttpGet("student/{studentId}")]
-        public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetByStudentId(int studentId)
+        [HttpGet("student/{studentCode}")]
+        public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetStudentParentsByStudentCode(string studentCode)
         {
-            var studentParents = await _studentParentService.GetStudentParentsByStudentIdAsync(studentId);
+            var studentParents = await _studentParentService.GetStudentParentsByStudentCodeAsync(studentCode);
             var viewModels = _mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(studentParents);
             return Ok(viewModels);
         }
 
         [HttpGet("parent/{parentId}")]
-        public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetByParentId(int parentId)
+        public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetStudentParentsByParentId(int parentId)
         {
             var studentParents = await _studentParentService.GetStudentParentsByParentIdAsync(parentId);
             var viewModels = _mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(studentParents);
@@ -71,11 +71,11 @@ namespace API.Controllers
 
             if (createdStudentParent == null)
             {
-                return Conflict("Student-Parent relationship already exists or invalid student/parent IDs.");
+                return BadRequest("Invalid student code or parent ID.");
             }
 
-            var studentParentViewModel = _mapper.Map<StudentParentDto.ViewModel>(createdStudentParent);
-            return CreatedAtAction(nameof(GetById), new { id = studentParentViewModel.StudentParentId }, studentParentViewModel);
+            var viewModel = _mapper.Map<StudentParentDto.ViewModel>(createdStudentParent);
+            return CreatedAtAction(nameof(GetStudentParent), new { id = viewModel.StudentParentId }, viewModel);
         }
 
         [HttpPut("{id}")]
@@ -83,7 +83,12 @@ namespace API.Controllers
         {
             if (id != updateDto.StudentParentId)
             {
-                return BadRequest("StudentParent ID mismatch");
+                return BadRequest("ID mismatch");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
 
             var studentParent = _mapper.Map<StudentParent>(updateDto);
@@ -91,7 +96,7 @@ namespace API.Controllers
 
             if (!success)
             {
-                return NotFound("StudentParent relationship not found or would create a duplicate relationship");
+                return NotFound("Student parent relationship not found or invalid student code.");
             }
 
             return NoContent();
@@ -101,10 +106,9 @@ namespace API.Controllers
         public async Task<IActionResult> DeleteStudentParent(int id)
         {
             var success = await _studentParentService.DeleteStudentParentAsync(id);
-
             if (!success)
             {
-                return NotFound("StudentParent relationship not found");
+                return NotFound();
             }
 
             return NoContent();

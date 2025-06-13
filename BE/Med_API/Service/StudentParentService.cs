@@ -6,73 +6,67 @@ namespace Service;
 public class StudentParentService : IStudentParentService
 {
     private readonly IStudentParentRepository _studentParentRepository;
+    private readonly IStudentRepository _studentRepository;
+    private readonly IParentRepository _parentRepository;
 
-    public StudentParentService(IStudentParentRepository studentParentRepository)
+    public StudentParentService(
+        IStudentParentRepository studentParentRepository,
+        IStudentRepository studentRepository,
+        IParentRepository parentRepository)
     {
         _studentParentRepository = studentParentRepository;
+        _studentRepository = studentRepository;
+        _parentRepository = parentRepository;
     }
 
     public async Task<IEnumerable<StudentParent>> GetAllStudentParentsAsync()
     {
-        return await _studentParentRepository.GetAllAsync();
+        return await _studentParentRepository.GetAllStudentParentsAsync();
     }
 
     public async Task<StudentParent?> GetStudentParentByIdAsync(int id)
     {
-        return await _studentParentRepository.GetByIdAsync(id);
+        return await _studentParentRepository.GetStudentParentByIdAsync(id);
     }
 
     public async Task<StudentParent?> CreateStudentParentAsync(StudentParent studentParent)
     {
-        // Check if the relationship already exists
-        var existingRelationship = await _studentParentRepository.GetByStudentAndParentIdsAsync(
-            studentParent.StudentId, studentParent.ParentId);
-        
-        if (existingRelationship != null)
+        // Verify that both Student and Parent exist
+        var student = await _studentRepository.GetStudentByCodeAsync(studentParent.StudentCode);
+        var parent = await _parentRepository.GetParentByIdAsync(studentParent.ParentId);
+
+        if (student == null || parent == null)
         {
-            return null; // Relationship already exists
+            return null;
         }
 
-        return await _studentParentRepository.CreateAsync(studentParent);
+        return await _studentParentRepository.CreateStudentParentAsync(studentParent);
     }
 
     public async Task<bool> UpdateStudentParentAsync(StudentParent studentParent)
     {
-        // Check if the relationship exists
-        var existingRelationship = await _studentParentRepository.GetByIdAsync(studentParent.StudentParentId);
-        if (existingRelationship == null)
+        // Verify that the Student exists
+        var student = await _studentRepository.GetStudentByCodeAsync(studentParent.StudentCode);
+        if (student == null)
         {
-            return false; // Relationship not found
+            return false;
         }
 
-        // Check if the new relationship would create a duplicate
-        if (existingRelationship.StudentId != studentParent.StudentId || 
-            existingRelationship.ParentId != studentParent.ParentId)
-        {
-            var duplicateCheck = await _studentParentRepository.GetByStudentAndParentIdsAsync(
-                studentParent.StudentId, studentParent.ParentId);
-            
-            if (duplicateCheck != null && duplicateCheck.StudentParentId != studentParent.StudentParentId)
-            {
-                return false; // Would create a duplicate relationship
-            }
-        }
-
-        return await _studentParentRepository.UpdateAsync(studentParent);
+        return await _studentParentRepository.UpdateStudentParentAsync(studentParent);
     }
 
     public async Task<bool> DeleteStudentParentAsync(int id)
     {
-        return await _studentParentRepository.DeleteAsync(id);
+        return await _studentParentRepository.DeleteStudentParentAsync(id);
     }
 
-    public async Task<IEnumerable<StudentParent>> GetStudentParentsByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<StudentParent>> GetStudentParentsByStudentCodeAsync(string studentCode)
     {
-        return await _studentParentRepository.GetByStudentIdAsync(studentId);
+        return await _studentParentRepository.GetStudentParentsByStudentCodeAsync(studentCode);
     }
 
     public async Task<IEnumerable<StudentParent>> GetStudentParentsByParentIdAsync(int parentId)
     {
-        return await _studentParentRepository.GetByParentIdAsync(parentId);
+        return await _studentParentRepository.GetStudentParentsByParentIdAsync(parentId);
     }
 } 

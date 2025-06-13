@@ -42,71 +42,66 @@ public class ExcelImportController : ControllerBase
     {
         try
         {
-            var templateDir = Path.Combine(Directory.GetCurrentDirectory(), "Templates");
-            var filePath = Path.Combine(templateDir, "StudentImportTemplate.xlsx");
-
-            // Create template directory if it doesn't exist
-            if (!Directory.Exists(templateDir))
+            using var package = new ExcelPackage();
+            
+            // Add Students sheet
+            var studentSheet = package.Workbook.Worksheets.Add("Students");
+            var studentHeaders = new[]
             {
-                Directory.CreateDirectory(templateDir);
-            }
+                "StudentCode*", "FirstName*", "LastName*", "DateOfBirth*", "Gender*", 
+                "Address", "ClassName*", "GradeLevel*", "Password*"
+            };
+            AddHeaders(studentSheet, studentHeaders);
+            AddStudentExampleData(studentSheet);
+            AddStudentValidations(studentSheet);
+            studentSheet.Cells.AutoFitColumns();
 
-            // Create template file if it doesn't exist
-            if (!System.IO.File.Exists(filePath))
+            // Add Parents sheet
+            var parentSheet = package.Workbook.Worksheets.Add("Parents");
+            var parentHeaders = new[]
             {
-                using var package = new ExcelPackage();
-                
-                // Create Students sheet
-                var studentSheet = package.Workbook.Worksheets.Add("Students");
-                AddHeaders(studentSheet, new[] {
-                    "StudentCode*", "FirstName*", "LastName*", "DateOfBirth*", "Gender*", 
-                    "Address", "ClassName*", "GradeLevel*"
-                });
-                AddStudentExampleData(studentSheet);
-                AddStudentValidations(studentSheet);
+                "StudentCode*", "FirstName*", "LastName*", "Relationship*", "Phone*", 
+                "Email*", "Address", "Occupation", "IsEmergencyContact*", "IsMainContact*", "Password*"
+            };
+            AddHeaders(parentSheet, parentHeaders);
+            AddParentExampleData(parentSheet);
+            AddParentValidations(parentSheet);
+            parentSheet.Cells.AutoFitColumns();
 
-                // Create Parents sheet
-                var parentSheet = package.Workbook.Worksheets.Add("Parents");
-                AddHeaders(parentSheet, new[] {
-                    "StudentId*", "FirstName*", "LastName*", "Relationship*", "Phone*", 
-                    "Email*", "Address", "Occupation", "IsEmergencyContact*", "IsMainContact*"
-                });
-                AddParentExampleData(parentSheet);
-                AddParentValidations(parentSheet);
+            // Add HealthProfiles sheet
+            var healthSheet = package.Workbook.Worksheets.Add("HealthProfiles");
+            var healthHeaders = new[]
+            {
+                "StudentCode*", "HasAllergies*", "AllergyDetails", "HasChronicDiseases*", 
+                "ChronicDetails", "BloodType", "HasVisionIssues*", "VisionNotes", 
+                "LeftEye", "RightEye", "HasHearingIssues*", "HearingNotes", 
+                "LeftEar", "RightEar", "HasCompleteVaccinations*", "Vaccinations", 
+                "VaccinationDetails", "HasPreviousTreatment*", "TreatmentDetails", 
+                "Height", "Weight", "EmergencyContact", "OtherInfo"
+            };
+            AddHeaders(healthSheet, healthHeaders);
+            AddHealthProfileExampleData(healthSheet);
+            AddHealthProfileValidations(healthSheet);
+            healthSheet.Cells.AutoFitColumns();
 
-                // Create HealthProfiles sheet
-                var healthSheet = package.Workbook.Worksheets.Add("HealthProfiles");
-                AddHeaders(healthSheet, new[] {
-                    "StudentId*", "HasAllergies*", "AllergyDetails", "HasChronicDiseases*", 
-                    "ChronicDetails", "BloodType", "HasVisionIssues*", "VisionNotes", 
-                    "LeftEye", "RightEye", "HasHearingIssues*", "HearingNotes", 
-                    "LeftEar", "RightEar", "HasCompleteVaccinations*", "Vaccinations", 
-                    "VaccinationDetails", "HasPreviousTreatment*", "TreatmentDetails", 
-                    "Height", "Weight", "EmergencyContact", "OtherInfo"
-                });
-                AddHealthProfileExampleData(healthSheet);
-                AddHealthProfileValidations(healthSheet);
+            // Add instructions sheet
+            var instructionsSheet = package.Workbook.Worksheets.Add("Instructions");
+            AddInstructions(instructionsSheet);
+            instructionsSheet.Cells.AutoFitColumns();
 
-                // Add instructions sheet
-                var instructionsSheet = package.Workbook.Worksheets.Add("Instructions");
-                AddInstructions(instructionsSheet);
+            // Set the first sheet as active
+            package.Workbook.Worksheets[0].Select();
 
-                // Save the template
-                package.SaveAs(new FileInfo(filePath));
-            }
+            // Generate the Excel file
+            var content = package.GetAsByteArray();
+            var fileName = $"StudentImportTemplate_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
 
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            return File(
-                fileBytes, 
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
-                "StudentImportTemplate.xlsx",
-                enableRangeProcessing: true
-            );
+            return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error downloading template");
-            return StatusCode(500, "Error downloading template");
+            _logger.LogError(ex, "Error generating Excel template");
+            return StatusCode(500, "Error generating template: " + ex.Message);
         }
     }
 
@@ -134,6 +129,7 @@ public class ExcelImportController : ControllerBase
         worksheet.Cells[2, 6].Value = "123 Main St";
         worksheet.Cells[2, 7].Value = "Class 5A";
         worksheet.Cells[2, 8].Value = "5";
+        worksheet.Cells[2, 9].Value = "password123";
     }
 
     private void AddParentExampleData(ExcelWorksheet worksheet)
@@ -148,6 +144,7 @@ public class ExcelImportController : ControllerBase
         worksheet.Cells[2, 8].Value = "Teacher";
         worksheet.Cells[2, 9].Value = "TRUE";
         worksheet.Cells[2, 10].Value = "TRUE";
+        worksheet.Cells[2, 11].Value = "password123";
     }
 
     private void AddHealthProfileExampleData(ExcelWorksheet worksheet)
@@ -179,9 +176,27 @@ public class ExcelImportController : ControllerBase
 
     private void AddStudentValidations(ExcelWorksheet worksheet)
     {
+        // Gender validation
         var genderValidation = worksheet.DataValidations.AddListValidation("E2:E1000");
         genderValidation.Formula.Values.Add("M");
         genderValidation.Formula.Values.Add("F");
+        genderValidation.ShowErrorMessage = true;
+        genderValidation.Error = "Please select M or F for gender";
+
+        // Grade level validation (1-12)
+        var gradeValidation = worksheet.DataValidations.AddIntegerValidation("H2:H1000");
+        gradeValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.between;
+        gradeValidation.Formula.Value = 1;
+        gradeValidation.Formula2.Value = 12;
+        gradeValidation.ShowErrorMessage = true;
+        gradeValidation.Error = "Grade level must be between 1 and 12";
+
+        // Password validation (minimum 6 characters)
+        var passwordValidation = worksheet.DataValidations.AddTextLengthValidation("I2:I1000");
+        passwordValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.greaterThanOrEqual;
+        passwordValidation.Formula.Value = 6;
+        passwordValidation.ShowErrorMessage = true;
+        passwordValidation.Error = "Password must be at least 6 characters long";
     }
 
     private void AddParentValidations(ExcelWorksheet worksheet)
@@ -191,10 +206,34 @@ public class ExcelImportController : ControllerBase
         relationshipValidation.Formula.Values.Add("Father");
         relationshipValidation.Formula.Values.Add("Guardian");
         relationshipValidation.Formula.Values.Add("Other");
+        relationshipValidation.ShowErrorMessage = true;
+        relationshipValidation.Error = "Please select a valid relationship";
 
         var boolValidation = worksheet.DataValidations.AddListValidation("I2:J1000");
         boolValidation.Formula.Values.Add("TRUE");
         boolValidation.Formula.Values.Add("FALSE");
+        boolValidation.ShowErrorMessage = true;
+        boolValidation.Error = "Please select TRUE or FALSE";
+
+        // Email validation
+        var emailValidation = worksheet.DataValidations.AddCustomValidation("F2:F1000");
+        emailValidation.Formula.ExcelFormula = "=ISNUMBER(MATCH(\"*@*.*\",F2,0))";
+        emailValidation.ShowErrorMessage = true;
+        emailValidation.Error = "Please enter a valid email address";
+
+        // Phone validation (numbers only)
+        var phoneValidation = worksheet.DataValidations.AddTextLengthValidation("E2:E1000");
+        phoneValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.greaterThanOrEqual;
+        phoneValidation.Formula.Value = 10;
+        phoneValidation.ShowErrorMessage = true;
+        phoneValidation.Error = "Phone number must be at least 10 digits";
+
+        // Password validation (minimum 6 characters)
+        var passwordValidation = worksheet.DataValidations.AddTextLengthValidation("K2:K1000");
+        passwordValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.greaterThanOrEqual;
+        passwordValidation.Formula.Value = 6;
+        passwordValidation.ShowErrorMessage = true;
+        passwordValidation.Error = "Password must be at least 6 characters long";
     }
 
     private void AddHealthProfileValidations(ExcelWorksheet worksheet)
@@ -237,40 +276,32 @@ public class ExcelImportController : ControllerBase
 
     private void AddInstructions(ExcelWorksheet worksheet)
     {
-        worksheet.Cells[1, 1].Value = "Student Import Template Instructions";
+        worksheet.Cells[1, 1].Value = "Instructions for Excel Import";
         worksheet.Cells[1, 1].Style.Font.Bold = true;
         worksheet.Cells[1, 1].Style.Font.Size = 14;
 
         int row = 3;
         worksheet.Cells[row++, 1].Value = "General Instructions:";
-        worksheet.Cells[row++, 1].Value = "1. Fields marked with * are required";
-        worksheet.Cells[row++, 1].Value = "2. StudentCode must be unique and must match across all sheets";
-        worksheet.Cells[row++, 1].Value = "3. Each student can have multiple parents (add multiple rows in Parents sheet)";
-        worksheet.Cells[row++, 1].Value = "4. Each student must have exactly one health profile";
-        worksheet.Cells[row++, 1].Value = "5. All dates should be in YYYY-MM-DD format";
-        worksheet.Cells[row++, 1].Value = "6. Height and Weight are in cm and kg respectively";
+        worksheet.Cells[row++, 1].Value = "1. All sheets (Students, Parents, HealthProfiles) must be filled out completely.";
+        worksheet.Cells[row++, 1].Value = "2. Fields marked with * are required.";
+        worksheet.Cells[row++, 1].Value = "3. Each student must have at least one parent and one health profile.";
+        worksheet.Cells[row++, 1].Value = "4. StudentCode must be unique and will be used to link students with their parents and health profiles.";
+        worksheet.Cells[row++, 1].Value = "5. Passwords for both students and parents must be at least 6 characters long.";
+        worksheet.Cells[row++, 1].Value = "6. Grade level must be between 1 and 12.";
+        worksheet.Cells[row++, 1].Value = "7. Gender must be either 'M' or 'F'.";
+        worksheet.Cells[row++, 1].Value = "8. Relationship must be one of: Mother, Father, Guardian, Other.";
+        worksheet.Cells[row++, 1].Value = "9. Email addresses must be in a valid format.";
+        worksheet.Cells[row++, 1].Value = "10. Phone numbers must be at least 10 digits.";
+        worksheet.Cells[row++, 1].Value = "11. Blood type must be in the format: A+, A-, B+, B-, AB+, AB-, O+, O-";
+        worksheet.Cells[row++, 1].Value = "12. Height should be in centimeters (0-300).";
+        worksheet.Cells[row++, 1].Value = "13. Weight should be in kilograms (0-500).";
+        worksheet.Cells[row++, 1].Value = "14. Boolean fields (HasAllergies, HasChronicDiseases, etc.) must be TRUE or FALSE.";
+        worksheet.Cells[row++, 1].Value = "15. Date of birth must be in YYYY-MM-DD format.";
 
-        row += 1;
-        worksheet.Cells[row++, 1].Value = "Students Sheet:";
-        worksheet.Cells[row++, 1].Value = "• Contains basic student information";
-        worksheet.Cells[row++, 1].Value = "• Gender must be M or F";
-        worksheet.Cells[row++, 1].Value = "• GradeLevel must be a number";
-
-        row += 1;
-        worksheet.Cells[row++, 1].Value = "Parents Sheet:";
-        worksheet.Cells[row++, 1].Value = "• Contains parent/guardian information";
-        worksheet.Cells[row++, 1].Value = "• Relationship must be one of: Mother, Father, Guardian, Other";
-        worksheet.Cells[row++, 1].Value = "• IsEmergencyContact and IsMainContact must be TRUE or FALSE";
-        worksheet.Cells[row++, 1].Value = "• Email must be a valid email address";
-        worksheet.Cells[row++, 1].Value = "• Phone must be a valid phone number";
-
-        row += 1;
-        worksheet.Cells[row++, 1].Value = "HealthProfiles Sheet:";
-        worksheet.Cells[row++, 1].Value = "• Contains student health information";
-        worksheet.Cells[row++, 1].Value = "• BloodType must be one of: A+, A-, B+, B-, AB+, AB-, O+, O-";
-        worksheet.Cells[row++, 1].Value = "• HasCompleteVaccinations must be: Yes, No, or Partial";
-        worksheet.Cells[row++, 1].Value = "• Boolean fields (TRUE/FALSE) must be exactly as shown";
-        worksheet.Cells[row++, 1].Value = "• Vision and hearing measurements should be in standard format (e.g., 20/20)";
+        // Format the instructions
+        var range = worksheet.Cells[1, 1, row - 1, 1];
+        range.Style.WrapText = true;
+        range.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
     }
 
     [HttpPost("import")]

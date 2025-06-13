@@ -32,8 +32,20 @@ public class ParentRepository : IParentRepository
             .FirstOrDefaultAsync(p => p.ParentId == id);
     }
 
+    // public async Task<IEnumerable<Parent>> GetParentsByStudentCodeAsync(string studentCode)
+    // {
+    //     return await _context.Parents
+    //         .Include(p => p.StudentParents)
+    //             .ThenInclude(sp => sp.Student)
+    //         .Include(p => p.MedicineRequests)
+    //         .Include(p => p.InjectionForms)
+    //         .Where(p => p.StudentCode == studentCode)
+    //         .ToListAsync();
+    // }
+
     public async Task<Parent> CreateParentAsync(Parent parent)
     {
+        // We assume the student association is handled through StudentParent join table
         _context.Parents.Add(parent);
         await _context.SaveChangesAsync();
         return parent;
@@ -47,6 +59,7 @@ public class ParentRepository : IParentRepository
             return false;
         }
 
+        // StudentCode is no longer directly on Parent; assume student association is managed by StudentParent
         _context.Entry(existingParent).CurrentValues.SetValues(parent);
         var result = await _context.SaveChangesAsync();
         return result > 0;
@@ -76,8 +89,6 @@ public class ParentRepository : IParentRepository
         return true;
     }
 
-  
-
     public async Task<Parent?> GetParentByEmailAsync(string email)
     {
         return await _context.Parents
@@ -86,5 +97,15 @@ public class ParentRepository : IParentRepository
             .Include(p => p.MedicineRequests)
             .Include(p => p.InjectionForms)
             .FirstOrDefaultAsync(p => p.Email == email);
+    }
+
+    public async Task<Parent?> GetParentByPhoneAsync(string phone)
+    {
+        return await _context.Parents
+            .Include(p => p.StudentParents)
+                .ThenInclude(sp => sp.Student)
+            .Include(p => p.MedicineRequests)
+            .Include(p => p.InjectionForms)
+            .FirstOrDefaultAsync(p => p.Phone == phone);
     }
 } 

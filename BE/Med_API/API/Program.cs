@@ -84,7 +84,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add AutoMapper
-builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(StaffProfile).Assembly, typeof(ExcelImportProfile).Assembly, typeof(StudentParentProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(StaffProfile).Assembly, typeof(ExcelImportProfile).Assembly, typeof(StudentParentProfile).Assembly, typeof(BlogProfile).Assembly);
 
 // Add DbContext with all entities
 builder.Services.AddDbContext<MedicalContext>(options =>
@@ -109,10 +109,10 @@ builder.Services.AddScoped<IHealthCheckResultRepository, HealthCheckResultReposi
 builder.Services.AddScoped<IHealthEventRepository, HealthEventRepository>();
 builder.Services.AddScoped<IHealthProfileRepository, HealthProfileRepository>();
 builder.Services.AddScoped<IDashboardSummaryRepository, DashboardSummaryRepository>();
-builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IExcelImportRepository, ExcelImportRepository>();
 builder.Services.AddScoped<IStudentParentRepository, StudentParentRepository>();
+builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 
 // Register Services
 builder.Services.AddScoped<IStudentService, StudentService>();
@@ -130,10 +130,10 @@ builder.Services.AddScoped<IHealthCheckResultService, HealthCheckResultService>(
 builder.Services.AddScoped<IHealthEventService, HealthEventService>();
 builder.Services.AddScoped<IHealthProfileService, HealthProfileService>();
 builder.Services.AddScoped<IDashboardSummaryService, DashboardSummaryService>();
-builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IExcelImportService, ExcelImportService>();
 builder.Services.AddScoped<IStudentParentService, StudentParentService>();
+builder.Services.AddScoped<IBlogService, BlogService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

@@ -11,4 +11,5 @@ public interface IParentRepository
     Task<bool> DeleteParentAsync(int id);
    
     Task<Parent?> GetParentByEmailAsync(string email);
+    Task<Parent?> GetParentByPhoneAsync(string phone);
 } 

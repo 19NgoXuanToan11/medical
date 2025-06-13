@@ -39,8 +39,6 @@ public partial class MedicalContext : DbContext
 
     public virtual DbSet<Parent> Parents { get; set; }
 
-    public virtual DbSet<Report> Reports { get; set; }
-
     public virtual DbSet<RequestResult> RequestResults { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -50,6 +48,8 @@ public partial class MedicalContext : DbContext
     public virtual DbSet<Student> Students { get; set; }
 
     public virtual DbSet<StudentParent> StudentParents { get; set; }
+
+    public virtual DbSet<Blog> Blogs { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -266,7 +266,9 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.OtherInfo).HasMaxLength(1000);
             entity.Property(e => e.RightEar).HasMaxLength(100);
             entity.Property(e => e.RightEye).HasMaxLength(20);
-            entity.Property(e => e.StudentId).HasColumnName("StudentID");
+            entity.Property(e => e.StudentCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
             entity.Property(e => e.TreatmentDetails).HasMaxLength(1000);
             entity.Property(e => e.VaccinationDetails).HasMaxLength(1000);
             entity.Property(e => e.Vaccinations).HasMaxLength(1000);
@@ -275,9 +277,10 @@ public partial class MedicalContext : DbContext
 
             entity.HasOne(d => d.Student)
                 .WithMany(p => p.HealthProfiles)
-                .HasForeignKey(d => d.StudentId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK__Health_Profile__StudentID");
+                .HasForeignKey(d => d.StudentCode)
+                .HasPrincipalKey(p => p.StudentCode)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Health_Profile__StudentCode");
         });
 
         modelBuilder.Entity<InjectionForm>(entity =>
@@ -429,10 +432,13 @@ public partial class MedicalContext : DbContext
         modelBuilder.Entity<Parent>(entity =>
         {
             entity.HasKey(e => e.ParentId).HasName("PK__Parent__D339510FC35C248C");
-
             entity.ToTable("Parent");
-
-            entity.Property(e => e.ParentId).HasColumnName("ParentID");
+            
+            entity.Property(e => e.ParentId)
+                .HasColumnName("ParentID")
+                .UseIdentityColumn()
+                .IsRequired();
+            
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.FirstName).HasMaxLength(50);
@@ -455,49 +461,24 @@ public partial class MedicalContext : DbContext
             entity.ToTable("Student_Parent");
 
             entity.Property(e => e.StudentParentId).HasColumnName("StudentParentID");
-            entity.Property(e => e.StudentId).HasColumnName("StudentID");
+            entity.Property(e => e.StudentCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
             entity.Property(e => e.ParentId).HasColumnName("ParentID");
 
             entity.HasOne(d => d.Student)
                 .WithMany(p => p.StudentParents)
-                .HasForeignKey(d => d.StudentId)
-                .OnDelete(DeleteBehavior.Cascade) // Or .NoAction, depending on desired behavior
+                .HasForeignKey(d => d.StudentCode)
+                .HasPrincipalKey(p => p.StudentCode)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_StudentParent_Student");
 
             entity.HasOne(d => d.Parent)
                 .WithMany(p => p.StudentParents)
                 .HasForeignKey(d => d.ParentId)
-                .OnDelete(DeleteBehavior.Cascade) // Or .NoAction
+                .OnDelete(DeleteBehavior.NoAction)
+                .IsRequired()
                 .HasConstraintName("FK_StudentParent_Parent");
-        });
-
-        modelBuilder.Entity<Report>(entity =>
-        {
-            entity.HasKey(e => e.ReportId).HasName("PK__Report__D5BD48E573B45ED0");
-
-            entity.ToTable("Report");
-
-            entity.Property(e => e.ReportId).HasColumnName("ReportID");
-            entity.Property(e => e.BasedOnDashboardId).HasColumnName("BasedOnDashboardID");
-            entity.Property(e => e.DateRangeEnd).HasColumnName("DateRange_End");
-            entity.Property(e => e.DateRangeStart).HasColumnName("DateRange_Start");
-            entity.Property(e => e.GeneratedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.ReportName).HasMaxLength(100);
-            entity.Property(e => e.ReportType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.GeneratedByStaff)
-                .WithMany()
-                .HasForeignKey(d => d.GeneratedBy)
-                .HasConstraintName("FK__Report__GeneratedBy");
-
-            entity.HasOne(d => d.BasedOnDashboard)
-                .WithMany()
-                .HasForeignKey(d => d.BasedOnDashboardId)
-                .HasConstraintName("FK__Report__BasedOnDashboardID");
         });
 
         modelBuilder.Entity<RequestResult>(entity =>
@@ -566,7 +547,9 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.PasswordHash).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
-            entity.Property(e => e.Username).HasMaxLength(50);
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Student>(entity =>
@@ -590,6 +573,39 @@ public partial class MedicalContext : DbContext
 
             entity.HasIndex(e => e.StudentCode, "UQ__Student__1FC8860437093A19")
                 .IsUnique();
+        });
+
+        modelBuilder.Entity<Blog>(entity =>
+        {
+            entity.HasKey(e => e.BlogId).HasName("PK__Blog__54379E30A73F0B1A");
+
+            entity.ToTable("Blog");
+
+            entity.Property(e => e.BlogId).HasColumnName("BlogID");
+            entity.Property(e => e.Title).HasMaxLength(200);
+            entity.Property(e => e.Content).HasMaxLength(4000);
+            entity.Property(e => e.Summary).HasMaxLength(500);
+            entity.Property(e => e.ImageUrl).HasMaxLength(255);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.LastModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Category).HasMaxLength(50);
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("Draft");
+            entity.Property(e => e.StaffUsername)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .IsRequired(false);
+
+            entity.HasOne(d => d.Staff)
+                .WithMany()
+                .HasForeignKey(d => d.StaffUsername)
+                .HasPrincipalKey(p => p.Username)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__Blog__StaffUsername");
         });
 
         OnModelCreatingPartial(modelBuilder);

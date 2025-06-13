@@ -4,12 +4,11 @@ namespace Repo;
 
 public interface IStudentParentRepository
 {
-    Task<StudentParent?> GetByIdAsync(int id);
-    Task<IEnumerable<StudentParent>> GetAllAsync();
-    Task<StudentParent> CreateAsync(StudentParent studentParent);
-    Task<bool> UpdateAsync(StudentParent studentParent);
-    Task<bool> DeleteAsync(int id);
-    Task<IEnumerable<StudentParent>> GetByStudentIdAsync(int studentId);
-    Task<IEnumerable<StudentParent>> GetByParentIdAsync(int parentId);
-    Task<StudentParent?> GetByStudentAndParentIdsAsync(int studentId, int parentId);
+    Task<IEnumerable<StudentParent>> GetAllStudentParentsAsync();
+    Task<StudentParent?> GetStudentParentByIdAsync(int id);
+    Task<StudentParent?> CreateStudentParentAsync(StudentParent studentParent);
+    Task<bool> UpdateStudentParentAsync(StudentParent studentParent);
+    Task<bool> DeleteStudentParentAsync(int id);
+    Task<IEnumerable<StudentParent>> GetStudentParentsByStudentCodeAsync(string studentCode);
+    Task<IEnumerable<StudentParent>> GetStudentParentsByParentIdAsync(int parentId);
 } 

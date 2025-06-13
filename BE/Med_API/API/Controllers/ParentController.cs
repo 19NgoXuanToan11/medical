@@ -57,7 +57,7 @@ public class ParentController : ControllerBase
 
         if (createdParent == null)
         {
-            return BadRequest("Parent must be associated with a student.");
+            return BadRequest("Student not found or parent with same phone/email already exists.");
         }
 
         var parentViewModel = _mapper.Map<ParentDto.ViewModel>(createdParent);
@@ -68,18 +68,22 @@ public class ParentController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateParent(int id, ParentDto.Update updateDto)
     {
+        if (id != updateDto.ParentId)
+        {
+            return BadRequest("Parent ID mismatch.");
+        }
+
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
         var parent = _mapper.Map<Parent>(updateDto);
-        parent.ParentId = id;
-
         var success = await _parentService.UpdateParentAsync(parent);
+
         if (!success)
         {
-            return NotFound();
+            return NotFound("Parent not found, student not found, or parent with same phone/email already exists.");
         }
 
         return NoContent();
@@ -92,7 +96,7 @@ public class ParentController : ControllerBase
         var success = await _parentService.DeleteParentAsync(id);
         if (!success)
         {
-            return NotFound();
+            return NotFound("Parent not found or has associated records.");
         }
 
         return NoContent();

@@ -159,6 +159,8 @@ D:\medical\BE\Med_API\API\bin\Debug\net8.0\AutoMapper.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Azure.Core.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Azure.Identity.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\EPPlus.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\EPPlus.Interfaces.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Humanizer.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
@@ -171,6 +173,8 @@ D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstrac
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Identity.Client.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
@@ -180,6 +184,7 @@ D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.IO.RecyclableMemoryStream.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.OpenApi.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
@@ -199,7 +204,9 @@ D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Drawing.Common.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Memory.Data.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Runtime.Caching.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Security.Cryptography.Xml.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Security.Permissions.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Windows.Extensions.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
@@ -264,6 +271,7 @@ D:\medical\BE\Med_API\API\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Win
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+D:\medical\BE\Med_API\API\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 D:\medical\BE\Med_API\API\bin\Debug\net8.0\DB.dll
@@ -296,11 +304,3 @@ D:\medical\BE\Med_API\API\obj\Debug\net8.0\refint\API.dll
 D:\medical\BE\Med_API\API\obj\Debug\net8.0\API.pdb
 D:\medical\BE\Med_API\API\obj\Debug\net8.0\API.genruntimeconfig.cache
 D:\medical\BE\Med_API\API\obj\Debug\net8.0\ref\API.dll
-D:\medical\BE\Med_API\API\bin\Debug\net8.0\EPPlus.dll
-D:\medical\BE\Med_API\API\bin\Debug\net8.0\EPPlus.Interfaces.dll
-D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
-D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
-D:\medical\BE\Med_API\API\bin\Debug\net8.0\Microsoft.IO.RecyclableMemoryStream.dll
-D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
-D:\medical\BE\Med_API\API\bin\Debug\net8.0\System.Security.Cryptography.Xml.dll
-D:\medical\BE\Med_API\API\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll

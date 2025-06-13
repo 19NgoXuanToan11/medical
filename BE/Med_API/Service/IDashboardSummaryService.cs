@@ -11,4 +11,5 @@ public interface IDashboardSummaryService
     Task<bool> DeleteDashboardSummaryAsync(int id);
     Task<IEnumerable<DashboardSummary>> GetDashboardSummariesByStaffIdAsync(int staffId);
     Task<IEnumerable<DashboardSummary>> GetDashboardSummariesByDateRangeAsync(DateTime startDate, DateTime endDate);
+    Task<byte[]> ExportDashboardSummaryToExcelAsync(int id);
 } 

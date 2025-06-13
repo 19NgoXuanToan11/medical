@@ -84,6 +84,12 @@ public static class StudentDto
         [StringLength(255)]
         public string? Address { get; set; }
 
+        [Required]
+        [StringLength(255, MinimumLength = 6)]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$", 
+            ErrorMessage = "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character")]
+        public string Password { get; set; } = null!;
+
         public bool IsActive { get; set; } = true;
     }
 

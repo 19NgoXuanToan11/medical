@@ -37,10 +37,10 @@ public class HealthProfileController : ControllerBase
         return Ok(_mapper.Map<HealthProfileDTO>(profile));
     }
 
-    [HttpGet("student/{studentId}")]
-    public async Task<ActionResult<HealthProfileDTO>> GetHealthProfileByStudentId(int studentId)
+    [HttpGet("student/{studentCode}")]
+    public async Task<ActionResult<HealthProfileDTO>> GetHealthProfileByStudentCode(string studentCode)
     {
-        var profile = await _healthProfileService.GetHealthProfileByStudentIdAsync(studentId);
+        var profile = await _healthProfileService.GetHealthProfileByStudentCodeAsync(studentCode);
         if (profile == null)
         {
             return NotFound();

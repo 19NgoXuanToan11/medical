@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DB;
 
@@ -7,7 +8,9 @@ public partial class HealthProfile
 {
     public int HealthProfileId { get; set; }
 
-    public int? StudentId { get; set; }
+    [Required]
+    [StringLength(20)]
+    public string StudentCode { get; set; } = null!;
 
     public string? BloodType { get; set; }
 

@@ -1,12 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DB;
 
 public partial class Parent
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Required]
     public int ParentId { get; set; }
+
+    // [Required]
+    // [StringLength(20)]
+    // public string StudentCode { get; set; } = null!;
 
     [Required]
     [StringLength(50)]
@@ -43,10 +51,7 @@ public partial class Parent
 
     public bool? IsActive { get; set; }
 
-    // Thông tin đăng nhập
-    public string? Username { get; set; }
-    public string? PasswordHash { get; set; }
-    public DateTime? LastLogin { get; set; }
+    // public virtual Student Student { get; set; } = null!;
 
     public virtual ICollection<StudentParent> StudentParents { get; set; } = new List<StudentParent>();
 

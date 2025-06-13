@@ -26,11 +26,11 @@ public class HealthProfileRepository : IHealthProfileRepository
             .FirstOrDefaultAsync(p => p.HealthProfileId == id);
     }
 
-    public async Task<HealthProfile?> GetHealthProfileByStudentIdAsync(int studentId)
+    public async Task<HealthProfile?> GetHealthProfileByStudentCodeAsync(string studentCode)
     {
         return await _context.HealthProfiles
             .Include(p => p.Student)
-            .FirstOrDefaultAsync(p => p.StudentId == studentId);
+            .FirstOrDefaultAsync(p => p.StudentCode == studentCode);
     }
 
     public async Task<HealthProfile> CreateHealthProfileAsync(HealthProfile healthProfile)

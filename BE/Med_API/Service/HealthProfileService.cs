@@ -26,27 +26,27 @@ public class HealthProfileService : IHealthProfileService
         return await _healthProfileRepository.GetHealthProfileByIdAsync(id);
     }
 
-    public async Task<HealthProfile?> GetHealthProfileByStudentIdAsync(int studentId)
+    public async Task<HealthProfile?> GetHealthProfileByStudentCodeAsync(string studentCode)
     {
-        return await _healthProfileRepository.GetHealthProfileByStudentIdAsync(studentId);
+        return await _healthProfileRepository.GetHealthProfileByStudentCodeAsync(studentCode);
     }
 
     public async Task<HealthProfile?> CreateHealthProfileAsync(HealthProfile healthProfile)
     {
-        // Validate StudentId
-        if (!healthProfile.StudentId.HasValue)
+        // Validate StudentCode
+        if (string.IsNullOrEmpty(healthProfile.StudentCode))
         {
-            throw new InvalidOperationException("StudentId is required");
+            throw new InvalidOperationException("StudentCode is required");
         }
 
-        var student = await _studentRepository.GetStudentByIdAsync(healthProfile.StudentId.Value);
+        var student = await _studentRepository.GetStudentByCodeAsync(healthProfile.StudentCode);
         if (student == null)
         {
             throw new InvalidOperationException("Student not found");
         }
 
         // Check if profile already exists for student
-        var existingProfile = await _healthProfileRepository.GetHealthProfileByStudentIdAsync(healthProfile.StudentId.Value);
+        var existingProfile = await _healthProfileRepository.GetHealthProfileByStudentCodeAsync(healthProfile.StudentCode);
         if (existingProfile != null)
         {
             throw new InvalidOperationException("Health profile already exists for this student");
@@ -83,13 +83,13 @@ public class HealthProfileService : IHealthProfileService
             return false;
         }
 
-        // Validate StudentId
-        if (!healthProfile.StudentId.HasValue)
+        // Validate StudentCode
+        if (string.IsNullOrEmpty(healthProfile.StudentCode))
         {
-            throw new InvalidOperationException("StudentId is required");
+            throw new InvalidOperationException("StudentCode is required");
         }
 
-        var student = await _studentRepository.GetStudentByIdAsync(healthProfile.StudentId.Value);
+        var student = await _studentRepository.GetStudentByCodeAsync(healthProfile.StudentCode);
         if (student == null)
         {
             throw new InvalidOperationException("Student not found");

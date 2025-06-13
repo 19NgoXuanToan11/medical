@@ -9,7 +9,9 @@ public partial class StudentParent
 {
     public int StudentParentId { get; set; }
 
-    public int StudentId { get; set; }
+    [Required]
+    [StringLength(20)]
+    public string StudentCode { get; set; } = null!;
 
     public int ParentId { get; set; }
 

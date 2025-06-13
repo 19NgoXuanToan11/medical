@@ -7,7 +7,8 @@ public static class StudentParentDto
     public class Create
     {
         [Required]
-        public int StudentId { get; set; }
+        [StringLength(20)]
+        public string StudentCode { get; set; } = null!;
 
         [Required]
         public int ParentId { get; set; }
@@ -19,7 +20,8 @@ public static class StudentParentDto
         public int StudentParentId { get; set; }
 
         [Required]
-        public int StudentId { get; set; }
+        [StringLength(20)]
+        public string StudentCode { get; set; } = null!;
 
         [Required]
         public int ParentId { get; set; }
@@ -28,7 +30,7 @@ public static class StudentParentDto
     public class ViewModel
     {
         public int StudentParentId { get; set; }
-        public int StudentId { get; set; }
+        public string StudentCode { get; set; } = null!;
         public int ParentId { get; set; }
         public string? StudentName { get; set; }
         public string? ParentName { get; set; }

@@ -17,6 +17,10 @@ public class AuthController : ControllerBase
     private readonly IParentService _parentService;
     private readonly IConfiguration _configuration;
 
+    // Static admin credentials
+    private const string ADMIN_USERNAME = "admin";
+    private const string ADMIN_PASSWORD = "admin123";
+
     public AuthController(
         IStaffService staffService,
         IStudentService studentService,
@@ -32,11 +36,28 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
+        // Check for static admin login first
+        if (request.Role.ToLower() == "admin" && 
+            request.Username == ADMIN_USERNAME && 
+            request.Password == ADMIN_PASSWORD)
+        {
+            return Ok(new
+            {
+                Token = GenerateJwtToken(0, ADMIN_USERNAME, "admin@school.com", "Admin"),
+                Role = "Admin",
+                Id = 0,
+                Username = ADMIN_USERNAME,
+                Email = "admin@school.com",
+                FirstName = "System",
+                LastName = "Administrator"
+            });
+        }
+
         // Kiểm tra role và thực hiện đăng nhập tương ứng
         switch (request.Role.ToLower())
         {
             case "staff":
-            case "admin":
+            case "admin":    
             case "manager":
             case "nurse":
                 var staff = await _staffService.GetStaffByUsernameAsync(request.Username);

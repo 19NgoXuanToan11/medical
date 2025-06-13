@@ -112,4 +112,29 @@ public class DashboardSummaryController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpGet("{id}/export")]
+    public async Task<IActionResult> ExportDashboardSummary(int id)
+    {
+        try
+        {
+            var summary = await _dashboardSummaryService.GetDashboardSummaryByIdAsync(id);
+            if (summary == null)
+            {
+                return NotFound();
+            }
+
+            var excelBytes = await _dashboardSummaryService.ExportDashboardSummaryToExcelAsync(id);
+            var fileName = $"Dashboard_Summary_{summary.GeneratedDate:yyyyMMddHHmmss}.xlsx";
+
+            return File(
+                excelBytes,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileName);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 } 

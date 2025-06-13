@@ -6,10 +6,12 @@ namespace Service;
 public class ParentService : IParentService
 {
     private readonly IParentRepository _parentRepository;
+    private readonly IStudentRepository _studentRepository;
 
-    public ParentService(IParentRepository parentRepository)
+    public ParentService(IParentRepository parentRepository, IStudentRepository studentRepository)
     {
         _parentRepository = parentRepository;
+        _studentRepository = studentRepository;
     }
 
     public async Task<IEnumerable<Parent>> GetAllParentsAsync()
@@ -24,10 +26,12 @@ public class ParentService : IParentService
 
     public async Task<Parent?> CreateParentAsync(Parent parent)
     {
+        // Student association is now handled via the StudentParent join table.
+        // We assume the student associated with this parent will be created/linked separately.
         // Check for unique phone
         if (!string.IsNullOrEmpty(parent.Phone))
         {
-            var existingParentWithPhone = await _parentRepository.GetParentByIdAsync(parent.ParentId);
+            var existingParentWithPhone = await _parentRepository.GetParentByPhoneAsync(parent.Phone);
             if (existingParentWithPhone != null)
             {
                 return null; // Phone number already exists
@@ -44,7 +48,14 @@ public class ParentService : IParentService
             }
         }
 
-        return await _parentRepository.CreateParentAsync(parent);
+        try
+        {
+            return await _parentRepository.CreateParentAsync(parent);
+        }
+        catch (InvalidOperationException)
+        {
+            return null; // Other validation error during creation
+        }
     }
 
     public async Task<bool> UpdateParentAsync(Parent parent)
@@ -56,10 +67,20 @@ public class ParentService : IParentService
             return false; // Parent not found
         }
 
+        // StudentCode is no longer directly on Parent; assume student association is managed by StudentParent
+        // if (existingParent.StudentCode != parent.StudentCode)
+        // {
+        //     var student = await _studentRepository.GetStudentByCodeAsync(parent.StudentCode);
+        //     if (student == null)
+        //     {
+        //         return false; // Student not found
+        //     }
+        // }
+
         // Check for unique phone if it's being updated
         if (!string.IsNullOrEmpty(parent.Phone) && existingParent.Phone != parent.Phone)
         {
-            var parentWithSamePhone = await _parentRepository.GetParentByIdAsync(parent.ParentId);
+            var parentWithSamePhone = await _parentRepository.GetParentByPhoneAsync(parent.Phone);
             if (parentWithSamePhone != null && parentWithSamePhone.ParentId != parent.ParentId)
             {
                 return false; // Phone number not unique
@@ -83,6 +104,4 @@ public class ParentService : IParentService
     {
         return await _parentRepository.DeleteParentAsync(id);
     }
-
-  
 } 

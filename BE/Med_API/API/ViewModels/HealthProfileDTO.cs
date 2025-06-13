@@ -8,7 +8,8 @@ public class HealthProfileDTO
     public int HealthProfileId { get; set; }
 
     [Required]
-    public int StudentId { get; set; }
+    [StringLength(20)]
+    public string StudentCode { get; set; } = null!;
 
     [StringLength(5)]
     public string? BloodType { get; set; }
