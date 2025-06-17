@@ -19,7 +19,7 @@ import {
   MANAGEABLE_ROLES,
   validateStaffData,
   getRoleDisplayInfo,
-} from "../../../utils/staffService";
+} from "../../../utils/staff/staffService";
 
 const StaffManagement = () => {
   // States for staff list

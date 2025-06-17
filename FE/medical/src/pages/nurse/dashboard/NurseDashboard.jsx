@@ -10,6 +10,7 @@ import {
   FiClock,
   FiBell,
   FiClipboard,
+  FiX,
 } from "react-icons/fi";
 import MedicationReminders from "../medication/MedicationReminders";
 
@@ -27,6 +28,8 @@ const NurseDashboard = () => {
 
   const [dateRange, setDateRange] = useState("today");
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState([]);
+  const [showAllNotifications, setShowAllNotifications] = useState(false);
 
   // Mock data - in a real application, this would come from an API
   useEffect(() => {
@@ -43,6 +46,13 @@ const NurseDashboard = () => {
         allergyAlerts: 15,
         totalCheckedStudents: 42,
       });
+
+      // Load notifications from localStorage (for demo)
+      const nurseNotifications = JSON.parse(
+        localStorage.getItem("nurseNotifications") || "[]"
+      );
+      setNotifications(nurseNotifications);
+
       setLoading(false);
     }, 1000);
   }, [dateRange]);
@@ -51,6 +61,33 @@ const NurseDashboard = () => {
     setDateRange(range);
     // In a real app, this would fetch new data based on the selected range
   };
+
+  const markNotificationAsRead = (notificationId) => {
+    const updatedNotifications = notifications.map((notif) =>
+      notif.createdAt === notificationId ? { ...notif, isRead: true } : notif
+    );
+    setNotifications(updatedNotifications);
+    localStorage.setItem(
+      "nurseNotifications",
+      JSON.stringify(updatedNotifications)
+    );
+  };
+
+  const removeNotification = (notificationId) => {
+    const updatedNotifications = notifications.filter(
+      (notif) => notif.createdAt !== notificationId
+    );
+    setNotifications(updatedNotifications);
+    localStorage.setItem(
+      "nurseNotifications",
+      JSON.stringify(updatedNotifications)
+    );
+  };
+
+  const unreadNotifications = notifications.filter((notif) => !notif.isRead);
+  const displayedNotifications = showAllNotifications
+    ? notifications
+    : notifications.slice(0, 3);
 
   // Mock upcoming tasks data
   const upcomingTasks = [
@@ -125,6 +162,92 @@ const NurseDashboard = () => {
         </div>
       ) : (
         <>
+          {/* Notifications Section */}
+          {notifications.length > 0 && (
+            <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden mb-6">
+              <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
+                <div className="flex items-center">
+                  <FiBell className="h-5 w-5 text-primary-600 mr-2" />
+                  <h3 className="text-lg font-medium text-neutral-800">
+                    Thông báo mới
+                  </h3>
+                  {unreadNotifications.length > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                      {unreadNotifications.length}
+                    </span>
+                  )}
+                </div>
+                {notifications.length > 3 && (
+                  <button
+                    onClick={() =>
+                      setShowAllNotifications(!showAllNotifications)
+                    }
+                    className="text-sm text-primary-600 hover:text-primary-800"
+                  >
+                    {showAllNotifications ? "Thu gọn" : "Xem tất cả"}
+                  </button>
+                )}
+              </div>
+              <div className="divide-y divide-neutral-100">
+                {displayedNotifications.map((notification) => (
+                  <div
+                    key={notification.createdAt}
+                    className={`p-4 hover:bg-neutral-50 transition-colors ${
+                      !notification.isRead ? "bg-blue-50" : ""
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-3">
+                        <div className="p-2 bg-blue-100 rounded-full">
+                          <FiTablet className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h4
+                            className={`text-sm font-medium ${
+                              !notification.isRead
+                                ? "text-neutral-900"
+                                : "text-neutral-700"
+                            }`}
+                          >
+                            {notification.title}
+                          </h4>
+                          <p className="text-sm text-neutral-600 mt-1">
+                            {notification.message}
+                          </p>
+                          <p className="text-xs text-neutral-500 mt-2">
+                            {new Date(notification.createdAt).toLocaleString(
+                              "vi-VN"
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {!notification.isRead && (
+                          <button
+                            onClick={() =>
+                              markNotificationAsRead(notification.createdAt)
+                            }
+                            className="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded"
+                          >
+                            Đánh dấu đã đọc
+                          </button>
+                        )}
+                        <button
+                          onClick={() =>
+                            removeNotification(notification.createdAt)
+                          }
+                          className="text-neutral-400 hover:text-neutral-600"
+                        >
+                          <FiX className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden mb-8">
             <div className="p-6">
               <h2 className="text-2xl font-semibold text-neutral-800 mb-4">

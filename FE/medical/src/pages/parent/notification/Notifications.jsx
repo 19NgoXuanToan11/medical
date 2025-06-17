@@ -9,82 +9,154 @@ const Notifications = () => {
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    // In a real application, this would be an API call
-    // Mock data for demonstration
-    setTimeout(() => {
+    // Load notifications from localStorage and combine with mock data
+    const loadNotifications = () => {
+      // Get medication response notifications from localStorage
+      const parentNotifications = JSON.parse(
+        localStorage.getItem("parentNotifications") || "[]"
+      );
+
+      // Mock data for other notifications
       const mockNotifications = [
         {
           id: 1,
-          type: "medication",
-          title: "Thuốc đã được cấp cho con bạn",
-          message:
-            "Thuốc Paracetamol đã được cấp cho Nguyễn Văn An vào lúc 10:30.",
-          date: new Date(2023, 9, 12, 10, 45),
-          read: false,
-          actionRequired: false,
-        },
-        {
-          id: 2,
           type: "health_event",
           title: "Sự kiện khám sức khỏe sắp diễn ra",
           message:
-            "Trường sẽ tổ chức khám sức khỏe định kỳ cho học sinh vào ngày 25/10/2023. Vui lòng đảm bảo con bạn có mặt.",
-          date: new Date(2023, 9, 10, 14, 30),
+            "Trường sẽ tổ chức khám sức khỏe định kỳ cho học sinh vào ngày 25/01/2024. Vui lòng đảm bảo con bạn có mặt.",
+          date: new Date(2024, 0, 15, 14, 30),
           read: false,
           actionRequired: true,
           actionLink: "/parent/health-events/1",
         },
         {
-          id: 3,
+          id: 2,
           type: "vaccination",
           title: "Yêu cầu xác nhận tiêm chủng",
           message:
             "Vui lòng xác nhận đồng ý cho con bạn tham gia chương trình tiêm chủng vaccine cúm sắp tới.",
-          date: new Date(2023, 9, 8, 9, 15),
+          date: new Date(2024, 0, 10, 9, 15),
           read: true,
           actionRequired: true,
           actionLink: "/parent/vaccination/consent/1",
         },
         {
-          id: 4,
-          type: "medication",
-          title: "Yêu cầu thuốc đã được phê duyệt",
-          message:
-            "Yêu cầu cấp thuốc Amoxicillin cho Nguyễn Văn An đã được phê duyệt.",
-          date: new Date(2023, 9, 5, 11, 20),
-          read: true,
-          actionRequired: false,
-        },
-        {
-          id: 5,
+          id: 3,
           type: "report",
-          title: "Báo cáo sức khỏe tháng 9 đã có",
+          title: "Báo cáo sức khỏe tháng 12 đã có",
           message:
-            "Báo cáo sức khỏe hàng tháng của Nguyễn Văn An đã được cập nhật. Nhấn vào đây để xem chi tiết.",
-          date: new Date(2023, 9, 2, 15, 45),
+            "Báo cáo sức khỏe hàng tháng của con bạn đã được cập nhật. Nhấn vào đây để xem chi tiết.",
+          date: new Date(2024, 0, 5, 15, 45),
           read: true,
           actionRequired: true,
-          actionLink: "/parent/reports/9-2023",
+          actionLink: "/parent/reports/12-2023",
         },
       ];
 
-      setNotifications(mockNotifications);
+      // Convert localStorage notifications to component format
+      const formattedParentNotifications = parentNotifications.map(
+        (notif, index) => ({
+          id: `parent_${index}`,
+          type: notif.type || "medication",
+          title: notif.title,
+          message: notif.message,
+          date: new Date(notif.createdAt),
+          read: notif.isRead || false,
+          actionRequired: false,
+          medicationRequestId: notif.medicationRequestId,
+          studentId: notif.studentId,
+        })
+      );
+
+      // Combine and sort by date (newest first)
+      const allNotifications = [
+        ...formattedParentNotifications,
+        ...mockNotifications,
+      ].sort((a, b) => b.date - a.date);
+
+      setNotifications(allNotifications);
       setLoading(false);
-    }, 1000);
+    };
+
+    // Initial load
+    loadNotifications();
+
+    // Set up interval to check for new notifications every 5 seconds
+    const interval = setInterval(loadNotifications, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleMarkAsRead = (id) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) =>
+    setNotifications((prevNotifications) => {
+      const updatedNotifications = prevNotifications.map((notification) =>
         notification.id === id ? { ...notification, read: true } : notification
-      )
-    );
+      );
+
+      // Update localStorage for parent notifications
+      if (id.startsWith("parent_")) {
+        const parentNotifications = JSON.parse(
+          localStorage.getItem("parentNotifications") || "[]"
+        );
+        const index = parseInt(id.replace("parent_", ""));
+        if (parentNotifications[index]) {
+          parentNotifications[index].isRead = true;
+          localStorage.setItem(
+            "parentNotifications",
+            JSON.stringify(parentNotifications)
+          );
+        }
+      }
+
+      return updatedNotifications;
+    });
   };
 
   const handleMarkAllAsRead = () => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) => ({ ...notification, read: true }))
-    );
+    setNotifications((prevNotifications) => {
+      const updatedNotifications = prevNotifications.map((notification) => ({
+        ...notification,
+        read: true,
+      }));
+
+      // Update localStorage for all parent notifications
+      const parentNotifications = JSON.parse(
+        localStorage.getItem("parentNotifications") || "[]"
+      );
+      const updatedParentNotifications = parentNotifications.map((notif) => ({
+        ...notif,
+        isRead: true,
+      }));
+      localStorage.setItem(
+        "parentNotifications",
+        JSON.stringify(updatedParentNotifications)
+      );
+
+      return updatedNotifications;
+    });
+  };
+
+  const handleDeleteNotification = (id) => {
+    setNotifications((prevNotifications) => {
+      const updatedNotifications = prevNotifications.filter(
+        (notification) => notification.id !== id
+      );
+
+      // Remove from localStorage for parent notifications
+      if (id.startsWith("parent_")) {
+        const parentNotifications = JSON.parse(
+          localStorage.getItem("parentNotifications") || "[]"
+        );
+        const index = parseInt(id.replace("parent_", ""));
+        parentNotifications.splice(index, 1);
+        localStorage.setItem(
+          "parentNotifications",
+          JSON.stringify(parentNotifications)
+        );
+      }
+
+      return updatedNotifications;
+    });
   };
 
   const filteredNotifications = notifications.filter((notification) => {
@@ -97,6 +169,7 @@ const Notifications = () => {
   const getTypeIcon = (type) => {
     switch (type) {
       case "medication":
+      case "medication_response":
         return (
           <div className="p-2 bg-blue-100 rounded-full">
             <svg
@@ -192,10 +265,27 @@ const Notifications = () => {
     }
   };
 
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Thông báo</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Thông báo</h1>
+          {unreadCount > 0 && (
+            <p className="text-sm text-gray-600 mt-1">
+              Bạn có {unreadCount} thông báo chưa đọc
+            </p>
+          )}
+        </div>
 
         <div className="flex space-x-2">
           <button
@@ -227,7 +317,7 @@ const Notifications = () => {
               : "text-gray-600 hover:bg-gray-100"
           }`}
         >
-          Chưa đọc
+          Chưa đọc ({unreadCount})
         </button>
         <button
           onClick={() => setFilter("action")}
@@ -250,6 +340,16 @@ const Notifications = () => {
           Thuốc
         </button>
         <button
+          onClick={() => setFilter("health_event")}
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap ${
+            filter === "health_event"
+              ? "bg-primary-100 text-primary-800"
+              : "text-gray-600 hover:bg-gray-100"
+          }`}
+        >
+          Sự kiện y tế
+        </button>
+        <button
           onClick={() => setFilter("vaccination")}
           className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap ${
             filter === "vaccination"
@@ -259,119 +359,112 @@ const Notifications = () => {
         >
           Tiêm chủng
         </button>
-        <button
-          onClick={() => setFilter("health_event")}
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap ${
-            filter === "health_event"
-              ? "bg-primary-100 text-primary-800"
-              : "text-gray-600 hover:bg-gray-100"
-          }`}
-        >
-          Sự kiện
-        </button>
-        <button
-          onClick={() => setFilter("report")}
-          className={`px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap ${
-            filter === "report"
-              ? "bg-primary-100 text-primary-800"
-              : "text-gray-600 hover:bg-gray-100"
-          }`}
-        >
-          Báo cáo
-        </button>
       </div>
 
       {/* Notifications list */}
-      {loading ? (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-        </div>
-      ) : filteredNotifications.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-            />
-          </svg>
-          <h3 className="mt-2 text-lg font-medium text-gray-900">
-            Không có thông báo
-          </h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Hiện tại bạn không có thông báo nào{" "}
-            {filter !== "all" ? "trong danh mục này" : ""}.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredNotifications.map((notification) => (
-            <div
-              key={notification.id}
-              className={`p-4 bg-white rounded-lg shadow-sm border ${
-                notification.read
-                  ? "border-gray-100"
-                  : "border-primary-100 bg-primary-50"
-              }`}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        {filteredNotifications.length === 0 ? (
+          <div className="text-center py-12">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 48 48"
             >
-              <div className="flex items-start">
-                <div className="flex-shrink-0 mr-4">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M34 40h10v-4a6 6 0 00-10.712-3.714M34 40H14m20 0v-4a9.971 9.971 0 00-.712-3.714M14 40H4v-4a6 6 0 0110.713-3.714M14 40v-4c0-1.313.253-2.566.713-3.714m0 0A9.971 9.971 0 0124 30a9.971 9.971 0 018.287 6.286"
+              />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">
+              Không có thông báo
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {filter === "all"
+                ? "Bạn chưa có thông báo nào."
+                : `Không có thông báo nào trong bộ lọc "${
+                    filter === "unread"
+                      ? "chưa đọc"
+                      : filter === "action"
+                      ? "cần xác nhận"
+                      : filter === "medication"
+                      ? "thuốc"
+                      : filter === "health_event"
+                      ? "sự kiện y tế"
+                      : "tiêm chủng"
+                  }".`}
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {filteredNotifications.map((notification) => (
+              <div
+                key={notification.id}
+                className={`p-6 hover:bg-gray-50 transition-colors ${
+                  !notification.read ? "bg-blue-50" : ""
+                }`}
+              >
+                <div className="flex items-start space-x-4">
                   {getTypeIcon(notification.type)}
-                </div>
-                <div className="flex-grow">
-                  <div className="flex justify-between items-start">
-                    <h3
-                      className={`text-base font-semibold ${
-                        notification.read ? "text-gray-800" : "text-primary-800"
-                      }`}
-                    >
-                      {notification.title}
-                    </h3>
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <span>{formatDate(notification.date)}</span>
-                      {!notification.read && (
-                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-800">
-                          Mới
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <p className="mt-1 text-gray-600">{notification.message}</p>
-                  <div className="mt-3 flex items-center justify-between">
-                    {notification.actionRequired ? (
-                      <Link
-                        to={notification.actionLink}
-                        className="text-sm font-medium text-primary-600 hover:text-primary-700"
-                      >
-                        Xem chi tiết
-                      </Link>
-                    ) : (
-                      <div className="text-sm text-gray-500">
-                        Không cần hành động
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p
+                          className={`text-sm font-medium ${
+                            !notification.read
+                              ? "text-gray-900"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          {notification.title}
+                        </p>
+                        <p className="mt-1 text-sm text-gray-600">
+                          {notification.message}
+                        </p>
+                        <p className="mt-2 text-xs text-gray-500">
+                          {formatDate(notification.date)}
+                        </p>
+
+                        {notification.actionRequired && (
+                          <div className="mt-3">
+                            <Link
+                              to={notification.actionLink}
+                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-primary-700 bg-primary-100 hover:bg-primary-200 transition-colors"
+                            >
+                              Xem chi tiết
+                            </Link>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {!notification.read && (
-                      <button
-                        onClick={() => handleMarkAsRead(notification.id)}
-                        className="text-sm text-gray-500 hover:text-gray-700"
-                      >
-                        Đánh dấu đã đọc
-                      </button>
-                    )}
+
+                      <div className="flex items-center space-x-2 ml-4">
+                        {!notification.read && (
+                          <button
+                            onClick={() => handleMarkAsRead(notification.id)}
+                            className="text-xs text-primary-600 hover:text-primary-800 px-2 py-1 rounded hover:bg-primary-50"
+                          >
+                            Đánh dấu đã đọc
+                          </button>
+                        )}
+                        <button
+                          onClick={() =>
+                            handleDeleteNotification(notification.id)
+                          }
+                          className="text-xs text-gray-400 hover:text-red-600 px-2 py-1 rounded hover:bg-red-50"
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

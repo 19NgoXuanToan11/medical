@@ -386,14 +386,23 @@ const VaccinationManagement = () => {
         </div>
       )}
 
-      {/* Add New Vaccination Button */}
-      <div className="fixed bottom-8 right-8">
-        <Link
-          to="/nurse/vaccination/new"
-          className="bg-blue-600 hover:bg-blue-700 text-white h-14 w-14 rounded-full flex items-center justify-center shadow-lg transition-colors duration-200"
-        >
-          <FiPlus className="h-6 w-6" />
-        </Link>
+      {/* Floating Action Button - Tạo kế hoạch mới */}
+      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50">
+        <div className="relative group">
+          <Link
+            to="/nurse/vaccination/create"
+            className="bg-blue-600 hover:bg-blue-700 text-white h-14 w-14 md:h-16 md:w-16 rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110"
+            title="Tạo kế hoạch tiêm chủng mới"
+          >
+            <FiPlus className="h-6 w-6 md:h-7 md:w-7 group-hover:rotate-90 transition-transform duration-300" />
+          </Link>
+
+          {/* Tooltip */}
+          <div className="absolute right-full top-1/2 transform -translate-y-1/2 mr-3 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+            Tạo kế hoạch mới
+            <div className="absolute left-full top-1/2 transform -translate-y-1/2 w-0 h-0 border-l-4 border-l-gray-800 border-t-4 border-t-transparent border-b-4 border-b-transparent"></div>
+          </div>
+        </div>
       </div>
     </div>
   );

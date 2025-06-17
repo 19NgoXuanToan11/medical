@@ -44,6 +44,7 @@ import HealthEventEdit from "./pages/nurse/health-events/HealthEventEdit";
 import VaccinationManagement from "./pages/nurse/vaccination/VaccinationManagement";
 import VaccinationDetail from "./pages/nurse/vaccination/VaccinationDetail";
 import VaccinationEdit from "./pages/nurse/vaccination/VaccinationEdit";
+import VaccinationPlanCreate from "./pages/nurse/vaccination/VaccinationPlanCreate";
 import StaffMedicationList from "./pages/nurse/medication/StaffMedicationList";
 import StaffMedicationDetail from "./pages/nurse/medication/StaffMedicationDetail";
 import HealthCheckResults from "./pages/nurse/health-check/HealthCheckResults";
@@ -176,6 +177,7 @@ function App() {
 
           {/* Vaccination Routes */}
           <Route path="/nurse/vaccination" element={<VaccinationManagement />} />
+          <Route path="/nurse/vaccination/create" element={<VaccinationPlanCreate />} />
           <Route path="/nurse/vaccination/:id" element={<VaccinationDetail />} />
           <Route path="/nurse/vaccination/:id/edit" element={<VaccinationEdit />} />
         </Route>

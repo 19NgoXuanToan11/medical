@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import medicalVideo from "../../../../public/videos/login.mp4";
-import { useAuth, ROLES } from "../../../utils/AuthContext";
+import { useAuth, ROLES } from "../../../utils/auth/AuthContext";
 
 const Login = () => {
   const location = useLocation();
