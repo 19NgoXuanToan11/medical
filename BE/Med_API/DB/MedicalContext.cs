@@ -25,6 +25,10 @@ public partial class MedicalContext : DbContext
 
     public virtual DbSet<HealthEvent> HealthEvents { get; set; }
 
+    public virtual DbSet<HealthEventMedicine> HealthEventMedicines { get; set; }
+
+    public virtual DbSet<HealthEventMedicalSupply> HealthEventMedicalSupplies { get; set; }
+
     public virtual DbSet<HealthProfile> HealthProfiles { get; set; }
 
     public virtual DbSet<InjectionForm> InjectionForms { get; set; }
@@ -36,6 +40,8 @@ public partial class MedicalContext : DbContext
     public virtual DbSet<Medicine> Medicines { get; set; }
 
     public virtual DbSet<MedicineRequest> MedicineRequests { get; set; }
+
+    public virtual DbSet<MedicineRequestItem> MedicineRequestItems { get; set; }
 
     public virtual DbSet<Parent> Parents { get; set; }
 
@@ -213,12 +219,12 @@ public partial class MedicalContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.FollowUpRequired).HasDefaultValue(false);
-            entity.Property(e => e.MedicinesUsed).HasMaxLength(500);
             entity.Property(e => e.Notes).HasMaxLength(500);
             entity.Property(e => e.ParentNotified).HasDefaultValue(false);
             entity.Property(e => e.StaffId).HasColumnName("StaffID");
-            entity.Property(e => e.StudentId).HasColumnName("StudentID");
-            entity.Property(e => e.SuppliesUsed).HasMaxLength(500);
+            entity.Property(e => e.StudentCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
             entity.Property(e => e.Symptoms).HasMaxLength(500);
             entity.Property(e => e.Treatment).HasMaxLength(1000);
 
@@ -230,9 +236,60 @@ public partial class MedicalContext : DbContext
 
             entity.HasOne(d => d.Student)
                 .WithMany(p => p.HealthEvents)
-                .HasForeignKey(d => d.StudentId)
+                .HasForeignKey(d => d.StudentCode)
+                .HasPrincipalKey(p => p.StudentCode)
                 .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK__Health_Event__StudentID");
+                .HasConstraintName("FK__Health_Event__StudentCode");
+        });
+
+        modelBuilder.Entity<HealthEventMedicine>(entity =>
+        {
+            entity.HasKey(e => e.HealthEventMedicineId);
+
+            entity.ToTable("Health_Event_Medicine");
+
+            entity.Property(e => e.HealthEventMedicineId).HasColumnName("HealthEventMedicineID");
+            entity.Property(e => e.HealthEventId).HasColumnName("HealthEventID");
+            entity.Property(e => e.MedicineId).HasColumnName("MedicineID");
+            entity.Property(e => e.Dosage).HasMaxLength(100);
+            entity.Property(e => e.Time).HasMaxLength(50);
+
+            entity.HasOne(d => d.HealthEvent)
+                .WithMany(p => p.HealthEventMedicines)
+                .HasForeignKey(d => d.HealthEventId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Health_Event_Medicine__HealthEventID");
+
+            entity.HasOne(d => d.Medicine)
+                .WithMany()
+                .HasForeignKey(d => d.MedicineId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK__Health_Event_Medicine__MedicineID");
+        });
+
+        modelBuilder.Entity<HealthEventMedicalSupply>(entity =>
+        {
+            entity.HasKey(e => e.HealthEventMedicalSupplyId);
+
+            entity.ToTable("Health_Event_Medical_Supply");
+
+            entity.Property(e => e.HealthEventMedicalSupplyId).HasColumnName("HealthEventMedicalSupplyID");
+            entity.Property(e => e.HealthEventId).HasColumnName("HealthEventID");
+            entity.Property(e => e.MedicalSupplyId).HasColumnName("MedicalSupplyID");
+            entity.Property(e => e.Quantity).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Time).HasMaxLength(50);
+
+            entity.HasOne(d => d.HealthEvent)
+                .WithMany(p => p.HealthEventMedicalSupplies)
+                .HasForeignKey(d => d.HealthEventId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Health_Event_Medical_Supply__HealthEventID");
+
+            entity.HasOne(d => d.MedicalSupply)
+                .WithMany()
+                .HasForeignKey(d => d.MedicalSupplyId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK__Health_Event_Medical_Supply__MedicalSupplyID");
         });
 
         modelBuilder.Entity<HealthProfile>(entity =>
@@ -269,6 +326,8 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.StudentCode)
                 .HasMaxLength(20)
                 .IsUnicode(false);
+            entity.Property(e => e.BloodPressure).HasMaxLength(20);
+            entity.Property(e => e.HeartRate);
             entity.Property(e => e.TreatmentDetails).HasMaxLength(1000);
             entity.Property(e => e.VaccinationDetails).HasMaxLength(1000);
             entity.Property(e => e.Vaccinations).HasMaxLength(1000);
@@ -392,31 +451,28 @@ public partial class MedicalContext : DbContext
             entity.ToTable("Medicine_Request");
 
             entity.Property(e => e.RequestId).HasColumnName("RequestID");
-            entity.Property(e => e.Dosage).HasMaxLength(100);
-            entity.Property(e => e.Frequency).HasMaxLength(100);
-            entity.Property(e => e.Instructions).HasMaxLength(500);
-            entity.Property(e => e.MealRelation)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.MedicationImagePath).HasMaxLength(255);
-            entity.Property(e => e.MedicineName).HasMaxLength(100);
-            entity.Property(e => e.ParentId).HasColumnName("ParentID");
-            entity.Property(e => e.PrescriptionImagePath).HasMaxLength(255);
             entity.Property(e => e.RequestDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.ParentId).HasColumnName("ParentID");
             entity.Property(e => e.StaffId).HasColumnName("StaffID");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasDefaultValue("Pending");
-            entity.Property(e => e.StudentId).HasColumnName("StudentID");
-            entity.Property(e => e.TimeOfDay).HasMaxLength(100);
+            entity.Property(e => e.StudentCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.ClassName)
+                .HasMaxLength(50);
+            entity.Property(e => e.StartDate).HasColumnType("date");
+            entity.Property(e => e.EndDate).HasColumnType("date");
 
             entity.HasOne(d => d.Student)
                 .WithMany(p => p.MedicineRequests)
-                .HasForeignKey(d => d.StudentId)
-                .HasConstraintName("FK__Medicine_Request__StudentID");
+                .HasForeignKey(d => d.StudentCode)
+                .HasPrincipalKey(p => p.StudentCode)
+                .HasConstraintName("FK__Medicine_Request__StudentCode");
 
             entity.HasOne(d => d.Parent)
                 .WithMany(p => p.MedicineRequests)
@@ -427,6 +483,29 @@ public partial class MedicalContext : DbContext
                 .WithMany(p => p.MedicineRequests)
                 .HasForeignKey(d => d.StaffId)
                 .HasConstraintName("FK__Medicine_Request__StaffID");
+        });
+
+        modelBuilder.Entity<MedicineRequestItem>(entity =>
+        {
+            entity.HasKey(e => e.MedicineRequestItemId);
+
+            entity.ToTable("Medicine_Request_Item");
+
+            entity.Property(e => e.MedicineRequestItemId).HasColumnName("MedicineRequestItemID");
+            entity.Property(e => e.MedicineRequestId).HasColumnName("MedicineRequestID");
+            entity.Property(e => e.MedicineName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Dosage).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Frequency).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.TimeOfDay).HasMaxLength(100);
+            entity.Property(e => e.Instructions).HasMaxLength(500);
+            entity.Property(e => e.MedicationImagePath).HasMaxLength(255);
+            entity.Property(e => e.PrescriptionImagePath).HasMaxLength(255);
+
+            entity.HasOne(d => d.MedicineRequest)
+                .WithMany(p => p.MedicineRequestItems)
+                .HasForeignKey(d => d.MedicineRequestId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Medicine_Request_Item__MedicineRequestID");
         });
 
         modelBuilder.Entity<Parent>(entity =>

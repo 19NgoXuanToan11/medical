@@ -122,7 +122,9 @@ public class ExcelImportService : IExcelImportService
                     Height = decimal.TryParse(healthSheet.Cells[row, GetColumnIndex(healthHeaders, "Height")].Text, out var height) ? height : null,
                     Weight = decimal.TryParse(healthSheet.Cells[row, GetColumnIndex(healthHeaders, "Weight")].Text, out var weight) ? weight : null,
                     EmergencyContact = healthSheet.Cells[row, GetColumnIndex(healthHeaders, "EmergencyContact")].Text,
-                    OtherInfo = healthSheet.Cells[row, GetColumnIndex(healthHeaders, "OtherInfo")].Text
+                    OtherInfo = healthSheet.Cells[row, GetColumnIndex(healthHeaders, "OtherInfo")].Text,
+                    BloodPressure = healthSheet.Cells[row, GetColumnIndex(healthHeaders, "BloodPressure")].Text,
+                    HeartRate = int.TryParse(healthSheet.Cells[row, GetColumnIndex(healthHeaders, "HeartRate")].Text, out var heartRate) ? heartRate : null
                 };
                 healthProfileRows.Add(healthRow);
             }
@@ -480,6 +482,8 @@ public class ExcelImportService : IExcelImportService
                     Weight = healthProfileRow.Weight,
                     EmergencyContact = healthProfileRow.EmergencyContact,
                     OtherInfo = healthProfileRow.OtherInfo,
+                    BloodPressure = healthProfileRow.BloodPressure,
+                    HeartRate = healthProfileRow.HeartRate,
                     LastUpdated = DateTime.Now
                 };
 

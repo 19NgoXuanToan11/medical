@@ -31,13 +31,13 @@ public class HealthEventService : IHealthEventService
 
     public async Task<HealthEvent?> CreateHealthEventAsync(HealthEvent healthEvent)
     {
-        // Validate StudentId
-        if (!healthEvent.StudentId.HasValue)
+        // Validate StudentCode
+        if (string.IsNullOrEmpty(healthEvent.StudentCode))
         {
-            throw new InvalidOperationException("StudentId is required");
+            throw new InvalidOperationException("StudentCode is required");
         }
 
-        var student = await _studentRepository.GetStudentByIdAsync(healthEvent.StudentId.Value);
+        var student = await _studentRepository.GetStudentByCodeAsync(healthEvent.StudentCode);
         if (student == null)
         {
             throw new InvalidOperationException("Student not found");
@@ -66,25 +66,43 @@ public class HealthEventService : IHealthEventService
         healthEvent.ParentNotified ??= false;
         healthEvent.FollowUpRequired ??= false;
 
+        // Ensure HealthEventMedicines are linked
+        if (healthEvent.HealthEventMedicines != null)
+        {
+            foreach (var item in healthEvent.HealthEventMedicines)
+            {
+                item.HealthEventId = healthEvent.EventId; // Will be 0 for new event, EF handles
+            }
+        }
+
+        // Ensure HealthEventMedicalSupplies are linked
+        if (healthEvent.HealthEventMedicalSupplies != null)
+        {
+            foreach (var item in healthEvent.HealthEventMedicalSupplies)
+            {
+                item.HealthEventId = healthEvent.EventId; // Will be 0 for new event, EF handles
+            }
+        }
+
         return await _healthEventRepository.CreateHealthEventAsync(healthEvent);
     }
 
     public async Task<bool> UpdateHealthEventAsync(HealthEvent healthEvent)
     {
-        // Validate that the event exists
+        // Validate that the event exists (repository handles fetching with includes)
         var existingEvent = await _healthEventRepository.GetHealthEventByIdAsync(healthEvent.EventId);
         if (existingEvent == null)
         {
             return false;
         }
 
-        // Validate StudentId
-        if (!healthEvent.StudentId.HasValue)
+        // Validate StudentCode
+        if (string.IsNullOrEmpty(healthEvent.StudentCode))
         {
-            throw new InvalidOperationException("StudentId is required");
+            throw new InvalidOperationException("StudentCode is required");
         }
 
-        var student = await _studentRepository.GetStudentByIdAsync(healthEvent.StudentId.Value);
+        var student = await _studentRepository.GetStudentByCodeAsync(healthEvent.StudentCode);
         if (student == null)
         {
             throw new InvalidOperationException("Student not found");
@@ -107,7 +125,9 @@ public class HealthEventService : IHealthEventService
         {
             throw new InvalidOperationException("EventType is required");
         }
-
+        
+        // The repository now handles the complex update logic for nested collections.
+        // We pass the incoming healthEvent object, and the repository will reconcile it with existing data.
         return await _healthEventRepository.UpdateHealthEventAsync(healthEvent);
     }
 
@@ -116,9 +136,9 @@ public class HealthEventService : IHealthEventService
         return await _healthEventRepository.DeleteHealthEventAsync(id);
     }
 
-    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByStudentCodeAsync(string studentCode)
     {
-        return await _healthEventRepository.GetHealthEventsByStudentIdAsync(studentId);
+        return await _healthEventRepository.GetHealthEventsByStudentCodeAsync(studentCode);
     }
 
     public async Task<IEnumerable<HealthEvent>> GetHealthEventsByStaffIdAsync(int staffId)

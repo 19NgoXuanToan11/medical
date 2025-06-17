@@ -41,11 +41,11 @@ public class MedicineRequestController : ControllerBase
         return Ok(viewModel);
     }
 
-    // GET: api/MedicineRequest/student/5
-    [HttpGet("student/{studentId}")]
-    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetMedicineRequestsByStudent(int studentId)
+    // GET: api/MedicineRequest/student/ABC123
+    [HttpGet("student/{studentCode}")]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetMedicineRequestsByStudent(string studentCode)
     {
-        var medicineRequests = await _medicineRequestService.GetMedicineRequestsByStudentIdAsync(studentId);
+        var medicineRequests = await _medicineRequestService.GetMedicineRequestsByStudentCodeAsync(studentCode);
         var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(medicineRequests);
         return Ok(viewModels);
     }
@@ -85,6 +85,10 @@ public class MedicineRequestController : ControllerBase
         {
             return BadRequest(ModelState);
         }
+        if (createDto.MedicineRequestItems == null || !createDto.MedicineRequestItems.Any())
+        {
+            return BadRequest("Medicine request must contain at least one medicine item.");
+        }
         var medicineRequest = _mapper.Map<MedicineRequest>(createDto);
         var created = await _medicineRequestService.CreateMedicineRequestAsync(medicineRequest);
         if (created == null)
@@ -103,9 +107,17 @@ public class MedicineRequestController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        var medicineRequest = _mapper.Map<MedicineRequest>(updateDto);
-        medicineRequest.RequestId = id;
-        var success = await _medicineRequestService.UpdateMedicineRequestAsync(medicineRequest);
+        // Retrieve the existing request to ensure we are updating the correct entity
+        var existingRequest = await _medicineRequestService.GetMedicineRequestByIdAsync(id);
+        if (existingRequest == null)
+        {
+            return NotFound();
+        }
+
+        _mapper.Map(updateDto, existingRequest);
+        existingRequest.RequestId = id; // Ensure ID is set for update
+
+        var success = await _medicineRequestService.UpdateMedicineRequestAsync(existingRequest);
         if (!success)
         {
             return NotFound();

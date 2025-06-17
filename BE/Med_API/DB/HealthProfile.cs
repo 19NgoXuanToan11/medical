@@ -52,6 +52,10 @@ public partial class HealthProfile
 
     public string? HearingNotes { get; set; }
 
+    public string? BloodPressure { get; set; }
+
+    public int? HeartRate { get; set; }
+
     public string? EmergencyContact { get; set; }
 
     public string? OtherInfo { get; set; }

@@ -39,6 +39,7 @@ public static class StaffDto
         public int StudentCount { get; set; }
         public int HealthEventCount { get; set; }
         public int ParentCount { get; set; }
+        public int MedicineRequestCount { get; set; }
     }
 
     public class Create

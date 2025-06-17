@@ -1,5 +1,8 @@
 using DB;
 using Repo;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Service;
 
@@ -8,15 +11,18 @@ public class HealthCheckResultService : IHealthCheckResultService
     private readonly IHealthCheckResultRepository _healthCheckResultRepository;
     private readonly IHealthCheckFormRepository _healthCheckFormRepository;
     private readonly IStudentRepository _studentRepository;
+    private readonly IHealthProfileService _healthProfileService;
 
     public HealthCheckResultService(
         IHealthCheckResultRepository healthCheckResultRepository,
         IHealthCheckFormRepository healthCheckFormRepository,
-        IStudentRepository studentRepository)
+        IStudentRepository studentRepository,
+        IHealthProfileService healthProfileService)
     {
         _healthCheckResultRepository = healthCheckResultRepository;
         _healthCheckFormRepository = healthCheckFormRepository;
         _studentRepository = studentRepository;
+        _healthProfileService = healthProfileService;
     }
 
     public async Task<IEnumerable<HealthCheckResult>> GetAllHealthCheckResultsAsync()
@@ -80,7 +86,38 @@ public class HealthCheckResultService : IHealthCheckResultService
         // Set default values
         healthCheckResult.ExaminedDate = DateTime.UtcNow;
 
-        return await _healthCheckResultRepository.CreateHealthCheckResultAsync(healthCheckResult);
+        var createdResult = await _healthCheckResultRepository.CreateHealthCheckResultAsync(healthCheckResult);
+
+        // Update HealthProfile
+        if (createdResult != null && student != null)
+        {
+            var healthProfile = await _healthProfileService.GetHealthProfileByStudentCodeAsync(student.StudentCode);
+
+            if (healthProfile == null)
+            {
+                healthProfile = new HealthProfile
+                {
+                    StudentCode = student.StudentCode,
+                    Height = createdResult.Height,
+                    Weight = createdResult.Weight,
+                    BloodPressure = createdResult.BloodPressure,
+                    HeartRate = createdResult.HeartRate,
+                    LastUpdated = DateTime.UtcNow
+                };
+                await _healthProfileService.CreateHealthProfileAsync(healthProfile);
+            }
+            else
+            {
+                healthProfile.Height = createdResult.Height;
+                healthProfile.Weight = createdResult.Weight;
+                healthProfile.BloodPressure = createdResult.BloodPressure;
+                healthProfile.HeartRate = createdResult.HeartRate;
+                healthProfile.LastUpdated = DateTime.UtcNow;
+                await _healthProfileService.UpdateHealthProfileAsync(healthProfile);
+            }
+        }
+
+        return createdResult;
     }
 
     public async Task<bool> UpdateHealthCheckResultAsync(HealthCheckResult healthCheckResult)
@@ -138,7 +175,39 @@ public class HealthCheckResultService : IHealthCheckResultService
             throw new InvalidOperationException("Invalid heart rate value");
         }
 
-        return await _healthCheckResultRepository.UpdateHealthCheckResultAsync(healthCheckResult);
+        var success = await _healthCheckResultRepository.UpdateHealthCheckResultAsync(healthCheckResult);
+
+        // Update HealthProfile if HealthCheckResult updated successfully
+        if (success && student != null)
+        {
+            var healthProfile = await _healthProfileService.GetHealthProfileByStudentCodeAsync(student.StudentCode);
+
+            if (healthProfile == null)
+            {
+                // This scenario should ideally not happen if a result is being updated, but handle defensively
+                healthProfile = new HealthProfile
+                {
+                    StudentCode = student.StudentCode,
+                    Height = healthCheckResult.Height,
+                    Weight = healthCheckResult.Weight,
+                    BloodPressure = healthCheckResult.BloodPressure,
+                    HeartRate = healthCheckResult.HeartRate,
+                    LastUpdated = DateTime.UtcNow
+                };
+                await _healthProfileService.CreateHealthProfileAsync(healthProfile);
+            }
+            else
+            {
+                healthProfile.Height = healthCheckResult.Height;
+                healthProfile.Weight = healthCheckResult.Weight;
+                healthProfile.BloodPressure = healthCheckResult.BloodPressure;
+                healthProfile.HeartRate = healthCheckResult.HeartRate;
+                healthProfile.LastUpdated = DateTime.UtcNow;
+                await _healthProfileService.UpdateHealthProfileAsync(healthProfile);
+            }
+        }
+
+        return success;
     }
 
     public async Task<bool> DeleteHealthCheckResultAsync(int id)

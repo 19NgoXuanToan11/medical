@@ -41,8 +41,8 @@ public static class ExcelImportDto
         public DateOnly DateOfBirth { get; set; }
 
         [Required(ErrorMessage = "Gender is required")]
-        [RegularExpression("^(M|F)$", ErrorMessage = "Gender must be 'M' or 'F'")]
-        [SwaggerSchema(Description = "Student's gender (M or F)")]
+        [RegularExpression("^(Nam|Nữ)$", ErrorMessage = "Gender must be 'Nam' or 'Nữ'")]
+        [SwaggerSchema(Description = "Student's gender (Nam or Nữ)")]
         public string Gender { get; set; } = null!;
 
         [StringLength(255, ErrorMessage = "Address cannot exceed 255 characters")]
@@ -55,8 +55,8 @@ public static class ExcelImportDto
         public string ClassName { get; set; } = null!;
 
         [Required(ErrorMessage = "Grade level is required")]
-        [Range(1, 12, ErrorMessage = "Grade level must be between 1 and 12")]
-        [SwaggerSchema(Description = "Student's grade level (1-12)")]
+        [Range(1, 5, ErrorMessage = "Grade level must be between 1 and 5")]
+        [SwaggerSchema(Description = "Student's grade level (1-5)")]
         public int GradeLevel { get; set; }
     }
 
@@ -215,6 +215,14 @@ public static class ExcelImportDto
         [StringLength(1000, ErrorMessage = "Other information cannot exceed 1000 characters")]
         [SwaggerSchema(Description = "Any additional health-related information")]
         public string? OtherInfo { get; set; }
+
+        [StringLength(20, ErrorMessage = "Blood pressure cannot exceed 20 characters")]
+        [SwaggerSchema(Description = "Student's blood pressure (e.g., 120/80)")]
+        public string? BloodPressure { get; set; }
+
+        [Range(0, 250, ErrorMessage = "Heart rate must be between 0 and 250 bpm")]
+        [SwaggerSchema(Description = "Student's heart rate in beats per minute")]
+        public int? HeartRate { get; set; }
     }
 
     [SwaggerSchema(Description = "Result of the Excel import operation")]

@@ -13,10 +13,11 @@ public class StaffProfile : Profile
         CreateMap<Staff, StaffDto.ViewModel>()
             .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName))
             .ForMember(dest => dest.StudentCount, opt => opt.MapFrom(src => 
-                src.HealthEvents.Select(e => e.StudentId).Distinct().Count()))
+                src.HealthEvents.Select(e => e.StudentCode).Distinct().Count()))
             .ForMember(dest => dest.HealthEventCount, opt => opt.MapFrom(src => src.HealthEvents.Count))
             .ForMember(dest => dest.ParentCount, opt => opt.MapFrom(src => 
-                src.MedicineRequests.Select(m => m.ParentId).Distinct().Count()));
+                src.MedicineRequests.Select(m => m.ParentId).Distinct().Count()))
+            .ForMember(dest => dest.MedicineRequestCount, opt => opt.MapFrom(src => src.MedicineRequests.Count));
 
         // Map from StaffDto.Create to Staff
         CreateMap<StaffDto.Create, Staff>()

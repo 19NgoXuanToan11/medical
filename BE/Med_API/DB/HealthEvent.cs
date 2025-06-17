@@ -7,7 +7,7 @@ public partial class HealthEvent
 {
     public int EventId { get; set; }
 
-    public int? StudentId { get; set; }
+    public string? StudentCode { get; set; }
 
     public int? StaffId { get; set; }
 
@@ -27,11 +27,11 @@ public partial class HealthEvent
 
     public string? Notes { get; set; }
 
-    public string? MedicinesUsed { get; set; }
-
-    public string? SuppliesUsed { get; set; }
-
     public virtual Staff? Staff { get; set; }
 
     public virtual Student? Student { get; set; }
+
+    public virtual ICollection<HealthEventMedicine> HealthEventMedicines { get; set; } = new List<HealthEventMedicine>();
+
+    public virtual ICollection<HealthEventMedicalSupply> HealthEventMedicalSupplies { get; set; } = new List<HealthEventMedicalSupply>();
 }

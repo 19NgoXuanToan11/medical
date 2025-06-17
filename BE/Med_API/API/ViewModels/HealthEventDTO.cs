@@ -8,7 +8,7 @@ public class HealthEventDTO
     public int EventId { get; set; }
 
     [Required]
-    public int StudentId { get; set; }
+    public string StudentCode { get; set; } = null!;
 
     [Required]
     public int StaffId { get; set; }

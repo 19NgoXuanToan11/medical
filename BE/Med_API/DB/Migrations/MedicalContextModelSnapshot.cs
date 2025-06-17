@@ -425,10 +425,6 @@ namespace DB.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<string>("MedicinesUsed")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -442,13 +438,10 @@ namespace DB.Migrations
                         .HasColumnType("int")
                         .HasColumnName("StaffID");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int")
-                        .HasColumnName("StudentID");
-
-                    b.Property<string>("SuppliesUsed")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<string>("StudentCode")
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("Symptoms")
                         .HasMaxLength(500)
@@ -463,9 +456,76 @@ namespace DB.Migrations
 
                     b.HasIndex("StaffId");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentCode");
 
                     b.ToTable("Health_Event", (string)null);
+                });
+
+            modelBuilder.Entity("DB.HealthEventMedicalSupply", b =>
+                {
+                    b.Property<int>("HealthEventMedicalSupplyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("HealthEventMedicalSupplyID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HealthEventMedicalSupplyId"));
+
+                    b.Property<int>("HealthEventId")
+                        .HasColumnType("int")
+                        .HasColumnName("HealthEventID");
+
+                    b.Property<int>("MedicalSupplyId")
+                        .HasColumnType("int")
+                        .HasColumnName("MedicalSupplyID");
+
+                    b.Property<decimal?>("Quantity")
+                        .HasColumnType("decimal(10, 2)");
+
+                    b.Property<string>("Time")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("HealthEventMedicalSupplyId");
+
+                    b.HasIndex("HealthEventId");
+
+                    b.HasIndex("MedicalSupplyId");
+
+                    b.ToTable("Health_Event_Medical_Supply", (string)null);
+                });
+
+            modelBuilder.Entity("DB.HealthEventMedicine", b =>
+                {
+                    b.Property<int>("HealthEventMedicineId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("HealthEventMedicineID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HealthEventMedicineId"));
+
+                    b.Property<string>("Dosage")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("HealthEventId")
+                        .HasColumnType("int")
+                        .HasColumnName("HealthEventID");
+
+                    b.Property<int>("MedicineId")
+                        .HasColumnType("int")
+                        .HasColumnName("MedicineID");
+
+                    b.Property<string>("Time")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("HealthEventMedicineId");
+
+                    b.HasIndex("HealthEventId");
+
+                    b.HasIndex("MedicineId");
+
+                    b.ToTable("Health_Event_Medicine", (string)null);
                 });
 
             modelBuilder.Entity("DB.HealthProfile", b =>
@@ -480,6 +540,10 @@ namespace DB.Migrations
                     b.Property<string>("AllergyDetails")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("BloodPressure")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("BloodType")
                         .HasMaxLength(5)
@@ -527,6 +591,9 @@ namespace DB.Migrations
                     b.Property<string>("HearingNotes")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("HeartRate")
+                        .HasColumnType("int");
 
                     b.Property<decimal?>("Height")
                         .HasColumnType("decimal(5, 2)");
@@ -785,44 +852,16 @@ namespace DB.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RequestId"));
 
-                    b.Property<string>("Dosage")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<string>("ClassName")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateOnly?>("EndDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("Frequency")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Instructions")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("MealRelation")
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("MedicationImagePath")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("MedicineName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<int?>("ParentId")
                         .HasColumnType("int")
                         .HasColumnName("ParentID");
-
-                    b.Property<string>("PrescriptionImagePath")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime?>("RequestDate")
                         .ValueGeneratedOnAdd()
@@ -843,13 +882,10 @@ namespace DB.Migrations
                         .HasColumnType("varchar(20)")
                         .HasDefaultValue("Pending");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int")
-                        .HasColumnName("StudentID");
-
-                    b.Property<string>("TimeOfDay")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<string>("StudentCode")
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
 
                     b.HasKey("RequestId")
                         .HasName("PK__Medicine__33A8519AA6EED751");
@@ -858,9 +894,60 @@ namespace DB.Migrations
 
                     b.HasIndex("StaffId");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentCode");
 
                     b.ToTable("Medicine_Request", (string)null);
+                });
+
+            modelBuilder.Entity("DB.MedicineRequestItem", b =>
+                {
+                    b.Property<int>("MedicineRequestItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("MedicineRequestItemID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MedicineRequestItemId"));
+
+                    b.Property<string>("Dosage")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Frequency")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Instructions")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("MedicationImagePath")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("MedicineName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("MedicineRequestId")
+                        .HasColumnType("int")
+                        .HasColumnName("MedicineRequestID");
+
+                    b.Property<string>("PrescriptionImagePath")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("TimeOfDay")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("MedicineRequestItemId");
+
+                    b.HasIndex("MedicineRequestId");
+
+                    b.ToTable("Medicine_Request_Item", (string)null);
                 });
 
             modelBuilder.Entity("DB.Parent", b =>
@@ -1256,13 +1343,56 @@ namespace DB.Migrations
 
                     b.HasOne("DB.Student", "Student")
                         .WithMany("HealthEvents")
-                        .HasForeignKey("StudentId")
+                        .HasForeignKey("StudentCode")
+                        .HasPrincipalKey("StudentCode")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK__Health_Event__StudentID");
+                        .HasConstraintName("FK__Health_Event__StudentCode");
 
                     b.Navigation("Staff");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("DB.HealthEventMedicalSupply", b =>
+                {
+                    b.HasOne("DB.HealthEvent", "HealthEvent")
+                        .WithMany("HealthEventMedicalSupplies")
+                        .HasForeignKey("HealthEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK__Health_Event_Medical_Supply__HealthEventID");
+
+                    b.HasOne("DB.MedicalSupply", "MedicalSupply")
+                        .WithMany()
+                        .HasForeignKey("MedicalSupplyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK__Health_Event_Medical_Supply__MedicalSupplyID");
+
+                    b.Navigation("HealthEvent");
+
+                    b.Navigation("MedicalSupply");
+                });
+
+            modelBuilder.Entity("DB.HealthEventMedicine", b =>
+                {
+                    b.HasOne("DB.HealthEvent", "HealthEvent")
+                        .WithMany("HealthEventMedicines")
+                        .HasForeignKey("HealthEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK__Health_Event_Medicine__HealthEventID");
+
+                    b.HasOne("DB.Medicine", "Medicine")
+                        .WithMany()
+                        .HasForeignKey("MedicineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK__Health_Event_Medicine__MedicineID");
+
+                    b.Navigation("HealthEvent");
+
+                    b.Navigation("Medicine");
                 });
 
             modelBuilder.Entity("DB.HealthProfile", b =>
@@ -1340,14 +1470,27 @@ namespace DB.Migrations
 
                     b.HasOne("DB.Student", "Student")
                         .WithMany("MedicineRequests")
-                        .HasForeignKey("StudentId")
-                        .HasConstraintName("FK__Medicine_Request__StudentID");
+                        .HasForeignKey("StudentCode")
+                        .HasPrincipalKey("StudentCode")
+                        .HasConstraintName("FK__Medicine_Request__StudentCode");
 
                     b.Navigation("Parent");
 
                     b.Navigation("Staff");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("DB.MedicineRequestItem", b =>
+                {
+                    b.HasOne("DB.MedicineRequest", "MedicineRequest")
+                        .WithMany("MedicineRequestItems")
+                        .HasForeignKey("MedicineRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK__Medicine_Request_Item__MedicineRequestID");
+
+                    b.Navigation("MedicineRequest");
                 });
 
             modelBuilder.Entity("DB.RequestResult", b =>
@@ -1412,6 +1555,13 @@ namespace DB.Migrations
                     b.Navigation("Results");
                 });
 
+            modelBuilder.Entity("DB.HealthEvent", b =>
+                {
+                    b.Navigation("HealthEventMedicalSupplies");
+
+                    b.Navigation("HealthEventMedicines");
+                });
+
             modelBuilder.Entity("DB.InjectionForm", b =>
                 {
                     b.Navigation("InjectionResults");
@@ -1419,6 +1569,8 @@ namespace DB.Migrations
 
             modelBuilder.Entity("DB.MedicineRequest", b =>
                 {
+                    b.Navigation("MedicineRequestItems");
+
                     b.Navigation("RequestResults");
                 });
 

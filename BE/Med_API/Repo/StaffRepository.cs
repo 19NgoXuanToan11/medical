@@ -17,6 +17,7 @@ public class StaffRepository : IStaffRepository
         return await _context.Staff
             .Include(s => s.Role)
             .Include(s => s.HealthEvents)
+            .Include(s => s.MedicineRequests)
             .ToListAsync();
     }
 
@@ -25,6 +26,7 @@ public class StaffRepository : IStaffRepository
         return await _context.Staff
             .Include(s => s.Role)
             .Include(s => s.HealthEvents)
+            .Include(s => s.MedicineRequests)
             .FirstOrDefaultAsync(s => s.StaffId == id);
     }
 
@@ -45,6 +47,7 @@ public class StaffRepository : IStaffRepository
     {
         var staff = await _context.Staff
             .Include(s => s.HealthEvents)
+            .Include(s => s.MedicineRequests)
             .FirstOrDefaultAsync(s => s.StaffId == id);
 
         if (staff == null)
@@ -53,7 +56,7 @@ public class StaffRepository : IStaffRepository
         }
 
         // Check if staff has any associated records
-        if (staff.HealthEvents.Any())
+        if (staff.HealthEvents.Any() || staff.MedicineRequests.Any())
         {
             return false; // Staff has associated records, cannot delete
         }
@@ -67,6 +70,7 @@ public class StaffRepository : IStaffRepository
     {
         return await _context.Staff
             .Include(s => s.Role)
+            .Include(s => s.MedicineRequests)
             .FirstOrDefaultAsync(s => s.Username == username);
     }
 
@@ -74,6 +78,7 @@ public class StaffRepository : IStaffRepository
     {
         return await _context.Staff
             .Include(s => s.Role)
+            .Include(s => s.MedicineRequests)
             .FirstOrDefaultAsync(s => s.Email == email);
     }
 } 

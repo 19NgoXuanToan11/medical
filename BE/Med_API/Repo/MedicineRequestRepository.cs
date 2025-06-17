@@ -18,6 +18,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             .Include(m => m.Student)
             .Include(m => m.Parent)
             .Include(m => m.Staff)
+            .Include(m => m.MedicineRequestItems)
             .ToListAsync();
     }
 
@@ -27,6 +28,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             .Include(m => m.Student)
             .Include(m => m.Parent)
             .Include(m => m.Staff)
+            .Include(m => m.MedicineRequestItems)
             .FirstOrDefaultAsync(m => m.RequestId == id);
     }
 
@@ -39,7 +41,41 @@ public class MedicineRequestRepository : IMedicineRequestRepository
 
     public async Task UpdateMedicineRequestAsync(MedicineRequest medicineRequest)
     {
-        _context.MedicineRequests.Update(medicineRequest);
+        var existingRequest = await _context.MedicineRequests
+            .Include(r => r.MedicineRequestItems)
+            .FirstOrDefaultAsync(r => r.RequestId == medicineRequest.RequestId);
+
+        if (existingRequest == null)
+        {
+            return; // Or throw an exception, depending on desired behavior
+        }
+
+        _context.Entry(existingRequest).CurrentValues.SetValues(medicineRequest);
+
+        // Handle MedicineRequestItems
+        var existingItems = existingRequest.MedicineRequestItems.ToList();
+        var newItems = medicineRequest.MedicineRequestItems.ToList();
+
+        // Remove items not present in the new list
+        foreach (var existingItem in existingItems.Except(newItems, new MedicineRequestItemComparer()))
+        {
+            _context.MedicineRequestItems.Remove(existingItem);
+        }
+
+        // Add or update items
+        foreach (var newItem in newItems)
+        {
+            var existingItem = existingItems.FirstOrDefault(i => i.MedicineRequestItemId == newItem.MedicineRequestItemId);
+            if (existingItem == null) // New item
+            {
+                existingRequest.MedicineRequestItems.Add(newItem);
+            }
+            else // Update existing item
+            {
+                _context.Entry(existingItem).CurrentValues.SetValues(newItem);
+            }
+        }
+        
         await _context.SaveChangesAsync();
     }
 
@@ -55,13 +91,14 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return true;
     }
 
-    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStudentCodeAsync(string studentCode)
     {
         return await _context.MedicineRequests
             .Include(m => m.Student)
             .Include(m => m.Parent)
             .Include(m => m.Staff)
-            .Where(m => m.StudentId == studentId)
+            .Include(m => m.MedicineRequestItems)
+            .Where(m => m.StudentCode == studentCode)
             .ToListAsync();
     }
 
@@ -71,6 +108,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             .Include(m => m.Student)
             .Include(m => m.Parent)
             .Include(m => m.Staff)
+            .Include(m => m.MedicineRequestItems)
             .Where(m => m.ParentId == parentId)
             .ToListAsync();
     }
@@ -81,6 +119,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             .Include(m => m.Student)
             .Include(m => m.Parent)
             .Include(m => m.Staff)
+            .Include(m => m.MedicineRequestItems)
             .Where(m => m.StaffId == staffId)
             .ToListAsync();
     }
@@ -91,7 +130,23 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             .Include(m => m.Student)
             .Include(m => m.Parent)
             .Include(m => m.Staff)
+            .Include(m => m.MedicineRequestItems)
             .Where(m => m.Status == status)
             .ToListAsync();
+    }
+}
+
+public class MedicineRequestItemComparer : IEqualityComparer<MedicineRequestItem>
+{
+    public bool Equals(MedicineRequestItem? x, MedicineRequestItem? y)
+    {
+        if (ReferenceEquals(x, y)) return true;
+        if (ReferenceEquals(x, null) || ReferenceEquals(y, null)) return false;
+        return x.MedicineRequestItemId == y.MedicineRequestItemId;
+    }
+
+    public int GetHashCode(MedicineRequestItem obj)
+    {
+        return obj.MedicineRequestItemId.GetHashCode();
     }
 } 

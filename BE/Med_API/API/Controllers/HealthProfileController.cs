@@ -1,4 +1,4 @@
-using API.ViewModels;
+using API.DTOs;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Service;
@@ -20,45 +20,49 @@ public class HealthProfileController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<HealthProfileDTO>>> GetAllHealthProfiles()
+    public async Task<ActionResult<IEnumerable<HealthProfileDto.ViewModel>>> GetAllHealthProfiles()
     {
         var profiles = await _healthProfileService.GetAllHealthProfilesAsync();
-        return Ok(_mapper.Map<IEnumerable<HealthProfileDTO>>(profiles));
+        return Ok(_mapper.Map<IEnumerable<HealthProfileDto.ViewModel>>(profiles));
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<HealthProfileDTO>> GetHealthProfileById(int id)
+    public async Task<ActionResult<HealthProfileDto.ViewModel>> GetHealthProfileById(int id)
     {
         var profile = await _healthProfileService.GetHealthProfileByIdAsync(id);
         if (profile == null)
         {
             return NotFound();
         }
-        return Ok(_mapper.Map<HealthProfileDTO>(profile));
+        return Ok(_mapper.Map<HealthProfileDto.ViewModel>(profile));
     }
 
     [HttpGet("student/{studentCode}")]
-    public async Task<ActionResult<HealthProfileDTO>> GetHealthProfileByStudentCode(string studentCode)
+    public async Task<ActionResult<HealthProfileDto.ViewModel>> GetHealthProfileByStudentCode(string studentCode)
     {
         var profile = await _healthProfileService.GetHealthProfileByStudentCodeAsync(studentCode);
         if (profile == null)
         {
             return NotFound();
         }
-        return Ok(_mapper.Map<HealthProfileDTO>(profile));
+        return Ok(_mapper.Map<HealthProfileDto.ViewModel>(profile));
     }
 
     [HttpPost]
-    public async Task<ActionResult<HealthProfileDTO>> CreateHealthProfile(HealthProfileDTO profileDto)
+    public async Task<ActionResult<HealthProfileDto.ViewModel>> CreateHealthProfile(HealthProfileDto.Create createDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         try
         {
-            var healthProfile = _mapper.Map<HealthProfile>(profileDto);
+            var healthProfile = _mapper.Map<HealthProfile>(createDto);
             var createdProfile = await _healthProfileService.CreateHealthProfileAsync(healthProfile);
             return CreatedAtAction(
                 nameof(GetHealthProfileById),
                 new { id = createdProfile.HealthProfileId },
-                _mapper.Map<HealthProfileDTO>(createdProfile));
+                _mapper.Map<HealthProfileDto.ViewModel>(createdProfile));
         }
         catch (InvalidOperationException ex)
         {
@@ -67,16 +71,21 @@ public class HealthProfileController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateHealthProfile(int id, HealthProfileDTO profileDto)
+    public async Task<IActionResult> UpdateHealthProfile(int id, HealthProfileDto.Update updateDto)
     {
-        if (id != profileDto.HealthProfileId)
+        if (id != updateDto.HealthProfileId)
         {
             return BadRequest("ID mismatch");
+        }
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
         }
 
         try
         {
-            var healthProfile = _mapper.Map<HealthProfile>(profileDto);
+            var healthProfile = _mapper.Map<HealthProfile>(updateDto);
+            healthProfile.HealthProfileId = id; // Ensure the ID is set correctly for update
             var success = await _healthProfileService.UpdateHealthProfileAsync(healthProfile);
             if (!success)
             {

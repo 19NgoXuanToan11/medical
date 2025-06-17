@@ -77,7 +77,7 @@ public class ExcelImportController : ControllerBase
                 "LeftEye", "RightEye", "HasHearingIssues*", "HearingNotes", 
                 "LeftEar", "RightEar", "HasCompleteVaccinations*", "Vaccinations", 
                 "VaccinationDetails", "HasPreviousTreatment*", "TreatmentDetails", 
-                "Height", "Weight", "EmergencyContact", "OtherInfo"
+                "Height", "Weight", "EmergencyContact", "OtherInfo", "BloodPressure", "HeartRate"
             };
             AddHeaders(healthSheet, healthHeaders);
             AddHealthProfileExampleData(healthSheet);
@@ -125,7 +125,7 @@ public class ExcelImportController : ControllerBase
         worksheet.Cells[2, 2].Value = "John";
         worksheet.Cells[2, 3].Value = "Doe";
         worksheet.Cells[2, 4].Value = "2010-01-15";
-        worksheet.Cells[2, 5].Value = "M";
+        worksheet.Cells[2, 5].Value = "Nam";
         worksheet.Cells[2, 6].Value = "123 Main St";
         worksheet.Cells[2, 7].Value = "Class 5A";
         worksheet.Cells[2, 8].Value = "5";
@@ -172,24 +172,26 @@ public class ExcelImportController : ControllerBase
         worksheet.Cells[2, 21].Value = "45";
         worksheet.Cells[2, 22].Value = "Jane Doe (Mother) - 1234567890";
         worksheet.Cells[2, 23].Value = "No special notes";
+        worksheet.Cells[2, 24].Value = "120/80";
+        worksheet.Cells[2, 25].Value = "75";
     }
 
     private void AddStudentValidations(ExcelWorksheet worksheet)
     {
         // Gender validation
         var genderValidation = worksheet.DataValidations.AddListValidation("E2:E1000");
-        genderValidation.Formula.Values.Add("M");
-        genderValidation.Formula.Values.Add("F");
+        genderValidation.Formula.Values.Add("Nam");
+        genderValidation.Formula.Values.Add("Nữ");
         genderValidation.ShowErrorMessage = true;
-        genderValidation.Error = "Please select M or F for gender";
+        genderValidation.Error = "Please select Nam or Nữ for gender";
 
-        // Grade level validation (1-12)
+        // Grade level validation (1-5)
         var gradeValidation = worksheet.DataValidations.AddIntegerValidation("H2:H1000");
         gradeValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.between;
         gradeValidation.Formula.Value = 1;
-        gradeValidation.Formula2.Value = 12;
+        gradeValidation.Formula2.Value = 5;
         gradeValidation.ShowErrorMessage = true;
-        gradeValidation.Error = "Grade level must be between 1 and 12";
+        gradeValidation.Error = "Grade level must be between 1 and 5";
 
         // Password validation (minimum 6 characters)
         var passwordValidation = worksheet.DataValidations.AddTextLengthValidation("I2:I1000");
@@ -272,6 +274,20 @@ public class ExcelImportController : ControllerBase
         var boolValidation5 = worksheet.DataValidations.AddListValidation("R2:R1000");
         boolValidation5.Formula.Values.Add("TRUE");
         boolValidation5.Formula.Values.Add("FALSE");
+
+        // BloodPressure validation (regex for common formats)
+        var bloodPressureValidation = worksheet.DataValidations.AddCustomValidation("X2:X1000");
+        bloodPressureValidation.Formula.ExcelFormula = "=OR(ISBLANK(X2),REGEXMATCH(X2,\"^\\d{2,3}/\\d{2,3}$\"))";
+        bloodPressureValidation.ShowErrorMessage = true;
+        bloodPressureValidation.Error = "Blood pressure must be in format e.g., 120/80.";
+
+        // HeartRate validation (0-250)
+        var heartRateValidation = worksheet.DataValidations.AddIntegerValidation("Y2:Y1000");
+        heartRateValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.between;
+        heartRateValidation.Formula.Value = 0;
+        heartRateValidation.Formula2.Value = 250;
+        heartRateValidation.ShowErrorMessage = true;
+        heartRateValidation.Error = "Heart rate must be between 0 and 250 bpm.";
     }
 
     private void AddInstructions(ExcelWorksheet worksheet)
@@ -287,16 +303,18 @@ public class ExcelImportController : ControllerBase
         worksheet.Cells[row++, 1].Value = "3. Each student must have at least one parent and one health profile.";
         worksheet.Cells[row++, 1].Value = "4. StudentCode must be unique and will be used to link students with their parents and health profiles.";
         worksheet.Cells[row++, 1].Value = "5. Passwords for both students and parents must be at least 6 characters long.";
-        worksheet.Cells[row++, 1].Value = "6. Grade level must be between 1 and 12.";
-        worksheet.Cells[row++, 1].Value = "7. Gender must be either 'M' or 'F'.";
+        worksheet.Cells[row++, 1].Value = "6. Grade level must be between 1 and 5.";
+        worksheet.Cells[row++, 1].Value = "7. Gender must be either 'Nam' or 'Nữ'.";
         worksheet.Cells[row++, 1].Value = "8. Relationship must be one of: Mother, Father, Guardian, Other.";
         worksheet.Cells[row++, 1].Value = "9. Email addresses must be in a valid format.";
         worksheet.Cells[row++, 1].Value = "10. Phone numbers must be at least 10 digits.";
         worksheet.Cells[row++, 1].Value = "11. Blood type must be in the format: A+, A-, B+, B-, AB+, AB-, O+, O-";
         worksheet.Cells[row++, 1].Value = "12. Height should be in centimeters (0-300).";
         worksheet.Cells[row++, 1].Value = "13. Weight should be in kilograms (0-500).";
-        worksheet.Cells[row++, 1].Value = "14. Boolean fields (HasAllergies, HasChronicDiseases, etc.) must be TRUE or FALSE.";
-        worksheet.Cells[row++, 1].Value = "15. Date of birth must be in YYYY-MM-DD format.";
+        worksheet.Cells[row++, 1].Value = "14. Blood pressure should be in XXX/YYY format (e.g., 120/80).";
+        worksheet.Cells[row++, 1].Value = "15. Heart rate should be in beats per minute (0-250).";
+        worksheet.Cells[row++, 1].Value = "16. Boolean fields (HasAllergies, HasChronicDiseases, etc.) must be TRUE or FALSE.";
+        worksheet.Cells[row++, 1].Value = "17. Date of birth must be in YYYY-MM-DD format.";
 
         // Format the instructions
         var range = worksheet.Cells[1, 1, row - 1, 1];

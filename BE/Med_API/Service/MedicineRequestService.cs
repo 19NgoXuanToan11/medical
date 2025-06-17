@@ -36,6 +36,15 @@ public class MedicineRequestService : IMedicineRequestService
             medicineRequest.RequestDate = DateTime.UtcNow;
         }
 
+        // Ensure MedicineRequestItems are linked to this request if they are new
+        if (medicineRequest.MedicineRequestItems != null)
+        {
+            foreach (var item in medicineRequest.MedicineRequestItems)
+            {
+                item.MedicineRequestId = medicineRequest.RequestId; // This will be 0 for new requests, EF will handle
+            }
+        }
+
         return await _medicineRequestRepository.CreateMedicineRequestAsync(medicineRequest);
     }
 
@@ -47,43 +56,27 @@ public class MedicineRequestService : IMedicineRequestService
             return false;
         }
 
-        // Update only the fields that are provided
+        // Update only the fields that are provided for the main MedicineRequest
         if (!string.IsNullOrEmpty(medicineRequest.Status))
         {
             existing.Status = medicineRequest.Status;
         }
-        if (!string.IsNullOrEmpty(medicineRequest.MedicineName))
+        if (medicineRequest.StartDate != default)
         {
-            existing.MedicineName = medicineRequest.MedicineName;
+            existing.StartDate = medicineRequest.StartDate;
         }
-        if (!string.IsNullOrEmpty(medicineRequest.Dosage))
+        if (medicineRequest.EndDate != null && medicineRequest.EndDate != default)
         {
-            existing.Dosage = medicineRequest.Dosage;
+            existing.EndDate = medicineRequest.EndDate;
         }
-        if (!string.IsNullOrEmpty(medicineRequest.Frequency))
+        if (!string.IsNullOrEmpty(medicineRequest.ClassName))
         {
-            existing.Frequency = medicineRequest.Frequency;
+            existing.ClassName = medicineRequest.ClassName;
         }
-        if (!string.IsNullOrEmpty(medicineRequest.Instructions))
-        {
-            existing.Instructions = medicineRequest.Instructions;
-        }
-        if (!string.IsNullOrEmpty(medicineRequest.MealRelation))
-        {
-            existing.MealRelation = medicineRequest.MealRelation;
-        }
-        if (!string.IsNullOrEmpty(medicineRequest.TimeOfDay))
-        {
-            existing.TimeOfDay = medicineRequest.TimeOfDay;
-        }
-        if (!string.IsNullOrEmpty(medicineRequest.MedicationImagePath))
-        {
-            existing.MedicationImagePath = medicineRequest.MedicationImagePath;
-        }
-        if (!string.IsNullOrEmpty(medicineRequest.PrescriptionImagePath))
-        {
-            existing.PrescriptionImagePath = medicineRequest.PrescriptionImagePath;
-        }
+        
+        // Assign the updated collection of items to the existing request object
+        // The repository will handle the logic for adding, updating, and removing items.
+        existing.MedicineRequestItems = medicineRequest.MedicineRequestItems;
 
         await _medicineRequestRepository.UpdateMedicineRequestAsync(existing);
         return true;
@@ -94,9 +87,9 @@ public class MedicineRequestService : IMedicineRequestService
         return await _medicineRequestRepository.DeleteMedicineRequestAsync(id);
     }
 
-    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStudentCodeAsync(string studentCode)
     {
-        return await _medicineRequestRepository.GetMedicineRequestsByStudentIdAsync(studentId);
+        return await _medicineRequestRepository.GetMedicineRequestsByStudentCodeAsync(studentCode);
     }
 
     public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByParentIdAsync(int parentId)

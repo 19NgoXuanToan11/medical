@@ -1,5 +1,8 @@
 using DB;
 using Repo;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Service;
 
@@ -62,6 +65,12 @@ public class HealthProfileService : IHealthProfileService
         {
             throw new InvalidOperationException("Invalid weight value");
         }
+        
+        // New validation for HeartRate
+        if (healthProfile.HeartRate.HasValue && (healthProfile.HeartRate < 0 || healthProfile.HeartRate > 250))
+        {
+            throw new InvalidOperationException("Invalid heart rate value");
+        }
 
         // Set default values
         healthProfile.LastUpdated = DateTime.UtcNow;
@@ -104,6 +113,12 @@ public class HealthProfileService : IHealthProfileService
         if (healthProfile.Weight.HasValue && (healthProfile.Weight < 0 || healthProfile.Weight > 500))
         {
             throw new InvalidOperationException("Invalid weight value");
+        }
+
+        // New validation for HeartRate
+        if (healthProfile.HeartRate.HasValue && (healthProfile.HeartRate < 0 || healthProfile.HeartRate > 250))
+        {
+            throw new InvalidOperationException("Invalid heart rate value");
         }
 
         // Update LastUpdated
