@@ -7,6 +7,7 @@ import {
   FiSettings,
   FiLogOut,
   FiBell,
+  FiUserCheck,
 } from "react-icons/fi";
 
 const AdminLayout = () => {
@@ -21,8 +22,8 @@ const AdminLayout = () => {
       icon: <FiHome className="w-5 h-5" />,
     },
     {
-      path: "/admin/users",
-      name: "Người dùng",
+      path: "/admin/staff",
+      name: "Nhân viên",
       icon: <FiUsers className="w-5 h-5" />,
     },
     {

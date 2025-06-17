@@ -20,10 +20,7 @@ import Register from "./pages/auth/register/Register";
 
 // admin
 import AdminDashboard from "./pages/admin/dashboard/AdminDashboard";
-import UserManagement from "./pages/admin/manage/UserManagement";
-import UserRoles from "./pages/admin/UserManagement/UserRoles";
-import UserList from "./pages/admin/UserManagement/UserList";
-import UserPermissions from "./pages/admin/UserManagement/UserPermissions";
+import StaffManagement from "./pages/admin/staff/StaffManagement";
 import ReportsAnalytics from "./pages/admin/report/ReportsAnalytics";
 
 // manager
@@ -89,11 +86,7 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
           {/* User Management routes */}
-          <Route path="/admin/users" element={<UserManagement />}>
-            <Route index element={<UserList />} />
-            <Route path="roles" element={<UserRoles />} />
-            <Route path="permissions" element={<UserPermissions />} />
-          </Route>
+          <Route path="/admin/staff" element={<StaffManagement />} />
 
           {/* Admin Reports Routes */}
           <Route path="/admin/reports" element={<ReportsAnalytics />} />
