@@ -1,3 +1,9 @@
+# Visual Studio files
+.vs/
+*.vsidx
+*.db
+*.db-shm
+*.db-wal
 BE/Med_API/.vs/Med_API/CopilotIndices/17.12.38.29086/CodeChunks.db-shm
 BE/Med_API/.vs/Med_API/CopilotIndices/17.12.38.29086/CodeChunks.db-wal
 BE/Med_API/.vs/Med_API/CopilotIndices/17.12.38.29086/SemanticSymbols.db-shm
@@ -16,7 +22,6 @@ BE/Med_API/Service/obj/Debug/net8.0/Service.AssemblyInfo.cs
 BE/Med_API/Service/obj/Debug/net8.0/Service.AssemblyInfoInputs.cache
 BE/Med_API/Service/obj/Debug/net8.0/Service.csproj.AssemblyReference.cache
 FE/medical/package-lock.json
-BE/Med_API/.vs/Med_API/CopilotIndices/17.12.38.29086/SemanticSymbols.db-shm
 BE/Med_API/.vs/Med_API/DesignTimeBuild/.dtbcache.v2
 BE/Med_API/.vs/Med_API/FileContentIndex/715cd498-6362-4d10-b958-7ed424bde5a0.vsidx
 BE/Med_API/API/obj/Debug/net8.0/API.AssemblyInfo.cs
@@ -31,3 +36,4 @@ BE/Med_API/Service/obj/Debug/net8.0/Service.AssemblyInfo.cs
 BE/Med_API/Service/obj/Debug/net8.0/Service.AssemblyInfoInputs.cache
 BE/Med_API/Service/obj/Debug/net8.0/Service.csproj.AssemblyReference.cache
 FE/medical/package-lock.json
+
