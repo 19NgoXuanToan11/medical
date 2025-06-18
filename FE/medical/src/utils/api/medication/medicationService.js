@@ -145,10 +145,10 @@ export const medicationService = {
     }
   },
 
-  // Get medication requests by student ID
-  getMedicationRequestsByStudent: async (studentId) => {
+  // Get medication requests by student code
+  getMedicationRequestsByStudent: async (studentCode) => {
     try {
-      const response = await api.get(`/MedicineRequest/student/${studentId}`);
+      const response = await api.get(`/MedicineRequest/student/${studentCode}`);
       return {
         success: true,
         data: response.data,

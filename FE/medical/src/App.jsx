@@ -54,6 +54,7 @@ import StudentHealthDetail from "./pages/nurse/health-check/StudentHealthDetail"
 import ParentDashboard from "./pages/parent/dashboard/ParentDashboard";
 import StudentHealthProfile from "./pages/parent/health-profile/StudentHealthProfile";
 import HealthProfileList from "./pages/parent/health-profile/HealthProfileList";
+import ComprehensiveHealthTable from "./pages/parent/health-profile/ComprehensiveHealthTable";
 import MedicationRequest from "./pages/parent/medication/MedicationRequest";
 import MedicationHistory from "./pages/parent/medication/MedicationHistory";
 import MedicationDetail from "./pages/parent/medication/MedicationDetail";
@@ -65,6 +66,7 @@ import HealthEventsList from "./pages/parent/health-events/HealthEventsList";
 import ParentHealthEventDetail from "./pages/parent/health-events/HealthEventDetail";
 import HealthEventResultDetail from "./pages/parent/health-events/HealthEventResultDetail";
 import Notifications from "./pages/parent/notification/Notifications";
+import HealthProfileDetailView from "./pages/parent/health-profile/HealthProfileDetailView";
 
 // student
 import StudentDashboard from "./pages/student/dashboard/StudentDashboard";
@@ -124,8 +126,9 @@ function App() {
 
           {/* Parent Health Profile Routes */}
           <Route path="/parent/health-profile" element={<HealthProfileList />} />
+          <Route path="/parent/health-profile/comprehensive" element={<ComprehensiveHealthTable />} />
           <Route path="/parent/health-profile/new" element={<StudentHealthProfile />} />
-          <Route path="/parent/health-profile/:id" element={<StudentHealthProfile viewOnly={true} />} />
+          <Route path="/parent/health-profile/:id" element={<HealthProfileDetailView />} />
           <Route path="/parent/health-profile/edit/:id" element={<StudentHealthProfile />} />
 
           {/* Parent Medication Routes */}

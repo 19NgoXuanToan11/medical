@@ -11,20 +11,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
 
   // State for form fields
   const [formData, setFormData] = useState({
-    // Student Personal Information
-    studentName: "",
-    studentId: "",
-    dateOfBirth: "",
-    age: "",
-    class: "",
-
-    // Parent Information
-    parentInfo: {
-      fatherName: "",
-      fatherPhone: "",
-      motherName: "",
-      motherPhone: "",
-    },
+    // Student Code Only
+    studentCode: "",
 
     // Medical History
     medicalHistory: {
@@ -67,6 +55,12 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
       chronicDetails: "",
     },
 
+    // Vital Signs
+    vitalSigns: {
+      bloodPressure: "",
+      heartRate: "",
+    },
+
     // Other Health Information
     height: "",
     weight: "",
@@ -77,6 +71,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Load profile data if in edit or view mode
   useEffect(() => {
@@ -84,7 +79,69 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
       const fetchHealthProfile = async () => {
         try {
           const response = await axios.get(`${API_URL}/HealthProfile/${id}`);
-          setFormData(response.data);
+          const apiData = response.data;
+
+          // Transform API data to match form structure
+          const transformedData = {
+            studentCode: apiData.studentCode || "",
+
+            medicalHistory: {
+              hasPreviousTreatment:
+                apiData.hasPreviousTreatment === true ? "yes" : "no",
+              treatmentDetails: apiData.treatmentDetails || "",
+            },
+
+            vaccinationHistory: {
+              hasCompleteVaccinations:
+                apiData.hasCompleteVaccinations === true
+                  ? "yes"
+                  : apiData.hasCompleteVaccinations === false
+                  ? "no"
+                  : "partial",
+              vaccinationDetails: apiData.vaccinationDetails || "",
+              vaccinations: Array.isArray(apiData.vaccinations)
+                ? apiData.vaccinations
+                : [],
+            },
+
+            vision: {
+              hasVisionIssues: apiData.hasVisionIssues === true ? "yes" : "no",
+              leftEye: apiData.leftEye || "",
+              rightEye: apiData.rightEye || "",
+              visionNotes: apiData.visionNotes || "",
+            },
+
+            hearing: {
+              hasHearingIssues:
+                apiData.hasHearingIssues === true ? "yes" : "no",
+              leftEar: apiData.leftEar || "",
+              rightEar: apiData.rightEar || "",
+              hearingNotes: apiData.hearingNotes || "",
+            },
+
+            allergies: {
+              hasAllergies: apiData.hasAllergies === true ? "yes" : "no",
+              allergyDetails: apiData.allergyDetails || "",
+            },
+
+            chronicDiseases: {
+              hasChronic: apiData.hasChronicDiseases === true ? "yes" : "no",
+              chronicDetails: apiData.chronicDetails || "",
+            },
+
+            vitalSigns: {
+              bloodPressure: apiData.bloodPressure || "",
+              heartRate: apiData.heartRate || "",
+            },
+
+            height: apiData.height || "",
+            weight: apiData.weight || "",
+            bloodType: apiData.bloodType || "",
+            emergencyContact: apiData.emergencyContact || "",
+            otherInfo: apiData.otherInfo || "",
+          };
+
+          setFormData(transformedData);
         } catch (error) {
           console.error("Error fetching health profile:", error);
           setError("Không thể tải hồ sơ sức khỏe. Vui lòng thử lại sau.");
@@ -94,20 +151,6 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
       fetchHealthProfile();
     }
   }, [id]);
-
-  // Class options
-  const classOptions = [
-    { value: "1A", label: "1A" },
-    { value: "1B", label: "1B" },
-    { value: "2A", label: "2A" },
-    { value: "2B", label: "2B" },
-    { value: "3A", label: "3A" },
-    { value: "3B", label: "3B" },
-    { value: "4A", label: "4A" },
-    { value: "4B", label: "4B" },
-    { value: "5A", label: "5A" },
-    { value: "5B", label: "5B" },
-  ];
 
   // Blood type options
   const bloodTypeOptions = [
@@ -140,9 +183,84 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
     { id: "covid19", name: "COVID-19" },
   ];
 
+  // Validation functions
+  const validateField = (name, value) => {
+    const errors = {};
+
+    switch (name) {
+      case "studentCode":
+        if (value && !/^ST\d+$/.test(value)) {
+          errors[name] =
+            "Mã học sinh phải có định dạng ST + số (ví dụ: ST001, ST123)";
+        }
+        break;
+
+      case "height":
+        if (
+          value &&
+          (!/^\d+(\.\d+)?$/.test(value) ||
+            parseFloat(value) <= 0 ||
+            parseFloat(value) > 300)
+        ) {
+          errors[name] = "Chiều cao phải là số dương và không quá 300cm";
+        }
+        break;
+
+      case "weight":
+        if (
+          value &&
+          (!/^\d+(\.\d+)?$/.test(value) ||
+            parseFloat(value) <= 0 ||
+            parseFloat(value) > 200)
+        ) {
+          errors[name] = "Cân nặng phải là số dương và không quá 200kg";
+        }
+        break;
+
+      case "vitalSigns.bloodPressure":
+        if (value && !/^\d{2,3}\/\d{2,3}$/.test(value)) {
+          errors["vitalSigns.bloodPressure"] =
+            "Huyết áp phải có định dạng số/số (ví dụ: 120/80)";
+        }
+        break;
+
+      case "vitalSigns.heartRate":
+        if (
+          value &&
+          (!/^\d+$/.test(value) ||
+            parseInt(value) <= 0 ||
+            parseInt(value) > 300)
+        ) {
+          errors["vitalSigns.heartRate"] =
+            "Nhịp tim phải là số nguyên dương và không quá 300";
+        }
+        break;
+
+      case "emergencyContact":
+        if (value && !/^(\+84|0)[3-9]\d{8}$/.test(value.replace(/\s/g, ""))) {
+          errors[name] =
+            "Số điện thoại không hợp lệ (ví dụ: 0912345678 hoặc +84912345678)";
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return errors;
+  };
+
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Validate the field
+    const fieldErrors = validateField(name, value);
+    setValidationErrors((prev) => ({
+      ...prev,
+      ...fieldErrors,
+      [name]: fieldErrors[name] || null,
+    }));
 
     // Handle nested objects in state
     if (name.includes(".")) {
@@ -187,22 +305,29 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
     }
   };
 
-  // Calculate age based on date of birth
-  const calculateAge = (e) => {
-    const dob = new Date(e.target.value);
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
+  // Validate entire form
+  const validateForm = () => {
+    const errors = {};
 
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-
-    setFormData({
-      ...formData,
-      dateOfBirth: e.target.value,
-      age: age.toString(),
+    // Validate all fields
+    Object.keys(formData).forEach((key) => {
+      if (typeof formData[key] === "object" && formData[key] !== null) {
+        Object.keys(formData[key]).forEach((nestedKey) => {
+          const fieldName = `${key}.${nestedKey}`;
+          const fieldErrors = validateField(
+            fieldName,
+            formData[key][nestedKey]
+          );
+          Object.assign(errors, fieldErrors);
+        });
+      } else {
+        const fieldErrors = validateField(key, formData[key]);
+        Object.assign(errors, fieldErrors);
+      }
     });
+
+    setValidationErrors(errors);
+    return Object.keys(errors).filter((key) => errors[key]).length === 0;
   };
 
   // Handle form submission
@@ -211,13 +336,62 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
     setIsSubmitting(true);
     setError(null);
 
+    // Validate form before submission
+    if (!validateForm()) {
+      setError("Vui lòng kiểm tra và sửa các lỗi trong form trước khi gửi.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Transform form data to API format
+    const apiData = {
+      studentCode: formData.studentCode,
+
+      // Convert string values back to booleans for API
+      hasPreviousTreatment:
+        formData.medicalHistory.hasPreviousTreatment === "yes",
+      treatmentDetails: formData.medicalHistory.treatmentDetails,
+
+      hasCompleteVaccinations:
+        formData.vaccinationHistory.hasCompleteVaccinations === "yes",
+      vaccinationDetails: formData.vaccinationHistory.vaccinationDetails,
+      vaccinations: formData.vaccinationHistory.vaccinations,
+
+      hasVisionIssues: formData.vision.hasVisionIssues === "yes",
+      leftEye: formData.vision.leftEye,
+      rightEye: formData.vision.rightEye,
+      visionNotes: formData.vision.visionNotes,
+
+      hasHearingIssues: formData.hearing.hasHearingIssues === "yes",
+      leftEar: formData.hearing.leftEar,
+      rightEar: formData.hearing.rightEar,
+      hearingNotes: formData.hearing.hearingNotes,
+
+      hasAllergies: formData.allergies.hasAllergies === "yes",
+      allergyDetails: formData.allergies.allergyDetails,
+
+      hasChronicDiseases: formData.chronicDiseases.hasChronic === "yes",
+      chronicDetails: formData.chronicDiseases.chronicDetails,
+
+      bloodPressure: formData.vitalSigns.bloodPressure,
+      heartRate: formData.vitalSigns.heartRate
+        ? parseInt(formData.vitalSigns.heartRate)
+        : null,
+
+      height: formData.height ? parseInt(formData.height) : null,
+      weight: formData.weight ? parseInt(formData.weight) : null,
+      bloodType: formData.bloodType,
+      emergencyContact: formData.emergencyContact,
+      otherInfo: formData.otherInfo,
+    };
+
     try {
       if (id && id !== "new") {
         // Update existing profile
-        await axios.put(`${API_URL}/HealthProfile/${id}`, formData);
+        await axios.put(`${API_URL}/HealthProfile/${id}`, apiData);
       } else {
         // Create new profile
-        await axios.post(`${API_URL}/HealthProfile`, formData);
+        await axios.post(`${API_URL}/HealthProfile`, apiData);
       }
 
       setSubmitSuccess(true);
@@ -319,7 +493,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
           )}
 
           <div className="space-y-8">
-            {/* Section 1: Student Basic Information */}
+            {/* Section 1: Student Code Only */}
             <div>
               <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
                 <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
@@ -338,146 +512,21 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                     />
                   </svg>
                 </span>
-                Thông tin cơ bản học sinh
+                Thông tin học sinh
               </h2>
 
               <div className="rounded-lg p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
-                    id="studentName"
-                    name="studentName"
-                    label="Họ và tên học sinh"
-                    value={formData.studentName}
+                    id="studentCode"
+                    name="studentCode"
+                    label="Mã học sinh mà bạn muốn cập nhật"
+                    value={formData.studentCode}
                     onChange={handleChange}
                     required
-                    placeholder="Nhập họ và tên học sinh"
+                    placeholder="Nhập mã học sinh (ví dụ: ST001)"
                     disabled={viewOnly}
-                  />
-
-                  <FormInput
-                    id="studentId"
-                    name="studentId"
-                    label="Mã học sinh"
-                    value={formData.studentId}
-                    onChange={handleChange}
-                    required
-                    placeholder="Nhập mã học sinh"
-                    disabled={viewOnly}
-                  />
-
-                  <FormInput
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    label="Ngày tháng năm sinh"
-                    type="date"
-                    value={formData.dateOfBirth}
-                    onChange={calculateAge}
-                    required
-                    disabled={viewOnly}
-                  />
-
-                  <FormInput
-                    id="age"
-                    name="age"
-                    label="Tuổi"
-                    value={formData.age}
-                    onChange={handleChange}
-                    placeholder="Nhập số"
-                    disabled={viewOnly}
-                  />
-
-                  <FormInput
-                    id="class"
-                    name="class"
-                    label="Lớp"
-                    type="select"
-                    value={formData.class}
-                    onChange={handleChange}
-                    required
-                    placeholder="Chọn lớp"
-                    options={classOptions}
-                    disabled={viewOnly}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Section 2: Parent Information */}
-            <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                </span>
-                Thông tin phụ huynh
-              </h2>
-
-              <div className="rounded-lg p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormInput
-                    id="fatherName"
-                    name="parentInfo.fatherName"
-                    label="Họ tên bố"
-                    value={formData.parentInfo.fatherName}
-                    onChange={handleChange}
-                    required
-                    placeholder="Nhập họ tên bố"
-                    disabled={viewOnly}
-                  />
-
-                  <FormInput
-                    id="fatherPhone"
-                    name="parentInfo.fatherPhone"
-                    label="Số điện thoại bố"
-                    value={formData.parentInfo.fatherPhone}
-                    onChange={handleChange}
-                    required
-                    placeholder="Nhập số điện thoại bố"
-                    disabled={viewOnly}
-                  />
-
-                  <FormInput
-                    id="motherName"
-                    name="parentInfo.motherName"
-                    label="Họ tên mẹ"
-                    value={formData.parentInfo.motherName}
-                    onChange={handleChange}
-                    required
-                    placeholder="Nhập họ tên mẹ"
-                    disabled={viewOnly}
-                  />
-
-                  <FormInput
-                    id="motherPhone"
-                    name="parentInfo.motherPhone"
-                    label="Số điện thoại mẹ"
-                    value={formData.parentInfo.motherPhone}
-                    onChange={handleChange}
-                    required
-                    placeholder="Nhập số điện thoại mẹ"
-                    disabled={viewOnly}
-                  />
-
-                  <FormInput
-                    id="emergencyContact"
-                    name="emergencyContact"
-                    label="Liên hệ khẩn cấp (nếu khác bố mẹ)"
-                    value={formData.emergencyContact}
-                    onChange={handleChange}
-                    placeholder="Nhập tên và số điện thoại liên hệ khẩn cấp"
-                    disabled={viewOnly}
+                    error={validationErrors.studentCode}
                   />
                 </div>
               </div>
@@ -1020,7 +1069,56 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
               </div>
             </div>
 
-            {/* Section 8: Other Health Information */}
+            {/* Section 8: Vital Signs */}
+            <div>
+              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
+                  </svg>
+                </span>
+                Chỉ số sinh tồn
+              </h2>
+
+              <div className="rounded-lg p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormInput
+                    id="bloodPressure"
+                    name="vitalSigns.bloodPressure"
+                    label="Huyết áp (mmHg)"
+                    value={formData.vitalSigns.bloodPressure}
+                    onChange={handleChange}
+                    placeholder="Ví dụ: 120/80"
+                    disabled={viewOnly}
+                    error={validationErrors["vitalSigns.bloodPressure"]}
+                  />
+
+                  <FormInput
+                    id="heartRate"
+                    name="vitalSigns.heartRate"
+                    label="Nhịp tim (lần/phút)"
+                    value={formData.vitalSigns.heartRate}
+                    onChange={handleChange}
+                    placeholder="Ví dụ: 72"
+                    disabled={viewOnly}
+                    error={validationErrors["vitalSigns.heartRate"]}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 9: Other Health Information */}
             <div>
               <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
                 <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
@@ -1050,7 +1148,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                     label="Chiều cao (cm)"
                     value={formData.height}
                     onChange={handleChange}
-                    placeholder="Nhập chiều cao bằng cm"
+                    placeholder="Nhập chiều cao bằng cm (ví dụ: 165)"
+                    disabled={viewOnly}
+                    error={validationErrors.height}
                   />
 
                   <FormInput
@@ -1059,7 +1159,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                     label="Cân nặng (kg)"
                     value={formData.weight}
                     onChange={handleChange}
-                    placeholder="Nhập cân nặng bằng kg"
+                    placeholder="Nhập cân nặng bằng kg (ví dụ: 50.5)"
+                    disabled={viewOnly}
+                    error={validationErrors.weight}
                   />
 
                   <FormInput
@@ -1071,6 +1173,21 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                     onChange={handleChange}
                     placeholder="Chọn nhóm máu nếu biết"
                     options={bloodTypeOptions}
+                    disabled={viewOnly}
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <FormInput
+                    id="emergencyContact"
+                    name="emergencyContact"
+                    label="Số điện thoại liên hệ khẩn cấp"
+                    value={formData.emergencyContact}
+                    onChange={handleChange}
+                    placeholder="Nhập số điện thoại người thân (ví dụ: 0912345678)"
+                    disabled={viewOnly}
+                    required
+                    error={validationErrors.emergencyContact}
                   />
                 </div>
 
@@ -1083,6 +1200,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                     value={formData.otherInfo}
                     onChange={handleChange}
                     placeholder="Ghi chú thêm về sức khỏe của học sinh mà nhà trường cần biết (tình trạng dinh dưỡng, các vấn đề về giấc ngủ, các thói quen đặc biệt, các thông tin sức khỏe khác...)"
+                    disabled={viewOnly}
                   />
                 </div>
               </div>
