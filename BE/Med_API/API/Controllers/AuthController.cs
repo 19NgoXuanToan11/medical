@@ -93,10 +93,8 @@ public class AuthController : ControllerBase
                 break;
 
             case "parent":
-                // Chuyển đổi username thành ID nếu username là số
-                if (int.TryParse(request.Username, out int parentId))
-                {
-                    var parent = await _parentService.GetParentByIdAsync(parentId);
+                
+                    var parent = await _parentService.GetParentByPhoneAsync(request.Username);
                     if (parent != null && parent.Password == HashPassword(request.Password))
                     {
                         return Ok(new
@@ -110,7 +108,7 @@ public class AuthController : ControllerBase
                             LastName = parent.LastName
                         });
                     }
-                }
+                
                 break;
 
             default:

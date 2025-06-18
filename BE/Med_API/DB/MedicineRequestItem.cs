@@ -19,10 +19,6 @@ public partial class MedicineRequestItem
 
     public string? Instructions { get; set; }
 
-    public string? MedicationImagePath { get; set; }
-
-    public string? PrescriptionImagePath { get; set; }
-
     // Navigation property
     public virtual MedicineRequest MedicineRequest { get; set; } = null!;
 } 

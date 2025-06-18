@@ -77,6 +77,24 @@ public class MedicineRequestController : ControllerBase
         return Ok(viewModels);
     }
 
+    // GET: api/MedicineRequest/available-nurses
+    [HttpGet("available-nurses")]
+    public async Task<ActionResult<IEnumerable<StaffDto.ViewModel>>> GetAvailableNurses()
+    {
+        var nurses = await _medicineRequestService.GetAvailableNursesAsync();
+        var viewModels = _mapper.Map<IEnumerable<StaffDto.ViewModel>>(nurses);
+        return Ok(viewModels);
+    }
+
+    // GET: api/MedicineRequest/pending
+    [HttpGet("pending")]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetPendingRequests()
+    {
+        var requests = await _medicineRequestService.GetPendingRequestsAsync();
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
+        return Ok(viewModels);
+    }
+
     // POST: api/MedicineRequest
     [HttpPost]
     public async Task<ActionResult<MedicineRequestDto.ViewModel>> CreateMedicineRequest(MedicineRequestDto.Create createDto)
@@ -89,7 +107,16 @@ public class MedicineRequestController : ControllerBase
         {
             return BadRequest("Medicine request must contain at least one medicine item.");
         }
+
+        // Map the DTO to entity
         var medicineRequest = _mapper.Map<MedicineRequest>(createDto);
+        
+        // Set default status to Pending
+        medicineRequest.Status = "Pending";
+        
+        // Set request date to current time
+        medicineRequest.RequestDate = DateTime.UtcNow;
+
         var created = await _medicineRequestService.CreateMedicineRequestAsync(medicineRequest);
         if (created == null)
         {
@@ -133,6 +160,30 @@ public class MedicineRequestController : ControllerBase
         if (!success)
         {
             return NotFound();
+        }
+        return NoContent();
+    }
+
+    // POST: api/MedicineRequest/{id}/assign-nurse/{staffId}
+    [HttpPost("{id}/assign-nurse/{staffId}")]
+    public async Task<IActionResult> AssignNurseToRequest(int id, int staffId)
+    {
+        var success = await _medicineRequestService.AssignNurseToRequestAsync(id, staffId);
+        if (!success)
+        {
+            return BadRequest("Failed to assign nurse. The nurse might have reached the maximum limit of 5 pending requests or the request is not in pending status.");
+        }
+        return NoContent();
+    }
+
+    // POST: api/MedicineRequest/{id}/complete/{staffId}
+    [HttpPost("{id}/complete/{staffId}")]
+    public async Task<IActionResult> CompleteRequest(int id, int staffId)
+    {
+        var success = await _medicineRequestService.CompleteRequestAsync(id, staffId);
+        if (!success)
+        {
+            return BadRequest("Failed to complete request. The request might not exist or you might not be assigned to it.");
         }
         return NoContent();
     }

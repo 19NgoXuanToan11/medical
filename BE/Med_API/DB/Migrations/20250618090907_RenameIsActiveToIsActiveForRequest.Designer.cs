@@ -4,6 +4,7 @@ using DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(MedicalContext))]
-    partial class MedicalContextModelSnapshot : ModelSnapshot
+    [Migration("20250618090907_RenameIsActiveToIsActiveForRequest")]
+    partial class RenameIsActiveToIsActiveForRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -922,6 +925,10 @@ namespace DB.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("MedicationImagePath")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<string>("MedicineName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -930,6 +937,10 @@ namespace DB.Migrations
                     b.Property<int>("MedicineRequestId")
                         .HasColumnType("int")
                         .HasColumnName("MedicineRequestID");
+
+                    b.Property<string>("PrescriptionImagePath")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("TimeOfDay")
                         .HasMaxLength(100)

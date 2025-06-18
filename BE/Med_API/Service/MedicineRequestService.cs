@@ -36,6 +36,9 @@ public class MedicineRequestService : IMedicineRequestService
             medicineRequest.RequestDate = DateTime.UtcNow;
         }
 
+        // Ensure StaffId is null for new requests
+        medicineRequest.StaffId = null;
+
         // Ensure MedicineRequestItems are linked to this request if they are new
         if (medicineRequest.MedicineRequestItems != null)
         {
@@ -105,5 +108,25 @@ public class MedicineRequestService : IMedicineRequestService
     public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStatusAsync(string status)
     {
         return await _medicineRequestRepository.GetMedicineRequestsByStatusAsync(status);
+    }
+
+    public async Task<IEnumerable<Staff>> GetAvailableNursesAsync()
+    {
+        return await _medicineRequestRepository.GetAvailableNursesAsync();
+    }
+
+    public async Task<IEnumerable<MedicineRequest>> GetPendingRequestsAsync()
+    {
+        return await _medicineRequestRepository.GetPendingRequestsAsync();
+    }
+
+    public async Task<bool> AssignNurseToRequestAsync(int requestId, int staffId)
+    {
+        return await _medicineRequestRepository.AssignNurseToRequestAsync(requestId, staffId);
+    }
+
+    public async Task<bool> CompleteRequestAsync(int requestId, int staffId)
+    {
+        return await _medicineRequestRepository.CompleteRequestAsync(requestId, staffId);
     }
 } 

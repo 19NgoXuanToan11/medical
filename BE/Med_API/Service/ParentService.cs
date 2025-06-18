@@ -104,4 +104,10 @@ public class ParentService : IParentService
     {
         return await _parentRepository.DeleteParentAsync(id);
     }
+
+   public async Task<Parent?> GetParentByPhoneAsync(string phone)
+     {
+	return await _parentRepository.GetParentByPhoneAsync(phone);
+     }
+
 } 

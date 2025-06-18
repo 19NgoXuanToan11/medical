@@ -498,8 +498,6 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.Frequency).HasMaxLength(100).IsRequired();
             entity.Property(e => e.TimeOfDay).HasMaxLength(100);
             entity.Property(e => e.Instructions).HasMaxLength(500);
-            entity.Property(e => e.MedicationImagePath).HasMaxLength(255);
-            entity.Property(e => e.PrescriptionImagePath).HasMaxLength(255);
 
             entity.HasOne(d => d.MedicineRequest)
                 .WithMany(p => p.MedicineRequestItems)
@@ -629,6 +627,8 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.IsActiveForRequest)
+                .HasDefaultValue(true);
         });
 
         modelBuilder.Entity<Student>(entity =>
