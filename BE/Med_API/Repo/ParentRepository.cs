@@ -103,7 +103,7 @@ public class ParentRepository : IParentRepository
     {
         return await _context.Parents
             .Include(p => p.StudentParents)
-                .ThenInclude(sp => sp.Student)
+            // .ThenInclude(sp => sp.Student)
             .Include(p => p.MedicineRequests)
             .Include(p => p.InjectionForms)
             .FirstOrDefaultAsync(p => p.Phone == phone);

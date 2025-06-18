@@ -78,7 +78,7 @@ public class AuthController : ControllerBase
 
             case "student":
                 var student = await _studentService.GetStudentByCodeAsync(request.Username);
-                if (student != null && student.StudentCode == request.Username && student.Password == HashPassword(request.Password))
+                if (student != null && student.Password == HashPassword(request.Password))
                 {
                     return Ok(new
                     {
@@ -93,23 +93,19 @@ public class AuthController : ControllerBase
                 break;
 
             case "parent":
-                // Chuyển đổi username thành ID nếu username là số
-                if (int.TryParse(request.Username, out int parentId))
+                var parent = await _parentService.GetParentByPhoneAsync(request.Username);
+                if (parent != null && parent.Password == HashPassword(request.Password))
                 {
-                    var parent = await _parentService.GetParentByIdAsync(parentId);
-                    if (parent != null && parent.Password == HashPassword(request.Password))
+                    return Ok(new
                     {
-                        return Ok(new
-                        {
-                            Token = GenerateJwtToken(parent.ParentId, parent.Phone, parent.Email ?? "", "Parent"),
-                            Role = "Parent",
-                            Id = parent.ParentId,
-                            Username = parent.Phone,
-                            Email = parent.Email,
-                            FirstName = parent.FirstName,
-                            LastName = parent.LastName
-                        });
-                    }
+                        Token = GenerateJwtToken(parent.ParentId, parent.Phone, parent.Email ?? "", "Parent"),
+                        Role = "Parent",
+                        Id = parent.ParentId,
+                        Username = parent.Phone,
+                        Email = parent.Email,
+                        FirstName = parent.FirstName,
+                        LastName = parent.LastName
+                    });
                 }
                 break;
 

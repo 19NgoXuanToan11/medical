@@ -9,4 +9,5 @@ public interface IParentService
     Task<Parent?> CreateParentAsync(Parent parent);
     Task<bool> UpdateParentAsync(Parent parent);
     Task<bool> DeleteParentAsync(int id);
+    Task<Parent?> GetParentByPhoneAsync(string phone);
 } 
