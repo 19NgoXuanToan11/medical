@@ -12,7 +12,9 @@ public static class MedicineRequestDto
         public string StudentCode { get; set; } = null!;
         public string? ClassName { get; set; }
         public int ParentId { get; set; }
-        public int StaffId { get; set; }
+        public int? StaffId { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly? EndDate { get; set; }
         public StudentDto.ViewModel? Student { get; set; }
         public ParentDto.ViewModel? Parent { get; set; }
         public StaffDto.ViewModel? Staff { get; set; }
@@ -29,9 +31,6 @@ public static class MedicineRequestDto
 
         [Required]
         public int ParentId { get; set; }
-
-        [Required]
-        public int StaffId { get; set; }
 
         public string? Status { get; set; }
 
@@ -67,8 +66,6 @@ public static class MedicineRequestItemDto
         public string Frequency { get; set; } = null!;
         public string? TimeOfDay { get; set; }
         public string? Instructions { get; set; }
-        public string? MedicationImagePath { get; set; }
-        public string? PrescriptionImagePath { get; set; }
     }
 
     public class Create
@@ -90,12 +87,6 @@ public static class MedicineRequestItemDto
 
         [StringLength(500)]
         public string? Instructions { get; set; }
-
-        [StringLength(255)]
-        public string? MedicationImagePath { get; set; }
-
-        [StringLength(255)]
-        public string? PrescriptionImagePath { get; set; }
     }
 
     public class Update
@@ -116,11 +107,5 @@ public static class MedicineRequestItemDto
 
         [StringLength(500)]
         public string? Instructions { get; set; }
-
-        [StringLength(255)]
-        public string? MedicationImagePath { get; set; }
-
-        [StringLength(255)]
-        public string? PrescriptionImagePath { get; set; }
     }
 } 

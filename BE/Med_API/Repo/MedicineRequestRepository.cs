@@ -134,6 +134,64 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             .Where(m => m.Status == status)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Staff>> GetAvailableNursesAsync()
+    {
+        return await _context.Staff
+            .Include(s => s.Role)
+            .Where(s => s.Role.RoleName == "Nurse" && s.IsActiveForRequest)
+            .ToListAsync();
+    }
+
+    public async Task<int> GetPendingRequestCountForNurseAsync(int staffId)
+    {
+        return await _context.MedicineRequests
+            .CountAsync(m => m.StaffId == staffId && m.Status == "Pending");
+    }
+
+    public async Task<IEnumerable<MedicineRequest>> GetPendingRequestsAsync()
+    {
+        return await _context.MedicineRequests
+            .Include(m => m.Student)
+            .Include(m => m.Parent)
+            .Include(m => m.Staff)
+            .Include(m => m.MedicineRequestItems)
+            .Where(m => m.Status == "Pending")
+            .ToListAsync();
+    }
+
+    public async Task<bool> AssignNurseToRequestAsync(int requestId, int staffId)
+    {
+        var request = await _context.MedicineRequests.FindAsync(requestId);
+        if (request == null || request.Status != "Pending")
+        {
+            return false;
+        }
+
+        var pendingCount = await GetPendingRequestCountForNurseAsync(staffId);
+        if (pendingCount >= 5)
+        {
+            return false;
+        }
+
+        request.StaffId = staffId;
+        request.Status = "Assigned";
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> CompleteRequestAsync(int requestId, int staffId)
+    {
+        var request = await _context.MedicineRequests.FindAsync(requestId);
+        if (request == null || request.StaffId != staffId)
+        {
+            return false;
+        }
+
+        request.Status = "Completed";
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }
 
 public class MedicineRequestItemComparer : IEqualityComparer<MedicineRequestItem>

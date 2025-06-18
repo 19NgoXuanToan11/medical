@@ -21,6 +21,8 @@ public partial class Staff
 
     public string PasswordHash { get; set; } = null!;
 
+    public bool IsActiveForRequest { get; set; } = true;
+
     // Navigation properties
     public virtual Role? Role { get; set; }
     public virtual ICollection<HealthEvent> HealthEvents { get; set; } = new List<HealthEvent>();
