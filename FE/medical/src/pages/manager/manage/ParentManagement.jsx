@@ -573,10 +573,10 @@ const ParentManagement = () => {
                   )}
                 </div>
               </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14 w-32 min-w-[128px]">
                 Liên hệ
               </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14 w-32 min-w-[128px]">
                 Trạng thái
               </th>
               <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
@@ -644,10 +644,10 @@ const ParentManagement = () => {
                   <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
                     {parent.address}
                   </td>
-                  <td className="py-4 px-6 text-center align-middle">
+                  <td className="py-4 px-6 text-center align-middle w-32 min-w-[128px]">
                     <div className="flex flex-col items-center space-y-1">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                           parent.isEmergencyContact
                             ? "bg-red-100 text-red-800"
                             : "bg-neutral-100 text-neutral-800"
@@ -656,7 +656,7 @@ const ParentManagement = () => {
                         {parent.isEmergencyContact ? "Khẩn cấp" : "Thường"}
                       </span>
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                           parent.isMainContact
                             ? "bg-blue-100 text-blue-800"
                             : "bg-neutral-100 text-neutral-800"
@@ -666,9 +666,9 @@ const ParentManagement = () => {
                       </span>
                     </div>
                   </td>
-                  <td className="py-4 px-6 text-center align-middle">
+                  <td className="py-4 px-6 text-center align-middle w-32 min-w-[128px]">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                         parent.isActive
                           ? "bg-green-100 text-green-800"
                           : "bg-neutral-100 text-neutral-800"
