@@ -107,7 +107,7 @@ const StudentManagement = () => {
         gradeLevel: parseInt(studentForm.gradeLevel) || 0,
         address: studentForm.address,
         parentId: parseInt(studentForm.parentId),
-        isActive: true  
+        isActive: true,
       };
 
       const response = await axios.post(`${API_URL}/Student`, data);
@@ -234,7 +234,7 @@ const StudentManagement = () => {
   const sortedStudents = [...filteredStudents].sort((a, b) => {
     let comparison = 0;
 
-    switch (sortBy) { 
+    switch (sortBy) {
       case "name":
         const fullNameA = `${a.lastName || ""} ${a.firstName || ""}`.trim();
         const fullNameB = `${b.lastName || ""} ${b.firstName || ""}`.trim();
@@ -516,7 +516,7 @@ const StudentManagement = () => {
               <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
                 Phụ huynh
               </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+                <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14 w-32 min-w-[128px]">
                 Trạng thái
               </th>
               <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
@@ -587,9 +587,9 @@ const StudentManagement = () => {
                   <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
                     {getParentName(student.parentId)}
                   </td>
-                  <td className="py-4 px-6 text-center align-middle">
+                  <td className="py-4 px-6 text-center align-middle w-32 min-w-[128px]">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                         student.isActive
                           ? "bg-green-100 text-green-800"
                           : "bg-neutral-100 text-neutral-800"
@@ -848,7 +848,9 @@ const StudentManagement = () => {
                     <option value="">-- Chọn phụ huynh --</option>
                     {parents.map((parent) => (
                       <option key={parent.parentId} value={parent.parentId}>
-                        {parent.fullName || `${parent.firstName} ${parent.lastName}`} {parent.email ? `(${parent.email})` : ''}
+                        {parent.fullName ||
+                          `${parent.firstName} ${parent.lastName}`}{" "}
+                        {parent.email ? `(${parent.email})` : ""}
                       </option>
                     ))}
                   </select>
