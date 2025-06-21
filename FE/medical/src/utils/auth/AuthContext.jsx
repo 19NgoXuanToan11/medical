@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
+import authService from "./authService";
 
 // Tạo context cho xác thực
 const AuthContext = createContext(null);
@@ -7,7 +8,8 @@ const AuthContext = createContext(null);
 export const ROLES = {
   ADMIN: "admin",
   STAFF: "staff",
-  TEACHER: "teacher",
+  MANAGER: "manager",
+  NURSE: "nurse",
   PARENT: "parent",
   STUDENT: "student",
 };
@@ -19,22 +21,42 @@ export const AuthProvider = ({ children }) => {
   // Kiểm tra xem đã có thông tin đăng nhập được lưu trong localStorage chưa
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    const token = authService.getToken();
+
+    if (storedUser && token) {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
   }, []);
 
-  // Hàm đăng nhập
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+  // Hàm đăng nhập với API
+  const login = async (loginData) => {
+    try {
+      const response = await authService.login(loginData);
+
+      const userData = {
+        id: response.id || response.Id, // API có thể trả về cả id hoặc Id
+        username: response.username || response.Username,
+        email: response.email || response.Email,
+        firstName: response.firstName || response.FirstName,
+        lastName: response.lastName || response.LastName,
+        role: (response.role || response.Role)?.toLowerCase() || "parent",
+        token: response.token || response.Token,
+      };
+
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      return userData;
+    } catch (error) {
+      throw error;
+    }
   };
 
   // Hàm đăng xuất
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    authService.logout();
   };
 
   // Kiểm tra người dùng có vai trò cụ thể không
@@ -45,57 +67,7 @@ export const AuthProvider = ({ children }) => {
 
   // Kiểm tra đã đăng nhập chưa
   const isAuthenticated = () => {
-    return !!user;
-  };
-
-  // Mock function để demo đăng nhập với các vai trò khác nhau
-  const loginWithRole = (role) => {
-    const mockUsers = {
-      [ROLES.ADMIN]: {
-        id: 1,
-        name: "Admin User",
-        email: "admin@medschool.edu.vn",
-        role: ROLES.ADMIN,
-        permissions: ["manage_users", "view_reports", "system_config"],
-      },
-      [ROLES.STAFF]: {
-        id: 2,
-        name: "Y tá trường",
-        email: "nurse@medschool.edu.vn",
-        role: ROLES.STAFF,
-        permissions: [
-          "manage_medications",
-          "manage_health_records",
-          "manage_screenings",
-        ],
-      },
-      [ROLES.TEACHER]: {
-        id: 3,
-        name: "Giáo viên Nguyễn Thị B",
-        email: "teacher@medschool.edu.vn",
-        role: ROLES.TEACHER,
-        permissions: ["submit_health_reports", "view_student_health_info"],
-      },
-      [ROLES.PARENT]: {
-        id: 4,
-        name: "Phụ huynh Trần Văn C",
-        email: "parent@medschool.edu.vn",
-        role: ROLES.PARENT,
-        permissions: ["view_child_health", "request_medication"],
-        children: [{ id: 101, name: "Trần Văn An", class: "3A" }],
-      },
-      [ROLES.STUDENT]: {
-        id: 101,
-        name: "Trần Văn An",
-        email: "student@medschool.edu.vn",
-        role: ROLES.STUDENT,
-        permissions: ["view_own_health"],
-        class: "3A",
-        parentId: 4,
-      },
-    };
-
-    login(mockUsers[role]);
+    return !!user && !!authService.getToken();
   };
 
   const value = {
@@ -105,7 +77,6 @@ export const AuthProvider = ({ children }) => {
     logout,
     hasRole,
     isAuthenticated,
-    loginWithRole, // Chỉ dùng cho demo
     ROLES,
   };
 

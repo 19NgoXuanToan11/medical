@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import medicalVideo from "../../../../public/videos/login.mp4";
 import { useAuth, ROLES } from "../../../utils/auth/AuthContext";
+import authService from "../../../utils/auth/authService";
 
 const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { loginWithRole } = useAuth();
+  const { login } = useAuth();
 
   // Get role from URL parameter if available
   const getInitialRole = () => {
@@ -40,50 +41,43 @@ const Login = () => {
     if (error) setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    // Map form roles to our ROLES constant
-    const roleMapping = {
-      student: ROLES.STUDENT,
-      parent: ROLES.PARENT,
-      admin: ROLES.ADMIN,
-      nurse: ROLES.STAFF,
-      manager: ROLES.MANAGER,
-    };
-
-    // Simple validation for demo
+    // Validation
     if (formData.username.trim() === "" || formData.password.trim() === "") {
-      setError("Vui lòng nhập tên đăng nhập và mật khẩu");
+      setError("Vui lòng nhập đầy đủ thông tin đăng nhập");
       setIsLoading(false);
       return;
     }
 
     try {
-      // In a real app, you would call an API here
-      setTimeout(() => {
-        // For the demo, we'll use a mock login function
-        const mappedRole = roleMapping[formData.role];
-        loginWithRole(mappedRole);
+      // Prepare login data for API
+      const loginData = {
+        Username: formData.username,
+        Password: formData.password,
+        Role: formData.role,
+      };
 
-        // Redirect to the appropriate dashboard based on role
-        const redirectMap = {
-          [ROLES.ADMIN]: "/admin/dashboard",
-          [ROLES.STAFF]: "/staff/medication",
-          [ROLES.MANAGER]: "/manager/dashboard",
-          [ROLES.PARENT]: "/parent/dashboard",
-          [ROLES.STUDENT]: "/student/dashboard",
-        };
+      // Call API login
+      const userData = await login(loginData);
 
-        navigate(redirectMap[mappedRole]);
-        setIsLoading(false);
-      }, 1000); // Simulating API delay
+      // Redirect to the appropriate dashboard based on role
+      const redirectMap = {
+        admin: "/admin/dashboard",
+        staff: "/nurse/dashboard",
+        manager: "/manager/dashboard",
+        nurse: "/nurse/dashboard",
+        parent: "/parent/dashboard",
+        student: "/student/dashboard",
+      };
+
+      navigate(redirectMap[userData.role] || "/");
     } catch (err) {
-      setError(
-        "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập."
-      );
+      setError(err.message);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -207,7 +201,7 @@ const Login = () => {
                 htmlFor="username"
                 className="text-sm font-medium text-gray-700"
               >
-                Tên đăng nhập
+                {authService.getUsernameLabel(formData.role)}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -232,7 +226,7 @@ const Login = () => {
                   onChange={handleChange}
                   required
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
-                  placeholder="Nhập tên đăng nhập"
+                  placeholder={authService.getPlaceholderText(formData.role)}
                 />
               </div>
             </div>
