@@ -13,8 +13,7 @@ public static class MedicineRequestDto
         public string? ClassName { get; set; }
         public int ParentId { get; set; }
         public int? StaffId { get; set; }
-        public DateOnly StartDate { get; set; }
-        public DateOnly? EndDate { get; set; }
+        public DateOnly Date { get; set; }
         public StudentDto.ViewModel? Student { get; set; }
         public ParentDto.ViewModel? Parent { get; set; }
         public StaffDto.ViewModel? Staff { get; set; }
@@ -34,8 +33,7 @@ public static class MedicineRequestDto
 
         public string? Status { get; set; }
 
-        public DateOnly StartDate { get; set; }
-        public DateOnly? EndDate { get; set; }
+        public DateOnly Date { get; set; }
 
         public ICollection<MedicineRequestItemDto.Create> MedicineRequestItems { get; set; } = new List<MedicineRequestItemDto.Create>();
     }
@@ -48,8 +46,7 @@ public static class MedicineRequestDto
         [StringLength(50)]
         public string? ClassName { get; set; }
 
-        public DateOnly? StartDate { get; set; }
-        public DateOnly? EndDate { get; set; }
+        public DateOnly? Date { get; set; }
 
         public ICollection<MedicineRequestItemDto.Update>? MedicineRequestItems { get; set; }
     }

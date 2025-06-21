@@ -64,13 +64,9 @@ public class MedicineRequestService : IMedicineRequestService
         {
             existing.Status = medicineRequest.Status;
         }
-        if (medicineRequest.StartDate != default)
+        if (medicineRequest.Date != default)
         {
-            existing.StartDate = medicineRequest.StartDate;
-        }
-        if (medicineRequest.EndDate != null && medicineRequest.EndDate != default)
-        {
-            existing.EndDate = medicineRequest.EndDate;
+            existing.Date = medicineRequest.Date;
         }
         if (!string.IsNullOrEmpty(medicineRequest.ClassName))
         {

@@ -11,9 +11,7 @@ public partial class MedicineRequest
 
     public string? ClassName { get; set; }
 
-    public DateOnly StartDate { get; set; }
-
-    public DateOnly? EndDate { get; set; }
+    public DateOnly Date { get; set; }
 
     public string? Status { get; set; }
 
