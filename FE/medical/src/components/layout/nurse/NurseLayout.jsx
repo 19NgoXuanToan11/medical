@@ -24,6 +24,11 @@ const NurseLayout = () => {
       icon: <FiHome className="w-5 h-5" />,
     },
     {
+      path: "/nurse/schedule",
+      name: "Lịch trình hôm nay",
+      icon: <FiBell className="w-5 h-5" />,
+    },
+    {
       path: "/nurse/medication",
       name: "Quản lý thuốc",
       icon: <FiTablet className="w-5 h-5" />,

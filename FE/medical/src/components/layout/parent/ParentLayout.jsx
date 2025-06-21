@@ -8,12 +8,17 @@ import {
   FaCalendarCheck,
   FaBell,
   FaChartLine,
+  FaChevronDown,
+  FaChevronRight,
+  FaPlus,
+  FaList,
 } from "react-icons/fa";
 import { MdHealthAndSafety, MdOutlineSchool } from "react-icons/md";
 
 const ParentLayout = () => {
   const location = useLocation();
   const [studentDropdown, setStudentDropdown] = useState(false);
+  const [medicationDropdown, setMedicationDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Placeholder data - in a real app, this would come from an API
@@ -32,8 +37,27 @@ const ParentLayout = () => {
       icon: <FaHome className="w-5 h-5" />,
     },
     {
+      type: "dropdown",
+      label: "Yêu cầu thuốc",
+      icon: <FaPills className="w-5 h-5" />,
+      isOpen: medicationDropdown,
+      toggleOpen: () => setMedicationDropdown(!medicationDropdown),
+      subItems: [
+        {
+          path: "/parent/medication/request",
+          label: "Tạo yêu cầu",
+          icon: <FaPlus className="w-4 h-4" />,
+        },
+        {
+          path: "/parent/medication/history",
+          label: "Quản lý yêu cầu thuốc",
+          icon: <FaList className="w-4 h-4" />,
+        },
+      ],
+    },
+    {
       path: "/parent/health-profile",
-    label: "Hồ sơ sức khỏe",
+      label: "Hồ sơ sức khỏe",
       icon: <FaFileMedical className="w-5 h-5" />,
     },
     {
@@ -128,27 +152,89 @@ const ParentLayout = () => {
           {/* Navigation Menu */}
           <nav className="flex-1 px-2 py-3 overflow-y-auto">
             <ul className="space-y-0.5">
-              {menuItems.map((item) => (
-                <li key={item.path}>
-                  <Link
-                    to={item.path}
-                    className={`flex items-center px-3 py-2 text-sm rounded ${
-                      location.pathname.startsWith(item.path)
-                        ? "bg-primary-50 text-primary-700 font-medium"
-                        : "text-neutral-700 hover:bg-neutral-50"
-                    }`}
-                  >
-                    <span
-                      className={`mr-3 ${
+              {menuItems.map((item, index) => (
+                <li key={item.path || index}>
+                  {item.type === "dropdown" ? (
+                    <div>
+                      <button
+                        onClick={item.toggleOpen}
+                        className={`flex items-center justify-between w-full px-3 py-2 text-sm rounded ${
+                          item.subItems?.some((subItem) =>
+                            location.pathname.startsWith(subItem.path)
+                          )
+                            ? "bg-primary-50 text-primary-700 font-medium"
+                            : "text-neutral-700 hover:bg-neutral-50"
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          <span
+                            className={`mr-3 ${
+                              item.subItems?.some((subItem) =>
+                                location.pathname.startsWith(subItem.path)
+                              )
+                                ? "text-primary-600"
+                                : "text-neutral-500"
+                            }`}
+                          >
+                            {item.icon}
+                          </span>
+                          {item.label}
+                        </div>
+                        {item.isOpen ? (
+                          <FaChevronDown className="w-3 h-3 text-neutral-500" />
+                        ) : (
+                          <FaChevronRight className="w-3 h-3 text-neutral-500" />
+                        )}
+                      </button>
+                      {item.isOpen && (
+                        <ul className="mt-1 ml-6 space-y-0.5">
+                          {item.subItems.map((subItem) => (
+                            <li key={subItem.path}>
+                              <Link
+                                to={subItem.path}
+                                className={`flex items-center px-3 py-2 text-sm rounded ${
+                                  location.pathname === subItem.path
+                                    ? "bg-primary-50 text-primary-700 font-medium"
+                                    : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-700"
+                                }`}
+                              >
+                                <span
+                                  className={`mr-3 ${
+                                    location.pathname === subItem.path
+                                      ? "text-primary-600"
+                                      : "text-neutral-500"
+                                  }`}
+                                >
+                                  {subItem.icon}
+                                </span>
+                                {subItem.label}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ) : (
+                    <Link
+                      to={item.path}
+                      className={`flex items-center px-3 py-2 text-sm rounded ${
                         location.pathname.startsWith(item.path)
-                          ? "text-primary-600"
-                          : "text-neutral-500"
+                          ? "bg-primary-50 text-primary-700 font-medium"
+                          : "text-neutral-700 hover:bg-neutral-50"
                       }`}
                     >
-                      {item.icon}
-                    </span>
-                    {item.label}
-                  </Link>
+                      <span
+                        className={`mr-3 ${
+                          location.pathname.startsWith(item.path)
+                            ? "text-primary-600"
+                            : "text-neutral-500"
+                        }`}
+                      >
+                        {item.icon}
+                      </span>
+                      {item.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

@@ -15,8 +15,7 @@ const MedicationRequest = () => {
     className: "",
     parentID: user?.id || 0, // Gán parent ID từ user đã đăng nhập
     status: "pending",
-    startDate: "",
-    endDate: "",
+    date: "",
   });
 
   const [medications, setMedications] = useState([
@@ -37,6 +36,74 @@ const MedicationRequest = () => {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+
+  // Fetch students của parent
+  const fetchStudentsByParent = async (parentId) => {
+    if (!parentId) return;
+
+    setLoadingStudents(true);
+    try {
+      const API_URL = "https://localhost:7111/api";
+
+      // Try to get students by parent first
+      let response = await fetch(`${API_URL}/Student/parent/${parentId}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setStudents(data || []);
+      } else if (response.status === 404) {
+        // If endpoint doesn't exist, try alternative approach
+        // Get Student_Parent relationships first
+        const studentParentResponse = await fetch(
+          `${API_URL}/Student_Parent/parent/${parentId}`
+        );
+
+        if (studentParentResponse.ok) {
+          const relationships = await studentParentResponse.json();
+
+          // Then get student details for each relationship
+          const studentPromises = relationships.map(async (rel) => {
+            const studentResponse = await fetch(
+              `${API_URL}/Student/code/${rel.studentCode}`
+            );
+            if (studentResponse.ok) {
+              return await studentResponse.json();
+            }
+            return null;
+          });
+
+          const studentDetails = await Promise.all(studentPromises);
+          setStudents(studentDetails.filter(Boolean));
+        } else {
+          // Final fallback: get all students and filter by parentId
+          const allStudentsResponse = await fetch(`${API_URL}/Student`);
+          if (allStudentsResponse.ok) {
+            const allStudents = await allStudentsResponse.json();
+            const parentStudents = allStudents.filter(
+              (student) => student.parentId === parentId
+            );
+            setStudents(parentStudents);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching students:", error);
+      // Mock data for development/testing
+      setStudents([
+        {
+          studentCode: "STU001",
+          firstName: "Nguyễn",
+          lastName: "Văn An",
+          className: "10A1",
+          parentId: parentId,
+        },
+      ]);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
 
   // Cập nhật parentID khi user thay đổi (sau khi đăng nhập)
   useEffect(() => {
@@ -46,14 +113,30 @@ const MedicationRequest = () => {
         ...prev,
         parentID: user.id,
       }));
+
+      // Fetch students của parent này
+      fetchStudentsByParent(user.id);
     }
   }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Allow typing for date fields, but limit characters
-    if (name === "startDate" || name === "endDate") {
+    // Handle student selection
+    if (name === "studentCode") {
+      const selectedStudent = students.find(
+        (student) => student.studentCode === value
+      );
+      setFormData((prev) => ({
+        ...prev,
+        studentCode: value,
+        className: selectedStudent ? selectedStudent.className : "",
+      }));
+      return;
+    }
+
+    // Allow typing for date field, but limit characters
+    if (name === "date") {
       // Only allow numbers and dashes, max 10 characters (yyyy-mm-dd)
       const cleanValue = value.replace(/[^\d-]/g, "").slice(0, 10);
       setFormData((prev) => ({
@@ -138,15 +221,9 @@ const MedicationRequest = () => {
 
     // Validate date format before submitting
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-    if (!datePattern.test(formData.startDate)) {
+    if (!datePattern.test(formData.date)) {
       alert(
-        "Vui lòng nhập ngày bắt đầu đúng định dạng: yyyy-mm-dd (ví dụ: 2024-01-15)"
-      );
-      return;
-    }
-    if (!datePattern.test(formData.endDate)) {
-      alert(
-        "Vui lòng nhập ngày kết thúc đúng định dạng: yyyy-mm-dd (ví dụ: 2024-01-20)"
+        "Vui lòng nhập ngày đúng định dạng: yyyy-mm-dd (ví dụ: 2024-01-15)"
       );
       return;
     }
@@ -186,8 +263,8 @@ const MedicationRequest = () => {
         className: formData.className,
         parentID: user?.id || parseInt(formData.parentID) || 1, // Ưu tiên lấy từ user đã đăng nhập
         status: formData.status,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
+        startDate: formData.date,
+        endDate: formData.date,
         medicineRequestItems: processedMedications,
       };
 
@@ -355,18 +432,38 @@ const MedicationRequest = () => {
                     htmlFor="studentCode"
                     className="block text-sm font-medium text-neutral-700 mb-1"
                   >
-                    Mã học sinh <span className="text-red-500">*</span>
+                    Chọn học sinh <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    id="studentCode"
-                    name="studentCode"
-                    value={formData.studentCode}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Nhập mã học sinh"
-                  />
+                  {loadingStudents ? (
+                    <div className="w-full px-4 py-2 border border-neutral-300 rounded-md bg-neutral-50 text-neutral-500">
+                      Đang tải danh sách học sinh...
+                    </div>
+                  ) : students.length === 0 ? (
+                    <div className="w-full px-4 py-2 border border-neutral-300 rounded-md bg-yellow-50 text-yellow-700">
+                      Không có học sinh nào được liên kết với tài khoản này. Vui
+                      lòng liên hệ nhà trường để cập nhật thông tin.
+                    </div>
+                  ) : (
+                    <select
+                      id="studentCode"
+                      name="studentCode"
+                      value={formData.studentCode}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="">-- Chọn học sinh --</option>
+                      {students.map((student) => (
+                        <option
+                          key={student.studentCode}
+                          value={student.studentCode}
+                        >
+                          {student.studentCode} - {student.firstName}{" "}
+                          {student.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div>
                   <label
@@ -380,53 +477,31 @@ const MedicationRequest = () => {
                     id="className"
                     name="className"
                     value={formData.className}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Nhập tên lớp"
+                    readOnly
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-md bg-neutral-50 text-neutral-600"
+                    placeholder="Lớp sẽ tự động điền khi chọn học sinh"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="startDate"
-                    className="block text-sm font-medium text-neutral-700 mb-1"
-                  >
-                    Ngày bắt đầu <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="startDate"
-                    name="startDate"
-                    value={formData.startDate}
-                    onChange={handleInputChange}
-                    required
-                    pattern="\d{4}-\d{2}-\d{2}"
-                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="2024-01-15"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="endDate"
-                    className="block text-sm font-medium text-neutral-700 mb-1"
-                  >
-                    Ngày kết thúc <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="endDate"
-                    name="endDate"
-                    value={formData.endDate}
-                    onChange={handleInputChange}
-                    required
-                    pattern="\d{4}-\d{2}-\d{2}"
-                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="2024-01-20"
-                  />
-                </div>
+              <div>
+                <label
+                  htmlFor="date"
+                  className="block text-sm font-medium text-neutral-700 mb-1"
+                >
+                  Ngày <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  required
+                  pattern="\d{4}-\d{2}-\d{2}"
+                  className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="2024-01-15"
+                />
               </div>
             </div>
           )}
