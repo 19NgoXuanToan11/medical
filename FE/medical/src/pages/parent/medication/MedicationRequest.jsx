@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   medicationService,
   notificationService,
 } from "../../../utils/api/medication/medicationService";
+import { useAuth } from "../../../utils/auth/AuthContext";
 
 const MedicationRequest = () => {
   const navigate = useNavigate();
+  const { user } = useAuth(); // Lấy thông tin user từ AuthContext
+
   const [formData, setFormData] = useState({
     studentCode: "",
     className: "",
-    staffId: 0,
+    parentID: user?.id || 0, // Gán parent ID từ user đã đăng nhập
     status: "pending",
     startDate: "",
     endDate: "",
@@ -34,6 +37,17 @@ const MedicationRequest = () => {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Cập nhật parentID khi user thay đổi (sau khi đăng nhập)
+  useEffect(() => {
+    if (user?.id) {
+      console.log("User data loaded:", user); // Debug log
+      setFormData((prev) => ({
+        ...prev,
+        parentID: user.id,
+      }));
+    }
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -161,8 +175,6 @@ const MedicationRequest = () => {
           frequency: medication.frequency,
           timeOfDay: medication.timeOfDay,
           instructions: medication.instructions,
-          medicationImagePath: medicationImagePath,
-          prescriptionImagePath: prescriptionImagePath,
         };
 
         processedMedications.push(medicationItem);
@@ -172,12 +184,18 @@ const MedicationRequest = () => {
       const requestData = {
         studentCode: formData.studentCode,
         className: formData.className,
-        staffId: parseInt(formData.staffId) || 1,
+        parentID: user?.id || parseInt(formData.parentID) || 1, // Ưu tiên lấy từ user đã đăng nhập
         status: formData.status,
-        startDate: formData.startDate, // Already in yyyy-mm-dd format from HTML date input
-        endDate: formData.endDate, // Already in yyyy-mm-dd format from HTML date input
+        startDate: formData.startDate,
+        endDate: formData.endDate,
         medicineRequestItems: processedMedications,
       };
+
+      console.log(
+        "Sending medication request with parentID:",
+        requestData.parentID
+      ); // Debug log
+      console.log("Full request data:", requestData); // Debug log
 
       // Make API call using medication service
       const result = await medicationService.createMedicationRequest(
@@ -325,15 +343,6 @@ const MedicationRequest = () => {
             }`}
           >
             2. Thông tin thuốc
-          </div>
-          <div
-            className={`flex-1 text-center py-3 ${
-              step === 3
-                ? "bg-primary-50 text-primary-600 font-medium"
-                : "bg-neutral-50"
-            }`}
-          >
-            3. Lịch sử uống thuốc
           </div>
         </div>
 
@@ -594,207 +603,6 @@ const MedicationRequest = () => {
             </div>
           )}
 
-          {step === 3 && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-neutral-800">
-                Hình ảnh thuốc
-              </h3>
-
-              {medications.map((medication, index) => (
-                <div
-                  key={medication.id}
-                  className="border border-neutral-200 rounded-lg p-4 bg-neutral-50"
-                >
-                  <h4 className="text-md font-medium text-neutral-700 mb-4">
-                    Hình ảnh cho{" "}
-                    {medication.medicineName || `Thuốc #${index + 1}`}
-                  </h4>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Hình ảnh thuốc <span className="text-red-500">*</span>
-                      </label>
-                      <div className="border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center">
-                        {medication.medicationImage ? (
-                          <div className="flex flex-col items-center">
-                            <img
-                              src={URL.createObjectURL(
-                                medication.medicationImage
-                              )}
-                              alt="Medication preview"
-                              className="max-h-36 mb-2 rounded"
-                            />
-                            <span className="text-sm text-neutral-500">
-                              {medication.medicationImage.name}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleFileChange(
-                                  medication.id,
-                                  "medicationImage",
-                                  null
-                                )
-                              }
-                              className="mt-2 text-sm text-red-600 hover:text-red-800"
-                            >
-                              Xóa ảnh
-                            </button>
-                          </div>
-                        ) : (
-                          <div>
-                            <svg
-                              className="mx-auto h-12 w-12 text-neutral-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth={2}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            <div className="flex justify-center mt-2">
-                              <label
-                                htmlFor={`medicationImage-${medication.id}`}
-                                className="cursor-pointer"
-                              >
-                                <span className="text-sm text-primary-600 hover:text-primary-800">
-                                  Chọn hình ảnh
-                                </span>
-                              </label>
-                            </div>
-                            <p className="text-xs text-neutral-500 mt-1">
-                              PNG, JPG, GIF lên đến 10MB
-                            </p>
-                          </div>
-                        )}
-                        <input
-                          id={`medicationImage-${medication.id}`}
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) =>
-                            handleFileChange(
-                              medication.id,
-                              "medicationImage",
-                              e.target.files[0]
-                            )
-                          }
-                          className="hidden"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Đơn thuốc (nếu có)
-                      </label>
-                      <div className="border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center">
-                        {medication.prescriptionImage ? (
-                          <div className="flex flex-col items-center">
-                            <img
-                              src={URL.createObjectURL(
-                                medication.prescriptionImage
-                              )}
-                              alt="Prescription preview"
-                              className="max-h-36 mb-2 rounded"
-                            />
-                            <span className="text-sm text-neutral-500">
-                              {medication.prescriptionImage.name}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleFileChange(
-                                  medication.id,
-                                  "prescriptionImage",
-                                  null
-                                )
-                              }
-                              className="mt-2 text-sm text-red-600 hover:text-red-800"
-                            >
-                              Xóa ảnh
-                            </button>
-                          </div>
-                        ) : (
-                          <div>
-                            <svg
-                              className="mx-auto h-12 w-12 text-neutral-400"
-                              stroke="currentColor"
-                              fill="none"
-                              viewBox="0 0 48 48"
-                            >
-                              <path
-                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                strokeWidth={2}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            <div className="flex justify-center mt-2">
-                              <label
-                                htmlFor={`prescriptionImage-${medication.id}`}
-                                className="cursor-pointer"
-                              >
-                                <span className="text-sm text-primary-600 hover:text-primary-800">
-                                  Chọn hình ảnh
-                                </span>
-                              </label>
-                            </div>
-                            <p className="text-xs text-neutral-500 mt-1">
-                              PNG, JPG, GIF lên đến 10MB
-                            </p>
-                          </div>
-                        )}
-                        <input
-                          id={`prescriptionImage-${medication.id}`}
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) =>
-                            handleFileChange(
-                              medication.id,
-                              "prescriptionImage",
-                              e.target.files[0]
-                            )
-                          }
-                          className="hidden"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg
-                      className="h-5 w-5 text-yellow-400"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-yellow-700">
-                      Thông tin về thuốc và liều lượng cần được cung cấp chính
-                      xác. Nhân viên y tế trường học sẽ xem xét trước khi chấp
-                      nhận yêu cầu.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className="mt-8 flex justify-between">
             {step > 1 ? (
               <button
@@ -809,7 +617,7 @@ const MedicationRequest = () => {
               <div></div>
             )}
 
-            {step < 3 ? (
+            {step < 2 ? (
               <button
                 type="button"
                 className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"

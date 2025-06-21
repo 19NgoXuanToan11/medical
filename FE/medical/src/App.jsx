@@ -16,7 +16,6 @@ import StudentLayout from "./components/layout/student/StudentLayout";
 
 // auth
 import Login from "./pages/auth/login/Login";
-import Register from "./pages/auth/register/Register";
 
 // admin
 import AdminDashboard from "./pages/admin/dashboard/AdminDashboard";
@@ -81,7 +80,6 @@ function App() {
         {/* Auth Routes - No Navbar/Footer */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
         </Route>
 
         {/* Admin Routes - Custom Admin Layout */}
