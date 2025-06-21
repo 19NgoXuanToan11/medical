@@ -18,6 +18,21 @@ public static class ParentDto
         public bool? IsEmergencyContact { get; set; }
         public bool? IsMainContact { get; set; }
         public bool? IsActive { get; set; }
+        
+        // Navigation properties - using simplified DTOs to avoid circular references
+        public ICollection<StudentSummary>? Students { get; set; }
+        public ICollection<StudentParentDto.ViewModel>? StudentParents { get; set; }
+    }
+
+    public class StudentSummary
+    {
+        public int StudentId { get; set; }
+        public string StudentCode { get; set; } = null!;
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
+        public string? ClassName { get; set; }
+        public int GradeLevel { get; set; }
+        public bool? IsActive { get; set; }
     }
 
     public class Create
