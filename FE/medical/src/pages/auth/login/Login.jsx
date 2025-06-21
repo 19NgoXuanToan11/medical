@@ -13,7 +13,7 @@ const Login = () => {
   const getInitialRole = () => {
     const searchParams = new URLSearchParams(location.search);
     const roleParam = searchParams.get("role");
-    return roleParam || "student"; // Default to student if not specified
+    return roleParam || "parent"; // Default to parent if not specified
   };
 
   const [formData, setFormData] = useState({
@@ -84,7 +84,6 @@ const Login = () => {
 
   // Available roles in the system
   const roles = [
-    { id: "student", label: "Học sinh" },
     { id: "parent", label: "Phụ huynh" },
     { id: "manager", label: "Quản lý" },
     { id: "nurse", label: "Nhân viên y tế" },

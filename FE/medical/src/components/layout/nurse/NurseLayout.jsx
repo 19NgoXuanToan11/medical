@@ -29,14 +29,14 @@ const NurseLayout = () => {
       icon: <FiBell className="w-5 h-5" />,
     },
     {
-      path: "/nurse/medication",
-      name: "Quản lý thuốc",
-      icon: <FiTablet className="w-5 h-5" />,
+      path: "/nurse/schedule",
+      name: "Hồ sơ sức khỏe học sinh",
+      icon: <FiClipboard className="w-5 h-5" />,
     },
     {
-      path: "/nurse/health-check",
-      name: "Kiểm tra sức khỏe",
-      icon: <FiClipboard className="w-5 h-5" />,
+      path: "/nurse/medication",
+      name: "Yêu cầu thuốc",
+      icon: <FiTablet className="w-5 h-5" />,
     },
     {
       path: "/nurse/health-events",
@@ -47,6 +47,11 @@ const NurseLayout = () => {
       path: "/nurse/vaccination",
       name: "Tiêm chủng",
       icon: <FiCalendar className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/health-check",
+      name: "Kiểm tra y tế định kỳ",
+      icon: <FiClipboard className="w-5 h-5" />,
     },
   ];
 

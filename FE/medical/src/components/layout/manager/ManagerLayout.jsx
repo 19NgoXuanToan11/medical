@@ -22,6 +22,11 @@ const ManagerLayout = () => {
       icon: <FiHome className="w-5 h-5" />,
     },
     {
+      path: "/manager/excel",
+      name: "Excel",
+      icon: <FiUpload className="w-5 h-5" />,
+    },
+    {
       path: "/manager/parent-management",
       name: "Phụ huynh",
       icon: <FiUser className="w-5 h-5" />,
@@ -40,11 +45,6 @@ const ManagerLayout = () => {
       path: "/manager/supply-inventory",
       name: "Vật tư y tế",
       icon: <FiPackage className="w-5 h-5" />,
-    },
-    {
-      path: "/manager/upload",
-      name: "Tải lên Excel",
-      icon: <FiUpload className="w-5 h-5" />,
     },
   ];
 

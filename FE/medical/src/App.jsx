@@ -29,6 +29,7 @@ import StudentManagement from "./pages/manager/manage/StudentManagement";
 import MedicineInventory from "./pages/manager/inventory/MedicineInventory";
 import SupplyInventory from "./pages/manager/inventory/SupplyInventory";
 import ExcelImport from "./pages/manager/inventory/ExcelImport";
+import ExcelManagement from "./pages/manager/excel/ExcelManagement";
 
 // nurse
 import NurseDashboard from "./pages/nurse/dashboard/NurseDashboard";
@@ -48,6 +49,7 @@ import StaffMedicationList from "./pages/nurse/medication/StaffMedicationList";
 import StaffMedicationDetail from "./pages/nurse/medication/StaffMedicationDetail";
 import HealthCheckResults from "./pages/nurse/health-check/HealthCheckResults";
 import StudentHealthDetail from "./pages/nurse/health-check/StudentHealthDetail";
+import NurseSchedule from "./pages/nurse/schedule/NurseSchedule";
 
 // parent
 import ParentDashboard from "./pages/parent/dashboard/ParentDashboard";
@@ -110,6 +112,9 @@ function App() {
           
           {/* Manager Excel Import Route */}
           <Route path="/manager/upload" element={<ExcelImport />} />
+          
+          {/* Manager Excel Management Route */}
+          <Route path="/manager/excel" element={<ExcelManagement />} />
         </Route>
 
         {/* Main Routes */}
@@ -157,6 +162,9 @@ function App() {
         <Route element={<NurseLayout />}>
           {/* Nurse Dashboard */}
           <Route path="/nurse/dashboard" element={<NurseDashboard />} />
+
+          {/* Schedule Routes */}
+          <Route path="/nurse/schedule" element={<NurseSchedule />} />
 
           {/* Medication Routes */}
           <Route path="/nurse/medication" element={<StaffMedicationList />} />

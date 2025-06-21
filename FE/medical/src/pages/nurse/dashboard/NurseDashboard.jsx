@@ -13,6 +13,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import MedicationReminders from "../medication/MedicationReminders";
+import TodaySchedule from "../../../components/nurse/TodaySchedule";
 
 const NurseDashboard = () => {
   const [stats, setStats] = useState({
@@ -376,55 +377,9 @@ const NurseDashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            {/* Performance Metrics */}
-            <div className="lg:col-span-1 bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
-              <div className="p-6 border-b border-neutral-100">
-                <h3 className="text-lg font-medium text-neutral-800">
-                  Lịch trình hôm nay
-                </h3>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  {upcomingTasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className="flex items-center p-3 bg-neutral-50 rounded-lg"
-                    >
-                      <div className="bg-primary-100 p-2 rounded-full">
-                        <FiClock className="h-5 w-5 text-primary-600" />
-                      </div>
-                      <div className="ml-3 flex-1">
-                        <div className="flex justify-between">
-                          <div className="text-sm font-medium text-neutral-800">
-                            {task.title}
-                          </div>
-                          <div className="text-xs font-medium text-primary-600">
-                            {task.time}
-                          </div>
-                        </div>
-                        <div className="text-xs text-neutral-500">
-                          {task.type === "medication"
-                            ? "Cấp thuốc"
-                            : task.type === "health_check"
-                            ? "Kiểm tra sức khỏe"
-                            : task.type === "consultation"
-                            ? "Tư vấn"
-                            : "Cuộc họp"}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 text-center">
-                  <Link
-                    to="#"
-                    className="text-primary-600 hover:text-primary-800 text-sm font-medium"
-                  >
-                    Xem tất cả lịch trình
-                  </Link>
-                </div>
-              </div>
+            {/* Today's Schedule - Takes up more space */}
+            <div className="lg:col-span-2">
+              <TodaySchedule />
             </div>
 
             {/* Recent Activities */}
@@ -487,94 +442,286 @@ const NurseDashboard = () => {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Alerts and Notifications */}
-            <div className="lg:col-span-1 bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
-              <div className="p-6 border-b border-neutral-100">
-                <h3 className="text-lg font-medium text-neutral-800">
-                  Cảnh báo sức khỏe
+          {/* Enhanced Health Alerts Section */}
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden mb-6">
+            <div className="p-6 border-b border-neutral-100">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-neutral-800 flex items-center">
+                  <FiAlertCircle className="h-6 w-6 text-red-500 mr-3" />
+                  Cảnh báo & Theo dõi sức khỏe
                 </h3>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-neutral-500">Cập nhật:</span>
+                  <span className="text-sm font-medium text-neutral-700">
+                    {new Date().toLocaleTimeString("vi-VN")}
+                  </span>
+                </div>
               </div>
-              <div className="p-6">
-                <div className="space-y-6">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-neutral-700">
+            </div>
+
+            <div className="p-6">
+              {/* Alert Stats Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-red-800">
+                        Cảnh báo khẩn cấp
+                      </p>
+                      <p className="text-2xl font-bold text-red-600">3</p>
+                      <p className="text-xs text-red-600">Cần xử lý ngay</p>
+                    </div>
+                    <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
+                      <FiAlertCircle className="h-6 w-6 text-red-600" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-yellow-800">
                         Cảnh báo dị ứng
-                      </span>
-                      <span className="text-sm font-medium text-red-600">
-                        {stats.allergyAlerts} học sinh
-                      </span>
+                      </p>
+                      <p className="text-2xl font-bold text-yellow-600">
+                        {stats.allergyAlerts}
+                      </p>
+                      <p className="text-xs text-yellow-600">
+                        Học sinh có dị ứng
+                      </p>
                     </div>
-                    <div className="w-full bg-neutral-200 rounded-full h-2">
-                      <div
-                        className="bg-red-600 h-2 rounded-full"
-                        style={{
-                          width: `${(stats.allergyAlerts / 20) * 100}%`,
-                        }}
-                      ></div>
+                    <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <FiTablet className="h-6 w-6 text-yellow-600" />
                     </div>
-                    <p className="text-xs text-neutral-500 mt-1">
-                      Học sinh có dị ứng cần chú ý
-                    </p>
                   </div>
+                </div>
 
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-neutral-700">
-                        Tuân thủ dùng thuốc
-                      </span>
-                      <span className="text-sm font-medium text-primary-700">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-800">
+                        Theo dõi đặc biệt
+                      </p>
+                      <p className="text-2xl font-bold text-blue-600">8</p>
+                      <p className="text-xs text-blue-600">
+                        Cần chú ý thường xuyên
+                      </p>
+                    </div>
+                    <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                      <FiUsers className="h-6 w-6 text-blue-600" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-800">
+                        Tuân thủ thuốc
+                      </p>
+                      <p className="text-2xl font-bold text-green-600">
                         {stats.medicationAdherence}%
-                      </span>
+                      </p>
+                      <p className="text-xs text-green-600">Tỷ lệ tuân thủ</p>
                     </div>
-                    <div className="w-full bg-neutral-200 rounded-full h-2">
-                      <div
-                        className="bg-primary-600 h-2 rounded-full"
-                        style={{
-                          width: `${stats.medicationAdherence}%`,
-                        }}
-                      ></div>
+                    <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                      <FiCheckCircle className="h-6 w-6 text-green-600" />
                     </div>
-                    <p className="text-xs text-neutral-500 mt-1">
-                      Tỷ lệ học sinh uống thuốc đúng lịch
-                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Critical Alerts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Priority Students */}
+                <div className="border border-neutral-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                    <FiAlertCircle className="h-5 w-5 text-red-500 mr-2" />
+                    Học sinh ưu tiên theo dõi
+                  </h4>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                        <div>
+                          <p className="font-medium text-red-800">
+                            Nguyễn Văn B
+                          </p>
+                          <p className="text-sm text-red-600">
+                            Lớp 3A - Dị ứng thức ăn nghiêm trọng
+                          </p>
+                          <p className="text-xs text-red-500">
+                            Cần kiểm tra trước bữa ăn
+                          </p>
+                        </div>
+                      </div>
+                      <Link
+                        to="#"
+                        className="px-3 py-1 bg-red-600 text-white text-xs rounded-full hover:bg-red-700 transition-colors"
+                      >
+                        Xem chi tiết
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                        <div>
+                          <p className="font-medium text-yellow-800">
+                            Trần Thị C
+                          </p>
+                          <p className="text-sm text-yellow-600">
+                            Lớp 4B - Hen suyễn
+                          </p>
+                          <p className="text-xs text-yellow-500">
+                            Cần thuốc xịt khẩn cấp
+                          </p>
+                        </div>
+                      </div>
+                      <Link
+                        to="#"
+                        className="px-3 py-1 bg-yellow-600 text-white text-xs rounded-full hover:bg-yellow-700 transition-colors"
+                      >
+                        Xem chi tiết
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                        <div>
+                          <p className="font-medium text-orange-800">
+                            Lê Minh D
+                          </p>
+                          <p className="text-sm text-orange-600">
+                            Lớp 5A - Tiểu đường type 1
+                          </p>
+                          <p className="text-xs text-orange-500">
+                            Cần theo dõi đường huyết
+                          </p>
+                        </div>
+                      </div>
+                      <Link
+                        to="#"
+                        className="px-3 py-1 bg-orange-600 text-white text-xs rounded-full hover:bg-orange-700 transition-colors"
+                      >
+                        Xem chi tiết
+                      </Link>
+                    </div>
                   </div>
 
-                  <div className="border-t border-neutral-200 pt-4">
-                    <div className="font-medium text-neutral-800 mb-2">
-                      Học sinh cần quan tâm
+                  <div className="mt-4 pt-4 border-t border-neutral-200">
+                    <Link
+                      to="/nurse/health-check"
+                      className="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-800"
+                    >
+                      Xem tất cả học sinh cần theo dõi
+                      <svg
+                        className="ml-1 h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Health Metrics & Trends */}
+                <div className="border border-neutral-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+                    <FiActivity className="h-5 w-5 text-blue-500 mr-2" />
+                    Chỉ số sức khỏe tổng quan
+                  </h4>
+
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-neutral-700">
+                          Tuân thủ dùng thuốc
+                        </span>
+                        <span className="text-sm font-bold text-green-600">
+                          {stats.medicationAdherence}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-neutral-200 rounded-full h-3">
+                        <div
+                          className="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500"
+                          style={{ width: `${stats.medicationAdherence}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-neutral-500 mt-1">
+                        Mục tiêu: ≥95%
+                      </p>
                     </div>
 
-                    <div className="space-y-2 mt-3">
-                      <div className="flex items-center justify-between p-2 bg-red-50 rounded">
-                        <div className="flex items-center">
-                          <FiAlertCircle className="text-red-500 mr-2" />
-                          <span className="text-sm">
-                            Nguyễn Văn B - Dị ứng thức ăn
-                          </span>
-                        </div>
-                        <Link
-                          to="#"
-                          className="text-xs text-primary-600 hover:underline"
-                        >
-                          Chi tiết
-                        </Link>
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-neutral-700">
+                          Tỷ lệ học sinh khỏe mạnh
+                        </span>
+                        <span className="text-sm font-bold text-blue-600">
+                          87%
+                        </span>
                       </div>
+                      <div className="w-full bg-neutral-200 rounded-full h-3">
+                        <div
+                          className="bg-gradient-to-r from-blue-400 to-blue-600 h-3 rounded-full transition-all duration-500"
+                          style={{ width: "87%" }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-neutral-500 mt-1">
+                        Không có vấn đề sức khỏe nghiêm trọng
+                      </p>
+                    </div>
 
-                      <div className="flex items-center justify-between p-2 bg-yellow-50 rounded">
-                        <div className="flex items-center">
-                          <FiAlertCircle className="text-yellow-500 mr-2" />
-                          <span className="text-sm">
-                            Trần Thị C - Hen suyễn
-                          </span>
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-neutral-700">
+                          Tỷ lệ tiêm chủng đầy đủ
+                        </span>
+                        <span className="text-sm font-bold text-purple-600">
+                          92%
+                        </span>
+                      </div>
+                      <div className="w-full bg-neutral-200 rounded-full h-3">
+                        <div
+                          className="bg-gradient-to-r from-purple-400 to-purple-600 h-3 rounded-full transition-all duration-500"
+                          style={{ width: "92%" }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-neutral-500 mt-1">
+                        Đã tiêm đủ vaccine theo lứa tuổi
+                      </p>
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-neutral-200">
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div className="bg-green-50 p-3 rounded-lg">
+                          <p className="text-lg font-bold text-green-600">
+                            847
+                          </p>
+                          <p className="text-xs text-green-700">
+                            Học sinh khỏe mạnh
+                          </p>
                         </div>
-                        <Link
-                          to="#"
-                          className="text-xs text-primary-600 hover:underline"
-                        >
-                          Chi tiết
-                        </Link>
+                        <div className="bg-yellow-50 p-3 rounded-lg">
+                          <p className="text-lg font-bold text-yellow-600">
+                            48
+                          </p>
+                          <p className="text-xs text-yellow-700">
+                            Cần theo dõi
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
