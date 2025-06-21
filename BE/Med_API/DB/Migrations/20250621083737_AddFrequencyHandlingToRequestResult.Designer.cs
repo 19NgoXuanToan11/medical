@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(MedicalContext))]
-    [Migration("20250621065803_UpdateMedicineRequestDateField")]
-    partial class UpdateMedicineRequestDateField
+    [Migration("20250621083737_AddFrequencyHandlingToRequestResult")]
+    partial class AddFrequencyHandlingToRequestResult
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1027,8 +1027,22 @@ namespace DB.Migrations
                         .HasColumnType("int")
                         .HasColumnName("AdministeredBy");
 
+                    b.Property<string>("AdministeredFrequencies")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<DateTime?>("AdministeredTime")
                         .HasColumnType("datetime");
+
+                    b.Property<DateOnly?>("CurrentDate")
+                        .HasColumnType("date");
+
+                    b.Property<int?>("CurrentDayCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Frequency")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int?>("RequestId")
                         .HasColumnType("int")
@@ -1044,6 +1058,9 @@ namespace DB.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getdate())");
+
+                    b.Property<int?>("TimesPerDay")
+                        .HasColumnType("int");
 
                     b.HasKey("ResultId")
                         .HasName("PK__Request___97690228392A5FD6");

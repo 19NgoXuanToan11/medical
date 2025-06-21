@@ -135,6 +135,9 @@ builder.Services.AddScoped<IExcelImportService, ExcelImportService>();
 builder.Services.AddScoped<IStudentParentService, StudentParentService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
 
+// Register Background Services
+builder.Services.AddHostedService<TimeBasedStatusService>();
+
 // Add CORS
 builder.Services.AddCors(options =>
 {

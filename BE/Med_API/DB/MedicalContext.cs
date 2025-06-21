@@ -594,6 +594,22 @@ public partial class MedicalContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.AdministeredBy).HasColumnName("AdministeredBy");
             entity.Property(e => e.ActionBy).HasColumnName("ActionBy");
+            
+            // New frequency fields
+            entity.Property(e => e.Frequency).HasMaxLength(20);
+            entity.Property(e => e.TimesPerDay);
+            entity.Property(e => e.CurrentDayCount);
+            entity.Property(e => e.CurrentDate).HasColumnType("date");
+            entity.Property(e => e.AdministeredFrequencies).HasMaxLength(1000); // JSON string
+            
+            // New failure handling fields
+            entity.Property(e => e.FailedFrequencies).HasMaxLength(1000); // JSON string
+            entity.Property(e => e.FailureReasons).HasMaxLength(2000); // JSON string
+            entity.Property(e => e.IsReRequest).HasDefaultValue(false);
+            entity.Property(e => e.OriginalRequestResultId).HasColumnName("OriginalRequestResultID");
+            entity.Property(e => e.LastAttemptTime).HasColumnType("datetime");
+            entity.Property(e => e.FailedAttempts).HasDefaultValue(0);
+            entity.Property(e => e.ReRequestReason).HasMaxLength(500);
 
             entity.HasOne(d => d.Request)
                 .WithMany(p => p.RequestResults)
@@ -611,6 +627,13 @@ public partial class MedicalContext : DbContext
                 .HasForeignKey(d => d.ActionBy)
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK__Request_Result__ActionBy");
+
+            // Self-referencing relationship for re-requests
+            entity.HasOne(d => d.OriginalRequestResult)
+                .WithMany(p => p.ReRequests)
+                .HasForeignKey(d => d.OriginalRequestResultId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK__Request_Result__OriginalRequestResultID");
         });
 
         modelBuilder.Entity<Role>(entity =>

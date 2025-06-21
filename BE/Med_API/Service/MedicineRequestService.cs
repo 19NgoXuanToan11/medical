@@ -1,5 +1,6 @@
 using DB;
 using Repo;
+using System.Text.Json;
 
 namespace Service;
 
@@ -124,5 +125,77 @@ public class MedicineRequestService : IMedicineRequestService
     public async Task<bool> CompleteRequestAsync(int requestId, int staffId)
     {
         return await _medicineRequestRepository.CompleteRequestAsync(requestId, staffId);
+    }
+
+    // New frequency-based methods
+    public async Task<RequestResult?> StartMedicineRequestAsync(int requestId, int staffId)
+    {
+        return await _medicineRequestRepository.StartMedicineRequestAsync(requestId, staffId);
+    }
+
+    public async Task<bool> AdministerMedicineByFrequencyAsync(int requestResultId, int medicineRequestItemId, string frequency, int staffId, string? notes = null)
+    {
+        return await _medicineRequestRepository.AdministerMedicineByFrequencyAsync(requestResultId, medicineRequestItemId, frequency, staffId, notes);
+    }
+
+    public async Task<bool> IsMedicineCompletedForDayAsync(int requestResultId, int medicineRequestItemId)
+    {
+        return await _medicineRequestRepository.IsMedicineCompletedForDayAsync(requestResultId, medicineRequestItemId);
+    }
+
+    public async Task<IEnumerable<string>> GetPendingFrequenciesAsync(int requestResultId, int medicineRequestItemId)
+    {
+        return await _medicineRequestRepository.GetPendingFrequenciesAsync(requestResultId, medicineRequestItemId);
+    }
+
+    public async Task<bool> CompleteMedicineRequestAsync(int requestResultId, int staffId)
+    {
+        return await _medicineRequestRepository.CompleteMedicineRequestAsync(requestResultId, staffId);
+    }
+
+    // New failure handling methods
+    public async Task<bool> ReportMedicineFailureAsync(int requestResultId, int medicineRequestItemId, string frequency, string failureReason, int staffId, string? notes = null)
+    {
+        return await _medicineRequestRepository.ReportMedicineFailureAsync(requestResultId, medicineRequestItemId, frequency, failureReason, staffId, notes);
+    }
+
+    public async Task<RequestResult?> CreateReRequestAsync(int originalRequestResultId, string reRequestReason, int staffId)
+    {
+        return await _medicineRequestRepository.CreateReRequestAsync(originalRequestResultId, reRequestReason, staffId);
+    }
+
+    public async Task<bool> UpdateTimeBasedStatusAsync()
+    {
+        return await _medicineRequestRepository.UpdateTimeBasedStatusAsync();
+    }
+
+    public async Task<IEnumerable<RequestResult>> GetFailedRequestsAsync()
+    {
+        return await _medicineRequestRepository.GetFailedRequestsAsync();
+    }
+
+    public async Task<IEnumerable<RequestResult>> GetReRequestsAsync(int originalRequestResultId)
+    {
+        return await _medicineRequestRepository.GetReRequestsAsync(originalRequestResultId);
+    }
+
+    public async Task<bool> IsRequestEligibleForReRequestAsync(int requestResultId)
+    {
+        return await _medicineRequestRepository.IsRequestEligibleForReRequestAsync(requestResultId);
+    }
+
+    public async Task<string> GetReRequestReasonAsync(int requestResultId)
+    {
+        return await _medicineRequestRepository.GetReRequestReasonAsync(requestResultId);
+    }
+
+    public async Task<bool> MarkRequestAsFailedAsync(int requestResultId, string reason)
+    {
+        return await _medicineRequestRepository.MarkRequestAsFailedAsync(requestResultId, reason);
+    }
+
+    public async Task<RequestResult?> GetRequestResultByIdAsync(int requestResultId)
+    {
+        return await _medicineRequestRepository.GetRequestResultByIdAsync(requestResultId);
     }
 } 
