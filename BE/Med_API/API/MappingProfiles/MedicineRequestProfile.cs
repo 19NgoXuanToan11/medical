@@ -12,6 +12,7 @@ public class MedicineRequestProfile : Profile
         CreateMap<MedicineRequest, MedicineRequestDto.ViewModel>()
             .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src => src.StudentCode))
             .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
             .ForMember(dest => dest.MedicineRequestItems, opt => opt.MapFrom(src => src.MedicineRequestItems));
 
         // Map from MedicineRequestDto.Create to MedicineRequest
@@ -20,6 +21,7 @@ public class MedicineRequestProfile : Profile
             .ForMember(dest => dest.RequestDate, opt => opt.Ignore())
             .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src => src.StudentCode))
             .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
             .ForMember(dest => dest.MedicineRequestItems, opt => opt.MapFrom(src => src.MedicineRequestItems));
 
         // Map from MedicineRequestDto.Update to MedicineRequest
