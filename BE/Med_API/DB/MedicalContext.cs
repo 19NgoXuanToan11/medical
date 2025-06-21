@@ -557,6 +557,26 @@ public partial class MedicalContext : DbContext
                 .HasConstraintName("FK_StudentParent_Parent");
         });
 
+        // Configure many-to-many relationship between Parent and Student
+        modelBuilder.Entity<Parent>()
+            .HasMany(p => p.Students)
+            .WithMany(s => s.Parents)
+            .UsingEntity<StudentParent>(
+                j => j
+                    .HasOne(sp => sp.Student)
+                    .WithMany(s => s.StudentParents)
+                    .HasForeignKey(sp => sp.StudentCode)
+                    .HasPrincipalKey(s => s.StudentCode),
+                j => j
+                    .HasOne(sp => sp.Parent)
+                    .WithMany(p => p.StudentParents)
+                    .HasForeignKey(sp => sp.ParentId),
+                j =>
+                {
+                    j.HasKey(t => t.StudentParentId);
+                    j.ToTable("Student_Parent");
+                });
+
         modelBuilder.Entity<RequestResult>(entity =>
         {
             entity.HasKey(e => e.ResultId).HasName("PK__Request___97690228392A5FD6");

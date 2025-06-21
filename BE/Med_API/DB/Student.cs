@@ -45,6 +45,8 @@ public partial class Student
 
     public virtual ICollection<StudentParent> StudentParents { get; set; } = new List<StudentParent>();
 
+    public virtual ICollection<Parent> Parents { get; set; } = new List<Parent>();
+
     public virtual ICollection<MedicineRequest> MedicineRequests { get; set; } = new List<MedicineRequest>();
 
     public virtual ICollection<InjectionForm> InjectionForms { get; set; } = new List<InjectionForm>();

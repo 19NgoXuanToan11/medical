@@ -17,7 +17,12 @@ public class StudentProfile : Profile
             .ForMember(dest => dest.HealthEventCount, opt => opt.MapFrom(src => 
                 src.HealthEvents != null ? src.HealthEvents.Count : 0))
             .ForMember(dest => dest.ParentCount, opt => opt.MapFrom(src => 
-                src.StudentParents != null ? src.StudentParents.Count : 0));
+                src.StudentParents != null ? src.StudentParents.Count : 0))
+            .ForMember(dest => dest.Parents, opt => opt.MapFrom(src => src.Parents))
+            .ForMember(dest => dest.StudentParents, opt => opt.MapFrom(src => src.StudentParents));
+
+        // Map from Parent to StudentDto.ParentSummary
+        CreateMap<Parent, StudentDto.ParentSummary>();
 
         // Map from StudentDto.Create to Student
         CreateMap<StudentDto.Create, Student>()
@@ -26,6 +31,7 @@ public class StudentProfile : Profile
             .ForMember(dest => dest.HealthEvents, opt => opt.Ignore()) // Ignore navigation properties
             .ForMember(dest => dest.HealthProfiles, opt => opt.Ignore())
             .ForMember(dest => dest.StudentParents, opt => opt.Ignore())
+            .ForMember(dest => dest.Parents, opt => opt.Ignore())
             .ForMember(dest => dest.MedicineRequests, opt => opt.Ignore())
             .ForMember(dest => dest.InjectionForms, opt => opt.Ignore())
             .ForMember(dest => dest.InjectionResults, opt => opt.Ignore());
@@ -35,6 +41,7 @@ public class StudentProfile : Profile
             .ForMember(dest => dest.HealthEvents, opt => opt.Ignore()) // Ignore navigation properties
             .ForMember(dest => dest.HealthProfiles, opt => opt.Ignore())
             .ForMember(dest => dest.StudentParents, opt => opt.Ignore())
+            .ForMember(dest => dest.Parents, opt => opt.Ignore())
             .ForMember(dest => dest.MedicineRequests, opt => opt.Ignore())
             .ForMember(dest => dest.InjectionForms, opt => opt.Ignore())
             .ForMember(dest => dest.InjectionResults, opt => opt.Ignore())
