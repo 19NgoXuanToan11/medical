@@ -8,10 +8,12 @@ import {
 const MedicationRequest = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    studentId: 0,
-    studentName: "",
+    studentCode: "",
+    className: "",
     staffId: 0,
     status: "pending",
+    startDate: "",
+    endDate: "",
   });
 
   const [medications, setMedications] = useState([
@@ -35,6 +37,18 @@ const MedicationRequest = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Allow typing for date fields, but limit characters
+    if (name === "startDate" || name === "endDate") {
+      // Only allow numbers and dashes, max 10 characters (yyyy-mm-dd)
+      const cleanValue = value.replace(/[^\d-]/g, "").slice(0, 10);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: cleanValue,
+      }));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -107,6 +121,22 @@ const MedicationRequest = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate date format before submitting
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!datePattern.test(formData.startDate)) {
+      alert(
+        "Vui lòng nhập ngày bắt đầu đúng định dạng: yyyy-mm-dd (ví dụ: 2024-01-15)"
+      );
+      return;
+    }
+    if (!datePattern.test(formData.endDate)) {
+      alert(
+        "Vui lòng nhập ngày kết thúc đúng định dạng: yyyy-mm-dd (ví dụ: 2024-01-20)"
+      );
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -124,40 +154,42 @@ const MedicationRequest = () => {
           "prescription"
         );
 
-        // Prepare data according to API schema
-        const requestData = {
+        // Prepare medication item according to API schema
+        const medicationItem = {
           medicineName: medication.medicineName,
           dosage: medication.dosage,
           frequency: medication.frequency,
-          instructions: medication.instructions,
           timeOfDay: medication.timeOfDay,
+          instructions: medication.instructions,
           medicationImagePath: medicationImagePath,
           prescriptionImagePath: prescriptionImagePath,
-          studentId: parseInt(formData.studentId) || 1, // Mock student ID
-          studentName: formData.studentName,
-          staffId: parseInt(formData.staffId) || 1, // Mock staff ID
-          status: "pending",
         };
 
-        // Make API call using medication service
-        const result = await medicationService.createMedicationRequest(
-          requestData
-        );
-
-        if (result.success) {
-          processedMedications.push(requestData);
-          // Send notification to nurse
-          await notificationService.notifyNurseNewRequest(requestData);
-        } else {
-          throw new Error(
-            result.message ||
-              `Không thể gửi yêu cầu thuốc ${medication.medicineName}`
-          );
-        }
+        processedMedications.push(medicationItem);
       }
 
-      if (processedMedications.length > 0) {
+      // Prepare request data according to API schema
+      const requestData = {
+        studentCode: formData.studentCode,
+        className: formData.className,
+        staffId: parseInt(formData.staffId) || 1,
+        status: formData.status,
+        startDate: formData.startDate, // Already in yyyy-mm-dd format from HTML date input
+        endDate: formData.endDate, // Already in yyyy-mm-dd format from HTML date input
+        medicineRequestItems: processedMedications,
+      };
+
+      // Make API call using medication service
+      const result = await medicationService.createMedicationRequest(
+        requestData
+      );
+
+      if (result.success) {
         setIsSubmitted(true);
+        // Send notification to nurse
+        await notificationService.notifyNurseNewRequest(requestData);
+      } else {
+        throw new Error(result.message || "Không thể gửi yêu cầu thuốc");
       }
     } catch (error) {
       console.error("Error submitting medication request:", error);
@@ -311,38 +343,79 @@ const MedicationRequest = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label
-                    htmlFor="studentName"
-                    className="block text-sm font-medium text-neutral-700 mb-1"
-                  >
-                    Họ và tên học sinh <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="studentName"
-                    name="studentName"
-                    value={formData.studentName}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Nhập họ tên học sinh"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="studentId"
+                    htmlFor="studentCode"
                     className="block text-sm font-medium text-neutral-700 mb-1"
                   >
                     Mã học sinh <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="number"
-                    id="studentId"
-                    name="studentId"
-                    value={formData.studentId}
+                    type="text"
+                    id="studentCode"
+                    name="studentCode"
+                    value={formData.studentCode}
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     placeholder="Nhập mã học sinh"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="className"
+                    className="block text-sm font-medium text-neutral-700 mb-1"
+                  >
+                    Lớp <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="className"
+                    name="className"
+                    value={formData.className}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Nhập tên lớp"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="startDate"
+                    className="block text-sm font-medium text-neutral-700 mb-1"
+                  >
+                    Ngày bắt đầu <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="startDate"
+                    name="startDate"
+                    value={formData.startDate}
+                    onChange={handleInputChange}
+                    required
+                    pattern="\d{4}-\d{2}-\d{2}"
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="2024-01-15"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="endDate"
+                    className="block text-sm font-medium text-neutral-700 mb-1"
+                  >
+                    Ngày kết thúc <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="endDate"
+                    name="endDate"
+                    value={formData.endDate}
+                    onChange={handleInputChange}
+                    required
+                    pattern="\d{4}-\d{2}-\d{2}"
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="2024-01-20"
                   />
                 </div>
               </div>
