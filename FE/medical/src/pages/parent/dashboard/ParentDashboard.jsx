@@ -1,8 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import VaccinationWidget from "../vaccination/VaccinationWidget";
+import SimpleGreeting from "../../../components/common/SimpleGreeting";
 
 const ParentDashboard = () => {
+  const navigate = useNavigate();
   // Sample data - in a real application, this would come from an API
   const activeMedications = 2;
   const pendingMedications = 1;
@@ -10,17 +12,11 @@ const ParentDashboard = () => {
   const notificationCount = 3;
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
-      <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
-        <div className="p-6">
-          <h1 className="text-2xl font-semibold text-black mb-2">
-            Xin chào, phụ huynh của {studentName}
-          </h1>
-          <p className="text-black text-sm">
-            Theo dõi sức khỏe và các yêu cầu của con bạn tại trường
-          </p>
-        </div>
+    <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
+      {/* Simple Greeting */}
+      <SimpleGreeting roleTitle="Phụ huynh" />
 
+      <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden hover:shadow-sm transition-shadow duration-200">

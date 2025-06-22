@@ -33,6 +33,7 @@ import ExcelManagement from "./pages/manager/excel/ExcelManagement";
 
 // nurse
 import NurseDashboard from "./pages/nurse/dashboard/NurseDashboard";
+import NurseProfile from "./pages/nurse/profile/NurseProfile";
 import NurseHealthCheck from "./pages/nurse/health-check/NurseHealthCheck";
 import NurseHealthCheckCreate from "./pages/nurse/health-check/NurseHealthCheckCreate";
 import NurseHealthCheckDetail from "./pages/nurse/health-check/NurseHealthCheckDetail";
@@ -53,6 +54,7 @@ import NurseSchedule from "./pages/nurse/schedule/NurseSchedule";
 
 // parent
 import ParentDashboard from "./pages/parent/dashboard/ParentDashboard";
+import ParentProfile from "./pages/parent/profile/ParentProfile";
 import StudentHealthProfile from "./pages/parent/health-profile/StudentHealthProfile";
 import HealthProfileList from "./pages/parent/health-profile/HealthProfileList";
 import ComprehensiveHealthTable from "./pages/parent/health-profile/ComprehensiveHealthTable";
@@ -127,6 +129,9 @@ function App() {
           {/* Parent Dashboard */}
           <Route path="/parent/dashboard" element={<ParentDashboard />} />
 
+          {/* Parent Profile */}
+          <Route path="/parent/profile" element={<ParentProfile />} />
+
           {/* Parent Health Profile Routes */}
           <Route path="/parent/health-profile" element={<HealthProfileList />} />
           <Route path="/parent/health-profile/comprehensive" element={<ComprehensiveHealthTable />} />
@@ -162,6 +167,9 @@ function App() {
         <Route element={<NurseLayout />}>
           {/* Nurse Dashboard */}
           <Route path="/nurse/dashboard" element={<NurseDashboard />} />
+
+          {/* Nurse Profile */}
+          <Route path="/nurse/profile" element={<NurseProfile />} />
 
           {/* Schedule Routes */}
           <Route path="/nurse/schedule" element={<NurseSchedule />} />

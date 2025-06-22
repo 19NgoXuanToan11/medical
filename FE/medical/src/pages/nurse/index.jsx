@@ -1,9 +1,11 @@
-import NurseDashboard from "./NurseDashboard";
-import NurseHealthCheck from "./NurseHealthCheck";
+import NurseDashboard from "./dashboard/NurseDashboard";
+import NurseHealthCheck from "./health-check/NurseHealthCheck";
+import NurseProfile from "./profile/NurseProfile";
 
-export { NurseDashboard, NurseHealthCheck };
+export { NurseDashboard, NurseHealthCheck, NurseProfile };
 
 export default {
   NurseDashboard,
   NurseHealthCheck,
+  NurseProfile,
 };

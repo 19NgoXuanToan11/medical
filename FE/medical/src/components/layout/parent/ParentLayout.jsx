@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaFileMedical,
@@ -12,16 +12,25 @@ import {
   FaChevronRight,
   FaPlus,
   FaList,
+  FaUser,
 } from "react-icons/fa";
 import { MdHealthAndSafety, MdOutlineSchool } from "react-icons/md";
 import { FiLogOut } from "react-icons/fi";
+import { useAuth } from "../../../utils/auth/AuthContext";
 
 const ParentLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
   const [studentDropdown, setStudentDropdown] = useState(false);
   const [medicationDropdown, setMedicationDropdown] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   // Placeholder data - in a real app, this would come from an API
   const students = [
@@ -37,6 +46,11 @@ const ParentLayout = () => {
       path: "/parent/dashboard",
       label: "Trang chủ",
       icon: <FaHome className="w-5 h-5" />,
+    },
+    {
+      path: "/parent/profile",
+      label: "Hồ sơ cá nhân",
+      icon: <FaUser className="w-5 h-5" />,
     },
     {
       path: "/parent/health-profile",
@@ -296,7 +310,8 @@ const ParentLayout = () => {
         {/* Logout */}
         <div className="p-4 border-t border-neutral-200">
           <button
-            className={`flex items-center text-neutral-600 hover:text-neutral-900 ${
+            onClick={handleLogout}
+            className={`flex items-center text-neutral-600 hover:text-red-600 transition-colors ${
               collapsed ? "justify-center w-full" : ""
             }`}
           >
@@ -338,8 +353,22 @@ const ParentLayout = () => {
             <button className="p-1 rounded-full text-neutral-500 hover:bg-neutral-100">
               <FaBell className="w-6 h-6" />
             </button>
-            <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
-              <span className="text-white font-medium text-sm">PH</span>
+
+            {/* User Profile Section */}
+            <div className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-50 rounded-lg cursor-pointer transition-colors">
+              <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
+                <span className="text-white font-medium text-sm">
+                  {user?.firstName?.charAt(0) || "P"}
+                  {user?.lastName?.charAt(0) || "H"}
+                </span>
+              </div>
+              <div className="hidden md:block text-left">
+                <p className="text-sm font-medium text-neutral-900">
+                  Xin chào, {user?.firstName || "Phụ huynh"}!
+                </p>
+                <p className="text-xs text-neutral-500">Phụ huynh học sinh</p>
+              </div>
+              <FaChevronDown className="w-3 h-3 text-neutral-400 hidden md:block" />
             </div>
           </div>
         </header>

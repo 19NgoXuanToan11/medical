@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FiUsers,
   FiActivity,
@@ -11,11 +11,15 @@ import {
   FiBell,
   FiClipboard,
   FiX,
+  FiUser,
+  FiPlus,
 } from "react-icons/fi";
 import MedicationReminders from "../medication/MedicationReminders";
 import TodaySchedule from "../../../components/nurse/TodaySchedule";
+import SimpleGreeting from "../../../components/common/SimpleGreeting";
 
 const NurseDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalStudents: 0,
     pendingMedications: 0,
@@ -163,6 +167,8 @@ const NurseDashboard = () => {
         </div>
       ) : (
         <>
+          {/* Simple Greeting */}
+          <SimpleGreeting roleTitle="Nurse" />
           {/* Notifications Section */}
           {notifications.length > 0 && (
             <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden mb-6">
