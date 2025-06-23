@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FiHome,
   FiUsers,
@@ -10,12 +10,21 @@ import {
   FiClipboard,
   FiLogOut,
   FiBell,
+  FiChevronDown,
 } from "react-icons/fi";
+import { useAuth } from "../../../utils/auth/AuthContext";
 
 const NurseLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const menuItems = [
     {
@@ -24,14 +33,24 @@ const NurseLayout = () => {
       icon: <FiHome className="w-5 h-5" />,
     },
     {
-      path: "/nurse/medication",
-      name: "Quản lý thuốc",
-      icon: <FiTablet className="w-5 h-5" />,
+      path: "/nurse/profile",
+      name: "Hồ sơ cá nhân",
+      icon: <FiUsers className="w-5 h-5" />,
     },
     {
-      path: "/nurse/health-check",
-      name: "Kiểm tra sức khỏe",
+      path: "/nurse/schedule",
+      name: "Lịch trình hôm nay",
+      icon: <FiBell className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/schedule",
+      name: "Hồ sơ sức khỏe học sinh",
       icon: <FiClipboard className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/medication",
+      name: "Yêu cầu thuốc",
+      icon: <FiTablet className="w-5 h-5" />,
     },
     {
       path: "/nurse/health-events",
@@ -42,6 +61,11 @@ const NurseLayout = () => {
       path: "/nurse/vaccination",
       name: "Tiêm chủng",
       icon: <FiCalendar className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/health-check",
+      name: "Kiểm tra y tế định kỳ",
+      icon: <FiClipboard className="w-5 h-5" />,
     },
   ];
 
@@ -126,7 +150,8 @@ const NurseLayout = () => {
         {/* Logout */}
         <div className="p-4 border-t border-neutral-200">
           <button
-            className={`flex items-center text-neutral-600 hover:text-neutral-900 ${
+            onClick={handleLogout}
+            className={`flex items-center text-neutral-600 hover:text-red-600 transition-colors ${
               collapsed ? "justify-center w-full" : ""
             }`}
           >
@@ -150,8 +175,24 @@ const NurseLayout = () => {
             <button className="p-1 rounded-full text-neutral-500 hover:bg-neutral-100">
               <FiBell className="w-6 h-6" />
             </button>
-            <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
-              <span className="text-white font-medium text-sm">YT</span>
+
+            {/* User Profile Dropdown */}
+            <div className="relative">
+              <div className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-50 rounded-lg cursor-pointer transition-colors">
+                <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
+                  <span className="text-white font-medium text-sm">
+                    {user?.firstName?.charAt(0) || "Y"}
+                    {user?.lastName?.charAt(0) || "T"}
+                  </span>
+                </div>
+                <div className="hidden md:block text-left">
+                  <p className="text-sm font-medium text-neutral-900">
+                    Xin chào, {user?.firstName || "Y Tá"}!
+                  </p>
+                  <p className="text-xs text-neutral-500">Y tá trường học</p>
+                </div>
+                <FiChevronDown className="w-4 h-4 text-neutral-400 hidden md:block" />
+              </div>
             </div>
           </div>
         </header>

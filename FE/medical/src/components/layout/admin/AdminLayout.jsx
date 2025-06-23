@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FiHome,
   FiUsers,
@@ -9,11 +9,19 @@ import {
   FiBell,
   FiUserCheck,
 } from "react-icons/fi";
+import { useAuth } from "../../../utils/auth/AuthContext";
 
 const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const menuItems = [
     {
@@ -114,7 +122,8 @@ const AdminLayout = () => {
         {/* Logout */}
         <div className="p-4 border-t border-neutral-200">
           <button
-            className={`flex items-center text-neutral-600 hover:text-neutral-900 ${
+            onClick={handleLogout}
+            className={`flex items-center text-neutral-600 hover:text-red-600 transition-colors ${
               collapsed ? "justify-center w-full" : ""
             }`}
           >

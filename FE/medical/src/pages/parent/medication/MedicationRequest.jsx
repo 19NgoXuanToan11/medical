@@ -15,8 +15,7 @@ const MedicationRequest = () => {
     className: "",
     parentID: user?.id || 0, // Gán parent ID từ user đã đăng nhập
     status: "pending",
-    startDate: "",
-    endDate: "",
+    date: "",
   });
 
   const [medications, setMedications] = useState([
@@ -24,9 +23,10 @@ const MedicationRequest = () => {
       id: 1,
       medicineName: "",
       dosage: "",
-      frequency: "",
+      dosageUnit: "viên", // đơn vị liều lượng
+      frequency: "1", // số lần trong ngày
+      timeOfDay: [], // array chứa các thời điểm: morning, afternoon, as_needed
       instructions: "",
-      timeOfDay: "",
       medicationImagePath: "",
       prescriptionImagePath: "",
       medicationImage: null,
@@ -37,6 +37,42 @@ const MedicationRequest = () => {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+
+  // Fetch students của parent từ API Parent/{id}
+  const fetchStudentsByParent = async (parentId) => {
+    if (!parentId) return;
+
+    setLoadingStudents(true);
+    try {
+      const API_URL = "https://localhost:7111/api";
+
+      // Sử dụng API Parent/{id} để lấy thông tin parent và students
+      const response = await fetch(`${API_URL}/Parent/${parentId}`);
+
+      if (response.ok) {
+        const parentData = await response.json();
+
+        // Lấy danh sách students từ response
+        const studentsList = parentData.students || [];
+
+        // Students đã có className từ API, không cần mapping
+        const mappedStudents = studentsList;
+
+        setStudents(mappedStudents);
+        console.log("Fetched students from Parent API:", mappedStudents);
+      } else {
+        console.error("Failed to fetch parent data:", response.status);
+        setStudents([]);
+      }
+    } catch (error) {
+      console.error("Error fetching students from Parent API:", error);
+      setStudents([]);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
 
   // Cập nhật parentID khi user thay đổi (sau khi đăng nhập)
   useEffect(() => {
@@ -46,19 +82,55 @@ const MedicationRequest = () => {
         ...prev,
         parentID: user.id,
       }));
+
+      // Fetch students của parent này
+      fetchStudentsByParent(user.id);
     }
   }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Allow typing for date fields, but limit characters
-    if (name === "startDate" || name === "endDate") {
-      // Only allow numbers and dashes, max 10 characters (yyyy-mm-dd)
-      const cleanValue = value.replace(/[^\d-]/g, "").slice(0, 10);
+    // Handle student selection
+    if (name === "studentCode") {
+      const selectedStudent = students.find(
+        (student) => student.studentCode === value
+      );
       setFormData((prev) => ({
         ...prev,
-        [name]: cleanValue,
+        studentCode: value,
+        className: selectedStudent ? selectedStudent.className : "",
+      }));
+      return;
+    }
+
+    // Allow typing for date field with y/d/m format and auto-format
+    if (name === "date") {
+      // Only keep digits
+      let cleanValue = value.replace(/[^\d]/g, "");
+
+      // Limit to 8 digits max (yyyyddmm)
+      cleanValue = cleanValue.slice(0, 8);
+
+      // Auto-format as y/d/m based on length
+      let formattedValue = cleanValue;
+
+      if (cleanValue.length >= 7) {
+        // Format as yyyy/dd/mm
+        formattedValue =
+          cleanValue.slice(0, 4) +
+          "/" +
+          cleanValue.slice(4, 6) +
+          "/" +
+          cleanValue.slice(6, 8);
+      } else if (cleanValue.length >= 5) {
+        // Format as yyyy/dd
+        formattedValue = cleanValue.slice(0, 4) + "/" + cleanValue.slice(4);
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        [name]: formattedValue,
       }));
       return;
     }
@@ -71,10 +143,97 @@ const MedicationRequest = () => {
 
   const handleMedicationChange = (medicationId, field, value) => {
     setMedications((prev) =>
-      prev.map((med) =>
-        med.id === medicationId ? { ...med, [field]: value } : med
-      )
+      prev.map((med) => {
+        if (med.id === medicationId) {
+          const updatedMed = { ...med, [field]: value };
+
+          // Nếu thay đổi tần suất, kiểm tra và điều chỉnh thời điểm đã chọn
+          if (field === "frequency") {
+            const maxTimeSlots = getMaxTimeSlots(value);
+            if (
+              value !== "as_needed" &&
+              updatedMed.timeOfDay.length > maxTimeSlots
+            ) {
+              // Giữ lại những thời điểm đầu tiên theo thứ tự ưu tiên
+              const priorityOrder = [
+                "morning",
+                "noon",
+                "afternoon",
+                "as_needed",
+              ];
+              const sortedTimeOfDay = updatedMed.timeOfDay.sort(
+                (a, b) => priorityOrder.indexOf(a) - priorityOrder.indexOf(b)
+              );
+              updatedMed.timeOfDay = sortedTimeOfDay.slice(0, maxTimeSlots);
+            }
+          }
+
+          return updatedMed;
+        }
+        return med;
+      })
     );
+  };
+
+  // Xử lý checkbox cho thời điểm dùng thuốc với validation
+  const handleTimeOfDayChange = (medicationId, timeValue, isChecked) => {
+    setMedications((prev) =>
+      prev.map((med) => {
+        if (med.id === medicationId) {
+          let newTimeOfDay = [...med.timeOfDay];
+
+          // Lấy giới hạn số thời điểm dựa trên tần suất
+          const maxTimeSlots = getMaxTimeSlots(med.frequency);
+
+          if (isChecked) {
+            // Kiểm tra xem có vượt quá giới hạn không
+            if (
+              newTimeOfDay.length >= maxTimeSlots &&
+              med.frequency !== "as_needed"
+            ) {
+              // Không cho phép thêm nếu đã đạt giới hạn
+              return med;
+            }
+            // Thêm thời điểm nếu chưa có
+            if (!newTimeOfDay.includes(timeValue)) {
+              newTimeOfDay.push(timeValue);
+            }
+          } else {
+            // Xóa thời điểm
+            newTimeOfDay = newTimeOfDay.filter((time) => time !== timeValue);
+          }
+          return { ...med, timeOfDay: newTimeOfDay };
+        }
+        return med;
+      })
+    );
+  };
+
+  // Hàm lấy số thời điểm tối đa dựa trên tần suất
+  const getMaxTimeSlots = (frequency) => {
+    switch (frequency) {
+      case "1":
+        return 1;
+      case "2":
+        return 2;
+      case "3":
+        return 3;
+      case "4":
+        return 4;
+      case "as_needed":
+        return 4; // Không giới hạn cho khi cần thiết
+      default:
+        return 1;
+    }
+  };
+
+  // Kiểm tra xem có thể chọn thêm thời điểm không
+  const canSelectTimeSlot = (medication, timeValue) => {
+    if (medication.frequency === "as_needed") return true;
+    if (medication.timeOfDay.includes(timeValue)) return true;
+
+    const maxTimeSlots = getMaxTimeSlots(medication.frequency);
+    return medication.timeOfDay.length < maxTimeSlots;
   };
 
   const handleFileChange = (medicationId, fileType, file) => {
@@ -93,9 +252,10 @@ const MedicationRequest = () => {
         id: newId,
         medicineName: "",
         dosage: "",
-        frequency: "",
+        dosageUnit: "viên",
+        frequency: "1",
+        timeOfDay: [],
         instructions: "",
-        timeOfDay: "",
         medicationImagePath: "",
         prescriptionImagePath: "",
         medicationImage: null,
@@ -138,15 +298,9 @@ const MedicationRequest = () => {
 
     // Validate date format before submitting
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-    if (!datePattern.test(formData.startDate)) {
+    if (!datePattern.test(formData.date)) {
       alert(
-        "Vui lòng nhập ngày bắt đầu đúng định dạng: yyyy-mm-dd (ví dụ: 2024-01-15)"
-      );
-      return;
-    }
-    if (!datePattern.test(formData.endDate)) {
-      alert(
-        "Vui lòng nhập ngày kết thúc đúng định dạng: yyyy-mm-dd (ví dụ: 2024-01-20)"
+        "Vui lòng nhập ngày đúng định dạng: yyyy-mm-dd (ví dụ: 2024-01-15)"
       );
       return;
     }
@@ -186,8 +340,8 @@ const MedicationRequest = () => {
         className: formData.className,
         parentID: user?.id || parseInt(formData.parentID) || 1, // Ưu tiên lấy từ user đã đăng nhập
         status: formData.status,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
+        startDate: formData.date,
+        endDate: formData.date,
         medicineRequestItems: processedMedications,
       };
 
@@ -217,7 +371,61 @@ const MedicationRequest = () => {
     }
   };
 
-  const nextStep = () => setStep(step + 1);
+  // Kiểm tra xem bước 1 đã hoàn thành chưa
+  const isStep1Valid = () => {
+    return (
+      formData.studentCode.trim() !== "" &&
+      formData.className.trim() !== "" &&
+      formData.date.trim() !== "" &&
+      isValidDate(formData.date) && // Check if date is actually valid
+      !isPastDate(formData.date) // Check if date is not in the past
+    );
+  };
+
+  // Kiểm tra ngày có hợp lệ không - định dạng y/d/m
+  const isValidDate = (dateString) => {
+    if (!dateString || !dateString.includes("/")) return false;
+
+    const parts = dateString.split("/");
+    if (parts.length !== 3) return false;
+
+    const [year, day, month] = parts.map(Number);
+
+    // Kiểm tra các giá trị số hợp lệ
+    if (isNaN(year) || isNaN(day) || isNaN(month)) return false;
+    if (year < 1900 || year > 2100) return false;
+    if (month < 1 || month > 12) return false;
+    if (day < 1 || day > 31) return false;
+
+    // Kiểm tra ngày có tồn tại trong tháng không
+    const date = new Date(year, month - 1, day);
+
+    return (
+      date.getFullYear() === year &&
+      date.getMonth() === month - 1 &&
+      date.getDate() === day
+    );
+  };
+
+  // Kiểm tra có phải ngày trong quá khứ không
+  const isPastDate = (dateString) => {
+    if (!isValidDate(dateString)) return false;
+
+    const [year, day, month] = dateString.split("/").map(Number);
+    const inputDate = new Date(year, month - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return inputDate < today;
+  };
+
+  const nextStep = () => {
+    if (step === 1 && !isStep1Valid()) {
+      return; // Không cho phép chuyển sang bước 2 nếu chưa điền đủ thông tin
+    }
+    setStep(step + 1);
+  };
+
   const prevStep = () => setStep(step - 1);
 
   if (isSubmitted) {
@@ -355,18 +563,49 @@ const MedicationRequest = () => {
                     htmlFor="studentCode"
                     className="block text-sm font-medium text-neutral-700 mb-1"
                   >
-                    Mã học sinh <span className="text-red-500">*</span>
+                    Chọn học sinh <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    id="studentCode"
-                    name="studentCode"
-                    value={formData.studentCode}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Nhập mã học sinh"
-                  />
+                  {loadingStudents ? (
+                    <div className="w-full px-4 py-2 border border-neutral-300 rounded-md bg-neutral-50 text-neutral-500">
+                      Đang tải danh sách học sinh...
+                    </div>
+                  ) : students.length === 0 ? (
+                    <div className="w-full px-4 py-2 border border-neutral-300 rounded-md bg-yellow-50 text-yellow-700">
+                      Không có học sinh nào được liên kết với tài khoản này. Vui
+                      lòng liên hệ nhà trường để cập nhật thông tin.
+                    </div>
+                  ) : (
+                    <div>
+                      <select
+                        id="studentCode"
+                        name="studentCode"
+                        value={formData.studentCode}
+                        onChange={handleInputChange}
+                        required
+                        className={`w-full px-4 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
+                          !formData.studentCode
+                            ? "border-red-300"
+                            : "border-neutral-300"
+                        }`}
+                      >
+                        <option value="">-- Chọn học sinh --</option>
+                        {students.map((student) => (
+                          <option
+                            key={student.studentCode}
+                            value={student.studentCode}
+                          >
+                            {student.studentCode} - {student.firstName}{" "}
+                            {student.lastName}
+                          </option>
+                        ))}
+                      </select>
+                      {!formData.studentCode && (
+                        <p className="text-red-500 text-sm mt-1">
+                          Vui lòng chọn học sinh
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label
@@ -380,53 +619,53 @@ const MedicationRequest = () => {
                     id="className"
                     name="className"
                     value={formData.className}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Nhập tên lớp"
+                    readOnly
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-md bg-neutral-50 text-neutral-600"
+                    placeholder="Lớp sẽ tự động điền khi chọn học sinh"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="startDate"
-                    className="block text-sm font-medium text-neutral-700 mb-1"
-                  >
-                    Ngày bắt đầu <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="startDate"
-                    name="startDate"
-                    value={formData.startDate}
-                    onChange={handleInputChange}
-                    required
-                    pattern="\d{4}-\d{2}-\d{2}"
-                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="2024-01-15"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="endDate"
-                    className="block text-sm font-medium text-neutral-700 mb-1"
-                  >
-                    Ngày kết thúc <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="endDate"
-                    name="endDate"
-                    value={formData.endDate}
-                    onChange={handleInputChange}
-                    required
-                    pattern="\d{4}-\d{2}-\d{2}"
-                    className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="2024-01-20"
-                  />
-                </div>
+              <div>
+                <label
+                  htmlFor="date"
+                  className="block text-sm font-medium text-neutral-700 mb-1"
+                >
+                  Ngày <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="y/d/m"
+                  className={`w-full px-4 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
+                    formData.date && !isValidDate(formData.date)
+                      ? "border-red-300"
+                      : "border-neutral-300"
+                  }`}
+                />
+                {formData.date && !isValidDate(formData.date) && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Ngày không hợp lệ. Vui lòng nhập theo định dạng y/d/m (ví
+                    dụ: 2024/15/12)
+                  </p>
+                )}
+                {formData.date &&
+                  isValidDate(formData.date) &&
+                  isPastDate(formData.date) && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Không thể chọn ngày trong quá khứ
+                    </p>
+                  )}
+                {!formData.date && (
+                  <p className="text-neutral-500 text-sm mt-1">
+                    Nhập ngày cần cấp thuốc (định dạng: y/d/m - ví dụ:
+                    2024/15/12)
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -513,32 +752,52 @@ const MedicationRequest = () => {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-neutral-700 mb-1">
                           Liều lượng <span className="text-red-500">*</span>
                         </label>
-                        <input
-                          type="text"
-                          value={medication.dosage}
-                          onChange={(e) =>
-                            handleMedicationChange(
-                              medication.id,
-                              "dosage",
-                              e.target.value
-                            )
-                          }
-                          required
-                          className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="Ví dụ: 1 viên, 5ml,..."
-                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="number"
+                            min="0.5"
+                            step="0.5"
+                            value={medication.dosage}
+                            onChange={(e) =>
+                              handleMedicationChange(
+                                medication.id,
+                                "dosage",
+                                e.target.value
+                              )
+                            }
+                            required
+                            className="flex-1 px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                            placeholder="1"
+                          />
+                          <select
+                            value={medication.dosageUnit}
+                            onChange={(e) =>
+                              handleMedicationChange(
+                                medication.id,
+                                "dosageUnit",
+                                e.target.value
+                              )
+                            }
+                            className="px-3 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white"
+                          >
+                            <option value="viên">viên</option>
+                            <option value="ml">ml</option>
+                            <option value="mg">mg</option>
+                            <option value="muỗng">muỗng</option>
+                            <option value="gói">gói</option>
+                          </select>
+                        </div>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-neutral-700 mb-1">
-                          Tần suất <span className="text-red-500">*</span>
+                          Tần suất/ngày <span className="text-red-500">*</span>
                         </label>
-                        <input
-                          type="text"
+                        <select
                           value={medication.frequency}
                           onChange={(e) =>
                             handleMedicationChange(
@@ -549,34 +808,140 @@ const MedicationRequest = () => {
                           }
                           required
                           className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="Ví dụ: 3 lần/ngày"
-                        />
+                        >
+                          <option value="1">1 lần/ngày</option>
+                          <option value="2">2 lần/ngày</option>
+                          <option value="3">3 lần/ngày</option>
+                          <option value="4">4 lần/ngày</option>
+                          <option value="as_needed">Khi cần thiết</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">
+                          Tổng liều/lần
+                        </label>
+                        <div className="px-4 py-2 border border-neutral-200 rounded-md bg-neutral-50 text-neutral-600">
+                          {medication.dosage && medication.dosageUnit
+                            ? `${medication.dosage} ${medication.dosageUnit}`
+                            : "Nhập liều lượng"}
+                        </div>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-1">
+                      <label className="block text-sm font-medium text-neutral-700 mb-3">
                         Thời điểm dùng thuốc{" "}
                         <span className="text-red-500">*</span>
                       </label>
-                      <select
-                        value={medication.timeOfDay}
-                        onChange={(e) =>
-                          handleMedicationChange(
-                            medication.id,
-                            "timeOfDay",
-                            e.target.value
-                          )
-                        }
-                        required
-                        className="w-full px-4 py-2 border border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                      >
-                        <option value="">-- Chọn thời điểm --</option>
-                        <option value="morning">Buổi sáng</option>
-                        <option value="afternoon">Buổi chiều</option>
-                        <option value="evening">Buổi tối</option>
-                        <option value="as_needed">Khi cần thiết</option>
-                      </select>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {[
+                          {
+                            value: "morning",
+                            label: "Buổi sáng",
+                            desc: "(6:00 - 11:00)",
+                          },
+                          {
+                            value: "noon",
+                            label: "Buổi trưa",
+                            desc: "(11:00 - 14:00)",
+                          },
+                          {
+                            value: "afternoon",
+                            label: "Buổi chiều",
+                            desc: "(14:00 - 18:00)",
+                          },
+                          {
+                            value: "as_needed",
+                            label: "Khi cần thiết",
+                            desc: "(theo triệu chứng)",
+                          },
+                        ].map((timeOption) => {
+                          const canSelect = canSelectTimeSlot(
+                            medication,
+                            timeOption.value
+                          );
+                          const isChecked = medication.timeOfDay.includes(
+                            timeOption.value
+                          );
+
+                          return (
+                            <div
+                              key={timeOption.value}
+                              className={`flex items-start space-x-3 p-3 border rounded-lg transition-colors ${
+                                canSelect || isChecked
+                                  ? "border-neutral-200 hover:bg-neutral-50"
+                                  : "border-neutral-100 bg-neutral-50 opacity-60"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                id={`${medication.id}_${timeOption.value}`}
+                                checked={isChecked}
+                                disabled={!canSelect && !isChecked}
+                                onChange={(e) =>
+                                  handleTimeOfDayChange(
+                                    medication.id,
+                                    timeOption.value,
+                                    e.target.checked
+                                  )
+                                }
+                                className="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded disabled:opacity-50"
+                              />
+                              <div className="flex-1">
+                                <label
+                                  htmlFor={`${medication.id}_${timeOption.value}`}
+                                  className={`text-sm font-medium cursor-pointer ${
+                                    canSelect || isChecked
+                                      ? "text-neutral-700"
+                                      : "text-neutral-400"
+                                  }`}
+                                >
+                                  {timeOption.label}
+                                </label>
+                                <p
+                                  className={`text-xs ${
+                                    canSelect || isChecked
+                                      ? "text-neutral-500"
+                                      : "text-neutral-400"
+                                  }`}
+                                >
+                                  {timeOption.desc}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Validation messages */}
+                      {medication.timeOfDay.length === 0 && (
+                        <p className="text-red-500 text-sm mt-2">
+                          Vui lòng chọn ít nhất một thời điểm dùng thuốc
+                        </p>
+                      )}
+
+                      {medication.frequency !== "as_needed" &&
+                        medication.timeOfDay.length > 0 && (
+                          <div className="mt-2 p-2 bg-blue-50 rounded-md">
+                            <p className="text-blue-700 text-sm">
+                              <span className="font-medium">
+                                {medication.frequency === "1" &&
+                                  "Thuốc uống 1 lần/ngày:"}
+                                {medication.frequency === "2" &&
+                                  "Thuốc uống 2 lần/ngày:"}
+                                {medication.frequency === "3" &&
+                                  "Thuốc uống 3 lần/ngày:"}
+                                {medication.frequency === "4" &&
+                                  "Thuốc uống 4 lần/ngày:"}
+                              </span>{" "}
+                              Đã chọn {medication.timeOfDay.length}/
+                              {getMaxTimeSlots(medication.frequency)} thời điểm
+                              {medication.timeOfDay.length >=
+                                getMaxTimeSlots(medication.frequency) &&
+                                " (đã đủ)"}
+                            </p>
+                          </div>
+                        )}
                     </div>
 
                     <div>
@@ -618,14 +983,25 @@ const MedicationRequest = () => {
             )}
 
             {step < 2 ? (
-              <button
-                type="button"
-                className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-                onClick={nextStep}
-                disabled={isLoading}
-              >
-                Tiếp theo
-              </button>
+              <div className="flex flex-col items-end">
+                <button
+                  type="button"
+                  className={`px-4 py-2 rounded-md transition-colors ${
+                    isStep1Valid()
+                      ? "bg-primary-600 text-white hover:bg-primary-700"
+                      : "bg-neutral-300 text-neutral-500 cursor-not-allowed"
+                  }`}
+                  onClick={nextStep}
+                  disabled={isLoading || !isStep1Valid()}
+                >
+                  Tiếp theo
+                </button>
+                {!isStep1Valid() && (
+                  <p className="text-red-500 text-sm mt-2">
+                    Vui lòng điền đầy đủ thông tin trước khi tiếp tục
+                  </p>
+                )}
+              </div>
             ) : (
               <button
                 type="submit"

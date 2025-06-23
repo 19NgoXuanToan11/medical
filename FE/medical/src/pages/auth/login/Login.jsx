@@ -13,7 +13,7 @@ const Login = () => {
   const getInitialRole = () => {
     const searchParams = new URLSearchParams(location.search);
     const roleParam = searchParams.get("role");
-    return roleParam || "student"; // Default to student if not specified
+    return roleParam || "parent"; // Default to parent if not specified
   };
 
   const [formData, setFormData] = useState({
@@ -24,6 +24,7 @@ const Login = () => {
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Update role if URL parameter changes
   useEffect(() => {
@@ -31,13 +32,137 @@ const Login = () => {
     const roleParam = searchParams.get("role");
     if (roleParam) {
       setFormData((prev) => ({ ...prev, role: roleParam }));
+      // Clear validation errors when role changes
+      setValidationErrors({});
     }
   }, [location.search]);
 
+  // Validation functions
+  const validateUsername = (value, role) => {
+    if (!value.trim()) {
+      return "";
+    }
+
+    if (role === "parent") {
+      // For parent (phone number): only allow numbers
+      const phoneRegex = /^[0-9]*$/;
+      if (!phoneRegex.test(value)) {
+        return "Số điện thoại chỉ được phép nhập số";
+      }
+      // Optional: validate phone number length (Vietnamese phone numbers)
+      if (value.length > 0 && (value.length < 10 || value.length > 11)) {
+        return "Số điện thoại phải có 10-11 chữ số";
+      }
+    } else if (role === "student") {
+      // For student (student code): allow letters, numbers, and some special characters
+      const studentCodeRegex =
+        /^[a-zA-Z0-9ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềếểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ_-]*$/;
+      if (!studentCodeRegex.test(value)) {
+        return "Mã học sinh chỉ được phép nhập chữ cái, số và dấu gạch ngang, gạch dưới";
+      }
+    } else {
+      // For admin, manager, nurse (username): allow letters, numbers, and underscore
+      const usernameRegex =
+        /^[a-zA-Z0-9ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềếểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ_]*$/;
+      if (!usernameRegex.test(value)) {
+        return "Tên đăng nhập chỉ được phép nhập chữ cái, số và dấu gạch dưới";
+      }
+    }
+    return "";
+  };
+
+  // Validate if account format matches the selected role
+  const validateAccountRoleMatch = (username, role) => {
+    if (!username.trim()) {
+      return "";
+    }
+
+    const isPhoneNumber = /^[0-9]{10,11}$/.test(username);
+    const isUsernameFormat = /^[a-zA-Z]/.test(username); // Starts with letter
+
+    const roleLabels = {
+      parent: "phụ huynh",
+      manager: "quản lý",
+      nurse: "nhân viên y tế",
+      admin: "quản trị viên",
+      student: "học sinh",
+    };
+
+    if (role === "parent" && !isPhoneNumber) {
+      return `Bạn đang chọn vai trò ${roleLabels[role]} nhưng nhập định dạng tên đăng nhập. Vui lòng nhập số điện thoại hoặc chọn vai trò phù hợp.`;
+    }
+
+    if (role !== "parent" && isPhoneNumber) {
+      return `Bạn đang nhập số điện thoại nhưng chọn vai trò ${roleLabels[role]}. Vui lòng chọn vai trò "Phụ huynh" hoặc nhập tên đăng nhập phù hợp.`;
+    }
+
+    return "";
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user changes input
+
+    // Handle username validation
+    if (name === "username") {
+      const validationError = validateUsername(value, formData.role);
+      const roleMatchError = validateAccountRoleMatch(value, formData.role);
+
+      setValidationErrors((prev) => ({
+        ...prev,
+        username: validationError,
+        roleMatch: roleMatchError,
+      }));
+
+      // Only update the value if it passes basic format validation
+      if (formData.role === "parent") {
+        // For phone number: only allow numbers
+        if (/^[0-9]*$/.test(value)) {
+          setFormData((prev) => ({ ...prev, [name]: value }));
+        }
+      } else if (formData.role === "student") {
+        // For student code: allow letters, numbers, underscore, and hyphen
+        if (
+          /^[a-zA-Z0-9ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềếểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ_-]*$/.test(
+            value
+          )
+        ) {
+          setFormData((prev) => ({ ...prev, [name]: value }));
+        }
+      } else {
+        // For admin, manager, nurse: allow letters, numbers, and underscore
+        if (
+          /^[a-zA-Z0-9ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềếểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ_]*$/.test(
+            value
+          )
+        ) {
+          setFormData((prev) => ({ ...prev, [name]: value }));
+        }
+      }
+    } else if (name === "role") {
+      // When role changes, check if current username format matches new role
+      setFormData((prev) => ({ ...prev, [name]: value }));
+
+      // Clear validation errors when role changes
+      setValidationErrors({});
+
+      // Check account-role match for the new role
+      if (formData.username.trim()) {
+        const roleMatchError = validateAccountRoleMatch(
+          formData.username,
+          value
+        );
+        if (roleMatchError) {
+          setValidationErrors((prev) => ({
+            ...prev,
+            roleMatch: roleMatchError,
+          }));
+        }
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
+    // Clear general error when user changes input
     if (error) setError("");
   };
 
@@ -53,6 +178,23 @@ const Login = () => {
       return;
     }
 
+    // Check for validation errors
+    const usernameError = validateUsername(formData.username, formData.role);
+    const roleMatchError = validateAccountRoleMatch(
+      formData.username,
+      formData.role
+    );
+
+    if (usernameError || roleMatchError) {
+      setValidationErrors({
+        username: usernameError,
+        roleMatch: roleMatchError,
+      });
+      setError("Vui lòng sửa các lỗi trong form");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       // Prepare login data for API
       const loginData = {
@@ -64,7 +206,25 @@ const Login = () => {
       // Call API login
       const userData = await login(loginData);
 
-      // Redirect to the appropriate dashboard based on role
+      // Verify that the user's actual role matches the selected role
+      if (userData.role !== formData.role) {
+        const roleLabels = {
+          admin: "quản trị viên",
+          manager: "quản lý",
+          nurse: "nhân viên y tế",
+          parent: "phụ huynh",
+          student: "học sinh",
+        };
+
+        const selectedRoleLabel = roleLabels[formData.role] || formData.role;
+        const actualRoleLabel = roleLabels[userData.role] || userData.role;
+
+        throw new Error(
+          `Bạn đã chọn vai trò "${selectedRoleLabel}" nhưng tài khoản này là "${actualRoleLabel}". Vui lòng chọn đúng vai trò của tài khoản hoặc sử dụng tài khoản phù hợp.`
+        );
+      }
+
+      // Redirect to the appropriate dashboard based on the verified role
       const redirectMap = {
         admin: "/admin/dashboard",
         staff: "/nurse/dashboard",
@@ -84,7 +244,6 @@ const Login = () => {
 
   // Available roles in the system
   const roles = [
-    { id: "student", label: "Học sinh" },
     { id: "parent", label: "Phụ huynh" },
     { id: "manager", label: "Quản lý" },
     { id: "nurse", label: "Nhân viên y tế" },
@@ -225,10 +384,42 @@ const Login = () => {
                   value={formData.username}
                   onChange={handleChange}
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 ${
+                    validationErrors.username
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder={authService.getPlaceholderText(formData.role)}
                 />
               </div>
+              {validationErrors.username && (
+                <p className="text-sm text-red-600 mt-1">
+                  {validationErrors.username}
+                </p>
+              )}
+              {validationErrors.roleMatch && (
+                <p className="text-sm text-red-600 mt-1">
+                  {validationErrors.roleMatch}
+                </p>
+              )}
+              {formData.role === "parent" && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Chỉ được phép nhập số (0-9)
+                </p>
+              )}
+              {formData.role === "student" && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Chỉ được phép nhập chữ cái, số và dấu gạch ngang, gạch dưới
+                </p>
+              )}
+              {(formData.role === "admin" ||
+                formData.role === "manager" ||
+                formData.role === "nurse") && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Chỉ được phép nhập chữ cái, số và dấu gạch dưới (VD: admin1,
+                  nurse2)
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
