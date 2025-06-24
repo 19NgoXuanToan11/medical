@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 
 const NurseHealthCheckDetail = () => {
   const { id } = useParams();
@@ -97,38 +98,46 @@ const NurseHealthCheckDetail = () => {
 
   return (
     <div className="print:p-6">
-      <div className="flex justify-between items-start mb-6 print:mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 print:text-3xl">
-            Kết quả kiểm tra y tế {healthCheck.grade}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Ngày kiểm tra:{" "}
-            {new Date(healthCheck.scheduledDate).toLocaleDateString("vi-VN")}
-          </p>
-          {healthCheck.description && (
-            <p className="text-gray-600 dark:text-gray-400 mt-1">{healthCheck.description}</p>
-          )}
-        </div>
-        <div className="flex space-x-2 print:hidden">
-          <button
-            onClick={() => navigate("/nurse/health-check")}
-            className="px-3 py-1.5 border border-gray-300 dark:border-neutral-600 rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-700"
-          >
-            Quay lại
-          </button>
-          <button
-            onClick={handlePrintResults}
-            className="px-3 py-1.5 border border-blue-600 rounded-md text-blue-600 bg-white dark:bg-neutral-800 hover:bg-blue-50 dark:hover:bg-neutral-700"
-          >
-            In kết quả
-          </button>
-          <button
-            onClick={handleExportToExcel}
-            className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700"
-          >
-            Xuất Excel
-          </button>
+      <div className="flex items-center mb-6 print:mb-8">
+        <button
+          onClick={() => navigate("/nurse/health-check")}
+          className="flex items-center text-gray-600 hover:text-blue-600 mr-4 px-2 py-1 rounded transition-colors"
+        >
+          <FiArrowLeft className="h-5 w-5 mr-1" />
+          <span className="hidden sm:inline">Quay lại</span>
+        </button>
+        <div className="flex-1 flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 print:text-3xl">
+              Kết quả kiểm tra y tế {healthCheck.grade}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Ngày kiểm tra: {new Date(healthCheck.scheduledDate).toLocaleDateString("vi-VN")}
+            </p>
+            {healthCheck.description && (
+              <p className="text-gray-600 dark:text-gray-400 mt-1">{healthCheck.description}</p>
+            )}
+          </div>
+          <div className="flex space-x-2 print:hidden">
+            <button
+              onClick={() => navigate("/nurse/health-check")}
+              className="px-3 py-1.5 border border-gray-300 dark:border-neutral-600 rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-700"
+            >
+              Quay lại
+            </button>
+            <button
+              onClick={handlePrintResults}
+              className="px-3 py-1.5 border border-blue-600 rounded-md text-blue-600 bg-white dark:bg-neutral-800 hover:bg-blue-50 dark:hover:bg-neutral-700"
+            >
+              In kết quả
+            </button>
+            <button
+              onClick={handleExportToExcel}
+              className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              Xuất Excel
+            </button>
+          </div>
         </div>
       </div>
 

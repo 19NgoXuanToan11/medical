@@ -121,23 +121,6 @@ const NurseHealthCheck = () => {
             </div>
           </div>
         </div>
-
-        <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-neutral-500 dark:text-neutral-400 text-sm">
-                Chờ xác nhận
-              </p>
-              <p className="text-2xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
-                {stats.pending}
-              </p>
-            </div>
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-              <FiClock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-            </div>
-          </div>
-        </div>
-
         <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
           <div className="flex justify-between items-start">
             <div>
@@ -153,7 +136,6 @@ const NurseHealthCheck = () => {
             </div>
           </div>
         </div>
-
         <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
           <div className="flex justify-between items-start">
             <div>
@@ -183,16 +165,6 @@ const NurseHealthCheck = () => {
             } transition-colors duration-200`}
           >
             Sắp tới
-          </button>
-          <button
-            onClick={() => setActiveTab("pending")}
-            className={`px-4 py-2 rounded-md ${
-              activeTab === "pending"
-                ? "bg-primary-600 text-white"
-                : "bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-600"
-            } transition-colors duration-200`}
-          >
-            Chờ xác nhận
           </button>
           <button
             onClick={() => setActiveTab("completed")}
@@ -266,23 +238,27 @@ const NurseHealthCheck = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      {check.grade}
+                      <div className="flex items-center justify-center gap-2">
+                        {check.grade}
+                        {check.abnormalResults > 0 && (
+                          <span title="Có học sinh bất thường" className="flex items-center text-red-600 ml-1">
+                            <FiAlertTriangle className="w-4 h-4" />
+                            <span className="ml-1 text-xs font-semibold">{check.abnormalResults} bất thường</span>
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           check.status === "completed"
                             ? "bg-green-100 text-green-800"
-                            : check.status === "upcoming"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-yellow-100 text-yellow-800"
+                            : "bg-blue-100 text-blue-800"
                         }`}
                       >
                         {check.status === "completed"
                           ? "Đã hoàn thành"
-                          : check.status === "upcoming"
-                          ? "Sắp tới"
-                          : "Chờ xác nhận"}
+                          : "Sắp tới"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -311,11 +287,6 @@ const NurseHealthCheck = () => {
                         >
                           Xem
                         </Link>
-                        {check.status === "pending" && (
-                          <button className="text-yellow-600 hover:text-yellow-900">
-                            Gửi nhắc
-                          </button>
-                        )}
                       </div>
                     </td>
                   </tr>

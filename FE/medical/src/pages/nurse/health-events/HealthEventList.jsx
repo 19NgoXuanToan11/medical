@@ -316,8 +316,16 @@ const HealthEventList = () => {
             Tùy chỉnh
           </button>
         </div>
-        <div className="flex w-full sm:w-auto">
-          <div className="relative flex-grow mr-2">
+        <div className="flex w-full sm:w-auto items-center">
+          <Link
+            to="/nurse/health-events/new"
+            className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md mr-3 transition-colors text-base font-medium"
+            style={{ height: '48px' }}
+          >
+            <FiPlus className="mr-2" />
+            Tạo lịch mới
+          </Link>
+          <div className="relative flex-grow">
             <input
               type="text"
               placeholder="Tìm kiếm..."
