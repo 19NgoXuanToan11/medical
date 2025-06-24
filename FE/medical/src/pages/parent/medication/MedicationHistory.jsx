@@ -83,25 +83,25 @@ const MedicationHistory = () => {
     switch (status) {
       case "active":
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 ring-1 ring-blue-600/20">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 ring-1 ring-blue-600/20 dark:ring-blue-400/20">
             Đang thực hiện
           </span>
         );
       case "completed":
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 ring-1 ring-green-600/20">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 ring-1 ring-green-600/20 dark:ring-green-400/20">
             Đã hoàn thành
           </span>
         );
       case "pending":
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 ring-1 ring-yellow-600/20 dark:ring-yellow-400/20">
             Chờ xác nhận
           </span>
         );
       case "rejected":
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 ring-1 ring-red-600/20">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 ring-1 ring-red-600/20 dark:ring-red-400/20">
             Từ chối
           </span>
         );
@@ -111,21 +111,21 @@ const MedicationHistory = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-white dark:bg-gray-900 min-h-screen">
       {/* Header Section */}
       <div className="mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Lịch sử yêu cầu thuốc
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Quản lý yêu cầu thuốc
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               Theo dõi tình trạng và lịch sử uống thuốc của học sinh
             </p>
           </div>
           <Link
             to="/parent/medication/request"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-sm transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-md shadow-sm transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -146,17 +146,19 @@ const MedicationHistory = () => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 text-sm">Chờ xác nhận</p>
-              <p className="text-2xl font-bold mt-1 text-yellow-600">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Chờ xác nhận
+              </p>
+              <p className="text-2xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
                 {medications.filter((m) => m.status === "pending").length}
               </p>
             </div>
-            <div className="p-3 bg-yellow-100 rounded-full">
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
               <svg
-                className="h-5 w-5 text-yellow-600"
+                className="h-5 w-5 text-yellow-600 dark:text-yellow-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -172,17 +174,19 @@ const MedicationHistory = () => {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 text-sm">Đang thực hiện</p>
-              <p className="text-2xl font-bold mt-1 text-blue-600">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Đang thực hiện
+              </p>
+              <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">
                 {medications.filter((m) => m.status === "active").length}
               </p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-full">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
               <svg
-                className="h-5 w-5 text-blue-600"
+                className="h-5 w-5 text-blue-600 dark:text-blue-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -198,17 +202,19 @@ const MedicationHistory = () => {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 text-sm">Đã hoàn thành</p>
-              <p className="text-2xl font-bold mt-1 text-green-600">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Đã hoàn thành
+              </p>
+              <p className="text-2xl font-bold mt-1 text-green-600 dark:text-green-400">
                 {medications.filter((m) => m.status === "completed").length}
               </p>
             </div>
-            <div className="p-3 bg-green-100 rounded-full">
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
               <svg
-                className="h-5 w-5 text-green-600"
+                className="h-5 w-5 text-green-600 dark:text-green-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -224,17 +230,19 @@ const MedicationHistory = () => {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 text-sm">Tổng yêu cầu</p>
-              <p className="text-2xl font-bold mt-1 text-gray-800">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Tổng yêu cầu
+              </p>
+              <p className="text-2xl font-bold mt-1 text-gray-800 dark:text-gray-200">
                 {medications.length}
               </p>
             </div>
-            <div className="p-3 bg-gray-100 rounded-full">
+            <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full">
               <svg
-                className="h-5 w-5 text-gray-600"
+                className="h-5 w-5 text-gray-800 dark:text-gray-200"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -256,51 +264,51 @@ const MedicationHistory = () => {
         <div className="flex space-x-2 mb-4 sm:mb-0 overflow-x-auto pb-2">
           <button
             onClick={() => setFilterStatus("all")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap ${
+            className={`px-4 py-2 rounded-md whitespace-nowrap transition-colors duration-200 ${
               filterStatus === "all"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-            } transition-colors duration-200`}
+                ? "bg-blue-600 dark:bg-blue-500 text-white"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
+            }`}
           >
             Tất cả
           </button>
           <button
             onClick={() => setFilterStatus("pending")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap ${
+            className={`px-4 py-2 rounded-md whitespace-nowrap transition-colors duration-200 ${
               filterStatus === "pending"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-            } transition-colors duration-200`}
+                ? "bg-blue-600 dark:bg-blue-500 text-white"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
+            }`}
           >
             Chờ xác nhận
           </button>
           <button
             onClick={() => setFilterStatus("active")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap ${
+            className={`px-4 py-2 rounded-md whitespace-nowrap transition-colors duration-200 ${
               filterStatus === "active"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-            } transition-colors duration-200`}
+                ? "bg-blue-600 dark:bg-blue-500 text-white"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
+            }`}
           >
             Đang thực hiện
           </button>
           <button
             onClick={() => setFilterStatus("completed")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap ${
+            className={`px-4 py-2 rounded-md whitespace-nowrap transition-colors duration-200 ${
               filterStatus === "completed"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-            } transition-colors duration-200`}
+                ? "bg-blue-600 dark:bg-blue-500 text-white"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
+            }`}
           >
             Đã hoàn thành
           </button>
           <button
             onClick={() => setFilterStatus("rejected")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap ${
+            className={`px-4 py-2 rounded-md whitespace-nowrap transition-colors duration-200 ${
               filterStatus === "rejected"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-            } transition-colors duration-200`}
+                ? "bg-blue-600 dark:bg-blue-500 text-white"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
+            }`}
           >
             Từ chối
           </button>
@@ -309,14 +317,14 @@ const MedicationHistory = () => {
           <div className="relative flex-grow">
             <input
               type="text"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="Tìm kiếm theo tên thuốc, mã yêu cầu hoặc tên học sinh"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
-                className="h-5 w-5 text-gray-400"
+                className="h-5 w-5 text-gray-400 dark:text-gray-500"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -334,10 +342,10 @@ const MedicationHistory = () => {
 
       {/* Data Table */}
       {filteredMedications.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-8 text-center border border-gray-200">
-          <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center border border-gray-200 dark:border-gray-700">
+          <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
             <svg
-              className="h-8 w-8 text-gray-400"
+              className="h-8 w-8 text-gray-400 dark:text-gray-500"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -351,15 +359,15 @@ const MedicationHistory = () => {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">
+          <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-1">
             Không tìm thấy yêu cầu nào
           </h3>
-          <p className="text-gray-500 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             Hãy tạo yêu cầu thuốc mới hoặc thay đổi bộ lọc tìm kiếm
           </p>
           <Link
             to="/parent/medication/request"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-md transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -377,74 +385,77 @@ const MedicationHistory = () => {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                   >
                     Mã yêu cầu
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                   >
                     Học sinh
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                   >
                     Thuốc & Liều lượng
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                   >
                     Ngày bắt đầu - kết thúc
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                   >
                     Tiến độ
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                   >
                     Trạng thái
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                   >
                     Hành động
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredMedications.map((medication) => (
-                  <tr key={medication.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-blue-600">
+                  <tr
+                    key={medication.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-blue-600 dark:text-blue-400">
                       #{medication.id}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {medication.studentName}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         Lớp {medication.class}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {medication.medicationName}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {medication.dosage} (
                         {medication.frequency === "once"
                           ? "1 lần/ngày"
@@ -457,7 +468,7 @@ const MedicationHistory = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-gray-900 dark:text-gray-100">
                         {new Date(medication.startDate).toLocaleDateString(
                           "vi-VN"
                         )}
@@ -466,7 +477,7 @@ const MedicationHistory = () => {
                           "vi-VN"
                         )}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         Yêu cầu:{" "}
                         {new Date(medication.requestDate).toLocaleDateString(
                           "vi-VN"
@@ -474,9 +485,9 @@ const MedicationHistory = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-2">
                         <div
-                          className="bg-blue-600 h-2.5 rounded-full"
+                          className="bg-blue-600 dark:bg-blue-400 h-2.5 rounded-full"
                           style={{
                             width: `${Math.min(
                               100,
@@ -487,8 +498,14 @@ const MedicationHistory = () => {
                           }}
                         ></div>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         {medication.completedDoses}/{medication.totalDoses} liều
+                        (
+                        {Math.round(
+                          (medication.completedDoses / medication.totalDoses) *
+                            100
+                        )}
+                        %)
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -497,7 +514,7 @@ const MedicationHistory = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <Link
                         to={`/parent/medication/detail/${medication.id}`}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
                       >
                         Chi tiết
                       </Link>

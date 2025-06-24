@@ -283,7 +283,7 @@ const MedicationManagement = () => {
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
             Quản lý thuốc học sinh
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             Quản lý và theo dõi việc cấp phát thuốc cho học sinh
           </p>
         </div>
@@ -292,24 +292,32 @@ const MedicationManagement = () => {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div
-          className={`bg-white p-4 rounded-lg shadow-sm border-l-4 ${
-            activeTab === "pending" ? "border-amber-500" : "border-gray-300"
+          className={`bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm border-l-4 ${
+            activeTab === "pending"
+              ? "border-amber-500"
+              : "border-gray-300 dark:border-gray-600"
           } cursor-pointer hover:shadow-md transition-shadow`}
           onClick={() => setActiveTab("pending")}
         >
           <div className="flex justify-between items-center">
             <div>
-              <div className="text-sm text-gray-500">Chờ xử lý</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Chờ xử lý
+              </div>
               <div className="text-2xl font-bold">{stats.pending}</div>
             </div>
             <div
               className={`h-10 w-10 rounded-full ${
-                activeTab === "pending" ? "bg-amber-100" : "bg-gray-100"
+                activeTab === "pending"
+                  ? "bg-amber-100 dark:bg-amber-800"
+                  : "bg-gray-100 dark:bg-gray-700"
               } flex items-center justify-center`}
             >
               <FiClock
                 className={`h-5 w-5 ${
-                  activeTab === "pending" ? "text-amber-600" : "text-gray-500"
+                  activeTab === "pending"
+                    ? "text-amber-600"
+                    : "text-gray-500 dark:text-gray-400"
                 }`}
               />
             </div>
@@ -317,24 +325,32 @@ const MedicationManagement = () => {
         </div>
 
         <div
-          className={`bg-white p-4 rounded-lg shadow-sm border-l-4 ${
-            activeTab === "approved" ? "border-green-500" : "border-gray-300"
+          className={`bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm border-l-4 ${
+            activeTab === "approved"
+              ? "border-green-500"
+              : "border-gray-300 dark:border-gray-600"
           } cursor-pointer hover:shadow-md transition-shadow`}
           onClick={() => setActiveTab("approved")}
         >
           <div className="flex justify-between items-center">
             <div>
-              <div className="text-sm text-gray-500">Đã duyệt</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Đã duyệt
+              </div>
               <div className="text-2xl font-bold">{stats.approved}</div>
             </div>
             <div
               className={`h-10 w-10 rounded-full ${
-                activeTab === "approved" ? "bg-green-100" : "bg-gray-100"
+                activeTab === "approved"
+                  ? "bg-green-100 dark:bg-green-800"
+                  : "bg-gray-100 dark:bg-gray-700"
               } flex items-center justify-center`}
             >
               <FiCheckCircle
                 className={`h-5 w-5 ${
-                  activeTab === "approved" ? "text-green-600" : "text-gray-500"
+                  activeTab === "approved"
+                    ? "text-green-600"
+                    : "text-gray-500 dark:text-gray-400"
                 }`}
               />
             </div>
@@ -342,24 +358,32 @@ const MedicationManagement = () => {
         </div>
 
         <div
-          className={`bg-white p-4 rounded-lg shadow-sm border-l-4 ${
-            activeTab === "rejected" ? "border-red-500" : "border-gray-300"
+          className={`bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm border-l-4 ${
+            activeTab === "rejected"
+              ? "border-red-500"
+              : "border-gray-300 dark:border-gray-600"
           } cursor-pointer hover:shadow-md transition-shadow`}
           onClick={() => setActiveTab("rejected")}
         >
           <div className="flex justify-between items-center">
             <div>
-              <div className="text-sm text-gray-500">Đã từ chối</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Đã từ chối
+              </div>
               <div className="text-2xl font-bold">{stats.rejected}</div>
             </div>
             <div
               className={`h-10 w-10 rounded-full ${
-                activeTab === "rejected" ? "bg-red-100" : "bg-gray-100"
+                activeTab === "rejected"
+                  ? "bg-red-100 dark:bg-red-800"
+                  : "bg-gray-100 dark:bg-gray-700"
               } flex items-center justify-center`}
             >
               <FiXCircle
                 className={`h-5 w-5 ${
-                  activeTab === "rejected" ? "text-red-600" : "text-gray-500"
+                  activeTab === "rejected"
+                    ? "text-red-600"
+                    : "text-gray-500 dark:text-gray-400"
                 }`}
               />
             </div>
@@ -367,24 +391,32 @@ const MedicationManagement = () => {
         </div>
 
         <div
-          className={`bg-white p-4 rounded-lg shadow-sm border-l-4 ${
-            activeTab === "all" ? "border-blue-500" : "border-gray-300"
+          className={`bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm border-l-4 ${
+            activeTab === "all"
+              ? "border-blue-500"
+              : "border-gray-300 dark:border-gray-600"
           } cursor-pointer hover:shadow-md transition-shadow`}
           onClick={() => setActiveTab("all")}
         >
           <div className="flex justify-between items-center">
             <div>
-              <div className="text-sm text-gray-500">Tất cả yêu cầu</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Tất cả yêu cầu
+              </div>
               <div className="text-2xl font-bold">{medications.length}</div>
             </div>
             <div
               className={`h-10 w-10 rounded-full ${
-                activeTab === "all" ? "bg-blue-100" : "bg-gray-100"
+                activeTab === "all"
+                  ? "bg-blue-100 dark:bg-blue-800"
+                  : "bg-gray-100 dark:bg-gray-700"
               } flex items-center justify-center`}
             >
               <FiClipboard
                 className={`h-5 w-5 ${
-                  activeTab === "all" ? "text-blue-600" : "text-gray-500"
+                  activeTab === "all"
+                    ? "text-blue-600"
+                    : "text-gray-500 dark:text-gray-400"
                 }`}
               />
             </div>
@@ -393,7 +425,7 @@ const MedicationManagement = () => {
       </div>
 
       {/* Search and filters */}
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+      <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -403,7 +435,7 @@ const MedicationManagement = () => {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-neutral-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
               placeholder="Tìm kiếm học sinh, lớp, thuốc..."
             />
           </div>
@@ -416,7 +448,7 @@ const MedicationManagement = () => {
               type="date"
               value={filterDate}
               onChange={(e) => setFilterDate(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-neutral-700 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
             />
           </div>
 
@@ -426,7 +458,7 @@ const MedicationManagement = () => {
                 setSearchTerm("");
                 setFilterDate("");
               }}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
             >
               <FiFilter className="mr-2 h-4 w-4" />
               Đặt lại bộ lọc
@@ -436,60 +468,65 @@ const MedicationManagement = () => {
       </div>
 
       {/* Medication request list */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-8 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div>
-            <p className="mt-2 text-gray-500">Đang tải dữ liệu...</p>
+            <p className="mt-2 text-gray-500 dark:text-gray-400">
+              Đang tải dữ liệu...
+            </p>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Mã yêu cầu
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Học sinh
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Thuốc
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Thời gian
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Trạng thái
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Thao tác
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {filteredMedications.length > 0 ? (
                     filteredMedications.map((med) => (
-                      <tr key={med.id} className="hover:bg-gray-50">
+                      <tr
+                        key={med.id}
+                        className="hover:bg-gray-50 dark:bg-gray-700"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {med.id}
                         </td>
@@ -502,7 +539,7 @@ const MedicationManagement = () => {
                               <div className="text-sm font-medium text-gray-900">
                                 {med.studentName}
                               </div>
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
                                 {med.studentClass} • {med.studentId}
                               </div>
                             </div>
@@ -512,7 +549,7 @@ const MedicationManagement = () => {
                           <div className="text-sm text-gray-900">
                             {med.medicationName}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
                             {med.dosage}, {med.frequency}
                           </div>
                         </td>
@@ -521,7 +558,7 @@ const MedicationManagement = () => {
                             {formatDate(med.startDate)} -{" "}
                             {formatDate(med.endDate)}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
                             Yêu cầu: {formatDate(med.requestDate)}
                           </div>
                         </td>
@@ -530,10 +567,10 @@ const MedicationManagement = () => {
                             className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
                             ${
                               med.status === "approved"
-                                ? "bg-green-100 text-green-800"
+                                ? "bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200"
                                 : med.status === "rejected"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-amber-100 text-amber-800"
+                                ? "bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200"
+                                : "bg-amber-100 dark:bg-amber-800 text-amber-800 dark:text-amber-200"
                             }`}
                           >
                             {med.status === "approved"
@@ -579,14 +616,14 @@ const MedicationManagement = () => {
                     <tr>
                       <td
                         colSpan="6"
-                        className="px-6 py-12 text-center text-gray-500"
+                        className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center">
                           <FiClipboard className="h-12 w-12 mb-4 text-gray-400" />
                           <h3 className="text-lg font-medium text-gray-900 mb-1">
                             Không có yêu cầu thuốc nào
                           </h3>
-                          <p className="text-gray-500 mb-4">
+                          <p className="text-gray-500 dark:text-gray-400 mb-4">
                             {activeTab !== "all"
                               ? `Không có yêu cầu nào ở trạng thái "${
                                   activeTab === "pending"
@@ -622,14 +659,14 @@ const MedicationManagement = () => {
       {/* Detail Modal */}
       {showDetailModal && selectedRequest && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="border-b px-6 py-4 flex justify-between items-center">
               <h3 className="text-lg font-medium text-gray-900">
                 Chi tiết yêu cầu thuốc #{selectedRequest.id}
               </h3>
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-200"
               >
                 <svg
                   className="h-6 w-6"
@@ -653,7 +690,7 @@ const MedicationManagement = () => {
                   <h4 className="font-medium text-gray-900 mb-2 flex items-center">
                     <FiUser className="mr-2" /> Thông tin học sinh
                   </h4>
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                     <p className="text-sm mb-1">
                       <span className="font-medium">Họ tên:</span>{" "}
                       {selectedRequest.studentName}
@@ -681,7 +718,7 @@ const MedicationManagement = () => {
                   <h4 className="font-medium text-gray-900 mb-2 flex items-center">
                     <FiFileText className="mr-2" /> Thông tin thuốc
                   </h4>
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                     <p className="text-sm mb-1">
                       <span className="font-medium">Tên thuốc:</span>{" "}
                       {selectedRequest.medicationName}
@@ -710,7 +747,7 @@ const MedicationManagement = () => {
                 <h4 className="font-medium text-gray-900 mb-2 flex items-center">
                   <FiClipboard className="mr-2" /> Thông tin bổ sung
                 </h4>
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                   <p className="text-sm mb-2">
                     <span className="font-medium">Lý do:</span>{" "}
                     {selectedRequest.reason}
@@ -771,10 +808,10 @@ const MedicationManagement = () => {
               )}
             </div>
 
-            <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3 border-t">
+            <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex justify-end space-x-3 border-t">
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
               >
                 Đóng
               </button>

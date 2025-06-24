@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import medicalVideo from "../../../../public/videos/login.mp4";
 import { useAuth, ROLES } from "../../../utils/auth/AuthContext";
 import authService from "../../../utils/auth/authService";
+import ThemeToggle from "../../../components/common/ThemeToggle";
 
 const Login = () => {
   const location = useLocation();
@@ -267,11 +268,11 @@ const Login = () => {
       </div>
 
       {/* Form Section - Right 50% */}
-      <div className="w-1/2 flex items-center justify-center bg-white h-screen overflow-y-auto">
+      <div className="w-1/2 flex items-center justify-center bg-white dark:bg-neutral-800 h-screen overflow-y-auto transition-colors duration-300">
         {/* Back to Home Button */}
         <Link
           to="/"
-          className="absolute top-8 right-8 px-4 py-2 text-sm font-medium text-indigo-600 bg-white rounded-full shadow-md hover:bg-indigo-50 transition duration-300 flex items-center gap-2"
+          className="absolute top-8 right-8 px-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-white dark:bg-neutral-700 rounded-full shadow-md hover:bg-indigo-50 dark:hover:bg-neutral-600 transition duration-300 flex items-center gap-2"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -284,18 +285,23 @@ const Login = () => {
           Trang chủ
         </Link>
 
+        {/* Theme Toggle Button */}
+        <div className="absolute top-20 right-8">
+          <ThemeToggle />
+        </div>
+
         <div className="w-4/5 max-w-md mx-auto py-12 px-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               Chào mừng trở lại
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Đăng nhập để truy cập tài khoản của bạn
             </p>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800">
               {error}
             </div>
           )}
@@ -305,7 +311,7 @@ const Login = () => {
             <div className="space-y-2">
               <label
                 htmlFor="role"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Tôi là
               </label>
@@ -313,7 +319,7 @@ const Login = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400"
+                    className="h-5 w-5 text-gray-400 dark:text-gray-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -330,7 +336,7 @@ const Login = () => {
                   value={formData.role}
                   onChange={handleChange}
                   required
-                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 appearance-none"
+                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-neutral-700 dark:text-gray-100 appearance-none"
                 >
                   {roles.map((role) => (
                     <option key={role.id} value={role.id}>
@@ -358,7 +364,7 @@ const Login = () => {
             <div className="space-y-2">
               <label
                 htmlFor="username"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 {authService.getUsernameLabel(formData.role)}
               </label>
@@ -366,7 +372,7 @@ const Login = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400"
+                    className="h-5 w-5 text-gray-400 dark:text-gray-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -384,38 +390,38 @@ const Login = () => {
                   value={formData.username}
                   onChange={handleChange}
                   required
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 ${
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-neutral-700 dark:text-gray-100 ${
                     validationErrors.username
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300"
+                      ? "border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 dark:border-gray-600"
                   }`}
                   placeholder={authService.getPlaceholderText(formData.role)}
                 />
               </div>
               {validationErrors.username && (
-                <p className="text-sm text-red-600 mt-1">
+                <p className="text-sm text-red-600 dark:text-red-400 mt-1">
                   {validationErrors.username}
                 </p>
               )}
               {validationErrors.roleMatch && (
-                <p className="text-sm text-red-600 mt-1">
+                <p className="text-sm text-red-600 dark:text-red-400 mt-1">
                   {validationErrors.roleMatch}
                 </p>
               )}
               {formData.role === "parent" && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Chỉ được phép nhập số (0-9)
                 </p>
               )}
               {formData.role === "student" && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Chỉ được phép nhập chữ cái, số và dấu gạch ngang, gạch dưới
                 </p>
               )}
               {(formData.role === "admin" ||
                 formData.role === "manager" ||
                 formData.role === "nurse") && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Chỉ được phép nhập chữ cái, số và dấu gạch dưới (VD: admin1,
                   nurse2)
                 </p>
@@ -425,7 +431,7 @@ const Login = () => {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Mật khẩu
               </label>
@@ -433,7 +439,7 @@ const Login = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400"
+                    className="h-5 w-5 text-gray-400 dark:text-gray-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -451,7 +457,7 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-neutral-700 dark:text-gray-100"
                   placeholder="••••••••"
                 />
               </div>
@@ -461,7 +467,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 focus:ring-indigo-500 transition duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">

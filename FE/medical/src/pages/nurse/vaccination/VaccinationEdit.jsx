@@ -193,27 +193,27 @@ const VaccinationEdit = () => {
         <div className="flex items-center">
           <Link
             to={`/nurse/vaccination/${id}`}
-            className="mr-4 text-gray-600 hover:text-gray-900"
+            className="mr-4 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
           >
             <FiArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-800">
+          <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">
             Chỉnh sửa tiêm chủng
           </h1>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-800 mb-4">
+        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden border border-neutral-200 dark:border-neutral-700">
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h2 className="text-lg font-medium text-neutral-800 dark:text-neutral-100 mb-4">
               Thông tin cơ bản
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label
                   htmlFor="title"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Tên tiêm chủng <span className="text-red-600">*</span>
                 </label>
@@ -226,8 +226,8 @@ const VaccinationEdit = () => {
                   className={`w-full rounded-md border ${
                     validationErrors.title
                       ? "border-red-500"
-                      : "border-gray-300"
-                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      : "border-neutral-300 dark:border-neutral-600"
+                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100`}
                 />
                 {validationErrors.title && (
                   <p className="mt-1 text-sm text-red-600">
@@ -239,7 +239,7 @@ const VaccinationEdit = () => {
               <div>
                 <label
                   htmlFor="vaccineInfo"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Loại vắc-xin <span className="text-red-600">*</span>
                 </label>
@@ -252,8 +252,8 @@ const VaccinationEdit = () => {
                   className={`w-full rounded-md border ${
                     validationErrors.vaccineInfo
                       ? "border-red-500"
-                      : "border-gray-300"
-                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      : "border-neutral-300 dark:border-neutral-600"
+                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100`}
                 />
                 {validationErrors.vaccineInfo && (
                   <p className="mt-1 text-sm text-red-600">
@@ -265,7 +265,7 @@ const VaccinationEdit = () => {
               <div>
                 <label
                   htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Mô tả
                 </label>
@@ -275,14 +275,14 @@ const VaccinationEdit = () => {
                   value={formData.description}
                   onChange={handleChange}
                   rows="3"
-                  className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-md border border-neutral-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="status"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Trạng thái
                 </label>
@@ -291,7 +291,7 @@ const VaccinationEdit = () => {
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-md border border-neutral-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 >
                   <option value="planning">Lên kế hoạch</option>
                   <option value="upcoming">Sắp diễn ra</option>
@@ -302,15 +302,15 @@ const VaccinationEdit = () => {
             </div>
           </div>
 
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-800 mb-4">
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h2 className="text-lg font-medium text-neutral-800 dark:text-neutral-100 mb-4">
               Thời gian và địa điểm
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label
                   htmlFor="scheduledDate"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Ngày tiêm chủng <span className="text-red-600">*</span>
                 </label>
@@ -324,10 +324,10 @@ const VaccinationEdit = () => {
                     className={`w-full rounded-md border ${
                       validationErrors.scheduledDate
                         ? "border-red-500"
-                        : "border-gray-300"
-                    } pl-10 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                        : "border-neutral-300 dark:border-neutral-600"
+                    } pl-10 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100`}
                   />
-                  <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" />
                 </div>
                 {validationErrors.scheduledDate && (
                   <p className="mt-1 text-sm text-red-600">
@@ -339,7 +339,7 @@ const VaccinationEdit = () => {
               <div>
                 <label
                   htmlFor="startTime"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Thời gian bắt đầu <span className="text-red-600">*</span>
                 </label>
@@ -353,10 +353,10 @@ const VaccinationEdit = () => {
                     className={`w-full rounded-md border ${
                       validationErrors.startTime
                         ? "border-red-500"
-                        : "border-gray-300"
-                    } pl-10 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                        : "border-neutral-300 dark:border-neutral-600"
+                    } pl-10 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100`}
                   />
-                  <FiClock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <FiClock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" />
                 </div>
                 {validationErrors.startTime && (
                   <p className="mt-1 text-sm text-red-600">
@@ -368,7 +368,7 @@ const VaccinationEdit = () => {
               <div>
                 <label
                   htmlFor="endTime"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Thời gian kết thúc <span className="text-red-600">*</span>
                 </label>
@@ -382,10 +382,10 @@ const VaccinationEdit = () => {
                     className={`w-full rounded-md border ${
                       validationErrors.endTime
                         ? "border-red-500"
-                        : "border-gray-300"
-                    } pl-10 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                        : "border-neutral-300 dark:border-neutral-600"
+                    } pl-10 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100`}
                   />
-                  <FiClock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <FiClock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" />
                 </div>
                 {validationErrors.endTime && (
                   <p className="mt-1 text-sm text-red-600">
@@ -397,7 +397,7 @@ const VaccinationEdit = () => {
               <div className="md:col-span-2">
                 <label
                   htmlFor="location"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Địa điểm <span className="text-red-600">*</span>
                 </label>
@@ -410,8 +410,8 @@ const VaccinationEdit = () => {
                   className={`w-full rounded-md border ${
                     validationErrors.location
                       ? "border-red-500"
-                      : "border-gray-300"
-                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      : "border-neutral-300 dark:border-neutral-600"
+                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100`}
                 />
                 {validationErrors.location && (
                   <p className="mt-1 text-sm text-red-600">
@@ -423,7 +423,7 @@ const VaccinationEdit = () => {
               <div>
                 <label
                   htmlFor="healthcareProvider"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Đơn vị thực hiện <span className="text-red-600">*</span>
                 </label>
@@ -436,8 +436,8 @@ const VaccinationEdit = () => {
                   className={`w-full rounded-md border ${
                     validationErrors.healthcareProvider
                       ? "border-red-500"
-                      : "border-gray-300"
-                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      : "border-neutral-300 dark:border-neutral-600"
+                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100`}
                 />
                 {validationErrors.healthcareProvider && (
                   <p className="mt-1 text-sm text-red-600">
@@ -448,83 +448,74 @@ const VaccinationEdit = () => {
             </div>
           </div>
 
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-800 mb-4">
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h2 className="text-lg font-medium text-neutral-800 dark:text-neutral-100 mb-4">
               Lớp tham gia
             </h2>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Lớp đã chọn{" "}
-                {formData.grades.length > 0
-                  ? `(${formData.grades.length})`
-                  : ""}
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                Chọn lớp tham gia <span className="text-red-600">*</span>
               </label>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {formData.grades.length > 0 ? (
-                  formData.grades.map((grade) => (
-                    <div
-                      key={grade}
-                      className="flex items-center bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-sm"
-                    >
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {formData.grades.map((grade) => (
+                  <div
+                    key={grade}
+                    className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md"
+                  >
+                    <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                       {grade}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveGrade(grade)}
-                        className="ml-2 text-blue-600 hover:text-blue-800"
-                      >
-                        <FiX className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <span className="text-gray-500 text-sm">
-                    Chưa chọn lớp nào
-                  </span>
-                )}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveGrade(grade)}
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      <FiMinusCircle className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
               </div>
-              {validationErrors.grades && (
-                <p className="mt-1 mb-2 text-sm text-red-600">
-                  {validationErrors.grades}
-                </p>
-              )}
-              <div className="flex space-x-2">
+              <div className="flex gap-2">
                 <select
                   value={newGrade}
                   onChange={(e) => setNewGrade(e.target.value)}
-                  className="rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 rounded-md border border-neutral-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 >
-                  <option value="">-- Chọn lớp --</option>
-                  {gradeList.map((grade) => (
-                    <option
-                      key={grade}
-                      value={grade}
-                      disabled={formData.grades.includes(grade)}
-                    >
-                      {grade}
-                    </option>
-                  ))}
+                  <option value="">Chọn lớp</option>
+                  {gradeList
+                    .filter((grade) => !formData.grades.includes(grade))
+                    .map((grade) => (
+                      <option key={grade} value={grade}>
+                        {grade}
+                      </option>
+                    ))}
                 </select>
                 <button
                   type="button"
                   onClick={handleAddGrade}
                   disabled={!newGrade}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md disabled:opacity-50 transition-colors"
                 >
-                  <FiPlusCircle className="mr-1" /> Thêm lớp
+                  <FiPlusCircle className="h-4 w-4" />
                 </button>
               </div>
+              {validationErrors.grades && (
+                <p className="mt-1 text-sm text-red-600">
+                  {validationErrors.grades}
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-800 mb-4">
+          <div className="p-6">
+            <h2 className="text-lg font-medium text-neutral-800 dark:text-neutral-100 mb-4">
               Thông tin bổ sung
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label
                   htmlFor="vaccinationMethod"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Phương pháp tiêm
                 </label>
@@ -534,31 +525,31 @@ const VaccinationEdit = () => {
                   name="vaccinationMethod"
                   value={formData.vaccinationMethod}
                   onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-md border border-neutral-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 />
               </div>
 
-              <div className="md:col-span-2">
+              <div>
                 <label
                   htmlFor="sideEffects"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
-                  Tác dụng phụ có thể gặp
+                  Tác dụng phụ
                 </label>
                 <textarea
                   id="sideEffects"
                   name="sideEffects"
                   value={formData.sideEffects}
                   onChange={handleChange}
-                  rows="2"
-                  className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows="3"
+                  className="w-full rounded-md border border-neutral-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 />
               </div>
 
-              <div className="md:col-span-2">
+              <div>
                 <label
                   htmlFor="contraindications"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Chống chỉ định
                 </label>
@@ -567,15 +558,15 @@ const VaccinationEdit = () => {
                   name="contraindications"
                   value={formData.contraindications}
                   onChange={handleChange}
-                  rows="2"
-                  className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows="3"
+                  className="w-full rounded-md border border-neutral-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 />
               </div>
 
-              <div className="md:col-span-2">
+              <div>
                 <label
                   htmlFor="notes"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
                 >
                   Ghi chú
                 </label>
@@ -585,33 +576,35 @@ const VaccinationEdit = () => {
                   value={formData.notes}
                   onChange={handleChange}
                   rows="3"
-                  className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-md border border-neutral-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-between">
+        {/* Action buttons */}
+        <div className="flex justify-end space-x-4">
           <Link
             to={`/nurse/vaccination/${id}`}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+            className="px-6 py-2 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors"
           >
+            <FiX className="mr-2 inline h-4 w-4" />
             Hủy
           </Link>
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center disabled:bg-blue-300"
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md disabled:opacity-50 transition-colors"
           >
             {saving ? (
               <>
-                <div className="animate-spin h-4 w-4 mr-2 border-2 border-t-transparent border-white rounded-full"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2 inline-block"></div>
                 Đang lưu...
               </>
             ) : (
               <>
-                <FiSave className="mr-2" />
+                <FiSave className="mr-2 inline h-4 w-4" />
                 Lưu thay đổi
               </>
             )}

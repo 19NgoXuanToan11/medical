@@ -126,12 +126,12 @@ const MedicationReminders = () => {
   );
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4">
+    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-neutral-200 dark:border-neutral-700 p-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-800 flex items-center">
-          <FiBell className="mr-2 text-blue-500" /> Lịch cấp thuốc hôm nay
+        <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 flex items-center">
+          <FiBell className="mr-2 text-primary-500" /> Lịch cấp thuốc hôm nay
         </h2>
-        <div className="flex items-center text-sm text-gray-500">
+        <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
           <FiCalendar className="mr-1" />{" "}
           {new Date().toLocaleDateString("vi-VN")}
         </div>
@@ -139,34 +139,34 @@ const MedicationReminders = () => {
 
       {loading ? (
         <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
         </div>
       ) : todayReminders.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <FiClock className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+        <div className="text-center py-8 text-neutral-500 dark:text-neutral-400">
+          <FiClock className="h-12 w-12 mx-auto mb-2 text-neutral-400" />
           <p>Không có lịch cấp thuốc nào hôm nay</p>
         </div>
       ) : (
         <div>
           {pendingReminders.length > 0 && (
             <div className="mb-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-2 uppercase tracking-wider">
+              <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2 uppercase tracking-wider">
                 Đang chờ ({pendingReminders.length})
               </h3>
               <div className="space-y-3">
                 {pendingReminders.map((reminder) => (
                   <div
                     key={reminder.id}
-                    className="bg-blue-50 border border-blue-100 rounded-md p-3 flex justify-between items-center"
+                    className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-md p-3 flex justify-between items-center"
                   >
                     <div>
-                      <div className="font-medium text-gray-800">
+                      <div className="font-medium text-neutral-800 dark:text-neutral-200">
                         {reminder.studentName} - Lớp {reminder.class}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-neutral-600 dark:text-neutral-400">
                         {reminder.medication} - {reminder.dosage}
                       </div>
-                      <div className="text-xs text-blue-600 flex items-center mt-1">
+                      <div className="text-xs text-primary-600 dark:text-primary-400 flex items-center mt-1">
                         <FiClock className="mr-1" />{" "}
                         {formatReminderTime(reminder.schedule)}
                       </div>
@@ -174,14 +174,14 @@ const MedicationReminders = () => {
                     <div className="flex space-x-2">
                       <button
                         onClick={() => handleMarkCompleted(reminder.id)}
-                        className="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-full"
+                        className="bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-900/50 text-green-700 dark:text-green-300 p-2 rounded-full"
                         title="Đánh dấu hoàn thành"
                       >
                         <FiCheck className="h-4 w-4" />
                       </button>
                       <Link
                         to={`/nurse/medication/${reminder.medicationId}`}
-                        className="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded-full"
+                        className="bg-primary-100 dark:bg-primary-900/30 hover:bg-primary-200 dark:hover:bg-primary-900/50 text-primary-700 dark:text-primary-300 p-2 rounded-full"
                         title="Xem chi tiết"
                       >
                         <svg
@@ -207,23 +207,23 @@ const MedicationReminders = () => {
 
           {completedReminders.length > 0 && (
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2 uppercase tracking-wider">
+              <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2 uppercase tracking-wider">
                 Đã hoàn thành ({completedReminders.length})
               </h3>
               <div className="space-y-3">
                 {completedReminders.map((reminder) => (
                   <div
                     key={reminder.id}
-                    className="bg-gray-50 border border-gray-100 rounded-md p-3 flex justify-between items-center opacity-75"
+                    className="bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-md p-3 flex justify-between items-center opacity-75"
                   >
                     <div>
-                      <div className="font-medium text-gray-800 line-through">
+                      <div className="font-medium text-neutral-800 dark:text-neutral-200 line-through">
                         {reminder.studentName} - Lớp {reminder.class}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-neutral-600 dark:text-neutral-400">
                         {reminder.medication} - {reminder.dosage}
                       </div>
-                      <div className="text-xs text-gray-500 flex items-center mt-1">
+                      <div className="text-xs text-neutral-500 dark:text-neutral-400 flex items-center mt-1">
                         <FiClock className="mr-1" />{" "}
                         {formatReminderTime(reminder.schedule)}
                       </div>
@@ -231,7 +231,7 @@ const MedicationReminders = () => {
                     <div>
                       <Link
                         to={`/nurse/medication/${reminder.medicationId}`}
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 rounded-full"
+                        className="bg-neutral-100 dark:bg-neutral-600 hover:bg-neutral-200 dark:hover:bg-neutral-500 text-neutral-600 dark:text-neutral-300 p-2 rounded-full"
                         title="Xem chi tiết"
                       >
                         <svg
@@ -257,10 +257,10 @@ const MedicationReminders = () => {
         </div>
       )}
 
-      <div className="mt-4 pt-3 border-t border-gray-100 text-center">
+      <div className="mt-4 pt-3 border-t border-neutral-200 dark:border-neutral-700 text-center">
         <Link
           to="/nurse/medication"
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+          className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 text-sm font-medium"
         >
           Xem tất cả yêu cầu thuốc
         </Link>

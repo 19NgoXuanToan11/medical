@@ -360,7 +360,7 @@ const ExcelImport = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6">
       <h2 className="text-xl font-medium text-gray-800 mb-6">
         Nhập dữ liệu từ Excel
       </h2>
@@ -427,7 +427,8 @@ const ExcelImport = () => {
               <span className="animate-spin mr-2">⌛</span> Đang tải...
             </>
           ) : (
-            <>u
+            <>
+              u
               <FiDownload className="mr-2" /> Tải mẫu Excel
             </>
           )}
@@ -452,7 +453,7 @@ const ExcelImport = () => {
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
             {file ? (
               <div className="flex flex-col items-center">
-                <div className="bg-gray-100 p-2 rounded mb-2 max-w-md overflow-hidden">
+                <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2 max-w-md overflow-hidden">
                   <p className="text-sm text-gray-700 truncate">{file.name}</p>
                   <p className="text-xs text-gray-500">
                     {(file.size / 1024).toFixed(1)} KB

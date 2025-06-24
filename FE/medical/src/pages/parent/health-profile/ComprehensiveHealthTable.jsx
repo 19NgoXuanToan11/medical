@@ -104,7 +104,7 @@ const ComprehensiveHealthTable = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 max-w-full mt-20">
+      <div className="container mx-auto px-4 sm:px-6 max-w-full">
         <div className="flex justify-center items-center p-8">
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600"></div>
         </div>
@@ -114,30 +114,32 @@ const ComprehensiveHealthTable = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 max-w-full mt-20">
-        <div className="bg-red-50 text-red-600 p-4 rounded mb-4">{error}</div>
+      <div className="container mx-auto px-4 sm:px-6 max-w-full">
+        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded mb-4">
+          {error}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 max-w-full mt-20">
-      <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+    <div className="container mx-auto px-4 sm:px-6 max-w-full">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden transition-colors duration-300">
         {/* Header */}
-        <div className="p-6 border-b border-neutral-100">
+        <div className="p-6 border-b border-neutral-100 dark:border-neutral-700">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-semibold text-black mb-2">
+              <h1 className="text-2xl font-semibold text-black dark:text-white mb-2">
                 Tổng quan hồ sơ sức khỏe học sinh
               </h1>
-              <p className="text-sm text-neutral-600">
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
                 Xem toàn bộ thông tin sức khỏe chi tiết của tất cả học sinh
               </p>
             </div>
             <div className="flex gap-3">
               <Link
                 to="/parent/health-profile"
-                className="bg-neutral-100 hover:bg-neutral-200 text-neutral-700 px-4 py-2 rounded flex items-center text-sm font-medium"
+                className="bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-200 px-4 py-2 rounded flex items-center text-sm font-medium transition-colors"
               >
                 <svg
                   className="w-4 h-4 mr-2"
@@ -179,59 +181,59 @@ const ComprehensiveHealthTable = () => {
 
         {/* Comprehensive Table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 table-fixed">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700 table-fixed">
+            <thead className="bg-gray-50 dark:bg-neutral-700">
               <tr>
-                <th className="w-48 px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-10 border-r">
+                <th className="w-48 px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider sticky left-0 bg-gray-50 dark:bg-neutral-700 z-10 border-r dark:border-neutral-600">
                   Học sinh
                 </th>
-                <th className="w-32 px-4 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-32 px-4 py-4 text-center text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">
                   Thể chất
                 </th>
-                <th className="w-36 px-4 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-36 px-4 py-4 text-center text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">
                   Chỉ số sinh tồn
                 </th>
-                <th className="w-28 px-4 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-28 px-4 py-4 text-center text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">
                   Tiền sử
                 </th>
-                <th className="w-32 px-4 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-32 px-4 py-4 text-center text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">
                   Tiêm chủng
                 </th>
-                <th className="w-32 px-4 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-32 px-4 py-4 text-center text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">
                   Thị/Thính lực
                 </th>
-                <th className="w-40 px-4 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-40 px-4 py-4 text-center text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">
                   Vấn đề sức khỏe
                 </th>
-                <th className="w-44 px-4 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-44 px-4 py-4 text-center text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">
                   Liên hệ khẩn cấp
                 </th>
-                <th className="w-28 px-4 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-28 px-4 py-4 text-center text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">
                   Cập nhật
                 </th>
-                <th className="w-24 px-4 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-24 px-4 py-4 text-center text-xs font-medium text-gray-500 dark:text-neutral-300 uppercase tracking-wider">
                   Thao tác
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-neutral-700">
               {profiles.map((profile) => {
                 const student = profile.student || {};
                 return (
                   <tr
                     key={profile.healthProfileId}
-                    className="hover:bg-gray-50"
+                    className="hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors"
                   >
                     {/* Student Info - Sticky Column */}
-                    <td className="w-48 px-6 py-4 sticky left-0 bg-white z-10 border-r">
+                    <td className="w-48 px-6 py-4 sticky left-0 bg-white dark:bg-neutral-800 z-10 border-r dark:border-neutral-600">
                       <div className="flex flex-col">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-gray-900 dark:text-neutral-100">
                           {student.firstName} {student.lastName}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-gray-500 dark:text-neutral-400">
                           {profile.studentCode || student.studentCode}
                         </div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-gray-400 dark:text-neutral-500">
                           {student.className} - {formatGender(student.gender)}
                         </div>
                       </div>
@@ -239,7 +241,7 @@ const ComprehensiveHealthTable = () => {
 
                     {/* Physical Info */}
                     <td className="w-32 px-4 py-4 text-center">
-                      <div className="text-sm space-y-1">
+                      <div className="text-sm space-y-1 text-gray-900 dark:text-neutral-100">
                         <div>Cao: {profile.height || "N/A"} cm</div>
                         <div>Nặng: {profile.weight || "N/A"} kg</div>
                         <div>Máu: {profile.bloodType || "N/A"}</div>
@@ -248,7 +250,7 @@ const ComprehensiveHealthTable = () => {
 
                     {/* Vital Signs */}
                     <td className="w-36 px-4 py-4 text-center">
-                      <div className="text-sm space-y-1">
+                      <div className="text-sm space-y-1 text-gray-900 dark:text-neutral-100">
                         <div>HA: {profile.bloodPressure || "N/A"}</div>
                         <div>
                           Tim:{" "}
@@ -270,7 +272,7 @@ const ComprehensiveHealthTable = () => {
                       </div>
                       {profile.treatmentDetails && (
                         <div
-                          className="text-xs text-gray-600 mt-1 truncate"
+                          className="text-xs text-gray-600 dark:text-neutral-400 mt-1 truncate"
                           title={profile.treatmentDetails}
                         >
                           {profile.treatmentDetails}
@@ -292,7 +294,7 @@ const ComprehensiveHealthTable = () => {
                         </span>
                         {profile.vaccinations &&
                           Array.isArray(profile.vaccinations) && (
-                            <div className="text-xs text-gray-600 mt-1">
+                            <div className="text-xs text-gray-600 dark:text-neutral-400 mt-1">
                               {profile.vaccinations.length} loại
                             </div>
                           )}
@@ -337,7 +339,7 @@ const ComprehensiveHealthTable = () => {
                     {/* Emergency Contact */}
                     <td className="w-44 px-4 py-4 text-center">
                       <div
-                        className="text-sm text-gray-900 truncate"
+                        className="text-sm text-gray-900 dark:text-neutral-100 truncate"
                         title={profile.emergencyContact || "N/A"}
                       >
                         {profile.emergencyContact || "N/A"}
@@ -346,7 +348,7 @@ const ComprehensiveHealthTable = () => {
 
                     {/* Last Updated */}
                     <td className="w-28 px-4 py-4 text-center">
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-neutral-400">
                         {formatDate(profile.lastUpdated)}
                       </div>
                     </td>
@@ -376,15 +378,15 @@ const ComprehensiveHealthTable = () => {
         </div>
 
         {/* Summary Footer */}
-        <div className="px-6 py-4 bg-gray-50 border-t">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-neutral-700 border-t dark:border-neutral-600">
           <div className="flex justify-between items-center text-sm">
-            <div className="text-gray-600">
+            <div className="text-gray-600 dark:text-neutral-300">
               Tổng số hồ sơ:{" "}
-              <span className="font-semibold text-gray-900">
+              <span className="font-semibold text-gray-900 dark:text-neutral-100">
                 {profiles.length}
               </span>
             </div>
-            <div className="flex space-x-6 text-xs">
+            <div className="flex space-x-6 text-xs text-gray-600 dark:text-neutral-300">
               <div className="flex items-center">
                 <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                 <span>Tốt</span>

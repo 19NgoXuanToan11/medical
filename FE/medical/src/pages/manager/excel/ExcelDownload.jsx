@@ -22,21 +22,8 @@ const ExcelDownload = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-8">
       <div className="text-center">
-        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-6">
-          <FiFileText className="h-8 w-8 text-blue-600" />
-        </div>
-
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Mẫu Excel cho nhập dữ liệu học sinh
-        </h3>
-
-        <p className="text-gray-600 mb-8 max-w-md mx-auto">
-          File Excel này chứa định dạng chuẩn và hướng dẫn để bạn có thể nhập
-          thông tin học sinh một cách chính xác.
-        </p>
-
         <button
           onClick={handleDownloadTemplate}
           disabled={downloadStatus.loading}
@@ -75,7 +62,7 @@ const ExcelDownload = () => {
         </button>
 
         {downloadStatus.error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/40 border border-red-200 rounded-md">
             <div className="flex items-center">
               <FiAlertCircle className="h-5 w-5 text-red-400 mr-2" />
               <span className="text-red-800">{downloadStatus.error}</span>

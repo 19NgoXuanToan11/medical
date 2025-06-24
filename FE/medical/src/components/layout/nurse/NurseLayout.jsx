@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FiHome,
@@ -11,8 +11,11 @@ import {
   FiLogOut,
   FiBell,
   FiChevronDown,
+  FiSettings,
+  FiEdit,
 } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
+import ThemeToggle from "../../common/ThemeToggle";
 
 const NurseLayout = () => {
   const location = useLocation();
@@ -20,11 +23,30 @@ const NurseLayout = () => {
   const { logout, user } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef(null);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
+  // Handle clicks outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target)
+      ) {
+        setProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const menuItems = [
     {
@@ -33,17 +55,12 @@ const NurseLayout = () => {
       icon: <FiHome className="w-5 h-5" />,
     },
     {
-      path: "/nurse/profile",
-      name: "Hồ sơ cá nhân",
-      icon: <FiUsers className="w-5 h-5" />,
-    },
-    {
       path: "/nurse/schedule",
       name: "Lịch trình hôm nay",
       icon: <FiBell className="w-5 h-5" />,
     },
     {
-      path: "/nurse/schedule",
+      path: "/nurse/health-records",
       name: "Hồ sơ sức khỏe học sinh",
       icon: <FiClipboard className="w-5 h-5" />,
     },
@@ -70,23 +87,23 @@ const NurseLayout = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-neutral-50">
+    <div className="flex h-screen bg-neutral-50 dark:bg-neutral-900 transition-colors duration-300">
       {/* Sidebar */}
       <div
-        className={`bg-white border-r border-neutral-200 ${
+        className={`bg-white dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 ${
           collapsed ? "w-20" : "w-64"
         } flex flex-col transition-all duration-300 ease-in-out shadow-sm`}
       >
         {/* Logo */}
-        <div className="p-4 flex items-center justify-between border-b border-neutral-200">
+        <div className="p-4 flex items-center justify-between border-b border-neutral-200 dark:border-neutral-700">
           {!collapsed && (
-            <div className="text-xl font-bold text-primary-700">
+            <div className="text-xl font-bold text-primary-700 dark:text-primary-400">
               Medical Nurse
             </div>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1 rounded-full hover:bg-neutral-100 text-neutral-600"
+            className="p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300"
           >
             {collapsed ? (
               <svg
@@ -131,11 +148,15 @@ const NurseLayout = () => {
                   to={item.path}
                   className={`flex items-center px-4 py-3 text-sm rounded-lg ${
                     isActive
-                      ? "bg-primary-50 text-primary-700"
-                      : "text-neutral-600 hover:bg-neutral-100"
+                      ? "bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
+                      : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700"
                   } ${collapsed ? "justify-center" : "justify-start"}`}
                 >
-                  <span className={`${isActive ? "text-primary-600" : ""}`}>
+                  <span
+                    className={`${
+                      isActive ? "text-primary-600 dark:text-primary-400" : ""
+                    }`}
+                  >
                     {item.icon}
                   </span>
                   {!collapsed && (
@@ -148,10 +169,10 @@ const NurseLayout = () => {
         </div>
 
         {/* Logout */}
-        <div className="p-4 border-t border-neutral-200">
+        <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
           <button
             onClick={handleLogout}
-            className={`flex items-center text-neutral-600 hover:text-red-600 transition-colors ${
+            className={`flex items-center text-neutral-600 dark:text-neutral-300 hover:text-red-600 dark:hover:text-red-400 transition-colors ${
               collapsed ? "justify-center w-full" : ""
             }`}
           >
@@ -164,41 +185,93 @@ const NurseLayout = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="bg-white shadow-sm py-4 px-6 flex items-center justify-between border-b border-neutral-200">
+        <header className="bg-white dark:bg-neutral-800 shadow-sm py-4 px-6 flex items-center justify-between border-b border-neutral-200 dark:border-neutral-700 transition-colors duration-300">
           <div>
-            <h1 className="text-xl font-semibold text-neutral-800">
+            <h1 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200">
               {menuItems.find((item) => item.path === location.pathname)
                 ?.name || "Tổng quan"}
             </h1>
           </div>
           <div className="flex items-center space-x-4">
-            <button className="p-1 rounded-full text-neutral-500 hover:bg-neutral-100">
+            <ThemeToggle />
+            <button className="p-1 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700">
               <FiBell className="w-6 h-6" />
             </button>
 
             {/* User Profile Dropdown */}
-            <div className="relative">
-              <div className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-50 rounded-lg cursor-pointer transition-colors">
-                <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
+            <div className="relative" ref={profileDropdownRef}>
+              <button
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-lg cursor-pointer transition-colors"
+              >
+                <div className="h-8 w-8 rounded-full bg-primary-600 dark:bg-primary-500 flex items-center justify-center">
                   <span className="text-white font-medium text-sm">
                     {user?.firstName?.charAt(0) || "Y"}
                     {user?.lastName?.charAt(0) || "T"}
                   </span>
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium text-neutral-900">
+                  <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                     Xin chào, {user?.firstName || "Y Tá"}!
                   </p>
-                  <p className="text-xs text-neutral-500">Y tá trường học</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    Y tá trường học
+                  </p>
                 </div>
-                <FiChevronDown className="w-4 h-4 text-neutral-400 hidden md:block" />
-              </div>
+                <FiChevronDown
+                  className={`w-4 h-4 text-neutral-400 dark:text-neutral-500 hidden md:block transition-transform ${
+                    profileDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {/* Dropdown Menu */}
+              {profileDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-neutral-200 dark:border-neutral-700 py-2 z-50">
+                  <div className="px-4 py-3 border-b border-neutral-100 dark:border-neutral-700">
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                      {user?.firstName || "Y Tá"}{" "}
+                      {user?.lastName || "Chuyên Nghiệp"}
+                    </p>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                      Y tá trường học
+                    </p>
+                    <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
+                      Phòng Y Tế Trường
+                    </p>
+                  </div>
+
+                  <div className="py-1">
+                    <Link
+                      to="/nurse/profile"
+                      className="flex items-center px-4 py-3 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    >
+                      <FiUsers className="w-4 h-4 mr-3 text-neutral-500 dark:text-neutral-400" />
+                      Hồ sơ cá nhân
+                    </Link>
+                  </div>
+
+                  <div className="border-t border-neutral-100 dark:border-neutral-700 py-1">
+                    <button
+                      onClick={() => {
+                        setProfileDropdownOpen(false);
+                        handleLogout();
+                      }}
+                      className="flex items-center w-full px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                    >
+                      <FiLogOut className="w-4 h-4 mr-3" />
+                      Đăng xuất
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto bg-neutral-50 p-6">
+        <main className="flex-1 overflow-y-auto bg-neutral-50 dark:bg-neutral-900 p-6 transition-colors duration-300">
           <Outlet />
         </main>
       </div>

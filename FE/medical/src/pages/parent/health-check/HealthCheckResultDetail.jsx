@@ -66,13 +66,13 @@ const HealthCheckResultDetail = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 max-w-4xl py-8">
-      <div className="bg-white shadow-md rounded-lg overflow-hidden mb-6">
+      <div className="bg-white dark:bg-neutral-800 shadow-md rounded-lg overflow-hidden mb-6 border border-neutral-200 dark:border-neutral-700">
         <div className="px-6 py-4">
-          <h1 className="text-2xl font-bold text-neutral-800 flex items-center">
+          <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100 flex items-center">
             Kết quả kiểm tra y tế của {healthCheck.childName}
           </h1>
-          <p className="text-neutral-600 mt-1 flex items-center">
-            <FaCalendarAlt className="mr-2 text-primary-500" />
+          <p className="text-neutral-600 dark:text-neutral-300 mt-1 flex items-center">
+            <FaCalendarAlt className="mr-2 text-primary-500 dark:text-primary-400" />
             Ngày kiểm tra:{" "}
             {new Date(healthCheck.checkDate).toLocaleDateString("vi-VN")} -{" "}
             {healthCheck.grade}
@@ -81,42 +81,42 @@ const HealthCheckResultDetail = () => {
 
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
-              <h2 className="text-lg font-semibold text-neutral-800 mb-4">
+            <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg border border-neutral-200 dark:border-neutral-600">
+              <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100 mb-4">
                 Thông số cơ bản
               </h2>
 
               <div className="space-y-4">
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600">
+                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400">
                     <FaRulerVertical />
                   </div>
                   <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-medium text-neutral-700">
+                    <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Chiều cao
                     </h3>
-                    <p className="text-lg font-semibold text-neutral-900">
+                    <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                       {healthCheck.height} cm
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600">
+                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400">
                     <FaWeight />
                   </div>
                   <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-medium text-neutral-700">
+                    <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Cân nặng
                     </h3>
-                    <p className="text-lg font-semibold text-neutral-900">
+                    <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                       {healthCheck.weight} kg
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600">
+                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400">
                     <svg
                       className="w-5 h-5"
                       fill="currentColor"
@@ -131,16 +131,16 @@ const HealthCheckResultDetail = () => {
                     </svg>
                   </div>
                   <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-medium text-neutral-700">
+                    <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Chỉ số BMI
                     </h3>
-                    <p className="text-lg font-semibold text-neutral-900">
+                    <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                       {healthCheck.bmi} -{" "}
                       <span
                         className={
                           healthCheck.bmiStatus === "Bình thường"
-                            ? "text-green-600"
-                            : "text-yellow-600"
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-yellow-600 dark:text-yellow-400"
                         }
                       >
                         {healthCheck.bmiStatus}
@@ -151,49 +151,49 @@ const HealthCheckResultDetail = () => {
               </div>
             </div>
 
-            <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
-              <h2 className="text-lg font-semibold text-neutral-800 mb-4">
+            <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg border border-neutral-200 dark:border-neutral-600">
+              <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100 mb-4">
                 Thị lực
               </h2>
 
               <div className="space-y-4">
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600">
+                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400">
                     <FaEye />
                   </div>
                   <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-medium text-neutral-700">
+                    <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Mắt trái
                     </h3>
-                    <p className="text-lg font-semibold text-neutral-900">
+                    <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                       {healthCheck.vision.left}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600">
+                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400">
                     <FaEye />
                   </div>
                   <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-medium text-neutral-700">
+                    <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Mắt phải
                     </h3>
-                    <p className="text-lg font-semibold text-neutral-900">
+                    <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                       {healthCheck.vision.right}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600">
+                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-400">
                     <FaNotesMedical />
                   </div>
                   <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-medium text-neutral-700">
+                    <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Đánh giá
                     </h3>
-                    <p className="text-lg font-semibold text-neutral-900">
+                    <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                       {healthCheck.vision.status}
                     </p>
                   </div>
@@ -204,9 +204,9 @@ const HealthCheckResultDetail = () => {
 
           {healthCheck.abnormalities &&
             healthCheck.abnormalities.length > 0 && (
-              <div className="mb-8 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <h2 className="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
-                  <FaExclamationTriangle className="text-yellow-500 mr-2" />
+              <div className="mb-8 bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800/50">
+                <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100 mb-4 flex items-center">
+                  <FaExclamationTriangle className="text-yellow-500 dark:text-yellow-400 mr-2" />
                   Dấu hiệu cần lưu ý
                 </h2>
 
@@ -214,17 +214,20 @@ const HealthCheckResultDetail = () => {
                   {healthCheck.abnormalities.map((item, index) => (
                     <div
                       key={index}
-                      className="bg-white p-4 rounded-md border border-yellow-100"
+                      className="bg-white dark:bg-neutral-800 p-4 rounded-md border border-yellow-100 dark:border-yellow-800/30"
                     >
-                      <h3 className="text-md font-medium text-neutral-800">
+                      <h3 className="text-md font-medium text-neutral-800 dark:text-neutral-100">
                         {item.type}
                       </h3>
-                      <p className="text-neutral-700 mt-1">
+                      <p className="text-neutral-700 dark:text-neutral-300 mt-1">
                         {item.description}
                       </p>
                       {item.recommendation && (
-                        <p className="text-neutral-600 mt-2 italic">
-                          <strong>Khuyến nghị:</strong> {item.recommendation}
+                        <p className="text-neutral-600 dark:text-neutral-400 mt-2 italic">
+                          <strong className="text-neutral-700 dark:text-neutral-300">
+                            Khuyến nghị:
+                          </strong>{" "}
+                          {item.recommendation}
                         </p>
                       )}
                     </div>
@@ -236,19 +239,19 @@ const HealthCheckResultDetail = () => {
           {healthCheck.recommendations &&
             healthCheck.recommendations.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg font-semibold text-neutral-800 mb-4">
+                <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100 mb-4">
                   Khuyến nghị
                 </h2>
 
-                <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg border border-neutral-200 dark:border-neutral-600">
                   <ul className="space-y-2">
                     {healthCheck.recommendations.map(
                       (recommendation, index) => (
                         <li key={index} className="flex items-start">
-                          <span className="flex-shrink-0 h-5 w-5 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 text-xs mr-3 mt-0.5">
+                          <span className="flex-shrink-0 h-5 w-5 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 text-xs mr-3 mt-0.5">
                             {index + 1}
                           </span>
-                          <span className="text-neutral-700 flex-1">
+                          <span className="text-neutral-700 dark:text-neutral-300 flex-1">
                             {recommendation}
                           </span>
                         </li>
@@ -260,21 +263,21 @@ const HealthCheckResultDetail = () => {
             )}
 
           {healthCheck.appointmentScheduled && (
-            <div className="mb-8 bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <h2 className="text-lg font-semibold text-neutral-800 mb-4">
+            <div className="mb-8 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800/50">
+              <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100 mb-4">
                 Lịch hẹn khám chuyên sâu
               </h2>
 
               <div className="space-y-4">
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
                     <FaCalendarAlt />
                   </div>
                   <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-medium text-neutral-700">
+                    <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Ngày hẹn
                     </h3>
-                    <p className="text-lg font-semibold text-neutral-900">
+                    <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                       {new Date(healthCheck.appointmentDate).toLocaleDateString(
                         "vi-VN"
                       )}
@@ -283,14 +286,14 @@ const HealthCheckResultDetail = () => {
                 </div>
 
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
                     <FaNotesMedical />
                   </div>
                   <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-medium text-neutral-700">
+                    <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Chi tiết cuộc hẹn
                     </h3>
-                    <p className="text-neutral-700">
+                    <p className="text-neutral-700 dark:text-neutral-300">
                       {healthCheck.appointmentDetails}
                     </p>
                   </div>
@@ -298,7 +301,7 @@ const HealthCheckResultDetail = () => {
 
                 {healthCheck.doctorNotes && (
                   <div className="flex items-start">
-                    <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                    <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
                       <svg
                         className="w-5 h-5"
                         fill="currentColor"
@@ -314,10 +317,10 @@ const HealthCheckResultDetail = () => {
                       </svg>
                     </div>
                     <div className="ml-4 flex-1">
-                      <h3 className="text-sm font-medium text-neutral-700">
+                      <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                         Ghi chú của bác sĩ
                       </h3>
-                      <p className="text-neutral-700">
+                      <p className="text-neutral-700 dark:text-neutral-300">
                         {healthCheck.doctorNotes}
                       </p>
                     </div>
@@ -332,8 +335,9 @@ const HealthCheckResultDetail = () => {
       <div className="flex justify-center">
         <Link
           to="/parent/health-check/results"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-neutral-800"
         >
+          <FaArrowLeft className="mr-2 h-4 w-4" />
           Quay lại danh sách
         </Link>
       </div>

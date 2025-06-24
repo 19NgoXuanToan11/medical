@@ -149,7 +149,7 @@ const HealthEventDetail = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -160,18 +160,18 @@ const HealthEventDetail = () => {
         <div className="flex items-center">
           <Link
             to="/nurse/health-events"
-            className="mr-4 text-gray-600 hover:text-gray-900"
+            className="mr-4 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
           >
             <FiArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-800">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
             Chi tiết sự kiện y tế
           </h1>
         </div>
         <div className="flex space-x-3">
           <Link
             to={`/nurse/health-events/${id}/edit`}
-            className="inline-flex items-center px-3 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50"
+            className="inline-flex items-center px-3 py-2 border border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 rounded-md hover:bg-primary-50 dark:hover:bg-neutral-700"
           >
             <FiEdit className="mr-2 h-4 w-4" />
             Chỉnh sửa
@@ -187,7 +187,7 @@ const HealthEventDetail = () => {
           )}
           <button
             onClick={handleDeleteEvent}
-            className="inline-flex items-center px-3 py-2 border border-red-600 text-red-600 rounded-md hover:bg-red-50"
+            className="inline-flex items-center px-3 py-2 border border-red-600 dark:border-red-400 text-red-600 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-neutral-700"
           >
             <FiTrash2 className="mr-2 h-4 w-4" />
             Xóa
@@ -195,258 +195,211 @@ const HealthEventDetail = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-hidden">
         {/* Event Header */}
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-            <div className="flex items-start space-x-4">
-              <div className="p-3 rounded-full bg-red-100">
+        <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0">
                 {getEventTypeIcon(event.type)}
               </div>
               <div>
-                <div className="flex items-center space-x-3">
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    {getEventTypeLabel(event.type)}
-                  </h2>
-                  {getStatusBadge(event.status)}
-                </div>
-                <p className="text-gray-600 mt-1">{event.description}</p>
+                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                  {getEventTypeLabel(event.type)}
+                </h2>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                  {event.description}
+                </p>
               </div>
             </div>
-            <div className="mt-4 md:mt-0 flex flex-col items-end">
-              <div className="flex items-center text-sm text-gray-500">
-                <FiCalendar className="mr-1 h-4 w-4" />
-                {new Date(event.time).toLocaleDateString("vi-VN")}
-              </div>
-              <div className="flex items-center text-sm text-gray-500 mt-1">
+            <div className="flex flex-col items-end space-y-2">
+              {getStatusBadge(event.status)}
+              <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
                 <FiClock className="mr-1 h-4 w-4" />
-                {new Date(event.time).toLocaleTimeString("vi-VN", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {new Date(event.time).toLocaleString("vi-VN")}
               </div>
             </div>
           </div>
         </div>
 
         {/* Student Information */}
-        <div className="p-6 border-b border-gray-200 bg-gray-50">
-          <h3 className="text-lg font-medium text-gray-800 mb-3">
+        <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+          <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+            <FiUser className="inline mr-2" />
             Thông tin học sinh
           </h3>
-          <div className="flex flex-col md:flex-row md:space-x-6">
-            <div className="mb-4 md:mb-0">
-              <p className="text-sm text-gray-500">Họ và tên</p>
-              <p className="font-medium text-gray-800 flex items-center">
-                <FiUser className="mr-2 h-4 w-4 text-gray-400" />
-                {event.studentName}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Lớp</p>
-              <p className="font-medium text-gray-800">{event.class}</p>
+          <div className="bg-neutral-50 dark:bg-neutral-900 rounded-lg p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Họ và tên</p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.studentName}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Lớp</p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.class}</p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Event Details */}
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-800 mb-3">
+        <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+          <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+            <FiFileText className="inline mr-2" />
             Chi tiết sự kiện
           </h3>
-          <ul className="space-y-2 text-gray-600">
-            {event.details.map((detail, index) => (
-              <li key={index} className="flex items-start">
-                <FiAlertCircle className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
-                <span>{detail}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Vital Signs */}
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-800 mb-3">
-            Dấu hiệu sinh tồn
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-500">Thân nhiệt</p>
-              <p className="font-medium text-gray-800">
-                {event.vitalSigns.temperature}
-              </p>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Mô tả ngắn</p>
+              <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.description}</p>
             </div>
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-500">Mạch</p>
-              <p className="font-medium text-gray-800">
-                {event.vitalSigns.pulse}
-              </p>
-            </div>
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-500">Huyết áp</p>
-              <p className="font-medium text-gray-800">
-                {event.vitalSigns.bloodPressure}
-              </p>
-            </div>
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-500">Nhịp thở</p>
-              <p className="font-medium text-gray-800">
-                {event.vitalSigns.respiratoryRate}
-              </p>
+            {event.details && event.details.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Chi tiết</p>
+                <ul className="space-y-1">
+                  {event.details.map((detail, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-primary-500 mr-2">•</span>
+                      <span className="text-neutral-900 dark:text-neutral-100">{detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div>
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Hành động đã thực hiện</p>
+              <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.actionTaken}</p>
             </div>
           </div>
         </div>
 
-        {/* Medication */}
-        {event.medications && event.medications.length > 0 && (
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-800 mb-3">
-              Thuốc đã sử dụng
+        {/* Vital Signs */}
+        {event.vitalSigns && (
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+              <FiActivity className="inline mr-2" />
+              Dấu hiệu sinh tồn
             </h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tên thuốc
-                    </th>
-                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Liều lượng
-                    </th>
-                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Thời gian
-                    </th>
-                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Người thực hiện
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {event.medications.map((medication, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center">
-                        {medication.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
-                        {medication.dosage}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
-                        {medication.time}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
-                        {medication.administeredBy}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-lg">
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Thân nhiệt</p>
+                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{event.vitalSigns.temperature}</p>
+              </div>
+              <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-lg">
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Mạch</p>
+                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{event.vitalSigns.pulse}</p>
+              </div>
+              <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-lg">
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Huyết áp</p>
+                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{event.vitalSigns.bloodPressure}</p>
+              </div>
+              <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-lg">
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Nhịp thở</p>
+                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{event.vitalSigns.respiratoryRate}</p>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Medical Supplies */}
+        {/* Medications Used */}
+        {event.medications && event.medications.length > 0 && (
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+              <FiPackage className="inline mr-2" />
+              Thuốc đã sử dụng
+            </h3>
+            <div className="space-y-3">
+              {event.medications.map((medication, index) => (
+                <div
+                  key={index}
+                  className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg flex justify-between items-center"
+                >
+                  <div>
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                      {medication.name} - {medication.dosage}
+                    </p>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                      Thực hiện bởi: {medication.administeredBy}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{medication.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Medical Supplies Used */}
         {event.medicalSupplies && event.medicalSupplies.length > 0 && (
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-800 mb-3">
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+              <FiPackage className="inline mr-2" />
               Vật tư y tế đã sử dụng
             </h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tên vật tư
-                    </th>
-                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Số lượng
-                    </th>
-                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Thời gian
-                    </th>
-                    <th className="w-1/4 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Người sử dụng
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {event.medicalSupplies.map((supply, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center">
-                        {supply.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
-                        {supply.quantity}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
-                        {supply.time}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
-                        {supply.usedBy}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-3">
+              {event.medicalSupplies.map((supply, index) => (
+                <div
+                  key={index}
+                  className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg flex justify-between items-center"
+                >
+                  <div>
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                      {supply.name} - Số lượng: {supply.quantity}
+                    </p>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                      Sử dụng bởi: {supply.usedBy}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{supply.time}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
         {/* Parent Contact */}
         {event.parentContacted && (
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-800 mb-3">
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+              <FiUser className="inline mr-2" />
               Liên hệ phụ huynh
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-500">Thời gian</p>
-                <p className="font-medium text-gray-800">
-                  {event.parentContacted.time}
-                </p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-500">Người liên hệ</p>
-                <p className="font-medium text-gray-800">
-                  {event.parentContacted.person}
-                </p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-500">Phương thức</p>
-                <p className="font-medium text-gray-800">
-                  {event.parentContacted.method}
-                </p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-500">Phản hồi</p>
-                <p className="font-medium text-gray-800">
-                  {event.parentContacted.response}
-                </p>
+            <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Người liên hệ</p>
+                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.parentContacted.person}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Phương thức</p>
+                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.parentContacted.method}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Thời gian liên hệ</p>
+                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.parentContacted.time}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Phản hồi</p>
+                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.parentContacted.response}</p>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Action Taken */}
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-800 mb-3">
-            Hành động đã thực hiện
-          </h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-gray-700">{event.actionTaken}</p>
-          </div>
-        </div>
-
-        {/* Follow Up */}
+        {/* Follow-up */}
         {event.followUp && (
           <div className="p-6">
-            <h3 className="text-lg font-medium text-gray-800 mb-3">
-              Theo dõi tiếp theo
+            <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+              <FiAlertCircle className="inline mr-2" />
+              Theo dõi
             </h3>
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-              <div className="flex">
-                <FiFileText className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
-                <p className="text-gray-700">{event.followUp}</p>
-              </div>
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <p className="text-neutral-900 dark:text-neutral-100">{event.followUp}</p>
             </div>
           </div>
         )}

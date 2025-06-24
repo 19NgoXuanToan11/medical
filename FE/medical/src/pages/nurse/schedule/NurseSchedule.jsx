@@ -170,16 +170,16 @@ const NurseSchedule = () => {
 
     if (status === "completed") {
       return {
-        bg: "bg-gray-100",
-        border: "border-gray-300",
-        text: "text-gray-600",
+        bg: "bg-neutral-100 dark:bg-neutral-700",
+        border: "border-neutral-300 dark:border-neutral-600",
+        text: "text-neutral-600 dark:text-neutral-400",
       };
     }
 
     return {
-      bg: `bg-${color}-100`,
-      border: `border-${color}-300`,
-      text: `text-${color}-800`,
+      bg: `bg-${color}-50 dark:bg-${color}-900/20`,
+      border: `border-${color}-200 dark:border-${color}-800`,
+      text: `text-${color}-800 dark:text-${color}-200`,
     };
   };
 
@@ -217,10 +217,10 @@ const NurseSchedule = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">
+            <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
               Lịch trình y tá
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-neutral-600 dark:text-neutral-400 mt-1">
               Quản lý và theo dõi lịch trình công việc hàng ngày
             </p>
           </div>
@@ -229,7 +229,7 @@ const NurseSchedule = () => {
               <FiPlus className="h-5 w-5 mr-2" />
               Thêm lịch trình
             </button>
-            <button className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg transition-colors flex items-center">
+            <button className="bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-4 py-2 rounded-lg transition-colors flex items-center">
               <FiDownload className="h-5 w-5 mr-2" />
               Xuất lịch
             </button>
@@ -237,17 +237,17 @@ const NurseSchedule = () => {
         </div>
 
         {/* Controls */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-4 mb-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             {/* Calendar Navigation */}
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigateWeek(-1)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors text-neutral-700 dark:text-neutral-300"
               >
                 <FiChevronLeft className="h-5 w-5" />
               </button>
-              <div className="text-lg font-semibold text-gray-800">
+              <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
                 {currentDate.toLocaleDateString("vi-VN", {
                   month: "long",
                   year: "numeric",
@@ -255,13 +255,13 @@ const NurseSchedule = () => {
               </div>
               <button
                 onClick={() => navigateWeek(1)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors text-neutral-700 dark:text-neutral-300"
               >
                 <FiChevronRight className="h-5 w-5" />
               </button>
               <button
                 onClick={navigateToToday}
-                className="px-3 py-2 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors text-sm font-medium"
+                className="px-3 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors text-sm font-medium"
               >
                 Hôm nay
               </button>
@@ -270,20 +270,20 @@ const NurseSchedule = () => {
             {/* Search and Filters */}
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
                 <input
                   type="text"
                   placeholder="Tìm kiếm lịch trình..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-64"
+                  className="pl-10 pr-4 py-2 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-64"
                 />
               </div>
 
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="all">Tất cả loại</option>
                 <option value="medication">Cấp thuốc</option>
@@ -296,7 +296,7 @@ const NurseSchedule = () => {
 
               <button
                 onClick={() => window.location.reload()}
-                className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                className="p-2 bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-300 rounded-lg transition-colors"
               >
                 <FiRefreshCw className="h-5 w-5" />
               </button>
@@ -306,13 +306,13 @@ const NurseSchedule = () => {
       </div>
 
       {/* Calendar Grid */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 overflow-hidden">
         {/* Calendar Header */}
-        <div className="grid grid-cols-7 border-b border-gray-200">
+        <div className="grid grid-cols-7 border-b border-neutral-200 dark:border-neutral-700">
           {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((day, index) => (
             <div
               key={index}
-              className="p-4 text-center text-sm font-medium text-gray-500 border-r border-gray-200 last:border-r-0"
+              className="p-4 text-center text-sm font-medium text-neutral-500 dark:text-neutral-400 border-r border-neutral-200 dark:border-neutral-700 last:border-r-0"
             >
               {day}
             </div>
@@ -331,8 +331,8 @@ const NurseSchedule = () => {
               <div
                 key={index}
                 onClick={() => setSelectedDate(date)}
-                className={`border-r border-gray-200 last:border-r-0 border-b border-gray-200 p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  isSelected ? "bg-primary-50" : ""
+                className={`border-r border-neutral-200 dark:border-neutral-700 last:border-r-0 border-b border-neutral-200 dark:border-neutral-700 p-3 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors ${
+                  isSelected ? "bg-primary-50 dark:bg-primary-900/30" : ""
                 }`}
               >
                 {/* Date Header */}
@@ -342,14 +342,14 @@ const NurseSchedule = () => {
                       isToday
                         ? "bg-primary-600 text-white w-6 h-6 rounded-full flex items-center justify-center"
                         : isSelected
-                        ? "text-primary-600"
-                        : "text-gray-900"
+                        ? "text-primary-600 dark:text-primary-400"
+                        : "text-neutral-900 dark:text-neutral-100"
                     }`}
                   >
                     {date.getDate()}
                   </div>
                   {items.length > 0 && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400">
                       {items.length} việc
                     </div>
                   )}
@@ -380,7 +380,7 @@ const NurseSchedule = () => {
                     );
                   })}
                   {items.length > 3 && (
-                    <div className="text-xs text-gray-500 text-center">
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
                       +{items.length - 3} việc khác
                     </div>
                   )}
@@ -393,9 +393,9 @@ const NurseSchedule = () => {
 
       {/* Selected Date Details */}
       {selectedDate && (
-        <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-800">
+        <div className="mt-6 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700">
+          <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+            <h3 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200">
               Lịch trình ngày{" "}
               {selectedDate.toLocaleDateString("vi-VN", {
                 weekday: "long",
@@ -409,11 +409,13 @@ const NurseSchedule = () => {
             {loading ? (
               <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
-                <span className="ml-3 text-gray-500">Đang tải...</span>
+                <span className="ml-3 text-neutral-500 dark:text-neutral-400">
+                  Đang tải...
+                </span>
               </div>
             ) : getItemsForDate(selectedDate).length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <FiCalendar className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+              <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
+                <FiCalendar className="h-12 w-12 mx-auto mb-3 text-neutral-400" />
                 <p className="text-lg font-medium mb-1">Không có lịch trình</p>
                 <p className="text-sm">
                   Chưa có hoạt động nào được lên lịch cho ngày này
@@ -428,7 +430,7 @@ const NurseSchedule = () => {
                     return (
                       <div
                         key={item.id}
-                        className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                        className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 hover:shadow-md transition-shadow"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex items-start space-x-4">
@@ -439,7 +441,7 @@ const NurseSchedule = () => {
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center space-x-3 mb-2">
-                                <h4 className="text-lg font-medium text-gray-800">
+                                <h4 className="text-lg font-medium text-neutral-800 dark:text-neutral-200">
                                   {item.title}
                                 </h4>
                                 {item.status === "completed" && (
@@ -461,10 +463,10 @@ const NurseSchedule = () => {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-gray-600 mb-2">
+                              <p className="text-neutral-600 dark:text-neutral-400 mb-2">
                                 {item.subtitle}
                               </p>
-                              <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+                              <div className="flex items-center space-x-4 text-sm text-neutral-500 dark:text-neutral-400 mb-3">
                                 <span className="flex items-center">
                                   <FiClock className="h-4 w-4 mr-1" />
                                   {item.time} - {item.endTime}
@@ -477,20 +479,20 @@ const NurseSchedule = () => {
                                 )}
                               </div>
                               {item.details && (
-                                <p className="text-sm text-gray-600 mb-3">
+                                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
                                   {item.details}
                                 </p>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                            <button className="p-2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors">
                               <FiEye className="h-4 w-4" />
                             </button>
-                            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                            <button className="p-2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors">
                               <FiEdit className="h-4 w-4" />
                             </button>
-                            <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                            <button className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
                               <FiTrash2 className="h-4 w-4" />
                             </button>
                           </div>

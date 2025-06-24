@@ -115,29 +115,29 @@ const HealthEventCreate = () => {
       <div className="flex items-center mb-6">
         <Link
           to="/nurse/health-events"
-          className="mr-4 text-gray-600 hover:text-gray-900"
+          className="mr-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
         >
           <FiArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
           Tạo sự kiện y tế mới
         </h1>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-lg shadow-md overflow-hidden"
+        className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-neutral-700"
       >
         {/* Student Information Section */}
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-800 mb-4">
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
+          <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
             Thông tin học sinh
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label
                 htmlFor="studentName"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Họ và tên học sinh <span className="text-red-500">*</span>
               </label>
@@ -148,13 +148,13 @@ const HealthEventCreate = () => {
                 required
                 value={formData.studentName}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
             <div>
               <label
                 htmlFor="class"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Lớp <span className="text-red-500">*</span>
               </label>
@@ -165,22 +165,22 @@ const HealthEventCreate = () => {
                 required
                 value={formData.class}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
           </div>
         </div>
 
         {/* Event Details Section */}
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-800 mb-4">
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
+          <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
             Chi tiết sự kiện
           </h2>
           <div className="space-y-6">
             <div>
               <label
                 htmlFor="type"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Loại sự kiện <span className="text-red-500">*</span>
               </label>
@@ -190,7 +190,7 @@ const HealthEventCreate = () => {
                 required
                 value={formData.type}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
               >
                 <option value="illness">Bệnh tật</option>
                 <option value="injury">Chấn thương</option>
@@ -203,7 +203,7 @@ const HealthEventCreate = () => {
             <div>
               <label
                 htmlFor="description"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Mô tả ngắn <span className="text-red-500">*</span>
               </label>
@@ -214,7 +214,7 @@ const HealthEventCreate = () => {
                 required
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 placeholder="Ví dụ: Sốt nhẹ 37.8°C, đã cấp thuốc hạ sốt"
               />
             </div>
@@ -222,7 +222,7 @@ const HealthEventCreate = () => {
             <div>
               <label
                 htmlFor="details"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Chi tiết
               </label>
@@ -232,10 +232,10 @@ const HealthEventCreate = () => {
                 rows="4"
                 value={formData.details}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 placeholder="Mô tả chi tiết về tình trạng của học sinh"
               ></textarea>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Mỗi dòng sẽ được hiển thị như một mục riêng biệt
               </p>
             </div>
@@ -243,15 +243,15 @@ const HealthEventCreate = () => {
         </div>
 
         {/* Vital Signs Section */}
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-800 mb-4">
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
+          <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
             Dấu hiệu sinh tồn
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <label
                 htmlFor="temperature"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Thân nhiệt
               </label>
@@ -261,14 +261,14 @@ const HealthEventCreate = () => {
                 name="temperature"
                 value={formData.temperature}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 placeholder="Ví dụ: 37.8°C"
               />
             </div>
             <div>
               <label
                 htmlFor="pulse"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Mạch
               </label>
@@ -278,14 +278,14 @@ const HealthEventCreate = () => {
                 name="pulse"
                 value={formData.pulse}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 placeholder="Ví dụ: 88 lần/phút"
               />
             </div>
             <div>
               <label
                 htmlFor="bloodPressure"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Huyết áp
               </label>
@@ -295,14 +295,14 @@ const HealthEventCreate = () => {
                 name="bloodPressure"
                 value={formData.bloodPressure}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 placeholder="Ví dụ: 110/70 mmHg"
               />
             </div>
             <div>
               <label
                 htmlFor="respiratoryRate"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Nhịp thở
               </label>
@@ -312,7 +312,7 @@ const HealthEventCreate = () => {
                 name="respiratoryRate"
                 value={formData.respiratoryRate}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 placeholder="Ví dụ: 20 lần/phút"
               />
             </div>
@@ -320,9 +320,9 @@ const HealthEventCreate = () => {
         </div>
 
         {/* Medications Section */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium text-gray-800">
+            <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200">
               Thuốc đã sử dụng
             </h2>
             <button
@@ -342,7 +342,7 @@ const HealthEventCreate = () => {
               <div>
                 <label
                   htmlFor={`medication-name-${index}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Tên thuốc
                 </label>
@@ -353,13 +353,13 @@ const HealthEventCreate = () => {
                   onChange={(e) =>
                     handleMedicationChange(index, "name", e.target.value)
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 />
               </div>
               <div>
                 <label
                   htmlFor={`medication-dosage-${index}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Liều lượng
                 </label>
@@ -370,13 +370,13 @@ const HealthEventCreate = () => {
                   onChange={(e) =>
                     handleMedicationChange(index, "dosage", e.target.value)
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 />
               </div>
               <div>
                 <label
                   htmlFor={`medication-time-${index}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Thời gian
                 </label>
@@ -387,7 +387,7 @@ const HealthEventCreate = () => {
                   onChange={(e) =>
                     handleMedicationChange(index, "time", e.target.value)
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   placeholder="Ví dụ: 09:30"
                 />
               </div>
@@ -407,9 +407,9 @@ const HealthEventCreate = () => {
         </div>
 
         {/* Medical Supplies Section */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium text-gray-800">
+            <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200">
               Vật tư y tế đã sử dụng
             </h2>
             <button
@@ -429,7 +429,7 @@ const HealthEventCreate = () => {
               <div>
                 <label
                   htmlFor={`supply-name-${index}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Tên vật tư
                 </label>
@@ -440,14 +440,14 @@ const HealthEventCreate = () => {
                   onChange={(e) =>
                     handleMedicalSupplyChange(index, "name", e.target.value)
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   placeholder="Ví dụ: Băng dính y tế"
                 />
               </div>
               <div>
                 <label
                   htmlFor={`supply-quantity-${index}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Số lượng
                 </label>
@@ -463,13 +463,13 @@ const HealthEventCreate = () => {
                       parseInt(e.target.value) || 1
                     )
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 />
               </div>
               <div>
                 <label
                   htmlFor={`supply-time-${index}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Thời gian
                 </label>
@@ -480,7 +480,7 @@ const HealthEventCreate = () => {
                   onChange={(e) =>
                     handleMedicalSupplyChange(index, "time", e.target.value)
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   placeholder="Ví dụ: 09:30"
                 />
               </div>
@@ -500,8 +500,8 @@ const HealthEventCreate = () => {
         </div>
 
         {/* Parent Contact Section */}
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-800 mb-4">
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
+          <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
             Liên hệ phụ huynh
           </h2>
           <div className="mb-4">
@@ -521,7 +521,7 @@ const HealthEventCreate = () => {
               />
               <label
                 htmlFor="parentContacted"
-                className="ml-2 block text-sm text-gray-700"
+                className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
               >
                 Đã liên hệ với phụ huynh
               </label>
@@ -533,7 +533,7 @@ const HealthEventCreate = () => {
               <div>
                 <label
                   htmlFor="parentTime"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Thời gian liên hệ
                 </label>
@@ -548,14 +548,14 @@ const HealthEventCreate = () => {
                       e.target.value
                     )
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   placeholder="Ví dụ: 09:45"
                 />
               </div>
               <div>
                 <label
                   htmlFor="parentPerson"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Người được liên hệ
                 </label>
@@ -570,14 +570,14 @@ const HealthEventCreate = () => {
                       e.target.value
                     )
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   placeholder="Ví dụ: Mẹ - Nguyễn Thị X"
                 />
               </div>
               <div>
                 <label
                   htmlFor="contactMethod"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Phương thức liên hệ
                 </label>
@@ -591,7 +591,7 @@ const HealthEventCreate = () => {
                       e.target.value
                     )
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
                 >
                   <option value="phone">Điện thoại</option>
                   <option value="message">Tin nhắn</option>
@@ -602,7 +602,7 @@ const HealthEventCreate = () => {
               <div>
                 <label
                   htmlFor="parentResponse"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Phản hồi
                 </label>
@@ -617,7 +617,7 @@ const HealthEventCreate = () => {
                       e.target.value
                     )
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                   placeholder="Ví dụ: Đã nắm thông tin, không đón về"
                 />
               </div>
@@ -631,7 +631,7 @@ const HealthEventCreate = () => {
             <div>
               <label
                 htmlFor="actionTaken"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Hành động đã thực hiện <span className="text-red-500">*</span>
               </label>
@@ -642,7 +642,7 @@ const HealthEventCreate = () => {
                 required
                 value={formData.actionTaken}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 placeholder="Mô tả các hành động đã thực hiện để xử lý tình huống"
               ></textarea>
             </div>
@@ -650,7 +650,7 @@ const HealthEventCreate = () => {
             <div>
               <label
                 htmlFor="followUp"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Theo dõi tiếp theo
               </label>
@@ -660,7 +660,7 @@ const HealthEventCreate = () => {
                 rows="3"
                 value={formData.followUp}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 placeholder="Các bước tiếp theo cần thực hiện để theo dõi tình trạng học sinh"
               ></textarea>
             </div>
@@ -668,17 +668,17 @@ const HealthEventCreate = () => {
         </div>
 
         {/* Submit Buttons */}
-        <div className="p-6 bg-gray-50 flex justify-end space-x-4">
+        <div className="p-6 bg-gray-50 dark:bg-neutral-700 flex justify-end space-x-4">
           <Link
             to="/nurse/health-events"
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100"
+            className="px-4 py-2 border border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-600 bg-white dark:bg-neutral-800"
           >
             Hủy
           </Link>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center disabled:bg-blue-400"
           >
             {loading ? (
               <>

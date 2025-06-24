@@ -171,10 +171,10 @@ const Notifications = () => {
       case "medication":
       case "medication_response":
         return (
-          <div className="p-2 bg-blue-100 rounded-full">
+          <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-blue-600"
+              className="h-6 w-6 text-blue-600 dark:text-blue-400"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -188,10 +188,10 @@ const Notifications = () => {
         );
       case "health_event":
         return (
-          <div className="p-2 bg-green-100 rounded-full">
+          <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-green-600"
+              className="h-6 w-6 text-green-600 dark:text-green-400"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -205,10 +205,10 @@ const Notifications = () => {
         );
       case "vaccination":
         return (
-          <div className="p-2 bg-purple-100 rounded-full">
+          <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-purple-600"
+              className="h-6 w-6 text-purple-600 dark:text-purple-400"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -219,10 +219,10 @@ const Notifications = () => {
         );
       case "report":
         return (
-          <div className="p-2 bg-yellow-100 rounded-full">
+          <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-full">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-yellow-600"
+              className="h-6 w-6 text-amber-600 dark:text-amber-400"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -236,10 +236,10 @@ const Notifications = () => {
         );
       default:
         return (
-          <div className="p-2 bg-gray-100 rounded-full">
+          <div className="p-3 bg-neutral-100 dark:bg-neutral-700 rounded-full">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-gray-600"
+              className="h-6 w-6 text-neutral-600 dark:text-neutral-300"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -270,7 +270,7 @@ const Notifications = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 dark:border-primary-400"></div>
       </div>
     );
   }
@@ -279,9 +279,11 @@ const Notifications = () => {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Thông báo</h1>
+          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+            Thông báo
+          </h1>
           {unreadCount > 0 && (
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-neutral-600 dark:text-neutral-300 mt-1">
               Bạn có {unreadCount} thông báo chưa đọc
             </p>
           )}
@@ -290,7 +292,7 @@ const Notifications = () => {
         <div className="flex space-x-2">
           <button
             onClick={handleMarkAllAsRead}
-            className="px-4 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors text-gray-700 font-medium"
+            className="px-4 py-2 text-sm bg-neutral-100 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors text-neutral-700 dark:text-neutral-200 font-medium"
           >
             Đánh dấu tất cả đã đọc
           </button>
@@ -298,63 +300,63 @@ const Notifications = () => {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex overflow-x-auto py-2 mb-6 border-b border-gray-200">
+      <div className="flex overflow-x-auto py-2 mb-6 border-b border-neutral-200 dark:border-neutral-700">
         <button
           onClick={() => setFilter("all")}
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap ${
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors ${
             filter === "all"
-              ? "bg-primary-100 text-primary-800"
-              : "text-gray-600 hover:bg-gray-100"
+              ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
+              : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
           }`}
         >
           Tất cả
         </button>
         <button
           onClick={() => setFilter("unread")}
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap ${
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors ${
             filter === "unread"
-              ? "bg-primary-100 text-primary-800"
-              : "text-gray-600 hover:bg-gray-100"
+              ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
+              : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
           }`}
         >
           Chưa đọc ({unreadCount})
         </button>
         <button
           onClick={() => setFilter("action")}
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap ${
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors ${
             filter === "action"
-              ? "bg-primary-100 text-primary-800"
-              : "text-gray-600 hover:bg-gray-100"
+              ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
+              : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
           }`}
         >
           Cần xác nhận
         </button>
         <button
           onClick={() => setFilter("medication")}
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap ${
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors ${
             filter === "medication"
-              ? "bg-primary-100 text-primary-800"
-              : "text-gray-600 hover:bg-gray-100"
+              ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
+              : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
           }`}
         >
           Thuốc
         </button>
         <button
           onClick={() => setFilter("health_event")}
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap ${
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors ${
             filter === "health_event"
-              ? "bg-primary-100 text-primary-800"
-              : "text-gray-600 hover:bg-gray-100"
+              ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
+              : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
           }`}
         >
           Sự kiện y tế
         </button>
         <button
           onClick={() => setFilter("vaccination")}
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap ${
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors ${
             filter === "vaccination"
-              ? "bg-primary-100 text-primary-800"
-              : "text-gray-600 hover:bg-gray-100"
+              ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
+              : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
           }`}
         >
           Tiêm chủng
@@ -362,11 +364,11 @@ const Notifications = () => {
       </div>
 
       {/* Notifications list */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700">
         {filteredNotifications.length === 0 ? (
           <div className="text-center py-12">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-12 w-12 text-neutral-400 dark:text-neutral-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 48 48"
@@ -378,10 +380,10 @@ const Notifications = () => {
                 d="M34 40h10v-4a6 6 0 00-10.712-3.714M34 40H14m20 0v-4a9.971 9.971 0 00-.712-3.714M14 40H4v-4a6 6 0 0110.713-3.714M14 40v-4c0-1.313.253-2.566.713-3.714m0 0A9.971 9.971 0 0124 30a9.971 9.971 0 018.287 6.286"
               />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
+            <h3 className="mt-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
               Không có thông báo
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
               {filter === "all"
                 ? "Bạn chưa có thông báo nào."
                 : `Không có thông báo nào trong bộ lọc "${
@@ -398,12 +400,14 @@ const Notifications = () => {
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-neutral-200 dark:divide-neutral-700">
             {filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`p-6 hover:bg-gray-50 transition-colors ${
-                  !notification.read ? "bg-blue-50" : ""
+                className={`p-6 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors ${
+                  !notification.read
+                    ? "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 dark:border-blue-400"
+                    : ""
                 }`}
               >
                 <div className="flex items-start space-x-4">
@@ -414,16 +418,16 @@ const Notifications = () => {
                         <p
                           className={`text-sm font-medium ${
                             !notification.read
-                              ? "text-gray-900"
-                              : "text-gray-700"
+                              ? "text-neutral-900 dark:text-neutral-100"
+                              : "text-neutral-700 dark:text-neutral-300"
                           }`}
                         >
                           {notification.title}
                         </p>
-                        <p className="mt-1 text-sm text-gray-600">
+                        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
                           {notification.message}
                         </p>
-                        <p className="mt-2 text-xs text-gray-500">
+                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
                           {formatDate(notification.date)}
                         </p>
 
@@ -431,7 +435,7 @@ const Notifications = () => {
                           <div className="mt-3">
                             <Link
                               to={notification.actionLink}
-                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-primary-700 bg-primary-100 hover:bg-primary-200 transition-colors"
+                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-500 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                             >
                               Xem chi tiết
                             </Link>
@@ -443,7 +447,7 @@ const Notifications = () => {
                         {!notification.read && (
                           <button
                             onClick={() => handleMarkAsRead(notification.id)}
-                            className="text-xs text-primary-600 hover:text-primary-800 px-2 py-1 rounded hover:bg-primary-50"
+                            className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 px-2 py-1 rounded hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors"
                           >
                             Đánh dấu đã đọc
                           </button>
@@ -452,7 +456,7 @@ const Notifications = () => {
                           onClick={() =>
                             handleDeleteNotification(notification.id)
                           }
-                          className="text-xs text-gray-400 hover:text-red-600 px-2 py-1 rounded hover:bg-red-50"
+                          className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                         >
                           Xóa
                         </button>

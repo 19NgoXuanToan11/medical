@@ -104,16 +104,16 @@ const ExcelImport = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6">
       <h2 className="text-xl font-medium text-gray-800 mb-6">
         Nhập dữ liệu từ Excel
       </h2>
 
       <div className="mb-8">
-        <h3 className="text-md font-medium text-gray-700 mb-3">
+        <h3 className="text-md font-medium text-gray-700 dark:text-gray-200 mb-3">
           Bước 1: Tải về mẫu Excel
         </h3>
-        <p className="text-gray-600 mb-4">
+        <p className="text-gray-600 dark:text-gray-300 mb-4">
           Tải về mẫu Excel để đảm bảo dữ liệu của bạn được định dạng chính xác
           trước khi nhập vào hệ thống.
         </p>
@@ -133,35 +133,37 @@ const ExcelImport = () => {
           )}
         </button>
         {downloadStatus.error && (
-          <div className="mt-2 text-sm text-red-600">
+          <div className="mt-2 text-sm text-red-600 dark:text-red-300">
             {downloadStatus.error}
           </div>
         )}
       </div>
 
       <div className="border-t border-gray-200 pt-6 mb-8">
-        <h3 className="text-md font-medium text-gray-700 mb-3">
+        <h3 className="text-md font-medium text-gray-700 dark:text-gray-200 mb-3">
           Bước 2: Tải lên file Excel
         </h3>
-        <p className="text-gray-600 mb-4">
+        <p className="text-gray-600 dark:text-gray-300 mb-4">
           Tải lên file Excel đã điền thông tin. Hệ thống sẽ tự động xử lý và cập
           nhật dữ liệu.
         </p>
 
         <div className="mt-4">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
             {file ? (
               <div className="flex flex-col items-center">
-                <div className="bg-gray-100 p-2 rounded mb-2 max-w-md overflow-hidden">
-                  <p className="text-sm text-gray-700 truncate">{file.name}</p>
-                  <p className="text-xs text-gray-500">
+                <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded mb-2 max-w-md overflow-hidden">
+                  <p className="text-sm text-gray-700 dark:text-gray-200 truncate">
+                    {file.name}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {(file.size / 1024).toFixed(1)} KB
                   </p>
                 </div>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => setFile(null)}
-                    className="text-sm text-gray-500 hover:text-gray-700"
+                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-200"
                   >
                     Chọn file khác
                   </button>
@@ -182,7 +184,7 @@ const ExcelImport = () => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
                   <label
                     htmlFor="file-upload"
                     className="text-blue-600 hover:text-blue-700 cursor-pointer"
@@ -198,7 +200,7 @@ const ExcelImport = () => {
                     className="sr-only"
                   />
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Chỉ chấp nhận file .xlsx, .xls
                 </p>
               </div>
@@ -229,7 +231,7 @@ const ExcelImport = () => {
         </div>
 
         {uploadStatus.error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/40 border border-red-200 rounded-md">
             <div className="flex">
               <FiAlertCircle className="h-5 w-5 text-red-500 mr-2" />
               <span className="text-sm text-red-700">{uploadStatus.error}</span>
@@ -246,7 +248,7 @@ const ExcelImport = () => {
               </span>
             </div>
             {uploadStatus.data && (
-              <div className="mt-2 text-sm text-gray-700">
+              <div className="mt-2 text-sm text-gray-700 dark:text-gray-200">
                 <p>Tổng số mục: {uploadStatus.data.totalItems || 0}</p>
                 <p>Thành công: {uploadStatus.data.successCount || 0}</p>
                 <p>Lỗi: {uploadStatus.data.errorCount || 0}</p>

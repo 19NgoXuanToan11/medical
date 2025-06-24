@@ -19,8 +19,19 @@ import {
   MANAGEABLE_ROLES,
   validateStaffData,
   getRoleDisplayInfo,
+  securityUtils,
 } from "../../../utils/staff/staffService";
 
+/**
+ * StaffManagement Component
+ *
+ * SECURITY NOTICE: This component implements strict security measures to prevent
+ * unauthorized access to admin accounts:
+ * 1. Admin users (roleId: 1) are completely hidden from display
+ * 2. Creating/editing admin roles is strictly prohibited
+ * 3. Only Manager (roleId: 2) and Nurse (roleId: 3) roles can be managed
+ * 4. Multiple validation layers ensure data integrity
+ */
 const StaffManagement = () => {
   // States for staff list
   const [staffList, setStaffList] = useState([]);
@@ -184,6 +195,23 @@ const StaffManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Additional security check: Prevent creating admin users
+    if (parseInt(formData.roleId) === 1) {
+      securityUtils.logSecurityViolation("ADMIN_CREATION_ATTEMPT", {
+        action: modalMode,
+        formData: {
+          ...formData,
+          password: "[REDACTED]",
+          confirmPassword: "[REDACTED]",
+        },
+      });
+      showNotification(
+        "Không được phép tạo tài khoản Admin qua giao diện này",
+        "error"
+      );
+      return;
+    }
+
     // Validate form data
     const validation = validateStaffData(formData, modalMode === "edit");
     if (!validation.isValid) {
@@ -216,6 +244,12 @@ const StaffManagement = () => {
             fieldErrors[field] = "Trường này là bắt buộc";
           });
           setFormErrors(fieldErrors);
+        } else if (result.error && result.error.securityViolation) {
+          // Log security violation for monitoring
+          console.warn(
+            "Security violation detected:",
+            result.error.securityViolation
+          );
         }
       }
     } catch (error) {
@@ -227,6 +261,19 @@ const StaffManagement = () => {
 
   // Handle delete confirmation
   const handleDeleteClick = (staff) => {
+    // Security check: Additional validation before allowing delete
+    if (staff.roleId === 1) {
+      securityUtils.logSecurityViolation("ADMIN_DELETE_ATTEMPT", {
+        targetStaff: {
+          id: staff.staffId,
+          username: staff.username,
+          roleId: staff.roleId,
+        },
+      });
+      showNotification("Không được phép xóa tài khoản Admin", "error");
+      return;
+    }
+
     setDeletingStaff(staff);
     setShowDeleteModal(true);
   };
@@ -255,8 +302,15 @@ const StaffManagement = () => {
   const getFilteredStaff = () => {
     let filtered = [...staffList];
 
-    // Filter out Admin users (roleId: 1) from display
-    filtered = filtered.filter((staff) => staff.roleId !== 1);
+    // Security: Filter out Admin users (roleId: 1) from display - CRITICAL SECURITY MEASURE
+    filtered = filtered.filter((staff) => {
+      // Double check to ensure no admin users are displayed
+      return (
+        staff.roleId !== 1 &&
+        staff.roleName !== "Admin" &&
+        staff.roleName !== "Quản trị viên"
+      );
+    });
 
     // Apply search filter
     if (searchTerm) {
@@ -272,7 +326,10 @@ const StaffManagement = () => {
     // Apply role filter
     if (filterRole !== "all") {
       const selectedRoleId = parseInt(filterRole);
-      filtered = filtered.filter((staff) => staff.roleId === selectedRoleId);
+      // Additional security check: ensure we're not filtering for admin role
+      if (selectedRoleId !== 1) {
+        filtered = filtered.filter((staff) => staff.roleId === selectedRoleId);
+      }
     }
 
     // Apply sorting
@@ -340,24 +397,28 @@ const StaffManagement = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 max-w-6xl">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Quản lý nhân viên
-          </h1>
-          <p className="text-gray-600">
-            Quản lý tài khoản và thông tin nhân viên
-          </p>
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden mb-8 transition-colors duration-300">
+        <div className="p-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+                Quản lý nhân viên
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Quản lý tài khoản và thông tin nhân viên
+              </p>
+            </div>
+            <button
+              onClick={() => openModal("create")}
+              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            >
+              <FiPlus />
+              Thêm nhân viên
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => openModal("create")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-        >
-          <FiPlus />
-          Thêm nhân viên
-        </button>
       </div>
 
       {/* Notification */}
@@ -365,10 +426,10 @@ const StaffManagement = () => {
         <div
           className={`mb-4 p-4 rounded-lg ${
             notification.type === "success"
-              ? "bg-green-100 text-green-700 border border-green-200"
+              ? "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800"
               : notification.type === "error"
-              ? "bg-red-100 text-red-700 border border-red-200"
-              : "bg-blue-100 text-blue-700 border border-blue-200"
+              ? "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800"
+              : "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
           }`}
         >
           <div className="flex items-center">
@@ -379,32 +440,32 @@ const StaffManagement = () => {
       )}
 
       {/* Filters and Search */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
             <div className="relative">
-              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
               <input
                 type="text"
                 placeholder="Tìm kiếm theo tên, email, tên đăng nhập..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
           </div>
 
           {/* Role Filter */}
           <div className="flex items-center gap-2">
-            <FiFilter className="text-gray-400" />
+            <FiFilter className="text-neutral-400 dark:text-neutral-500" />
             <select
               value={filterRole}
               onChange={(e) => {
                 setFilterRole(e.target.value);
                 setCurrentPage(1); // Reset to first page when filter changes
               }}
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="all">Tất cả</option>
               {Object.values(MANAGEABLE_ROLES).map((role) => (
@@ -417,21 +478,21 @@ const StaffManagement = () => {
 
           {/* Sort By */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Sắp xếp:</span>
+            <span className="text-sm text-neutral-500 dark:text-neutral-400">
+              Sắp xếp:
+            </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="firstName">Tên</option>
-              <option value="staffId">Staff ID</option>
               <option value="username">Tên đăng nhập</option>
               <option value="email">Email</option>
-              <option value="roleId">Role ID</option>
             </select>
             <button
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="p-2 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-600 transition-colors"
               title={`Sắp xếp ${sortOrder === "asc" ? "giảm dần" : "tăng dần"}`}
             >
               {sortOrder === "asc" ? "↑" : "↓"}
@@ -442,7 +503,7 @@ const StaffManagement = () => {
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-4 py-2 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <FiRefreshCw className={refreshing ? "animate-spin" : ""} />
             Làm mới
@@ -451,12 +512,12 @@ const StaffManagement = () => {
       </div>
 
       {/* Staff Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden transition-colors duration-300">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-neutral-50 dark:bg-neutral-700 border-b border-neutral-200 dark:border-neutral-600">
               <tr className="h-12">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider align-middle">
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider align-middle">
                   <div className="flex items-center h-full">
                     <button
                       onClick={() => {
@@ -467,40 +528,18 @@ const StaffManagement = () => {
                           setSortOrder("asc");
                         }
                       }}
-                      className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                      className="flex items-center gap-1 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                     >
                       Người dùng
                       {sortBy === "firstName" && (
-                        <span className="text-blue-600">
+                        <span className="text-primary-600 dark:text-primary-400">
                           {sortOrder === "asc" ? "↑" : "↓"}
                         </span>
                       )}
                     </button>
                   </div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider align-middle">
-                  <div className="flex items-center justify-center h-full">
-                    <button
-                      onClick={() => {
-                        if (sortBy === "staffId") {
-                          setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                        } else {
-                          setSortBy("staffId");
-                          setSortOrder("asc");
-                        }
-                      }}
-                      className="flex items-center gap-1 hover:text-blue-600 transition-colors"
-                    >
-                      Staff ID
-                      {sortBy === "staffId" && (
-                        <span className="text-blue-600">
-                          {sortOrder === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider align-middle">
+                <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider align-middle">
                   <div className="flex items-center justify-center h-full">
                     <button
                       onClick={() => {
@@ -511,87 +550,63 @@ const StaffManagement = () => {
                           setSortOrder("asc");
                         }
                       }}
-                      className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                      className="flex items-center gap-1 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                     >
                       Tên đăng nhập
                       {sortBy === "username" && (
-                        <span className="text-blue-600">
+                        <span className="text-primary-600 dark:text-primary-400">
                           {sortOrder === "asc" ? "↑" : "↓"}
                         </span>
                       )}
                     </button>
                   </div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider align-middle">
+                <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider align-middle">
                   <div className="flex items-center justify-center h-full">
                     Vai trò
                   </div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider align-middle">
-                  <div className="flex items-center justify-center h-full">
-                    <button
-                      onClick={() => {
-                        if (sortBy === "roleId") {
-                          setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                        } else {
-                          setSortBy("roleId");
-                          setSortOrder("asc");
-                        }
-                      }}
-                      className="flex items-center gap-1 hover:text-blue-600 transition-colors"
-                    >
-                      Role ID
-                      {sortBy === "roleId" && (
-                        <span className="text-blue-600">
-                          {sortOrder === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider align-middle">
+                <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider align-middle">
                   <div className="flex items-center justify-center h-full">
                     Số điện thoại
                   </div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider align-middle">
+                <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider align-middle">
                   <div className="flex items-center justify-center h-full">
                     Thao tác
                   </div>
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-700">
               {getPaginatedStaff().map((staff) => {
                 const roleInfo = getRoleDisplayInfo(staff);
                 return (
-                  <tr key={staff.staffId} className="hover:bg-gray-50 h-16">
+                  <tr
+                    key={staff.staffId}
+                    className="hover:bg-neutral-50 dark:hover:bg-neutral-700 h-16"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap align-middle">
                       <div className="flex items-center h-full">
                         <div className="flex-shrink-0 h-10 w-10 mr-3">
-                          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span className="text-blue-600 font-medium text-sm">
+                          <div className="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-800 flex items-center justify-center">
+                            <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
                               {staff.firstName?.charAt(0)}
                               {staff.lastName?.charAt(0)}
                             </span>
                           </div>
                         </div>
                         <div className="flex flex-col justify-center">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                             {staff.firstName} {staff.lastName}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-neutral-500 dark:text-neutral-400">
                             {staff.email}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 align-middle text-center">
-                      <div className="flex items-center justify-center h-full">
-                        {staff.staffId || "N/A"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 align-middle text-center">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100 align-middle text-center">
                       <div className="flex items-center justify-center h-full">
                         {staff.username}
                       </div>
@@ -605,12 +620,7 @@ const StaffManagement = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 align-middle text-center">
-                      <div className="flex items-center justify-center h-full">
-                        {staff.roleId || "N/A"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 align-middle text-center">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100 align-middle text-center">
                       <div className="flex items-center justify-center h-full">
                         {staff.phone || "Chưa cập nhật"}
                       </div>
@@ -619,21 +629,21 @@ const StaffManagement = () => {
                       <div className="flex items-center justify-center space-x-3 h-full">
                         <button
                           onClick={() => openModal("view", staff)}
-                          className="text-blue-600 hover:text-blue-900 transition-colors p-1 rounded hover:bg-blue-50"
+                          className="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-100 transition-colors p-1 rounded hover:bg-primary-50 dark:hover:bg-primary-700"
                           title="Xem chi tiết"
                         >
                           <FiEye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => openModal("edit", staff)}
-                          className="text-yellow-600 hover:text-yellow-900 transition-colors p-1 rounded hover:bg-yellow-50"
+                          className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-100 transition-colors p-1 rounded hover:bg-yellow-50 dark:hover:bg-yellow-700"
                           title="Chỉnh sửa"
                         >
                           <FiEdit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteClick(staff)}
-                          className="text-red-600 hover:text-red-900 transition-colors p-1 rounded hover:bg-red-50"
+                          className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-100 transition-colors p-1 rounded hover:bg-red-50 dark:hover:bg-red-700"
                           title="Xóa"
                         >
                           <FiTrash2 className="w-4 h-4" />
@@ -649,9 +659,9 @@ const StaffManagement = () => {
 
         {/* Pagination */}
         {getTotalPages() > 1 && (
-          <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+          <div className="bg-white dark:bg-neutral-800 px-4 py-3 border-t border-neutral-200 dark:border-neutral-600 sm:px-6">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-neutral-700 dark:text-neutral-300">
                 Hiển thị {(currentPage - 1) * itemsPerPage + 1} đến{" "}
                 {Math.min(
                   currentPage * itemsPerPage,
@@ -665,7 +675,7 @@ const StaffManagement = () => {
                     setCurrentPage((prev) => Math.max(prev - 1, 1))
                   }
                   disabled={currentPage === 1}
-                  className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded-md text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Trước
                 </button>
@@ -676,8 +686,8 @@ const StaffManagement = () => {
                       onClick={() => setCurrentPage(page)}
                       className={`px-3 py-1 border rounded-md text-sm font-medium ${
                         currentPage === page
-                          ? "bg-blue-600 text-white border-blue-600"
-                          : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                          ? "bg-primary-600 text-white border-primary-600"
+                          : "border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-600"
                       }`}
                     >
                       {page}
@@ -691,7 +701,7 @@ const StaffManagement = () => {
                     )
                   }
                   disabled={currentPage === getTotalPages()}
-                  className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded-md text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Sau
                 </button>
@@ -703,12 +713,12 @@ const StaffManagement = () => {
 
       {/* Staff Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-neutral-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border border-neutral-300 dark:border-neutral-600 w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white dark:bg-neutral-800">
             <div className="mt-3">
               {/* Modal Header */}
-              <div className="flex items-center justify-between pb-4 border-b">
-                <h3 className="text-lg font-semibold text-gray-900">
+              <div className="flex items-center justify-between pb-4 border-b border-neutral-200 dark:border-neutral-600">
+                <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                   {modalMode === "create"
                     ? "Thêm nhân viên mới"
                     : modalMode === "edit"
@@ -717,7 +727,7 @@ const StaffManagement = () => {
                 </h3>
                 <button
                   onClick={closeModal}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
                 >
                   <FiX size={24} />
                 </button>
@@ -754,10 +764,9 @@ const StaffManagement = () => {
                   {/* Role ID */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Role ID <span className="text-red-500">*</span>
+                      Vai trò <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="number"
+                    <select
                       name="roleId"
                       value={formData.roleId}
                       onChange={handleInputChange}
@@ -765,8 +774,17 @@ const StaffManagement = () => {
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         formErrors.roleId ? "border-red-500" : "border-gray-300"
                       } ${modalMode === "view" ? "bg-gray-50" : ""}`}
-                      placeholder="Nhập Role ID"
-                    />
+                    >
+                      <option value="">Chọn vai trò</option>
+                      {Object.values(MANAGEABLE_ROLES).map((role) => (
+                        <option key={role.id} value={role.id}>
+                          {role.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-xs text-gray-500">
+                      * Chỉ có thể tạo tài khoản Quản lý và Nhân viên y tế
+                    </p>
                     {formErrors.roleId && (
                       <p className="mt-1 text-sm text-red-500">
                         {formErrors.roleId}

@@ -8,6 +8,8 @@ import {
   FiCalendar,
   FiActivity,
   FiPackage,
+  FiCheck,
+  FiAlertTriangle,
 } from "react-icons/fi";
 
 const HealthEventList = () => {
@@ -105,19 +107,19 @@ const HealthEventList = () => {
     switch (status) {
       case "pending":
         return (
-          <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 w-24">
+          <span className="px-3 py-1.5 inline-flex items-center justify-center text-sm leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 w-24 h-8">
             Đang xử lý
           </span>
         );
       case "resolved":
         return (
-          <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 w-24">
+          <span className="px-3 py-1.5 inline-flex items-center justify-center text-sm leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 w-24 h-8">
             Đã xử lý
           </span>
         );
       default:
         return (
-          <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 w-24">
+          <span className="px-3 py-1.5 inline-flex items-center justify-center text-sm leading-5 font-semibold rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-300 w-24 h-8">
             {status}
           </span>
         );
@@ -179,65 +181,73 @@ const HealthEventList = () => {
   );
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+    <div className="container mx-auto px-6 max-w-7xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
           Quản lý sự kiện y tế
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-lg text-neutral-600 dark:text-neutral-400 mt-2">
           Theo dõi và xử lý các sự kiện y tế trong trường học
         </p>
       </div>
 
-      {/* Dashboard Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
-          <div className="flex justify-between items-start">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Tổng số sự kiện hôm nay</p>
-              <p className="text-2xl font-bold mt-1 text-blue-600">
+              <p className="text-base text-neutral-600 dark:text-neutral-300 mb-2">
+                Tổng số sự kiện hôm nay
+              </p>
+              <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">
                 {filterEventsByDate(eventsList, "today").length}
               </p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-full">
-              <FiCalendar className="h-5 w-5 text-blue-600" />
+            <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-full">
+              <FiCalendar className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
-          <div className="flex justify-between items-start">
+        <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Đang xử lý</p>
-              <p className="text-2xl font-bold mt-1 text-yellow-600">
+              <p className="text-base text-neutral-600 dark:text-neutral-300 mb-2">
+                Đang xử lý
+              </p>
+              <p className="text-4xl font-bold text-yellow-600 dark:text-yellow-400">
                 {eventsList.filter((e) => e.status === "pending").length}
               </p>
             </div>
-            <div className="p-3 bg-yellow-100 rounded-full">
-              <FiClock className="h-5 w-5 text-yellow-600" />
+            <div className="bg-yellow-100 dark:bg-yellow-900 p-4 rounded-full">
+              <FiClock className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
-          <div className="flex justify-between items-start">
+        <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Đã xử lý</p>
-              <p className="text-2xl font-bold mt-1 text-green-600">
+              <p className="text-base text-neutral-600 dark:text-neutral-300 mb-2">
+                Đã xử lý
+              </p>
+              <p className="text-4xl font-bold text-green-600 dark:text-green-400">
                 {eventsList.filter((e) => e.status === "resolved").length}
               </p>
             </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <FiActivity className="h-5 w-5 text-green-600" />
+            <div className="bg-green-100 dark:bg-green-900 p-4 rounded-full">
+              <FiCheck className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
-          <div className="flex justify-between items-start">
+        <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Bệnh tật/Chấn thương</p>
-              <p className="text-2xl font-bold mt-1 text-red-600">
+              <p className="text-base text-neutral-600 dark:text-neutral-300 mb-2">
+                Bệnh tật/Chấn thương
+              </p>
+              <p className="text-4xl font-bold text-red-600 dark:text-red-400">
                 {
                   eventsList.filter(
                     (e) => e.type === "illness" || e.type === "injury"
@@ -245,62 +255,62 @@ const HealthEventList = () => {
                 }
               </p>
             </div>
-            <div className="p-3 bg-red-100 rounded-full">
-              <FiActivity className="h-5 w-5 text-red-600" />
+            <div className="bg-red-100 dark:bg-red-900 p-4 rounded-full">
+              <FiAlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Date Filter Tabs */}
-      <div className="flex flex-wrap justify-between items-center mb-6">
-        <div className="flex space-x-2 mb-4 sm:mb-0 overflow-x-auto pb-2">
+      <div className="flex flex-wrap justify-between items-center mb-8">
+        <div className="flex space-x-3 mb-4 sm:mb-0 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab("today")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap ${
+            className={`px-6 py-3 rounded-md whitespace-nowrap text-base font-medium ${
               activeTab === "today"
                 ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                : "bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-700 border border-gray-300 dark:border-neutral-600"
             } transition-colors duration-200`}
           >
             Hôm nay
           </button>
           <button
             onClick={() => setActiveTab("yesterday")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap ${
+            className={`px-6 py-3 rounded-md whitespace-nowrap text-base font-medium ${
               activeTab === "yesterday"
                 ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                : "bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-700 border border-gray-300 dark:border-neutral-600"
             } transition-colors duration-200`}
           >
             Hôm qua
           </button>
           <button
             onClick={() => setActiveTab("week")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap ${
+            className={`px-6 py-3 rounded-md whitespace-nowrap text-base font-medium ${
               activeTab === "week"
                 ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                : "bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-700 border border-gray-300 dark:border-neutral-600"
             } transition-colors duration-200`}
           >
             Tuần này
           </button>
           <button
             onClick={() => setActiveTab("month")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap ${
+            className={`px-6 py-3 rounded-md whitespace-nowrap text-base font-medium ${
               activeTab === "month"
                 ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                : "bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-700 border border-gray-300 dark:border-neutral-600"
             } transition-colors duration-200`}
           >
             Tháng này
           </button>
           <button
             onClick={() => setActiveTab("custom")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap ${
+            className={`px-6 py-3 rounded-md whitespace-nowrap text-base font-medium ${
               activeTab === "custom"
                 ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                : "bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-700 border border-gray-300 dark:border-neutral-600"
             } transition-colors duration-200`}
           >
             Tùy chỉnh
@@ -311,11 +321,11 @@ const HealthEventList = () => {
             <input
               type="text"
               placeholder="Tìm kiếm..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-5 py-3 text-base border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <FiSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
           </div>
         </div>
       </div>
@@ -324,12 +334,12 @@ const HealthEventList = () => {
       {activeTab === "custom" && (
         <div className="flex space-x-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Từ ngày
             </label>
             <input
               type="date"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100"
               value={dateRange.start}
               onChange={(e) =>
                 setDateRange({ ...dateRange, start: e.target.value })
@@ -337,12 +347,12 @@ const HealthEventList = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Đến ngày
             </label>
             <input
               type="date"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100"
               value={dateRange.end}
               onChange={(e) =>
                 setDateRange({ ...dateRange, end: e.target.value })
@@ -352,7 +362,7 @@ const HealthEventList = () => {
           <div className="self-end">
             <button
               onClick={() => setDateRange({ start: "", end: "" })}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md hover:bg-gray-50 dark:hover:bg-neutral-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-300"
             >
               Xóa
             </button>
@@ -361,34 +371,37 @@ const HealthEventList = () => {
       )}
 
       {/* Event Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-neutral-700">
         <div className="overflow-x-auto">
           {/* Table Header */}
-          <div className="min-w-full bg-gray-50 border-b border-gray-200">
-            <div className="flex flex-row text-xs">
-              <div className="w-60 px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center">
+          <div className="min-w-full bg-gray-50 dark:bg-neutral-700 border-b border-gray-200 dark:border-neutral-600">
+            <div className="flex flex-row text-sm min-h-[4rem]">
+              <div className="w-56 px-6 py-4 text-left font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider flex items-center">
                 Học sinh
               </div>
-              <div className="w-40 px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center">
-                Loại sự kiện
+              <div className="w-24 px-4 py-4 text-center font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider flex items-center justify-center">
+                Lớp
               </div>
-              <div className="flex-1 px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center">
+              <div className="w-40 px-6 py-4 text-left font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider flex items-center">
+                Sự kiện
+              </div>
+              <div className="flex-1 px-6 py-4 text-left font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider flex items-center">
                 Mô tả
               </div>
-              <div className="w-64 px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center">
+              <div className="w-48 px-6 py-4 text-center font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider flex items-center justify-center">
                 Thời gian
               </div>
-              <div className="w-40 px-6 py-3 text-center font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center justify-center">
+              <div className="w-32 px-4 py-4 text-center font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider flex items-center justify-center">
                 Tài nguyên
               </div>
-              <div className="w-40 px-6 py-3 text-center font-medium text-gray-500 uppercase tracking-wider font-semibold flex items-center justify-center">
+              <div className="w-32 px-4 py-4 text-center font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider flex items-center justify-center">
                 Trạng thái
               </div>
             </div>
           </div>
 
           {/* Table Body */}
-          <div className="divide-y divide-gray-200 bg-white">
+          <div className="divide-y divide-gray-200 dark:divide-neutral-600 bg-white dark:bg-neutral-800">
             {loading ? (
               <div className="flex justify-center py-4">
                 <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
@@ -397,23 +410,25 @@ const HealthEventList = () => {
               filteredEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="flex flex-row hover:bg-gray-50 cursor-pointer transition duration-150 border-b border-gray-100"
+                  className="flex flex-row hover:bg-gray-50 dark:hover:bg-neutral-700 cursor-pointer transition duration-150 border-b border-gray-100 dark:border-neutral-600 min-h-[5rem]"
                   onClick={() =>
                     (window.location.href = `/nurse/health-events/${event.id}`)
                   }
                 >
-                  <div className="w-60 px-6 py-4 flex items-center">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {event.studentName}
-                      </div>
-                      <div className="text-sm text-gray-500">{event.class}</div>
+                  <div className="w-56 px-6 py-4 flex items-center">
+                    <div className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
+                      {event.studentName}
+                    </div>
+                  </div>
+                  <div className="w-24 px-4 py-4 flex items-center justify-center">
+                    <div className="text-base font-medium text-gray-700 dark:text-gray-300 text-center">
+                      {event.class}
                     </div>
                   </div>
                   <div className="w-40 px-6 py-4 flex items-center">
-                    <div className="flex items-center whitespace-nowrap">
+                    <div className="flex items-center">
                       <span
-                        className={`h-2.5 w-2.5 rounded-full mr-2 flex-shrink-0 ${
+                        className={`h-3 w-3 rounded-full mr-3 flex-shrink-0 ${
                           event.type === "illness"
                             ? "bg-red-500"
                             : event.type === "injury"
@@ -423,49 +438,64 @@ const HealthEventList = () => {
                             : "bg-blue-500"
                         }`}
                       ></span>
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
                         {getEventTypeLabel(event.type)}
                       </span>
                     </div>
                   </div>
                   <div className="flex-1 px-6 py-4 flex items-center">
-                    <div className="text-sm text-gray-900 truncate">
+                    <div
+                      className="text-base text-gray-900 dark:text-gray-100 leading-6"
+                      style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
                       {event.description}
                     </div>
                   </div>
-                  <div className="w-64 px-6 py-4 flex items-center">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <FiClock className="mr-1 h-4 w-4 text-gray-400 flex-shrink-0" />
-                      <span>
-                        {new Date(event.time).toLocaleTimeString("vi-VN", {
-                          hour: "2-digit",
-                          minute: "2-digit",
+                  <div className="w-48 px-6 py-4 flex items-center justify-center">
+                    <div className="flex flex-col items-center text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center mb-1">
+                        <FiClock className="mr-2 h-4 w-4 flex-shrink-0" />
+                        <span className="font-medium">
+                          {new Date(event.time).toLocaleTimeString("vi-VN", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-400 dark:text-gray-500">
+                        {new Date(event.time).toLocaleDateString("vi-VN", {
+                          day: "2-digit",
+                          month: "2-digit",
                         })}
-                        <span className="mx-1">-</span>
-                        {new Date(event.time).toLocaleDateString("vi-VN")}
-                      </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="w-40 px-6 py-4 flex items-center justify-center">
-                    <div className="flex justify-center space-x-2">
+                  <div className="w-32 px-4 py-4 flex items-center justify-center">
+                    <div className="flex flex-col items-center space-y-2">
                       {event.hasMedications && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                          <FiActivity className="mr-1 h-3 w-3 flex-shrink-0" />{" "}
-                          Thuốc
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                          <FiActivity className="h-4 w-4" />
                         </span>
                       )}
                       {event.hasMedicalSupplies && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                          <FiPackage className="mr-1 h-3 w-3 flex-shrink-0" />{" "}
-                          Vật tư
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
+                          <FiPackage className="h-4 w-4" />
                         </span>
                       )}
                       {!event.hasMedications && !event.hasMedicalSupplies && (
-                        <span className="text-xs text-gray-400">Không có</span>
+                        <span className="text-sm text-gray-400 dark:text-gray-500">
+                          -
+                        </span>
                       )}
                     </div>
                   </div>
-                  <div className="w-40 px-6 py-4 flex items-center justify-center">
+                  <div className="w-32 px-4 py-4 flex items-center justify-center">
                     <div className="flex justify-center">
                       {getStatusBadge(event.status)}
                     </div>
@@ -473,7 +503,7 @@ const HealthEventList = () => {
                 </div>
               ))
             ) : (
-              <div className="text-center py-4 text-gray-500">
+              <div className="text-center py-4 text-gray-500 dark:text-gray-400">
                 Không tìm thấy sự kiện nào
               </div>
             )}

@@ -141,25 +141,25 @@ const VaccinationPlanCreate = () => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">
           Tạo kế hoạch tiêm chủng mới
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-neutral-600 dark:text-neutral-400 mt-1">
           Tạo kế hoạch tiêm chủng cho học sinh trong trường
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Thông tin cơ bản */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold mb-4 flex items-center">
+        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-neutral-200 dark:border-neutral-700">
+          <h2 className="text-lg font-semibold mb-4 flex items-center text-neutral-900 dark:text-neutral-100">
             <FiInfo className="mr-2" />
             Thông tin cơ bản
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Tên kế hoạch tiêm chủng *
               </label>
               <input
@@ -167,21 +167,21 @@ const VaccinationPlanCreate = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Ví dụ: Tiêm vắc-xin cúm mùa 2024"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Loại vắc-xin *
               </label>
               <select
                 name="vaccineType"
                 value={formData.vaccineType}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 required
               >
                 <option value="">Chọn loại vắc-xin</option>
@@ -192,7 +192,7 @@ const VaccinationPlanCreate = () => {
                 ))}
               </select>
               {selectedVaccine && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
                   {selectedVaccine.description} - Độ tuổi khuyến nghị:{" "}
                   {selectedVaccine.recommendedAge}
                 </p>
@@ -200,7 +200,7 @@ const VaccinationPlanCreate = () => {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Mô tả
               </label>
               <textarea
@@ -208,7 +208,7 @@ const VaccinationPlanCreate = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Mô tả chi tiết về kế hoạch tiêm chủng..."
               />
             </div>
@@ -216,15 +216,15 @@ const VaccinationPlanCreate = () => {
         </div>
 
         {/* Thời gian và địa điểm */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold mb-4 flex items-center">
+        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-neutral-200 dark:border-neutral-700">
+          <h2 className="text-lg font-semibold mb-4 flex items-center text-neutral-900 dark:text-neutral-100">
             <FiCalendar className="mr-2" />
             Thời gian và địa điểm
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Ngày tiêm *
               </label>
               <input
@@ -232,13 +232,13 @@ const VaccinationPlanCreate = () => {
                 name="scheduledDate"
                 value={formData.scheduledDate}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Giờ bắt đầu
               </label>
               <input
@@ -246,12 +246,12 @@ const VaccinationPlanCreate = () => {
                 name="scheduledTime"
                 value={formData.scheduledTime}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Địa điểm
               </label>
               <input
@@ -259,13 +259,13 @@ const VaccinationPlanCreate = () => {
                 name="location"
                 value={formData.location}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Phòng y tế trường"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Số ngày nhắc nhở trước
               </label>
               <input
@@ -275,12 +275,12 @@ const VaccinationPlanCreate = () => {
                 onChange={handleInputChange}
                 min="1"
                 max="30"
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Số học sinh tối đa/phiên
               </label>
               <input
@@ -290,12 +290,12 @@ const VaccinationPlanCreate = () => {
                 onChange={handleInputChange}
                 min="10"
                 max="100"
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Thời gian dự kiến (phút)
               </label>
               <input
@@ -305,15 +305,15 @@ const VaccinationPlanCreate = () => {
                 onChange={handleInputChange}
                 min="15"
                 max="180"
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
               />
             </div>
           </div>
         </div>
 
         {/* Chọn lớp học */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold mb-4 flex items-center">
+        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-neutral-200 dark:border-neutral-700">
+          <h2 className="text-lg font-semibold mb-4 flex items-center text-neutral-900 dark:text-neutral-100">
             <FiUsers className="mr-2" />
             Chọn lớp học ({totalStudents} học sinh)
           </h2>
@@ -324,8 +324,8 @@ const VaccinationPlanCreate = () => {
                 key={grade.id}
                 className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                   formData.targetGrades.includes(grade.id)
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-400"
+                    : "border-neutral-200 dark:border-neutral-600 hover:border-neutral-300 dark:hover:border-neutral-500 bg-white dark:bg-neutral-900"
                 }`}
                 onClick={() => handleGradeSelection(grade.id)}
               >
@@ -337,8 +337,10 @@ const VaccinationPlanCreate = () => {
                     className="mr-2"
                   />
                   <div>
-                    <p className="font-medium">{grade.name}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                      {grade.name}
+                    </p>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
                       {grade.studentCount} học sinh
                     </p>
                   </div>
@@ -349,12 +351,14 @@ const VaccinationPlanCreate = () => {
         </div>
 
         {/* Chi tiết vắc-xin */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold mb-4">Chi tiết vắc-xin</h2>
+        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-neutral-200 dark:border-neutral-700">
+          <h2 className="text-lg font-semibold mb-4 text-neutral-900 dark:text-neutral-100">
+            Chi tiết vắc-xin
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Liều lượng
               </label>
               <input
@@ -362,13 +366,13 @@ const VaccinationPlanCreate = () => {
                 name="vaccinationDetails.dosage"
                 value={formData.vaccinationDetails.dosage}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Ví dụ: 0.5ml"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Nhà sản xuất
               </label>
               <input
@@ -376,13 +380,13 @@ const VaccinationPlanCreate = () => {
                 name="vaccinationDetails.manufacturer"
                 value={formData.vaccinationDetails.manufacturer}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Tên nhà sản xuất"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Số lô
               </label>
               <input
@@ -390,13 +394,13 @@ const VaccinationPlanCreate = () => {
                 name="vaccinationDetails.lotNumber"
                 value={formData.vaccinationDetails.lotNumber}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Số lô sản xuất"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Hạn sử dụng
               </label>
               <input
@@ -404,34 +408,34 @@ const VaccinationPlanCreate = () => {
                 name="vaccinationDetails.expiryDate"
                 value={formData.vaccinationDetails.expiryDate}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Tác dụng phụ có thể xảy ra
               </label>
               <textarea
                 name="vaccinationDetails.sideEffects"
                 value={formData.vaccinationDetails.sideEffects}
                 onChange={handleInputChange}
-                rows={2}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                rows={3}
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Mô tả các tác dụng phụ có thể xảy ra..."
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Chống chỉ định
               </label>
               <textarea
                 name="vaccinationDetails.contraindications"
                 value={formData.vaccinationDetails.contraindications}
                 onChange={handleInputChange}
-                rows={2}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                rows={3}
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Các trường hợp không nên tiêm..."
               />
             </div>
@@ -439,38 +443,48 @@ const VaccinationPlanCreate = () => {
         </div>
 
         {/* Cài đặt bổ sung */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold mb-4">Cài đặt bổ sung</h2>
+        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-neutral-200 dark:border-neutral-700">
+          <h2 className="text-lg font-semibold mb-4 text-neutral-900 dark:text-neutral-100">
+            Cài đặt bổ sung
+          </h2>
 
           <div className="space-y-4">
             <div className="flex items-center">
               <input
                 type="checkbox"
-                name="isVoluntary"
-                checked={formData.isVoluntary}
+                id="requireParentConsent"
+                name="requireParentConsent"
+                checked={formData.requireParentConsent}
                 onChange={handleInputChange}
-                className="mr-3"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-neutral-300 rounded"
               />
-              <label className="text-sm font-medium text-gray-700">
-                Tiêm chủng tự nguyện (không bắt buộc)
+              <label
+                htmlFor="requireParentConsent"
+                className="ml-2 block text-sm text-neutral-900 dark:text-neutral-100"
+              >
+                Yêu cầu sự đồng ý của phụ huynh
               </label>
             </div>
 
             <div className="flex items-center">
               <input
                 type="checkbox"
-                name="requireParentConsent"
-                checked={formData.requireParentConsent}
+                id="isVoluntary"
+                name="isVoluntary"
+                checked={formData.isVoluntary}
                 onChange={handleInputChange}
-                className="mr-3"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-neutral-300 rounded"
               />
-              <label className="text-sm font-medium text-gray-700">
-                Yêu cầu sự đồng ý của phụ huynh
+              <label
+                htmlFor="isVoluntary"
+                className="ml-2 block text-sm text-neutral-900 dark:text-neutral-100"
+              >
+                Tiêm chủng tự nguyện
               </label>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Ghi chú thêm
               </label>
               <textarea
@@ -478,57 +492,42 @@ const VaccinationPlanCreate = () => {
                 value={formData.notes}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Ghi chú thêm về kế hoạch tiêm chủng..."
               />
             </div>
           </div>
         </div>
 
-        {/* Buttons */}
+        {/* Action Buttons */}
         <div className="flex justify-end space-x-4">
           <button
             type="button"
             onClick={() => navigate("/nurse/vaccination")}
-            className="px-6 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            className="px-6 py-2 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors"
           >
-            <FiX className="inline mr-2" />
+            <FiX className="mr-2 inline h-4 w-4" />
             Hủy
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md disabled:opacity-50 transition-colors"
           >
             {loading ? (
               <>
-                <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2 inline-block"></div>
                 Đang tạo...
               </>
             ) : (
               <>
-                <FiSave className="inline mr-2" />
+                <FiSave className="mr-2 inline h-4 w-4" />
                 Tạo kế hoạch
               </>
             )}
           </button>
         </div>
       </form>
-
-      {/* Warning */}
-      <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-        <div className="flex">
-          <FiAlertCircle className="h-5 w-5 text-yellow-400 mr-2 mt-0.5" />
-          <div>
-            <h3 className="text-sm font-medium text-yellow-800">Lưu ý</h3>
-            <p className="text-sm text-yellow-700 mt-1">
-              Sau khi tạo kế hoạch, hệ thống sẽ tự động gửi thông báo đến phụ
-              huynh của các học sinh được chọn. Vui lòng kiểm tra kỹ thông tin
-              trước khi lưu.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

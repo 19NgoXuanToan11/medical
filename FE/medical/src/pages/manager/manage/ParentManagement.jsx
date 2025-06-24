@@ -387,13 +387,13 @@ const ParentManagement = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-6">
+    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6">
       <div className="flex flex-col mb-6">
         <div className="mb-4">
-          <h2 className="text-2xl font-semibold text-neutral-800">
+          <h2 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100">
             Quản lý phụ huynh
           </h2>
-          <p className="text-neutral-600 mt-1">
+          <p className="text-neutral-600 dark:text-neutral-300 mt-1">
             Theo dõi và quản lý danh sách phụ huynh tại trường
           </p>
         </div>
@@ -410,35 +410,37 @@ const ParentManagement = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 flex justify-between">
+        <div className="bg-primary-50 dark:bg-primary-900/40 p-4 rounded-lg border border-primary-100 dark:border-primary-800 flex justify-between">
           <div>
-            <p className="text-neutral-600 text-sm font-medium">
+            <p className="text-neutral-700 dark:text-white text-sm font-semibold">
               Tổng số phụ huynh
             </p>
-            <p className="text-3xl font-bold text-primary-700">{stats.total}</p>
+            <p className="text-3xl font-bold text-primary-700 dark:text-primary-300">
+              {stats.total}
+            </p>
           </div>
-          <div className="bg-primary-100 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiUser className="h-6 w-6 text-primary-600" />
+          <div className="bg-primary-100 dark:bg-primary-800 h-12 w-12 rounded-full flex items-center justify-center">
+            <FiUser className="h-6 w-6 text-primary-600 dark:text-primary-300" />
           </div>
         </div>
 
-        <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200 flex justify-between">
+        <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg border border-neutral-200 dark:border-neutral-600 flex justify-between">
           <div>
-            <p className="text-neutral-600 text-sm font-medium">
+            <p className="text-neutral-700 dark:text-white text-sm font-semibold">
               Ngừng hoạt động
             </p>
-            <p className="text-3xl font-bold text-neutral-700">
+            <p className="text-3xl font-bold text-neutral-700 dark:text-neutral-200">
               {stats.inactive}
             </p>
           </div>
           <div className="bg-neutral-200 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiX className="h-6 w-6 text-neutral-600" />
+            <FiX className="h-6 w-6 text-neutral-600 dark:text-neutral-300" />
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-neutral-50 p-4 rounded-lg mb-6 border border-neutral-200">
+      <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg mb-6 border border-neutral-200 dark:border-neutral-600">
         <div className="flex flex-col md:flex-row gap-4 md:items-center">
           <div className="flex-1">
             <div className="relative">
@@ -457,7 +459,7 @@ const ParentManagement = () => {
 
           <div>
             <select
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white"
+              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white dark:bg-neutral-800"
               value={filterStatus}
               onChange={(e) => handleFilterChange(e.target.value)}
             >
@@ -469,7 +471,7 @@ const ParentManagement = () => {
 
           <button
             onClick={resetFilters}
-            className="md:ml-auto flex items-center text-primary-600 hover:text-primary-800 transition-colors duration-300"
+            className="md:ml-auto flex items-center text-primary-600 dark:text-primary-300 hover:text-primary-800 transition-colors duration-300"
           >
             <FiRefreshCw className="mr-1" />
             Đặt lại
@@ -479,11 +481,11 @@ const ParentManagement = () => {
 
       {/* Parent Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border-collapse">
+        <table className="min-w-full bg-white dark:bg-neutral-800 border-collapse">
           <thead>
-            <tr className="bg-neutral-50 border-y border-neutral-200">
+            <tr className="bg-neutral-50 dark:bg-neutral-800 border-y border-neutral-200 dark:border-neutral-600">
               <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("id")}
               >
                 <div className="flex items-center justify-center">
@@ -496,7 +498,7 @@ const ParentManagement = () => {
                 </div>
               </th>
               <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("name")}
               >
                 <div className="flex items-center justify-center">
@@ -509,7 +511,7 @@ const ParentManagement = () => {
                 </div>
               </th>
               <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("relationship")}
               >
                 <div className="flex items-center justify-center">
@@ -522,7 +524,7 @@ const ParentManagement = () => {
                 </div>
               </th>
               <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("email")}
               >
                 <div className="flex items-center justify-center">
@@ -535,7 +537,7 @@ const ParentManagement = () => {
                 </div>
               </th>
               <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("phone")}
               >
                 <div className="flex items-center justify-center">
@@ -548,7 +550,7 @@ const ParentManagement = () => {
                 </div>
               </th>
               <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("occupation")}
               >
                 <div className="flex items-center justify-center">
@@ -561,7 +563,7 @@ const ParentManagement = () => {
                 </div>
               </th>
               <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("address")}
               >
                 <div className="flex items-center justify-center">
@@ -573,24 +575,24 @@ const ParentManagement = () => {
                   )}
                 </div>
               </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14 w-32 min-w-[128px]">
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14 w-32 min-w-[128px]">
                 Liên hệ
               </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14 w-32 min-w-[128px]">
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14 w-32 min-w-[128px]">
                 Trạng thái
               </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
                 Thao tác
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-200">
+          <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
             {loading ? (
               <tr>
                 <td colSpan="10" className="text-center py-4">
                   <div className="flex justify-center items-center">
                     <svg
-                      className="animate-spin h-5 w-5 text-primary-600 mr-3"
+                      className="animate-spin h-5 w-5 text-primary-600 dark:text-primary-300 mr-3"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -617,31 +619,31 @@ const ParentManagement = () => {
               sortedParents.map((parent) => (
                 <tr
                   key={parent.parentId}
-                  className="hover:bg-neutral-50 transition-colors duration-200 h-16"
+                  className="hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors duration-200 h-16"
                 >
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
                     {parent.parentId}
                   </td>
                   <td className="py-4 px-6 align-middle">
                     <div className="flex items-center justify-center">
-                      <span className="font-medium text-neutral-900">
+                      <span className="font-medium text-neutral-900 dark:text-neutral-100">
                         {parent.firstName} {parent.lastName}
                       </span>
                     </div>
                   </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
                     {parent.relationship}
                   </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
                     {parent.email}
                   </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
                     {parent.phone}
                   </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
                     {parent.occupation}
                   </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
                     {parent.address}
                   </td>
                   <td className="py-4 px-6 text-center align-middle w-32 min-w-[128px]">
@@ -649,8 +651,8 @@ const ParentManagement = () => {
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                           parent.isEmergencyContact
-                            ? "bg-red-100 text-red-800"
-                            : "bg-neutral-100 text-neutral-800"
+                            ? "bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200"
+                            : "bg-gray-300 dark:bg-gray-700 text-neutral-800 dark:text-neutral-200"
                         }`}
                       >
                         {parent.isEmergencyContact ? "Khẩn cấp" : "Thường"}
@@ -658,8 +660,8 @@ const ParentManagement = () => {
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                           parent.isMainContact
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-neutral-100 text-neutral-800"
+                            ? "bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200"
+                            : "bg-gray-300 dark:bg-gray-700 text-neutral-800 dark:text-neutral-200"
                         }`}
                       >
                         {parent.isMainContact ? "Chính" : "Phụ"}
@@ -670,8 +672,8 @@ const ParentManagement = () => {
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                         parent.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-neutral-100 text-neutral-800"
+                          ? "bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200"
+                          : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200"
                       }`}
                     >
                       {parent.isActive ? "Hoạt động" : "Ngừng hoạt động"}
@@ -690,8 +692,8 @@ const ParentManagement = () => {
                         onClick={() => toggleParentStatus(parent)}
                         className={`${
                           parent.isActive
-                            ? "text-neutral-600 hover:text-neutral-800"
-                            : "text-green-600 hover:text-green-800"
+                            ? "text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:text-neutral-100"
+                            : "text-green-600 dark:text-green-300 hover:text-green-800"
                         }`}
                         title={
                           parent.isActive
@@ -734,15 +736,15 @@ const ParentManagement = () => {
                         d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       ></path>
                     </svg>
-                    <p className="text-neutral-600 text-lg">
+                    <p className="text-neutral-600 dark:text-neutral-300 text-lg">
                       Không tìm thấy phụ huynh nào phù hợp
                     </p>
-                    <p className="text-neutral-500 text-sm mt-1">
+                    <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">
                       Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác
                     </p>
                     <button
                       onClick={resetFilters}
-                      className="mt-3 bg-primary-100 text-primary-700 hover:bg-primary-200 px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
+                      className="mt-3 bg-primary-100 dark:bg-primary-800 text-primary-700 dark:text-primary-300 hover:bg-primary-200 px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
                     >
                       <FiRefreshCw className="mr-2" />
                       Đặt lại bộ lọc
@@ -758,9 +760,9 @@ const ParentManagement = () => {
       {/* Add/Edit Parent Modal */}
       {showParentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h3 className="text-xl font-bold text-neutral-900 mb-4">
+              <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">
                 {selectedParent ? "Chỉnh sửa phụ huynh" : "Thêm phụ huynh mới"}
               </h3>
               <form onSubmit={handleSubmit}>
@@ -768,7 +770,7 @@ const ParentManagement = () => {
                   <div>
                     <label
                       htmlFor="firstName"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-200"
                     >
                       Họ
                     </label>
@@ -779,8 +781,8 @@ const ParentManagement = () => {
                       className={`mt-1 block w-full border ${
                         formErrors.firstName
                           ? "border-red-500"
-                          : "border-gray-300"
-                      } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
+                          : "border-gray-300 dark:border-gray-600"
+                      } rounded-md shadow-sm py-2 px-3 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
                       value={parentForm.firstName}
                       onChange={handleInputChange}
                     />
@@ -794,7 +796,7 @@ const ParentManagement = () => {
                   <div>
                     <label
                       htmlFor="lastName"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-200"
                     >
                       Tên
                     </label>
@@ -805,7 +807,7 @@ const ParentManagement = () => {
                       className={`mt-1 block w-full border ${
                         formErrors.lastName
                           ? "border-red-500"
-                          : "border-gray-300"
+                          : "border-gray-300 dark:border-gray-600"
                       } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
                       value={parentForm.lastName}
                       onChange={handleInputChange}
@@ -821,7 +823,7 @@ const ParentManagement = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="studentId"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
                   >
                     Mã học sinh
                   </label>
@@ -829,7 +831,7 @@ const ParentManagement = () => {
                     type="text"
                     name="studentId"
                     id="studentId"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                     value={parentForm.studentId || ""}
                     onChange={handleInputChange}
                   />
@@ -838,7 +840,7 @@ const ParentManagement = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="studentName"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
                   >
                     Tên học sinh
                   </label>
@@ -846,7 +848,7 @@ const ParentManagement = () => {
                     type="text"
                     name="studentName"
                     id="studentName"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                     value={parentForm.studentName}
                     onChange={handleInputChange}
                   />
@@ -855,7 +857,7 @@ const ParentManagement = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="relationship"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
                   >
                     Mối quan hệ
                   </label>
@@ -865,7 +867,7 @@ const ParentManagement = () => {
                     className={`mt-1 block w-full border ${
                       formErrors.relationship
                         ? "border-red-500"
-                        : "border-gray-300"
+                        : "border-gray-300 dark:border-gray-600"
                     } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
                     value={parentForm.relationship}
                     onChange={handleInputChange}
@@ -887,7 +889,7 @@ const ParentManagement = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
                   >
                     Email
                   </label>
@@ -896,7 +898,9 @@ const ParentManagement = () => {
                     name="email"
                     id="email"
                     className={`mt-1 block w-full border ${
-                      formErrors.email ? "border-red-500" : "border-gray-300"
+                      formErrors.email
+                        ? "border-red-500"
+                        : "border-gray-300 dark:border-gray-600"
                     } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
                     value={parentForm.email}
                     onChange={handleInputChange}
@@ -911,7 +915,7 @@ const ParentManagement = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="phone"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
                   >
                     Số điện thoại
                   </label>
@@ -920,7 +924,9 @@ const ParentManagement = () => {
                     name="phone"
                     id="phone"
                     className={`mt-1 block w-full border ${
-                      formErrors.phone ? "border-red-500" : "border-gray-300"
+                      formErrors.phone
+                        ? "border-red-500"
+                        : "border-gray-300 dark:border-gray-600"
                     } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
                     value={parentForm.phone}
                     onChange={handleInputChange}
@@ -935,7 +941,7 @@ const ParentManagement = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="address"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
                   >
                     Địa chỉ
                   </label>
@@ -943,7 +949,7 @@ const ParentManagement = () => {
                     type="text"
                     name="address"
                     id="address"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                     value={parentForm.address}
                     onChange={handleInputChange}
                   />
@@ -952,7 +958,7 @@ const ParentManagement = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="occupation"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
                   >
                     Nghề nghiệp
                   </label>
@@ -960,7 +966,7 @@ const ParentManagement = () => {
                     type="text"
                     name="occupation"
                     id="occupation"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                     value={parentForm.occupation}
                     onChange={handleInputChange}
                   />
@@ -969,7 +975,7 @@ const ParentManagement = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200"
                   >
                     {selectedParent
                       ? "Mật khẩu mới (để trống nếu không thay đổi)"
@@ -983,7 +989,7 @@ const ParentManagement = () => {
                       className={`mt-1 block w-full border ${
                         formErrors.password
                           ? "border-red-500"
-                          : "border-gray-300"
+                          : "border-gray-300 dark:border-gray-600"
                       } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
                       value={parentForm.password}
                       onChange={handleInputChange}
@@ -1009,13 +1015,13 @@ const ParentManagement = () => {
                       id="isActive"
                       name="isActive"
                       type="checkbox"
-                      className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 dark:border-gray-600 rounded"
                       checked={parentForm.isActive}
                       onChange={handleInputChange}
                     />
                     <label
                       htmlFor="isActive"
-                      className="ml-2 block text-sm text-gray-900"
+                      className="ml-2 block text-sm text-gray-900 dark:text-gray-100"
                     >
                       Đang hoạt động
                     </label>
@@ -1026,13 +1032,13 @@ const ParentManagement = () => {
                       id="isEmergencyContact"
                       name="isEmergencyContact"
                       type="checkbox"
-                      className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 dark:border-gray-600 rounded"
                       checked={parentForm.isEmergencyContact}
                       onChange={handleInputChange}
                     />
                     <label
                       htmlFor="isEmergencyContact"
-                      className="ml-2 block text-sm text-gray-900"
+                      className="ml-2 block text-sm text-gray-900 dark:text-gray-100"
                     >
                       Liên hệ khẩn cấp
                     </label>
@@ -1043,13 +1049,13 @@ const ParentManagement = () => {
                       id="isMainContact"
                       name="isMainContact"
                       type="checkbox"
-                      className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 dark:border-gray-600 rounded"
                       checked={parentForm.isMainContact}
                       onChange={handleInputChange}
                     />
                     <label
                       htmlFor="isMainContact"
-                      className="ml-2 block text-sm text-gray-900"
+                      className="ml-2 block text-sm text-gray-900 dark:text-gray-100"
                     >
                       Liên hệ chính
                     </label>
@@ -1059,7 +1065,7 @@ const ParentManagement = () => {
                 <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3">
                   <button
                     type="button"
-                    className="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:text-sm"
+                    className="w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-neutral-700 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 sm:text-sm"
                     onClick={() => {
                       setShowParentModal(false);
                       resetForm();

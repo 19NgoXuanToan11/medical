@@ -75,7 +75,7 @@ const HealthProfileDetailView = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
+      <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
         <div className="flex justify-center items-center p-8">
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600"></div>
         </div>
@@ -85,17 +85,19 @@ const HealthProfileDetailView = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
-        <div className="bg-red-50 text-red-600 p-4 rounded mb-4">{error}</div>
+      <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
+        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded mb-4">
+          {error}
+        </div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
+      <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
         <div className="text-center py-8">
-          <h3 className="text-lg font-medium text-gray-900">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100">
             Không tìm thấy hồ sơ
           </h3>
         </div>
@@ -106,10 +108,10 @@ const HealthProfileDetailView = () => {
   const student = profile.student || {};
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
-      <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+    <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden transition-colors duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-neutral-100">
+        <div className="flex items-center justify-between p-6 border-b border-neutral-100 dark:border-neutral-700">
           <div className="flex items-center">
             <Link
               to="/parent/health-profile"
@@ -155,8 +157,8 @@ const HealthProfileDetailView = () => {
         <div className="p-6 space-y-8">
           {/* Student Information */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-              <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+            <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+              <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -173,30 +175,30 @@ const HealthProfileDetailView = () => {
               </span>
               Thông tin học sinh
             </h2>
-            <div className="bg-neutral-50 rounded-lg p-6">
+            <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
               {/* First row - 3 main fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Mã học sinh
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {profile.studentCode || student.studentCode || "N/A"}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Họ và tên
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {student.firstName || ""} {student.lastName || ""}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Lớp
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {student.className || "N/A"}
                   </p>
                 </div>
@@ -205,18 +207,18 @@ const HealthProfileDetailView = () => {
               {/* Second row - 2 fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Ngày sinh
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {formatDate(student.dateOfBirth)}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Giới tính
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {formatGender(student.gender)}
                   </p>
                 </div>
@@ -224,10 +226,10 @@ const HealthProfileDetailView = () => {
 
               {/* Third row - Full width address */}
               <div>
-                <label className="text-sm font-medium text-neutral-700">
+                <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Địa chỉ
                 </label>
-                <p className="mt-1 text-sm text-neutral-900">
+                <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                   {student.address || "N/A"}
                 </p>
               </div>
@@ -236,8 +238,8 @@ const HealthProfileDetailView = () => {
 
           {/* Physical Information */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-              <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+            <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+              <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -254,29 +256,29 @@ const HealthProfileDetailView = () => {
               </span>
               Thông tin thể chất
             </h2>
-            <div className="bg-neutral-50 rounded-lg p-6">
+            <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Chiều cao
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {profile.height ? `${profile.height} cm` : "N/A"}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Cân nặng
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {profile.weight ? `${profile.weight} kg` : "N/A"}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Nhóm máu
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {profile.bloodType || "N/A"}
                   </p>
                 </div>
@@ -286,8 +288,8 @@ const HealthProfileDetailView = () => {
 
           {/* Vital Signs */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-              <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+            <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+              <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -304,21 +306,21 @@ const HealthProfileDetailView = () => {
               </span>
               Chỉ số sinh tồn
             </h2>
-            <div className="bg-neutral-50 rounded-lg p-6">
+            <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Huyết áp
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {profile.bloodPressure || "N/A"}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Nhịp tim
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {profile.heartRate
                       ? `${profile.heartRate} lần/phút`
                       : "N/A"}
@@ -330,8 +332,8 @@ const HealthProfileDetailView = () => {
 
           {/* Medical History */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-              <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+            <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+              <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -348,22 +350,22 @@ const HealthProfileDetailView = () => {
               </span>
               Tiền sử bệnh
             </h2>
-            <div className="bg-neutral-50 rounded-lg p-6">
+            <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
               <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Có tiền sử điều trị
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {formatBoolean(profile.hasPreviousTreatment)}
                   </p>
                 </div>
                 {profile.treatmentDetails && (
                   <div>
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Chi tiết tiền sử điều trị
                     </label>
-                    <p className="mt-1 text-sm text-neutral-900">
+                    <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                       {profile.treatmentDetails}
                     </p>
                   </div>
@@ -374,8 +376,8 @@ const HealthProfileDetailView = () => {
 
           {/* Vaccination History */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-              <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+            <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+              <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -392,22 +394,22 @@ const HealthProfileDetailView = () => {
               </span>
               Tiền sử tiêm chủng
             </h2>
-            <div className="bg-neutral-50 rounded-lg p-6">
+            <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
               <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Tình trạng tiêm chủng
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {getVaccinationStatus(profile.hasCompleteVaccinations)}
                   </p>
                 </div>
                 {profile.vaccinationDetails && (
                   <div>
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Chi tiết tiêm chủng
                     </label>
-                    <p className="mt-1 text-sm text-neutral-900">
+                    <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                       {profile.vaccinationDetails}
                     </p>
                   </div>
@@ -416,7 +418,7 @@ const HealthProfileDetailView = () => {
                   Array.isArray(profile.vaccinations) &&
                   profile.vaccinations.length > 0 && (
                     <div>
-                      <label className="text-sm font-medium text-neutral-700">
+                      <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                         Các loại vắc-xin đã tiêm
                       </label>
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -439,8 +441,8 @@ const HealthProfileDetailView = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Vision */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     className="h-5 w-5"
                     fill="none"
@@ -463,40 +465,40 @@ const HealthProfileDetailView = () => {
                 </span>
                 Thông tin thị lực
               </h2>
-              <div className="bg-neutral-50 rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Có vấn đề về thị lực
                     </label>
-                    <p className="mt-1 text-sm text-neutral-900">
+                    <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                       {formatBoolean(profile.hasVisionIssues)}
                     </p>
                   </div>
                   {profile.hasVisionIssues && (
                     <>
                       <div>
-                        <label className="text-sm font-medium text-neutral-700">
+                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                           Thị lực mắt trái
                         </label>
-                        <p className="mt-1 text-sm text-neutral-900">
+                        <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                           {profile.leftEye || "N/A"}
                         </p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-neutral-700">
+                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                           Thị lực mắt phải
                         </label>
-                        <p className="mt-1 text-sm text-neutral-900">
+                        <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                           {profile.rightEye || "N/A"}
                         </p>
                       </div>
                       {profile.visionNotes && (
                         <div>
-                          <label className="text-sm font-medium text-neutral-700">
+                          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                             Ghi chú về thị lực
                           </label>
-                          <p className="mt-1 text-sm text-neutral-900">
+                          <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                             {profile.visionNotes}
                           </p>
                         </div>
@@ -509,8 +511,8 @@ const HealthProfileDetailView = () => {
 
             {/* Hearing */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     className="h-5 w-5"
                     fill="none"
@@ -527,40 +529,40 @@ const HealthProfileDetailView = () => {
                 </span>
                 Thông tin thính lực
               </h2>
-              <div className="bg-neutral-50 rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Có vấn đề về thính lực
                     </label>
-                    <p className="mt-1 text-sm text-neutral-900">
+                    <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                       {formatBoolean(profile.hasHearingIssues)}
                     </p>
                   </div>
                   {profile.hasHearingIssues && (
                     <>
                       <div>
-                        <label className="text-sm font-medium text-neutral-700">
+                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                           Thính lực tai trái
                         </label>
-                        <p className="mt-1 text-sm text-neutral-900">
+                        <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                           {profile.leftEar || "N/A"}
                         </p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-neutral-700">
+                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                           Thính lực tai phải
                         </label>
-                        <p className="mt-1 text-sm text-neutral-900">
+                        <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                           {profile.rightEar || "N/A"}
                         </p>
                       </div>
                       {profile.hearingNotes && (
                         <div>
-                          <label className="text-sm font-medium text-neutral-700">
+                          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                             Ghi chú về thính lực
                           </label>
-                          <p className="mt-1 text-sm text-neutral-900">
+                          <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                             {profile.hearingNotes}
                           </p>
                         </div>
@@ -576,8 +578,8 @@ const HealthProfileDetailView = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Allergies */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     className="h-5 w-5"
                     fill="none"
@@ -594,22 +596,22 @@ const HealthProfileDetailView = () => {
                 </span>
                 Thông tin dị ứng
               </h2>
-              <div className="bg-neutral-50 rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Có bị dị ứng
                     </label>
-                    <p className="mt-1 text-sm text-neutral-900">
+                    <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                       {formatBoolean(profile.hasAllergies)}
                     </p>
                   </div>
                   {profile.hasAllergies && profile.allergyDetails && (
                     <div>
-                      <label className="text-sm font-medium text-neutral-700">
+                      <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                         Chi tiết về dị ứng
                       </label>
-                      <p className="mt-1 text-sm text-neutral-900">
+                      <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                         {profile.allergyDetails}
                       </p>
                     </div>
@@ -620,8 +622,8 @@ const HealthProfileDetailView = () => {
 
             {/* Chronic Diseases */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     className="h-5 w-5"
                     fill="none"
@@ -638,22 +640,22 @@ const HealthProfileDetailView = () => {
                 </span>
                 Bệnh mãn tính
               </h2>
-              <div className="bg-neutral-50 rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Có mắc bệnh mãn tính
                     </label>
-                    <p className="mt-1 text-sm text-neutral-900">
+                    <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                       {formatBoolean(profile.hasChronicDiseases)}
                     </p>
                   </div>
                   {profile.hasChronicDiseases && profile.chronicDetails && (
                     <div>
-                      <label className="text-sm font-medium text-neutral-700">
+                      <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                         Chi tiết về bệnh mãn tính
                       </label>
-                      <p className="mt-1 text-sm text-neutral-900">
+                      <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                         {profile.chronicDetails}
                       </p>
                     </div>
@@ -665,8 +667,8 @@ const HealthProfileDetailView = () => {
 
           {/* Emergency Contact and Additional Info */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-              <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+            <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+              <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -683,19 +685,19 @@ const HealthProfileDetailView = () => {
               </span>
               Thông tin liên hệ khẩn cấp
             </h2>
-            <div className="bg-neutral-50 rounded-lg p-6">
+            <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
               <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Số điện thoại liên hệ khẩn cấp
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {profile.emergencyContact || "N/A"}
                   </p>
                 </div>
                 {profile.otherInfo && (
                   <div>
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Thông tin sức khỏe bổ sung
                     </label>
                     <p className="mt-1 text-sm text-neutral-900 whitespace-pre-wrap">
@@ -704,10 +706,10 @@ const HealthProfileDetailView = () => {
                   </div>
                 )}
                 <div>
-                  <label className="text-sm font-medium text-neutral-700">
+                  <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Cập nhật lần cuối
                   </label>
-                  <p className="mt-1 text-sm text-neutral-900">
+                  <p className="mt-1 text-sm text-neutral-900 dark:text-neutral-100">
                     {formatDate(profile.lastUpdated)}
                   </p>
                 </div>

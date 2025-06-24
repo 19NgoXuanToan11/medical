@@ -94,70 +94,78 @@ const NurseHealthCheck = () => {
   const stats = getStats();
 
   return (
-    <div>
+    <div className="container mx-auto px-4 max-w-6xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
           Quản lý kiểm tra y tế định kỳ
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-neutral-600 dark:text-neutral-400 mt-1">
           Quản lý quá trình kiểm tra sức khỏe định kỳ cho học sinh
         </p>
       </div>
 
       {/* Dashboard Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+        <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 text-sm">Sắp tới</p>
-              <p className="text-2xl font-bold mt-1 text-blue-600">
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm">
+                Sắp tới
+              </p>
+              <p className="text-2xl font-bold mt-1 text-primary-600 dark:text-primary-400">
                 {stats.upcoming}
               </p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-full">
-              <FiCalendar className="h-5 w-5 text-blue-600" />
+            <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-full">
+              <FiCalendar className="h-5 w-5 text-primary-600 dark:text-primary-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+        <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 text-sm">Chờ xác nhận</p>
-              <p className="text-2xl font-bold mt-1 text-yellow-600">
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm">
+                Chờ xác nhận
+              </p>
+              <p className="text-2xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
                 {stats.pending}
               </p>
             </div>
-            <div className="p-3 bg-yellow-100 rounded-full">
-              <FiClock className="h-5 w-5 text-yellow-600" />
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
+              <FiClock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+        <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 text-sm">Đã hoàn thành</p>
-              <p className="text-2xl font-bold mt-1 text-green-600">
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm">
+                Đã hoàn thành
+              </p>
+              <p className="text-2xl font-bold mt-1 text-green-600 dark:text-green-400">
                 {stats.completed}
               </p>
             </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <FiCheckCircle className="h-5 w-5 text-green-600" />
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
+              <FiCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow border border-gray-200">
+        <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 text-sm">Kết quả bất thường</p>
-              <p className="text-2xl font-bold mt-1 text-red-600">
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm">
+                Kết quả bất thường
+              </p>
+              <p className="text-2xl font-bold mt-1 text-red-600 dark:text-red-400">
                 {stats.abnormal}
               </p>
             </div>
-            <div className="p-3 bg-red-100 rounded-full">
-              <FiAlertTriangle className="h-5 w-5 text-red-600" />
+            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
+              <FiAlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
           </div>
         </div>
@@ -170,8 +178,8 @@ const NurseHealthCheck = () => {
             onClick={() => setActiveTab("upcoming")}
             className={`px-4 py-2 rounded-md ${
               activeTab === "upcoming"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                ? "bg-primary-600 text-white"
+                : "bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-600"
             } transition-colors duration-200`}
           >
             Sắp tới
@@ -180,8 +188,8 @@ const NurseHealthCheck = () => {
             onClick={() => setActiveTab("pending")}
             className={`px-4 py-2 rounded-md ${
               activeTab === "pending"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                ? "bg-primary-600 text-white"
+                : "bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-600"
             } transition-colors duration-200`}
           >
             Chờ xác nhận
@@ -190,8 +198,8 @@ const NurseHealthCheck = () => {
             onClick={() => setActiveTab("completed")}
             className={`px-4 py-2 rounded-md ${
               activeTab === "completed"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                ? "bg-primary-600 text-white"
+                : "bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-600"
             } transition-colors duration-200`}
           >
             Đã hoàn thành
@@ -199,7 +207,7 @@ const NurseHealthCheck = () => {
         </div>
         <Link
           to="/nurse/health-check/new"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors duration-200 flex items-center"
+          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md transition-colors duration-200 flex items-center"
         >
           <FiPlus className="h-5 w-5 mr-1" />
           Lên lịch kiểm tra mới
@@ -208,46 +216,46 @@ const NurseHealthCheck = () => {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200 table-fixed">
-            <thead className="bg-gray-50">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+          <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700 table-fixed">
+            <thead className="bg-neutral-50 dark:bg-neutral-700">
               <tr>
                 <th
                   scope="col"
-                  className="w-1/5 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="w-1/5 px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
                 >
                   Ngày
                 </th>
                 <th
                   scope="col"
-                  className="w-1/5 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="w-1/5 px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
                 >
                   Lớp
                 </th>
                 <th
                   scope="col"
-                  className="w-1/5 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="w-1/5 px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
                 >
                   Trạng thái
                 </th>
                 <th
                   scope="col"
-                  className="w-1/5 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="w-1/5 px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
                 >
                   Xác nhận
                 </th>
                 <th
                   scope="col"
-                  className="w-1/5 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="w-1/5 px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
                 >
                   Hành động
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-700">
               {healthCheckList
                 .filter((check) => check.status === activeTab)
                 .map((check) => (
@@ -303,14 +311,6 @@ const NurseHealthCheck = () => {
                         >
                           Xem
                         </Link>
-                        {check.status === "completed" && (
-                          <Link
-                            to={`/nurse/health-check/${check.id}/results`}
-                            className="text-green-600 hover:text-green-900"
-                          >
-                            Kết quả
-                          </Link>
-                        )}
                         {check.status === "pending" && (
                           <button className="text-yellow-600 hover:text-yellow-900">
                             Gửi nhắc
