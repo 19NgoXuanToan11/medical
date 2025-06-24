@@ -5,7 +5,7 @@ const NurseHealthCheckCreate = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     scheduledDate: "",
-    gradeId: "",
+    gradeIds: [],
     description: "",
     notifyParents: true,
   });
@@ -35,6 +35,19 @@ const NurseHealthCheckCreate = () => {
     });
   };
 
+  const handleGradeCheckbox = (e) => {
+    const { value, checked } = e.target;
+    let newGradeIds = [...formData.gradeIds];
+    if (checked) {
+      if (newGradeIds.length < 3) {
+        newGradeIds.push(value);
+      }
+    } else {
+      newGradeIds = newGradeIds.filter((id) => id !== value);
+    }
+    setFormData({ ...formData, gradeIds: newGradeIds });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -42,7 +55,7 @@ const NurseHealthCheckCreate = () => {
 
     try {
       // Validate form
-      if (!formData.scheduledDate || !formData.gradeId) {
+      if (!formData.scheduledDate || formData.gradeIds.length === 0) {
         throw new Error("Vui lòng nhập đầy đủ các trường bắt buộc");
       }
 
@@ -102,26 +115,30 @@ const NurseHealthCheckCreate = () => {
 
             <div className="col-span-1">
               <label
-                htmlFor="gradeId"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Lớp <span className="text-red-500">*</span>
               </label>
-              <select
-                id="gradeId"
-                name="gradeId"
-                value={formData.gradeId}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                required
-              >
-                <option value="">-- Chọn lớp --</option>
+              <div className="grid grid-cols-2 gap-2">
                 {grades.map((grade) => (
-                  <option key={grade.id} value={grade.id}>
-                    {grade.name}
-                  </option>
+                  <label key={grade.id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      value={grade.id}
+                      checked={formData.gradeIds.includes(grade.id)}
+                      onChange={handleGradeCheckbox}
+                      disabled={
+                        !formData.gradeIds.includes(grade.id) && formData.gradeIds.length >= 3
+                      }
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span>{grade.name}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
+              {formData.gradeIds.length === 0 && (
+                <p className="text-xs text-red-500 mt-1">Vui lòng chọn ít nhất 1 lớp (tối đa 3 lớp)</p>
+              )}
             </div>
 
             <div className="col-span-2">
