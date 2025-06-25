@@ -1,4 +1,4 @@
-using API.ViewModels;
+﻿using API.ViewModels;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Service;
@@ -116,5 +116,41 @@ public class InjectionFormController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+    }
+
+    [HttpGet("approved-students")]
+    public async Task<ActionResult<IEnumerable<InjectionFormDTO>>> GetApprovedInjectionStudents()
+    {
+        var forms = await _injectionFormService.GetInjectionFormsByStatusAsync("Approved");
+        return Ok(_mapper.Map<IEnumerable<InjectionFormDTO>>(forms));
+    }
+    [HttpGet("parent-read/{formId}")]
+    public async Task<ActionResult<InjectionFormDTO>> GetInjectionFormForParent(int formId)
+    {
+        var form = await _injectionFormService.GetInjectionFormByIdAsync(formId);
+        if (form == null)
+        {
+            return NotFound("Không tìm thấy phiếu tiêm chủng");
+        }
+        return Ok(_mapper.Map<InjectionFormDTO>(form));
+    }
+
+    // API cho phụ huynh xác nhận đồng ý tiêm chủng
+    [HttpPost("parent-confirm/{formId}")]
+    public async Task<IActionResult> ParentConfirmConsent(int formId)
+    {
+        var form = await _injectionFormService.GetInjectionFormByIdAsync(formId);
+        if (form == null)
+        {
+            return NotFound("Không tìm thấy phiếu tiêm chủng");
+        }
+        form.ConsentStatus = "Approved";
+        form.ConsentDate = DateTime.UtcNow;
+        var result = await _injectionFormService.UpdateInjectionFormAsync(form);
+        if (!result)
+        {
+            return StatusCode(500, "Lỗi xác nhận phiếu tiêm chủng");
+        }
+        return Ok("Phụ huynh đã xác nhận đồng ý tiêm chủng thành công");
     }
 } 

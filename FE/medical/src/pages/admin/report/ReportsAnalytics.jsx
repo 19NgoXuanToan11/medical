@@ -68,10 +68,12 @@ const ReportsAnalytics = () => {
   const renderChart = (data, title, chartType) => {
     // This is a placeholder for real chart rendering
     return (
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">{title}</h3>
-        <div className="h-64 flex items-center justify-center bg-gray-100 rounded">
-          <p className="text-gray-500">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
+        <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+          {title}
+        </h3>
+        <div className="h-64 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded">
+          <p className="text-neutral-500 dark:text-neutral-400">
             [Ở đây sẽ hiển thị biểu đồ {chartType} của {title}]
           </p>
         </div>
@@ -79,10 +81,14 @@ const ReportsAnalytics = () => {
           {Object.entries(data).map(([key, value], index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-2 border-b border-gray-100"
+              className="flex items-center justify-between p-2 border-b border-neutral-100 dark:border-neutral-600"
             >
-              <span className="text-sm text-gray-600">{key}</span>
-              <span className="text-sm font-medium">{value}</span>
+              <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                {key}
+              </span>
+              <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                {value}
+              </span>
             </div>
           ))}
         </div>
@@ -91,21 +97,23 @@ const ReportsAnalytics = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Báo cáo và phân tích
-        </h1>
-        <p className="text-gray-600">
-          Dữ liệu thống kê và báo cáo từ hệ thống y tế trường học
-        </p>
+    <div className="container mx-auto px-4 max-w-6xl">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden mb-8 transition-colors duration-300">
+        <div className="p-6">
+          <h1 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+            Báo cáo và phân tích
+          </h1>
+          <p className="text-neutral-600 dark:text-neutral-400">
+            Dữ liệu thống kê và báo cáo từ hệ thống y tế trường học
+          </p>
+        </div>
       </div>
 
       {/* Report Period Selector */}
-      <div className="mb-6 bg-white rounded-lg shadow-md p-4">
+      <div className="mb-6 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 transition-colors duration-300">
         <div className="flex flex-wrap items-center justify-between">
           <div className="flex items-center space-x-4 mb-4 sm:mb-0">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
               Thời gian:
             </span>
             <div className="inline-flex shadow-sm rounded-md">
@@ -113,9 +121,9 @@ const ReportsAnalytics = () => {
                 onClick={() => setReportPeriod("week")}
                 className={`px-4 py-2 text-sm font-medium rounded-l-md ${
                   reportPeriod === "week"
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                } border border-gray-300`}
+                    ? "bg-primary-600 text-white"
+                    : "bg-white dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-600"
+                } border border-neutral-300 dark:border-neutral-600`}
               >
                 Tuần
               </button>
@@ -123,9 +131,9 @@ const ReportsAnalytics = () => {
                 onClick={() => setReportPeriod("month")}
                 className={`px-4 py-2 text-sm font-medium ${
                   reportPeriod === "month"
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                } border-t border-b border-gray-300`}
+                    ? "bg-primary-600 text-white"
+                    : "bg-white dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-600"
+                } border-t border-b border-neutral-300 dark:border-neutral-600`}
               >
                 Tháng
               </button>
@@ -133,9 +141,9 @@ const ReportsAnalytics = () => {
                 onClick={() => setReportPeriod("quarter")}
                 className={`px-4 py-2 text-sm font-medium ${
                   reportPeriod === "quarter"
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                } border-t border-b border-gray-300`}
+                    ? "bg-primary-600 text-white"
+                    : "bg-white dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-600"
+                } border-t border-b border-neutral-300 dark:border-neutral-600`}
               >
                 Quý
               </button>
@@ -143,9 +151,9 @@ const ReportsAnalytics = () => {
                 onClick={() => setReportPeriod("year")}
                 className={`px-4 py-2 text-sm font-medium rounded-r-md ${
                   reportPeriod === "year"
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                } border border-gray-300`}
+                    ? "bg-primary-600 text-white"
+                    : "bg-white dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-600"
+                } border border-neutral-300 dark:border-neutral-600`}
               >
                 Năm
               </button>
@@ -191,14 +199,14 @@ const ReportsAnalytics = () => {
       </div>
 
       {/* Report Type Tabs */}
-      <div className="mb-6">
+      <div className="mb-6 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-4 transition-colors duration-300">
         <nav className="flex space-x-4" aria-label="Tabs">
           <button
             onClick={() => setActiveTab("health")}
             className={`px-3 py-2 text-sm font-medium rounded-md ${
               activeTab === "health"
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400"
+                : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
             }`}
           >
             Sự kiện y tế
@@ -207,8 +215,8 @@ const ReportsAnalytics = () => {
             onClick={() => setActiveTab("medication")}
             className={`px-3 py-2 text-sm font-medium rounded-md ${
               activeTab === "medication"
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400"
+                : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
             }`}
           >
             Quản lý thuốc
@@ -217,8 +225,8 @@ const ReportsAnalytics = () => {
             onClick={() => setActiveTab("vaccination")}
             className={`px-3 py-2 text-sm font-medium rounded-md ${
               activeTab === "vaccination"
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400"
+                : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
             }`}
           >
             Tiêm chủng
@@ -227,8 +235,8 @@ const ReportsAnalytics = () => {
             onClick={() => setActiveTab("healthCheck")}
             className={`px-3 py-2 text-sm font-medium rounded-md ${
               activeTab === "healthCheck"
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-primary-100 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400"
+                : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
             }`}
           >
             Kiểm tra y tế
@@ -238,8 +246,11 @@ const ReportsAnalytics = () => {
 
       {/* Stats Cards for selected report */}
       {loading ? (
-        <div className="text-center py-8">
-          <p className="text-gray-600">Đang tải dữ liệu báo cáo...</p>
+        <div className="flex justify-center items-center h-64">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-700 dark:border-primary-400"></div>
+          <p className="ml-2 text-neutral-500 dark:text-neutral-400">
+            Đang tải dữ liệu báo cáo...
+          </p>
         </div>
       ) : (
         <div>
@@ -247,14 +258,14 @@ const ReportsAnalytics = () => {
           {activeTab === "health" && (
             <div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-lg border border-primary-100 dark:border-primary-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Tổng lượt thăm khám
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                     {reportData.health.totalVisits}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     Thời gian:{" "}
                     {reportPeriod === "week"
                       ? "Tuần này"
@@ -266,36 +277,38 @@ const ReportsAnalytics = () => {
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-100 dark:border-green-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Số học sinh đến khám
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-green-700 dark:text-green-400">
                     {reportData.health.uniqueStudents}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     Số học sinh khám riêng biệt
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-100 dark:border-yellow-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Trung bình mỗi ngày
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">
                     {(reportData.health.totalVisits / 15).toFixed(1)}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     Lượt thăm khám mỗi ngày
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-100 dark:border-red-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Phổ biến nhất
                   </h3>
-                  <p className="text-2xl font-bold">Sốt/Cảm/Cúm</p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-2xl font-bold text-red-700 dark:text-red-400">
+                    Sốt/Cảm/Cúm
+                  </p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     32% tổng lượt khám
                   </p>
                 </div>
@@ -307,12 +320,12 @@ const ReportsAnalytics = () => {
                 "tròn"
               )}
 
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
+                <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
                   Lượt khám theo ngày
                 </h3>
-                <div className="h-64 flex items-center justify-center bg-gray-100 rounded">
-                  <p className="text-gray-500">
+                <div className="h-64 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded">
+                  <p className="text-neutral-500 dark:text-neutral-400">
                     [Ở đây sẽ hiển thị biểu đồ cột thể hiện lượt khám theo ngày]
                   </p>
                 </div>
@@ -324,14 +337,14 @@ const ReportsAnalytics = () => {
           {activeTab === "medication" && (
             <div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-lg border border-primary-100 dark:border-primary-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Tổng yêu cầu thuốc
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                     {reportData.medication.totalRequests}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     Thời gian:{" "}
                     {reportPeriod === "week"
                       ? "Tuần này"
@@ -343,23 +356,23 @@ const ReportsAnalytics = () => {
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-100 dark:border-green-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Yêu cầu hoạt động
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-green-700 dark:text-green-400">
                     {reportData.medication.activeRequests}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     Chưa xử lý hoàn tất
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-100 dark:border-yellow-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Tỷ lệ hoàn thành
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">
                     {Math.round(
                       (reportData.medication.completedRequests /
                         reportData.medication.totalRequests) *
@@ -367,17 +380,21 @@ const ReportsAnalytics = () => {
                     )}
                     %
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     Yêu cầu đã hoàn thành
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-100 dark:border-red-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Thuốc phổ biến nhất
                   </h3>
-                  <p className="text-2xl font-bold">Paracetamol</p>
-                  <p className="text-xs text-gray-500 mt-1">33% tổng yêu cầu</p>
+                  <p className="text-2xl font-bold text-red-700 dark:text-red-400">
+                    Paracetamol
+                  </p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                    33% tổng yêu cầu
+                  </p>
                 </div>
               </div>
 
@@ -387,12 +404,12 @@ const ReportsAnalytics = () => {
                 "tròn"
               )}
 
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
+                <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
                   Yêu cầu thuốc theo thời gian
                 </h3>
-                <div className="h-64 flex items-center justify-center bg-gray-100 rounded">
-                  <p className="text-gray-500">
+                <div className="h-64 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded">
+                  <p className="text-neutral-500 dark:text-neutral-400">
                     [Ở đây sẽ hiển thị biểu đồ đường thể hiện yêu cầu thuốc theo
                     thời gian]
                   </p>
@@ -405,14 +422,14 @@ const ReportsAnalytics = () => {
           {activeTab === "vaccination" && (
             <div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-lg border border-primary-100 dark:border-primary-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Tổng lượt tiêm chủng
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                     {reportData.vaccination.totalVaccinations}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     Thời gian:{" "}
                     {reportPeriod === "week"
                       ? "Tuần này"
@@ -424,36 +441,38 @@ const ReportsAnalytics = () => {
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-100 dark:border-green-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Tỷ lệ phụ huynh đồng ý
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-green-700 dark:text-green-400">
                     {reportData.vaccination.consentRate}%
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     Đồng ý với tiêm chủng
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-100 dark:border-yellow-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Tỷ lệ hoàn thành
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">
                     {reportData.vaccination.completionRate}%
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     Hoàn thành tiêm chủng
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-100 dark:border-red-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Vắc-xin phổ biến nhất
                   </h3>
-                  <p className="text-2xl font-bold">Sởi-Rubella</p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-2xl font-bold text-red-700 dark:text-red-400">
+                    Sởi-Rubella
+                  </p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     37% tổng lượt tiêm
                   </p>
                 </div>
@@ -465,12 +484,12 @@ const ReportsAnalytics = () => {
                 "tròn"
               )}
 
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
+                <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
                   Tiêm chủng theo lớp
                 </h3>
-                <div className="h-64 flex items-center justify-center bg-gray-100 rounded">
-                  <p className="text-gray-500">
+                <div className="h-64 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded">
+                  <p className="text-neutral-500 dark:text-neutral-400">
                     [Ở đây sẽ hiển thị biểu đồ cột thể hiện phân bổ tiêm chủng
                     theo lớp]
                   </p>
@@ -483,14 +502,14 @@ const ReportsAnalytics = () => {
           {activeTab === "healthCheck" && (
             <div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-lg border border-primary-100 dark:border-primary-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Đợt kiểm tra y tế
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                     {reportData.healthCheck.completedChecks}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     Thời gian:{" "}
                     {reportPeriod === "week"
                       ? "Tuần này"
@@ -502,24 +521,26 @@ const ReportsAnalytics = () => {
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-100 dark:border-green-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Học sinh đã kiểm tra
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-green-700 dark:text-green-400">
                     {reportData.healthCheck.studentsExamined}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">Tổng số học sinh</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                    Tổng số học sinh
+                  </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-100 dark:border-yellow-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Phát hiện bất thường
                   </h3>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">
                     {reportData.healthCheck.abnormalFindings}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     {Math.round(
                       (reportData.healthCheck.abnormalFindings /
                         reportData.healthCheck.studentsExamined) *
@@ -529,12 +550,14 @@ const ReportsAnalytics = () => {
                   </p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
-                  <h3 className="text-sm font-medium text-gray-500">
+                <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-100 dark:border-red-800">
+                  <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Vấn đề phổ biến nhất
                   </h3>
-                  <p className="text-2xl font-bold">Thị lực</p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-2xl font-bold text-red-700 dark:text-red-400">
+                    Thị lực
+                  </p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     43% tổng phát hiện
                   </p>
                 </div>
@@ -546,12 +569,12 @@ const ReportsAnalytics = () => {
                 "tròn"
               )}
 
-              <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
+                <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
                   So sánh kết quả theo lớp
                 </h3>
-                <div className="h-64 flex items-center justify-center bg-gray-100 rounded">
-                  <p className="text-gray-500">
+                <div className="h-64 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded">
+                  <p className="text-neutral-500 dark:text-neutral-400">
                     [Ở đây sẽ hiển thị biểu đồ cột thể hiện phát hiện bất thường
                     theo lớp]
                   </p>

@@ -11,33 +11,310 @@
   color-scheme: light;
 }
 
+/* Dark mode variables */
+.dark {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
   background-color: #f8fafc;
   color: #334155;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Basic form styling */
+.dark body {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+/* Ensure root element and main containers inherit proper background */
+#root {
+  min-height: 100vh;
+  background-color: inherit;
+}
+
+/* Fix for main app container */
+html {
+  background-color: #f8fafc;
+  transition: background-color 0.3s ease;
+}
+
+.dark html {
+  background-color: #0f172a;
+}
+
+/* Ensure proper background for all elements */
+.dark * {
+  border-color: initial;
+}
+
+/* Improved text contrast in dark mode - WCAG AA compliant */
+.dark .text-neutral-900 {
+  color: #f8fafc !important;
+}
+
+.dark .text-neutral-800 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-neutral-700 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-neutral-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-neutral-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-neutral-400 {
+  color: #64748b !important;
+}
+
+/* Fix text-black in dark mode with higher contrast */
+.dark .text-black {
+  color: #f8fafc !important;
+}
+
+/* Enhanced card backgrounds in dark mode for better contrast */
+.dark .bg-white {
+  background-color: #1e293b !important;
+}
+
+.dark .border-white {
+  border-color: #374151 !important;
+}
+
+.dark .border-gray-100 {
+  border-color: #4b5563 !important;
+}
+
+.dark .border-gray-200 {
+  border-color: #6b7280 !important;
+}
+
+.dark .border-neutral-100 {
+  border-color: #374151 !important;
+}
+
+.dark .border-neutral-200 {
+  border-color: #475569 !important;
+}
+
+/* Improved status badges for dark mode with higher contrast */
+.dark .bg-yellow-100 {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+.dark .text-yellow-800 {
+  color: #fde047 !important;
+}
+
+.dark .bg-green-100 {
+  background-color: rgba(34, 197, 94, 0.2) !important;
+}
+
+.dark .text-green-800 {
+  color: #4ade80 !important;
+}
+
+.dark .bg-red-100 {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.dark .text-red-800 {
+  color: #f87171 !important;
+}
+
+.dark .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.dark .text-blue-800 {
+  color: #60a5fa !important;
+}
+
+.dark .bg-primary-100 {
+  background-color: rgba(12, 150, 230, 0.2) !important;
+}
+
+.dark .text-primary-800 {
+  color: #60a5fa !important;
+}
+
+/* Enhanced link hover states with better contrast */
+.dark a:hover {
+  color: #93c5fd !important;
+}
+
+/* Better contrast for tables in dark mode */
+.dark table {
+  background-color: #1e293b;
+}
+
+.dark thead {
+  background-color: #334155 !important;
+}
+
+.dark tbody tr:hover {
+  background-color: #374151 !important;
+}
+
+.dark th {
+  color: #f3f4f6 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark td {
+  color: #e5e7eb !important;
+  border-color: #4b5563 !important;
+}
+
+/* Enhanced button contrast with focus states */
+.dark
+  button:not(.bg-primary-600):not(.bg-red-600):not(.bg-green-600):not(
+    .bg-amber-600
+  ):not(.bg-blue-600) {
+  background-color: #374151;
+  color: #f3f4f6;
+}
+
+.dark
+  button:not(.bg-primary-600):not(.bg-red-600):not(.bg-green-600):not(
+    .bg-amber-600
+  ):not(.bg-blue-600):hover {
+  background-color: #4b5563;
+  color: #ffffff;
+}
+
+/* Enhanced focus states for better accessibility */
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  ring-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Better dropdown menu contrast */
+.dark .bg-neutral-50 {
+  background-color: #374151 !important;
+}
+
+/* Improved sidebar contrast */
+.dark .bg-primary-50 {
+  background-color: rgba(12, 150, 230, 0.15) !important;
+}
+
+.dark .text-primary-700 {
+  color: #60a5fa !important;
+}
+
+.dark .text-primary-600 {
+  color: #3b82f6 !important;
+}
+
+/* Better icon contrast */
+.dark .text-primary-500 {
+  color: #60a5fa !important;
+}
+
+/* Enhanced notification badge with improved contrast */
+.dark .bg-primary-100 {
+  background-color: rgba(59, 130, 246, 0.25) !important;
+}
+
+.dark .text-primary-800 {
+  color: #93c5fd !important;
+}
+
+/* Improved form input contrast */
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Enhanced scrollbar for dark mode */
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b !important;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569 !important;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+}
+
+/* Enhanced alert/notification styles for better contrast */
+.dark .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+.dark .text-amber-700 {
+  color: #fbbf24 !important;
+}
+
+.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+.dark .text-emerald-700 {
+  color: #34d399 !important;
+}
+
+.dark .bg-rose-50 {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+}
+
+.dark .text-rose-700 {
+  color: #fb7185 !important;
+}
+
+/* Basic form styling with enhanced contrast */
 input,
 select,
 textarea {
   transition: all 0.2s ease;
-  @apply border border-neutral-200 bg-white px-3 py-2 rounded text-sm shadow-sm outline-none;
+  @apply border border-neutral-200 dark:border-neutral-600 
+         bg-white dark:bg-neutral-800 
+         px-3 py-2 rounded text-sm shadow-sm outline-none
+         text-neutral-900 dark:text-neutral-100;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  @apply border-primary-300 ring-1 ring-primary-300 ring-opacity-40;
-  box-shadow: none;
+  @apply border-primary-500 dark:border-primary-400 
+         ring-2 ring-primary-200 dark:ring-primary-800 
+         ring-opacity-50;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 input:disabled,
 select:disabled,
 textarea:disabled {
-  @apply bg-neutral-50 cursor-not-allowed text-neutral-500 border-neutral-200;
+  @apply bg-neutral-50 dark:bg-neutral-800 
+         cursor-not-allowed 
+         text-neutral-500 dark:text-neutral-400 
+         border-neutral-200 dark:border-neutral-700;
+}
+
+input::placeholder,
+textarea::placeholder {
+  @apply text-neutral-400 dark:text-neutral-500;
 }
 
 select {
@@ -51,31 +328,141 @@ select {
   appearance: none;
 }
 
+.dark select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
 button {
   @apply transition-all duration-200;
 }
 
-/* Custom scrollbar */
+/* Enhanced button focus states */
+button:focus {
+  @apply outline-none ring-2 ring-offset-2;
+}
+
+.dark button:focus {
+  @apply ring-offset-neutral-800;
+}
+
+/* Custom scrollbar with better contrast */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
   background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 3px;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
-/* Text selection */
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Enhanced text selection with better contrast */
 ::selection {
-  background-color: rgba(12, 150, 230, 0.2);
+  background-color: rgba(12, 150, 230, 0.25);
   color: #055082;
+}
+
+.dark ::selection {
+  background-color: rgba(12, 150, 230, 0.4);
+  color: #bae0fd;
+}
+
+/* Loading spinner improvements */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Enhanced card shadows for dark mode */
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.dark .shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+}
+
+.dark .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -2px rgba(0, 0, 0, 0.3);
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+    0 4px 6px -4px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced border radius for consistency */
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --tw-ring-opacity: 1;
+  }
+
+  .dark {
+    --tw-ring-opacity: 1;
+  }
+
+  .dark .text-neutral-400 {
+    color: #94a3b8 !important;
+  }
+
+  .dark .text-neutral-500 {
+    color: #cbd5e1 !important;
+  }
+
+  .dark .border-neutral-600 {
+    border-color: #6b7280 !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

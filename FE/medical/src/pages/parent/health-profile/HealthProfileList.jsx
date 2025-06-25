@@ -29,20 +29,20 @@ const HealthProfileList = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
-      <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+    <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
+      <div className="rounded-lg shadow-sm borderoverflow-hidden">
         <div className="p-6">
-          <h1 className="text-2xl font-semibold text-black mb-2">
+          <h1 className="text-2xl font-semibold text-black dark:text-white mb-2">
             Hồ sơ sức khỏe học sinh
           </h1>
-          <p className="text-black text-sm">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
             Quản lý thông tin sức khỏe học sinh và cập nhật khi có thay đổi
           </p>
         </div>
 
         <div className="p-6">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-            <p className="text-neutral-600 text-sm mb-4 sm:mb-0">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 sm:mb-0">
               Tổng số hồ sơ:{" "}
               <span className="font-medium">{studentProfiles.length}</span>
             </p>
@@ -92,7 +92,7 @@ const HealthProfileList = () => {
 
           {/* Error state */}
           {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded mb-4">
+            <div className="bg-red-900/30 border border-red-600 text-red-300 p-4 rounded mb-4">
               {error}
             </div>
           )}
@@ -121,10 +121,10 @@ const HealthProfileList = () => {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
+              <h3 className="mt-2 text-sm font-medium text-white">
                 Chưa có hồ sơ nào
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-400">
                 Bạn chưa tạo hồ sơ sức khỏe nào. Hãy tạo hồ sơ mới ngay.
               </p>
             </div>

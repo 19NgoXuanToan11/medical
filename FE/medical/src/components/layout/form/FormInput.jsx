@@ -75,7 +75,7 @@ const FormInput = ({
                 disabled={disabled}
                 className="w-4 h-4 text-primary-600 border-neutral-300 focus:ring-primary-500"
               />
-              <span className="ml-2 text-sm text-neutral-700">
+              <span className="ml-2 text-sm text-neutral-700 dark:text-neutral-300">
                 {option.label}
               </span>
             </label>
@@ -104,16 +104,22 @@ const FormInput = ({
       {label && (
         <label
           htmlFor={id}
-          className="block text-sm font-medium text-neutral-700 mb-1"
+          className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
         >
           {label}{" "}
-          {required && <span className="text-red-500 font-normal">*</span>}
+          {required && (
+            <span className="text-red-500 dark:text-red-400 font-normal">
+              *
+            </span>
+          )}
         </label>
       )}
 
       {renderInput()}
 
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && (
+        <p className="mt-1 text-xs text-red-500 dark:text-red-400">{error}</p>
+      )}
     </div>
   );
 };

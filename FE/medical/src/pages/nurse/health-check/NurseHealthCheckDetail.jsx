@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 
 const NurseHealthCheckDetail = () => {
   const { id } = useParams();
@@ -97,43 +98,51 @@ const NurseHealthCheckDetail = () => {
 
   return (
     <div className="print:p-6">
-      <div className="flex justify-between items-start mb-6 print:mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 print:text-3xl">
-            Kết quả kiểm tra y tế {healthCheck.grade}
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Ngày kiểm tra:{" "}
-            {new Date(healthCheck.scheduledDate).toLocaleDateString("vi-VN")}
-          </p>
-          {healthCheck.description && (
-            <p className="text-gray-600 mt-1">{healthCheck.description}</p>
-          )}
-        </div>
-        <div className="flex space-x-2 print:hidden">
-          <button
-            onClick={() => navigate("/nurse/health-check")}
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
-          >
-            Quay lại
-          </button>
-          <button
-            onClick={handlePrintResults}
-            className="px-3 py-1.5 border border-blue-600 rounded-md text-blue-600 bg-white hover:bg-blue-50"
-          >
-            In kết quả
-          </button>
-          <button
-            onClick={handleExportToExcel}
-            className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700"
-          >
-            Xuất Excel
-          </button>
+      <div className="flex items-center mb-6 print:mb-8">
+        <button
+          onClick={() => navigate("/nurse/health-check")}
+          className="flex items-center text-gray-600 hover:text-blue-600 mr-4 px-2 py-1 rounded transition-colors"
+        >
+          <FiArrowLeft className="h-5 w-5 mr-1" />
+          <span className="hidden sm:inline">Quay lại</span>
+        </button>
+        <div className="flex-1 flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 print:text-3xl">
+              Kết quả kiểm tra y tế {healthCheck.grade}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Ngày kiểm tra: {new Date(healthCheck.scheduledDate).toLocaleDateString("vi-VN")}
+            </p>
+            {healthCheck.description && (
+              <p className="text-gray-600 dark:text-gray-400 mt-1">{healthCheck.description}</p>
+            )}
+          </div>
+          <div className="flex space-x-2 print:hidden">
+            <button
+              onClick={() => navigate("/nurse/health-check")}
+              className="px-3 py-1.5 border border-gray-300 dark:border-neutral-600 rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-700"
+            >
+              Quay lại
+            </button>
+            <button
+              onClick={handlePrintResults}
+              className="px-3 py-1.5 border border-blue-600 rounded-md text-blue-600 bg-white dark:bg-neutral-800 hover:bg-blue-50 dark:hover:bg-neutral-700"
+            >
+              In kết quả
+            </button>
+            <button
+              onClick={handleExportToExcel}
+              className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              Xuất Excel
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden print:shadow-none">
-        <div className="p-4 border-b border-gray-200 print:hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700 overflow-hidden print:shadow-none">
+        <div className="p-4 border-b border-gray-200 dark:border-neutral-700 print:hidden">
           <div className="flex justify-between items-center">
             <div className="flex space-x-2">
               <button
@@ -141,7 +150,7 @@ const NurseHealthCheckDetail = () => {
                 className={`px-3 py-1.5 rounded-md ${
                   activeTab === "all"
                     ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                    : "bg-white dark:bg-neutral-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-600"
                 }`}
               >
                 Tất cả ({students.length})
@@ -151,7 +160,7 @@ const NurseHealthCheckDetail = () => {
                 className={`px-3 py-1.5 rounded-md ${
                   activeTab === "abnormal"
                     ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                    : "bg-white dark:bg-neutral-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-600"
                 }`}
               >
                 Bất thường ({students.filter((s) => s.hasAbnormality).length})
@@ -161,7 +170,7 @@ const NurseHealthCheckDetail = () => {
                 className={`px-3 py-1.5 rounded-md ${
                   activeTab === "normal"
                     ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                    : "bg-white dark:bg-neutral-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-600"
                 }`}
               >
                 Bình thường ({students.filter((s) => !s.hasAbnormality).length})
@@ -171,7 +180,7 @@ const NurseHealthCheckDetail = () => {
                 className={`px-3 py-1.5 rounded-md ${
                   activeTab === "unconfirmed"
                     ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                    : "bg-white dark:bg-neutral-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-600"
                 }`}
               >
                 Chưa xác nhận ({students.filter((s) => !s.isConfirmed).length})
@@ -183,102 +192,102 @@ const NurseHealthCheckDetail = () => {
                 placeholder="Tìm kiếm học sinh..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-1.5 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+            <thead className="bg-gray-50 dark:bg-neutral-900">
               <tr>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   STT
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Học sinh
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Chiều cao (cm)
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Cân nặng (kg)
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   BMI
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Thị lực
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Răng miệng
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
                   Sức khỏe tổng quát
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider print:hidden"
+                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:hidden"
                 >
                   Hành động
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-neutral-700">
               {filteredStudents.map((student, index) => (
                 <tr
                   key={student.id}
-                  className={student.hasAbnormality ? "bg-red-50" : ""}
+                  className={student.hasAbnormality ? "bg-red-50 dark:bg-red-900/20" : "hover:bg-gray-50 dark:hover:bg-neutral-700"}
                 >
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
                     {index + 1}
                   </td>
                   <td className="px-3 py-4 whitespace-nowrap text-center">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {student.name}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
                       {student.gender}
                     </div>
                     {!student.isConfirmed && (
-                      <span className="px-2 py-0.5 text-xs rounded-full bg-yellow-100 text-yellow-800">
+                      <span className="px-2 py-0.5 text-xs rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
                         Chưa xác nhận
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
                     {student.height}
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
                     {student.weight}
                   </td>
                   <td className="px-3 py-4 whitespace-nowrap text-center">
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-gray-900 dark:text-gray-100">
                       {student.bmi.toFixed(1)}
                     </div>
                     <div
@@ -291,8 +300,8 @@ const NurseHealthCheckDetail = () => {
                     <span
                       className={`px-2 py-0.5 text-xs rounded-full ${
                         student.vision === "Tốt"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                          ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                          : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
                       }`}
                     >
                       {student.vision}
@@ -302,8 +311,8 @@ const NurseHealthCheckDetail = () => {
                     <span
                       className={`px-2 py-0.5 text-xs rounded-full ${
                         student.dental === "Bình thường"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                          ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                          : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
                       }`}
                     >
                       {student.dental}
@@ -314,15 +323,15 @@ const NurseHealthCheckDetail = () => {
                       <span
                         className={`px-2 py-0.5 text-xs rounded-full ${
                           student.generalHealth === "Tốt"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                            : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
                         }`}
                       >
                         {student.generalHealth}
                       </span>
                     </div>
                     {student.notes && (
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {student.notes}
                       </div>
                     )}
@@ -330,13 +339,13 @@ const NurseHealthCheckDetail = () => {
                   <td className="px-3 py-4 whitespace-nowrap text-sm font-medium print:hidden text-center">
                     <Link
                       to={`/nurse/student/${student.id}/health-history`}
-                      className="text-blue-600 hover:text-blue-900 mr-3"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
                     >
                       Xem lịch sử
                     </Link>
                     <Link
                       to={`/nurse/health-check/${id}/student/${student.id}/edit`}
-                      className="text-indigo-600 hover:text-indigo-900"
+                      className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
                     >
                       Chỉnh sửa
                     </Link>
@@ -349,73 +358,73 @@ const NurseHealthCheckDetail = () => {
       </div>
 
       <div className="mt-6 print:hidden">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
           Thống kê tổng quát
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-sm font-medium text-gray-500">BMI</h3>
+          <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 p-4 rounded-lg shadow-md">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">BMI</h3>
             <div className="mt-2 space-y-2">
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600">Thiếu cân</span>
-                <span className="text-xs font-medium text-gray-900">
+                <span className="text-xs text-gray-600 dark:text-gray-400">Thiếu cân</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.bmi < 18.5).length} học sinh
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600">Bình thường</span>
-                <span className="text-xs font-medium text-gray-900">
+                <span className="text-xs text-gray-600 dark:text-gray-400">Bình thường</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.bmi >= 18.5 && s.bmi < 25).length}{" "}
                   học sinh
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600">Thừa cân</span>
-                <span className="text-xs font-medium text-gray-900">
+                <span className="text-xs text-gray-600 dark:text-gray-400">Thừa cân</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.bmi >= 25 && s.bmi < 30).length} học
                   sinh
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600">Béo phì</span>
-                <span className="text-xs font-medium text-gray-900">
+                <span className="text-xs text-gray-600 dark:text-gray-400">Béo phì</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.bmi >= 30).length} học sinh
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-sm font-medium text-gray-500">Thị lực</h3>
+          <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 p-4 rounded-lg shadow-md">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Thị lực</h3>
             <div className="mt-2 space-y-2">
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600">Tốt</span>
-                <span className="text-xs font-medium text-gray-900">
+                <span className="text-xs text-gray-600 dark:text-gray-400">Tốt</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.vision === "Tốt").length} học sinh
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600">Kém</span>
-                <span className="text-xs font-medium text-gray-900">
+                <span className="text-xs text-gray-600 dark:text-gray-400">Kém</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.vision === "Kém").length} học sinh
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-sm font-medium text-gray-500">Răng miệng</h3>
+          <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 p-4 rounded-lg shadow-md">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Răng miệng</h3>
             <div className="mt-2 space-y-2">
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600">Bình thường</span>
-                <span className="text-xs font-medium text-gray-900">
+                <span className="text-xs text-gray-600 dark:text-gray-400">Bình thường</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.dental === "Bình thường").length}{" "}
                   học sinh
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600">Cần điều trị</span>
-                <span className="text-xs font-medium text-gray-900">
+                <span className="text-xs text-gray-600 dark:text-gray-400">Cần điều trị</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.dental === "Cần điều trị").length}{" "}
                   học sinh
                 </span>

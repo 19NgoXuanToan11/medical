@@ -188,236 +188,162 @@ const StudentHealthHistory = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
               Lịch sử sức khỏe - {student.name}
             </h1>
-            <p className="text-gray-600 mt-1">
-              {student.grade} - Ngày sinh:{" "}
-              {new Date(student.dateOfBirth).toLocaleDateString("vi-VN")}
+            <p className="text-neutral-600 dark:text-neutral-400">
+              {student.grade} - Ngày sinh: {new Date(student.dateOfBirth).toLocaleDateString("vi-VN")}
             </p>
           </div>
-          <button
-            onClick={() => navigate(-1)}
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
-          >
-            Quay lại
-          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="font-medium text-gray-700 mb-2">Thông tin cá nhân</h2>
-          <div className="space-y-2 text-sm">
-            <div className="flex">
-              <span className="font-medium w-32 text-gray-500">Họ và tên:</span>
-              <span>{student.name}</span>
-            </div>
-            <div className="flex">
-              <span className="font-medium w-32 text-gray-500">Ngày sinh:</span>
-              <span>
-                {new Date(student.dateOfBirth).toLocaleDateString("vi-VN")}
-              </span>
-            </div>
-            <div className="flex">
-              <span className="font-medium w-32 text-gray-500">Giới tính:</span>
-              <span>{student.gender}</span>
-            </div>
-            <div className="flex">
-              <span className="font-medium w-32 text-gray-500">Lớp:</span>
-              <span>{student.grade}</span>
-            </div>
-            <div className="flex">
-              <span className="font-medium w-32 text-gray-500">Nhóm máu:</span>
-              <span>{student.bloodType}</span>
-            </div>
+      {/* Personal Information Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm">
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Thông tin cá nhân</h3>
+          <div className="space-y-2">
+            <p><span className="text-neutral-600 dark:text-neutral-400">Họ và tên:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.name}</span></p>
+            <p><span className="text-neutral-600 dark:text-neutral-400">Ngày sinh:</span> <span className="text-neutral-900 dark:text-neutral-100">{new Date(student.dateOfBirth).toLocaleDateString("vi-VN")}</span></p>
+            <p><span className="text-neutral-600 dark:text-neutral-400">Giới tính:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.gender}</span></p>
+            <p><span className="text-neutral-600 dark:text-neutral-400">Lớp:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.grade}</span></p>
+            <p><span className="text-neutral-600 dark:text-neutral-400">Nhóm máu:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.bloodType}</span></p>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="font-medium text-gray-700 mb-2">Thông tin liên hệ</h2>
-          <div className="space-y-2 text-sm">
-            <div className="flex">
-              <span className="font-medium w-32 text-gray-500">Phụ huynh:</span>
-              <span>{student.parentName}</span>
-            </div>
-            <div className="flex">
-              <span className="font-medium w-32 text-gray-500">
-                Điện thoại:
-              </span>
-              <span>{student.parentPhone}</span>
-            </div>
-            <div className="flex">
-              <span className="font-medium w-32 text-gray-500">Địa chỉ:</span>
-              <span>{student.address}</span>
-            </div>
+        <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm">
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Thông tin liên hệ</h3>
+          <div className="space-y-2">
+            <p><span className="text-neutral-600 dark:text-neutral-400">Phụ huynh:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.parentName}</span></p>
+            <p><span className="text-neutral-600 dark:text-neutral-400">Điện thoại:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.parentPhone}</span></p>
+            <p><span className="text-neutral-600 dark:text-neutral-400">Địa chỉ:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.address}</span></p>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="font-medium text-gray-700 mb-2">Thông tin y tế</h2>
-          <div className="space-y-2 text-sm">
-            <div className="flex">
-              <span className="font-medium w-32 text-gray-500">Dị ứng:</span>
-              <span>{student.allergies}</span>
-            </div>
-            <div className="flex">
-              <span className="font-medium w-32 text-gray-500">
-                Bệnh mãn tính:
-              </span>
-              <span>{student.chronicConditions}</span>
-            </div>
-            <div className="flex items-center mt-4">
-              <button className="w-full px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                Cập nhật thông tin y tế
-              </button>
-            </div>
+        <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm">
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Thông tin y tế</h3>
+          <div className="space-y-2">
+            <p><span className="text-neutral-600 dark:text-neutral-400">Dị ứng:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.allergies}</span></p>
+            <p><span className="text-neutral-600 dark:text-neutral-400">Bệnh mãn tính:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.chronicConditions}</span></p>
+            <button className="w-full mt-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+              Cập nhật thông tin y tế
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg shadow-md mb-8">
-        <h2 className="font-medium text-gray-700 mb-4 text-center">
-          Biểu đồ tăng trưởng
-        </h2>
-        <div className="h-64 w-full mb-2 px-2">
-          <Line options={chartOptions} data={chartData} />
+      {/* Growth Chart */}
+      <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm mb-6">
+        <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Biểu đồ tăng trưởng</h3>
+        <div style={{ height: "400px" }}>
+          <Line data={chartData} options={chartOptions} />
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <h2 className="font-medium text-gray-700 p-4 border-b text-center">
-          Lịch sử kiểm tra sức khỏe
-        </h2>
+      {/* Health Records Table */}
+      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Lịch sử khám sức khỏe</h3>
+        </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+            <thead className="bg-neutral-50 dark:bg-neutral-900">
               <tr>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Ngày
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Ngày khám
                 </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                   Chiều cao (cm)
                 </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                   Cân nặng (kg)
                 </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                   BMI
                 </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                   Thị lực
                 </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                   Răng miệng
                 </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Sức khỏe tổng quát
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  Tổng quan
                 </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                   Bác sĩ
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {recordsWithBMI.map((record) => (
-                <tr key={record.id}>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                    {new Date(record.date).toLocaleDateString("vi-VN")}
-                  </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                    {record.height}
-                  </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                    {record.weight}
-                  </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-center">
-                    <div className="text-sm text-gray-900">{record.bmi}</div>
-                    <div
-                      className={`text-xs ${getBmiStatus(record.bmi).color}`}
-                    >
-                      {getBmiStatus(record.bmi).label}
-                    </div>
-                  </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-center">
-                    <span
-                      className={`px-2 py-0.5 text-xs rounded-full ${
-                        record.vision === "Tốt"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {record.vision}
-                    </span>
-                  </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-center">
-                    <span
-                      className={`px-2 py-0.5 text-xs rounded-full ${
-                        record.dental === "Bình thường"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {record.dental}
-                    </span>
-                  </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-center">
-                    <div>
+            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-700">
+              {recordsWithBMI.map((record) => {
+                const bmiStatus = getBmiStatus(record.bmi);
+                return (
+                  <tr key={record.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
+                      {new Date(record.date).toLocaleDateString("vi-VN")}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
+                      {record.height}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
+                      {record.weight}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-neutral-900 dark:text-neutral-100">{record.bmi}</div>
+                      <div className={`text-xs ${bmiStatus.color}`}>
+                        {bmiStatus.label}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`px-2 py-0.5 text-xs rounded-full ${
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          record.vision === "Tốt"
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                            : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
+                        }`}
+                      >
+                        {record.vision}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          record.dental === "Bình thường"
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                            : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
+                        }`}
+                      >
+                        {record.dental}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           record.generalHealth === "Tốt"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                            : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
                         }`}
                       >
                         {record.generalHealth}
                       </span>
-                    </div>
-                    {record.notes && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        {record.notes}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                    {record.doctor}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-neutral-400">
+                      {record.doctor}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

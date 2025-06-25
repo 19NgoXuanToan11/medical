@@ -12,6 +12,8 @@ import {
   FiCamera,
   FiUsers,
   FiPlus,
+  FiBriefcase,
+  FiHeart,
 } from "react-icons/fi";
 
 const ParentProfile = () => {
@@ -81,262 +83,293 @@ const ParentProfile = () => {
   const currentData = isEditing ? editedData : profileData;
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-neutral-200 mb-6">
-        <div className="relative">
-          {/* Cover Image */}
-          <div className="h-32 bg-gradient-to-r from-green-500 to-blue-500 rounded-t-lg"></div>
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header Card */}
+        <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 mb-8 overflow-hidden">
+          <div className="relative">
+            {/* Cover Image */}
+            <div className="h-40 bg-gradient-to-r from-primary-500 via-primary-600 to-blue-600"></div>
 
-          {/* Profile Picture */}
-          <div className="absolute -bottom-12 left-6">
-            <div className="relative">
-              <div className="w-24 h-24 bg-white rounded-full p-1 shadow-lg">
-                <div className="w-full h-full bg-primary-600 rounded-full flex items-center justify-center text-white text-2xl font-semibold">
-                  {currentData.firstName.charAt(0)}
-                  {currentData.lastName.charAt(0)}
+            {/* Profile Picture */}
+            <div className="absolute -bottom-16 left-8">
+              <div className="relative">
+                <div className="w-32 h-32 bg-white dark:bg-neutral-800 rounded-full p-1 shadow-xl">
+                  <div className="w-full h-full bg-primary-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                    {currentData.firstName.charAt(0)}
+                    {currentData.lastName.charAt(0)}
+                  </div>
                 </div>
+                {isEditing && (
+                  <button className="absolute bottom-2 right-2 bg-primary-600 rounded-full p-3 text-white hover:bg-primary-700 transition-colors shadow-lg">
+                    <FiCamera className="w-5 h-5" />
+                  </button>
+                )}
               </div>
-              {isEditing && (
-                <button className="absolute bottom-0 right-0 bg-primary-600 rounded-full p-2 text-white hover:bg-primary-700 transition-colors">
-                  <FiCamera className="w-4 h-4" />
+            </div>
+
+            {/* Edit Button */}
+            <div className="absolute top-6 right-6">
+              {!isEditing ? (
+                <button
+                  onClick={handleEdit}
+                  className="bg-white/90 dark:bg-neutral-800/90 backdrop-blur-sm px-6 py-3 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-white dark:hover:bg-neutral-800 transition-all duration-200 flex items-center gap-2 shadow-lg border border-neutral-200 dark:border-neutral-600"
+                >
+                  <FiEdit2 className="w-5 h-5" />
+                  Chỉnh sửa
                 </button>
+              ) : (
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSave}
+                    className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2 shadow-lg"
+                  >
+                    <FiSave className="w-5 h-5" />
+                    Lưu
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="bg-neutral-500 dark:bg-neutral-600 text-white px-6 py-3 rounded-lg hover:bg-neutral-600 dark:hover:bg-neutral-700 transition-colors flex items-center gap-2 shadow-lg"
+                  >
+                    <FiX className="w-5 h-5" />
+                    Hủy
+                  </button>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Edit Button */}
-          <div className="absolute top-4 right-4">
-            {!isEditing ? (
-              <button
-                onClick={handleEdit}
-                className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg text-neutral-700 hover:bg-white transition-colors flex items-center gap-2"
-              >
-                <FiEdit2 className="w-4 h-4" />
-                Chỉnh sửa
-              </button>
-            ) : (
-              <div className="flex gap-2">
-                <button
-                  onClick={handleSave}
-                  className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2"
-                >
-                  <FiSave className="w-4 h-4" />
-                  Lưu
-                </button>
-                <button
-                  onClick={handleCancel}
-                  className="bg-white/90 backdrop-blur-sm text-neutral-700 px-4 py-2 rounded-lg hover:bg-white transition-colors flex items-center gap-2"
-                >
-                  <FiX className="w-4 h-4" />
-                  Hủy
-                </button>
-              </div>
-            )}
+          {/* Profile Info */}
+          <div className="pt-20 pb-8 px-8">
+            <div className="flex flex-col gap-3">
+              <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+                {currentData.firstName} {currentData.lastName}
+              </h1>
+              <p className="text-lg text-neutral-600 dark:text-neutral-300 flex items-center gap-2">
+                <FiBriefcase className="w-5 h-5" />
+                {currentData.occupation}
+              </p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
+                <FiUsers className="w-4 h-4" />
+                Phụ huynh của {children.length} học sinh
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Profile Info */}
-        <div className="pt-16 pb-6 px-6">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-2xl font-bold text-neutral-900">
-              {currentData.firstName} {currentData.lastName}
-            </h1>
-            <p className="text-neutral-600">{currentData.occupation}</p>
-            <p className="text-sm text-neutral-500">
-              Phụ huynh của {children.length} học sinh
-            </p>
-          </div>
-        </div>
-      </div>
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+          {/* Personal Information */}
+          <div className="xl:col-span-3 space-y-8">
+            {/* Basic Info */}
+            <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-8">
+              <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-8 flex items-center gap-3">
+                <FiUser className="w-6 h-6 text-primary-600" />
+                Thông tin cá nhân
+              </h2>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Personal Information */}
-        <div className="xl:col-span-2">
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold text-neutral-900 mb-6">
-              Thông tin cá nhân
-            </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* First Name */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Tên
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={currentData.firstName}
+                      onChange={(e) =>
+                        handleInputChange("firstName", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                      <FiUser className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                        {currentData.firstName}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* First Name */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Tên
-                </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={currentData.firstName}
-                    onChange={(e) =>
-                      handleInputChange("firstName", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                ) : (
-                  <div className="flex items-center gap-2 text-neutral-900">
-                    <FiUser className="w-4 h-4 text-neutral-500" />
-                    {currentData.firstName}
-                  </div>
-                )}
-              </div>
+                {/* Last Name */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Họ
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={currentData.lastName}
+                      onChange={(e) =>
+                        handleInputChange("lastName", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                      <FiUser className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                        {currentData.lastName}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              {/* Last Name */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Họ
-                </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={currentData.lastName}
-                    onChange={(e) =>
-                      handleInputChange("lastName", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                ) : (
-                  <div className="flex items-center gap-2 text-neutral-900">
-                    <FiUser className="w-4 h-4 text-neutral-500" />
-                    {currentData.lastName}
-                  </div>
-                )}
-              </div>
+                {/* Email */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Email
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      value={currentData.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                      <FiMail className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                        {currentData.email}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Email
-                </label>
-                {isEditing ? (
-                  <input
-                    type="email"
-                    value={currentData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                ) : (
-                  <div className="flex items-center gap-2 text-neutral-900">
-                    <FiMail className="w-4 h-4 text-neutral-500" />
-                    {currentData.email}
-                  </div>
-                )}
-              </div>
+                {/* Phone */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Số điện thoại
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      value={currentData.phone}
+                      onChange={(e) =>
+                        handleInputChange("phone", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                      <FiPhone className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                        {currentData.phone}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              {/* Phone */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Số điện thoại
-                </label>
-                {isEditing ? (
-                  <input
-                    type="tel"
-                    value={currentData.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                ) : (
-                  <div className="flex items-center gap-2 text-neutral-900">
-                    <FiPhone className="w-4 h-4 text-neutral-500" />
-                    {currentData.phone}
-                  </div>
-                )}
-              </div>
+                {/* Date of Birth */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Ngày sinh
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={currentData.dateOfBirth}
+                      onChange={(e) =>
+                        handleInputChange("dateOfBirth", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                      <FiCalendar className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                        {new Date(currentData.dateOfBirth).toLocaleDateString(
+                          "vi-VN"
+                        )}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              {/* Date of Birth */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Ngày sinh
-                </label>
-                {isEditing ? (
-                  <input
-                    type="date"
-                    value={currentData.dateOfBirth}
-                    onChange={(e) =>
-                      handleInputChange("dateOfBirth", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                ) : (
-                  <div className="flex items-center gap-2 text-neutral-900">
-                    <FiCalendar className="w-4 h-4 text-neutral-500" />
-                    {new Date(currentData.dateOfBirth).toLocaleDateString(
-                      "vi-VN"
-                    )}
-                  </div>
-                )}
-              </div>
+                {/* Occupation */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Nghề nghiệp
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={currentData.occupation}
+                      onChange={(e) =>
+                        handleInputChange("occupation", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                      <FiBriefcase className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                        {currentData.occupation}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              {/* Occupation */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Nghề nghiệp
-                </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={currentData.occupation}
-                    onChange={(e) =>
-                      handleInputChange("occupation", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                ) : (
-                  <div className="text-neutral-900">
-                    {currentData.occupation}
-                  </div>
-                )}
-              </div>
+                {/* Emergency Contact */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Liên hệ khẩn cấp
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      value={currentData.emergencyContact}
+                      onChange={(e) =>
+                        handleInputChange("emergencyContact", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                      <FiPhone className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                        {currentData.emergencyContact}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              {/* Emergency Contact */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Liên hệ khẩn cấp
-                </label>
-                {isEditing ? (
-                  <input
-                    type="tel"
-                    value={currentData.emergencyContact}
-                    onChange={(e) =>
-                      handleInputChange("emergencyContact", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                ) : (
-                  <div className="flex items-center gap-2 text-neutral-900">
-                    <FiPhone className="w-4 h-4 text-neutral-500" />
-                    {currentData.emergencyContact}
-                  </div>
-                )}
-              </div>
-
-              {/* Relationship */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Mối quan hệ
-                </label>
-                {isEditing ? (
-                  <select
-                    value={currentData.relationship}
-                    onChange={(e) =>
-                      handleInputChange("relationship", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    <option value="Bố/Mẹ">Bố/Mẹ</option>
-                    <option value="Ông/Bà">Ông/Bà</option>
-                    <option value="Người giám hộ">Người giám hộ</option>
-                  </select>
-                ) : (
-                  <div className="text-neutral-900">
-                    {currentData.relationship}
-                  </div>
-                )}
+                {/* Relationship */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Mối quan hệ
+                  </label>
+                  {isEditing ? (
+                    <select
+                      value={currentData.relationship}
+                      onChange={(e) =>
+                        handleInputChange("relationship", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
+                    >
+                      <option value="Bố/Mẹ">Bố/Mẹ</option>
+                      <option value="Ông/Bà">Ông/Bà</option>
+                      <option value="Anh/Chị">Anh/Chị</option>
+                      <option value="Khác">Khác</option>
+                    </select>
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                      <FiHeart className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                        {currentData.relationship}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Address */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <div className="mt-8 space-y-3">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Địa chỉ
                 </label>
                 {isEditing ? (
@@ -345,155 +378,171 @@ const ParentProfile = () => {
                     onChange={(e) =>
                       handleInputChange("address", e.target.value)
                     }
-                    rows={2}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    rows={3}
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
                   />
                 ) : (
-                  <div className="flex items-center gap-2 text-neutral-900">
-                    <FiMapPin className="w-4 h-4 text-neutral-500" />
-                    {currentData.address}
+                  <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                    <FiMapPin className="w-5 h-5 text-neutral-500 dark:text-neutral-400 flex-shrink-0" />
+                    <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                      {currentData.address}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Bio */}
+              <div className="mt-8 space-y-3">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  Giới thiệu
+                </label>
+                {isEditing ? (
+                  <textarea
+                    value={currentData.bio}
+                    onChange={(e) => handleInputChange("bio", e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
+                    placeholder="Viết vài dòng về bản thân..."
+                  />
+                ) : (
+                  <div className="px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                    <p className="text-neutral-900 dark:text-neutral-100 leading-relaxed">
+                      {currentData.bio}
+                    </p>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Bio */}
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
-                Giới thiệu
-              </label>
-              {isEditing ? (
-                <textarea
-                  value={currentData.bio}
-                  onChange={(e) => handleInputChange("bio", e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Viết vài dòng giới thiệu về bản thân..."
-                />
-              ) : (
-                <p className="text-neutral-700 leading-relaxed">
-                  {currentData.bio}
-                </p>
-              )}
+            {/* Children Information */}
+            <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-8">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-3">
+                  <FiUsers className="w-6 h-6 text-primary-600" />
+                  Thông tin con em
+                </h2>
+                <button className="text-primary-600 hover:text-primary-700 flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
+                  <FiPlus className="w-4 h-4" />
+                  Thêm con
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {children.map((child) => (
+                  <div
+                    key={child.id}
+                    className="border border-neutral-200 dark:border-neutral-600 rounded-xl p-6 hover:shadow-md dark:hover:shadow-lg transition-all duration-200 bg-neutral-50 dark:bg-neutral-700"
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
+                        <span className="text-primary-600 dark:text-primary-400 font-semibold text-lg">
+                          {child.name.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 text-lg">
+                          {child.name}
+                        </h3>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                          Lớp {child.class}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Mã học sinh:
+                        </span>
+                        <span className="text-sm text-neutral-900 dark:text-neutral-100 font-mono">
+                          {child.studentId}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Ngày sinh:
+                        </span>
+                        <span className="text-sm text-neutral-900 dark:text-neutral-100">
+                          {new Date(child.dateOfBirth).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Nhóm máu:
+                        </span>
+                        <span className="text-sm text-neutral-900 dark:text-neutral-100 font-semibold">
+                          {child.bloodType}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Dị ứng:
+                        </span>
+                        <span className="text-sm text-neutral-900 dark:text-neutral-100">
+                          {child.allergies}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Children Information */}
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-neutral-900 flex items-center gap-2">
-                <FiUsers className="w-5 h-5" />
-                Thông tin con em
-              </h2>
-              <button className="text-primary-600 hover:text-primary-700 flex items-center gap-1 text-sm">
-                <FiPlus className="w-4 h-4" />
-                Thêm con
-              </button>
-            </div>
+          {/* Statistics Sidebar */}
+          <div className="xl:col-span-1">
+            <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6 sticky top-8">
+              <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-6">
+                Thống kê
+              </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {children.map((child) => (
-                <div
-                  key={child.id}
-                  className="border border-neutral-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                      <span className="text-primary-600 font-medium">
-                        {child.name.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-neutral-900">
-                        {child.name}
-                      </h3>
-                      <p className="text-sm text-neutral-500">
-                        Lớp {child.class}
-                      </p>
-                    </div>
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
+                    {children.length}
                   </div>
-
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-neutral-500">Mã HS:</span>
-                      <span className="text-neutral-900">
-                        {child.studentId}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-500">Ngày sinh:</span>
-                      <span className="text-neutral-900">
-                        {new Date(child.dateOfBirth).toLocaleDateString(
-                          "vi-VN"
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-500">Nhóm máu:</span>
-                      <span className="text-neutral-900">
-                        {child.bloodType}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-500">Dị ứng:</span>
-                      <span className="text-neutral-900">
-                        {child.allergies}
-                      </span>
-                    </div>
+                  <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Số con
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        {/* Quick Actions & Settings */}
-        <div>
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold text-neutral-900 mb-4">
-              Thao tác nhanh
-            </h2>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                    3
+                  </div>
+                  <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Yêu cầu thuốc
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <button className="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 rounded-lg transition-colors">
-                Đổi mật khẩu
-              </button>
-              <button className="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 rounded-lg transition-colors">
-                Cài đặt thông báo
-              </button>
-              <button className="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 rounded-lg transition-colors">
-                Quản lý quyền riêng tư
-              </button>
-              <button className="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 rounded-lg transition-colors">
-                Xuất thông tin cá nhân
-              </button>
-            </div>
-          </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                    12
+                  </div>
+                  <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Kiểm tra y tế
+                  </div>
+                </div>
 
-          {/* Statistics */}
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
-            <h2 className="text-lg font-semibold text-neutral-900 mb-4">
-              Thống kê
-            </h2>
-
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-600">Số con:</span>
-                <span className="font-semibold text-neutral-900">
-                  {children.length}
-                </span>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                    8
+                  </div>
+                  <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Tiêm chủng
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-600">Yêu cầu thuốc:</span>
-                <span className="font-semibold text-neutral-900">3</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-600">Kiểm tra y tế:</span>
-                <span className="font-semibold text-neutral-900">12</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-600">Tiêm chủng:</span>
-                <span className="font-semibold text-neutral-900">8</span>
+
+              <div className="mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-600">
+                <div className="text-sm text-neutral-500 dark:text-neutral-400 text-center">
+                  Thành viên từ
+                </div>
+                <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100 text-center mt-1">
+                  Tháng 9, 2024
+                </div>
               </div>
             </div>
           </div>

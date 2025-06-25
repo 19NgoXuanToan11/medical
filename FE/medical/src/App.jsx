@@ -51,6 +51,8 @@ import StaffMedicationDetail from "./pages/nurse/medication/StaffMedicationDetai
 import HealthCheckResults from "./pages/nurse/health-check/HealthCheckResults";
 import StudentHealthDetail from "./pages/nurse/health-check/StudentHealthDetail";
 import NurseSchedule from "./pages/nurse/schedule/NurseSchedule";
+import StudentHealthRecords from "./pages/nurse/health-records/StudentHealthRecords";
+import StudentHealthRecordDetail from "./pages/nurse/health-records/StudentHealthRecordDetail";
 
 // parent
 import ParentDashboard from "./pages/parent/dashboard/ParentDashboard";
@@ -173,6 +175,10 @@ function App() {
 
           {/* Schedule Routes */}
           <Route path="/nurse/schedule" element={<NurseSchedule />} />
+
+          {/* Health Records Routes */}
+          <Route path="/nurse/health-records" element={<StudentHealthRecords />} />
+          <Route path="/nurse/health-records/:studentId" element={<StudentHealthRecordDetail />} />
 
           {/* Medication Routes */}
           <Route path="/nurse/medication" element={<StaffMedicationList />} />

@@ -396,10 +396,10 @@ const StaffMedicationDetail = () => {
             <FiArrowLeft className="h-5 w-5 text-gray-600" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">
+            <h1 className="text-2xl font-bold text-white">
               Chi tiết yêu cầu thuốc
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-300">
               Xem và quản lý thông tin yêu cầu cấp thuốc
             </p>
           </div>
@@ -413,15 +413,19 @@ const StaffMedicationDetail = () => {
       </div>
 
       {/* Status and Actions */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 mb-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <div className="mr-4">
-              <div className="text-sm text-gray-500">Trạng thái</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Trạng thái
+              </div>
               <div className="mt-1">{getStatusBadge(medication.status)}</div>
             </div>
             <div className="mx-4">
-              <div className="text-sm text-gray-500">Ngày yêu cầu</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Ngày yêu cầu
+              </div>
               <div className="mt-1 font-medium">
                 {new Date(medication.requestDate).toLocaleDateString("vi-VN")}
               </div>
@@ -465,30 +469,49 @@ const StaffMedicationDetail = () => {
         {/* Left Column - Student and Medication Info */}
         <div className="md:col-span-2 space-y-6">
           {/* Student Information */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <FiUser className="mr-2 text-blue-500" /> Thông tin học sinh
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-neutral-700">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+              <FiUser className="mr-2 text-blue-500 dark:text-blue-400" /> Thông
+              tin học sinh
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <div className="text-sm text-gray-500">Họ và tên</div>
-                <div className="font-medium">{medication.studentName}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Họ và tên
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.studentName}
+                </div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Lớp</div>
-                <div className="font-medium">{medication.class}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Lớp
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.class}
+                </div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Tình trạng y tế</div>
-                <div className="font-medium">{medication.medicalCondition}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Tình trạng y tế
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.medicalCondition}
+                </div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Tiền sử dị ứng</div>
-                <div className="font-medium">{medication.allergyHistory}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Tiền sử dị ứng
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.allergyHistory}
+                </div>
               </div>
               <div className="md:col-span-2">
-                <div className="text-sm text-gray-500">Thuốc đang sử dụng</div>
-                <div className="font-medium">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Thuốc đang sử dụng
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
                   {medication.currentMedications}
                 </div>
               </div>
@@ -496,38 +519,59 @@ const StaffMedicationDetail = () => {
           </div>
 
           {/* Medication Information */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <FiFileText className="mr-2 text-blue-500" /> Thông tin thuốc
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-neutral-700">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+              <FiFileText className="mr-2 text-blue-500 dark:text-blue-400" />{" "}
+              Thông tin thuốc
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <div className="text-sm text-gray-500">Tên thuốc</div>
-                <div className="font-medium">{medication.medication}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Tên thuốc
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.medication}
+                </div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Liều lượng</div>
-                <div className="font-medium">{medication.dosage}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Liều lượng
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.dosage}
+                </div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Tần suất</div>
-                <div className="font-medium">{medication.frequency}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Tần suất
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.frequency}
+                </div>
               </div>
               <div className="md:col-span-2">
-                <div className="text-sm text-gray-500">Hướng dẫn sử dụng</div>
-                <div className="font-medium">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Hướng dẫn sử dụng
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
                   {medication.administrationInstructions}
                 </div>
               </div>
               <div className="md:col-span-2">
-                <div className="text-sm text-gray-500">Tác dụng phụ</div>
-                <div className="font-medium">{medication.sideEffects}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Tác dụng phụ
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.sideEffects}
+                </div>
               </div>
               <div className="md:col-span-2">
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   Ghi chú của phụ huynh
                 </div>
-                <div className="font-medium">{medication.parentNote}</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.parentNote}
+                </div>
               </div>
             </div>
           </div>
@@ -535,10 +579,10 @@ const StaffMedicationDetail = () => {
           {/* Medication Statistics */}
           {medication.status === "approved" &&
             medication.administrationLogs && (
-              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <FiInfo className="mr-2 text-blue-500" /> Thống kê sử dụng
-                  thuốc
+              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 mb-6 border border-gray-200 dark:border-neutral-700">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+                  <FiInfo className="mr-2 text-blue-500 dark:text-blue-400" />{" "}
+                  Thống kê sử dụng thuốc
                 </h2>
 
                 {(() => {
@@ -547,38 +591,38 @@ const StaffMedicationDetail = () => {
                   );
                   return (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <div className="text-sm text-gray-500">
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
                           Tổng số lần cấp thuốc
                         </div>
-                        <div className="text-2xl font-bold text-blue-600">
+                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                           {stats.totalAdministered}
                         </div>
                       </div>
 
-                      <div className="bg-red-50 p-4 rounded-lg">
-                        <div className="text-sm text-gray-500">
+                      <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
                           Số lần bỏ qua
                         </div>
-                        <div className="text-2xl font-bold text-red-600">
+                        <div className="text-2xl font-bold text-red-600 dark:text-red-400">
                           {stats.totalSkipped}
                         </div>
                       </div>
 
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <div className="text-sm text-gray-500">
+                      <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
                           Tỷ lệ cấp thuốc
                         </div>
-                        <div className="text-2xl font-bold text-green-600">
+                        <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                           {stats.administrationRate}%
                         </div>
                       </div>
 
-                      <div className="bg-purple-50 p-4 rounded-lg">
-                        <div className="text-sm text-gray-500">
+                      <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
                           Lần cấp gần nhất
                         </div>
-                        <div className="text-lg font-bold text-purple-600">
+                        <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
                           {stats.lastAdministered
                             ? new Date(
                                 stats.lastAdministered
@@ -595,15 +639,16 @@ const StaffMedicationDetail = () => {
           {/* Administration Logs (if completed or approved) */}
           {(medication.status === "completed" ||
             medication.status === "approved") && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-between">
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-neutral-700">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center justify-between">
                 <div className="flex items-center">
-                  <FiClock className="mr-2 text-blue-500" /> Nhật ký cấp thuốc
+                  <FiClock className="mr-2 text-blue-500 dark:text-blue-400" />{" "}
+                  Nhật ký cấp thuốc
                 </div>
                 {!showAdminForm && (
                   <button
                     onClick={() => setShowAdminForm(true)}
-                    className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-700 transition ease-in-out duration-150"
+                    className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-700 transition ease-in-out duration-150 dark:bg-blue-700 dark:hover:bg-blue-600"
                   >
                     <FiPlus className="mr-1" /> Thêm nhật ký
                   </button>
@@ -611,13 +656,13 @@ const StaffMedicationDetail = () => {
               </h2>
 
               {showAdminForm && (
-                <div className="bg-gray-50 p-4 rounded-md mb-4 border border-gray-200">
-                  <h3 className="text-md font-medium text-gray-700 mb-3">
+                <div className="bg-gray-50 dark:bg-neutral-700 p-4 rounded-md mb-4 border border-gray-200 dark:border-neutral-600">
+                  <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Thêm nhật ký cấp thuốc mới
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Thời gian cấp thuốc
                       </label>
                       <input
@@ -625,7 +670,7 @@ const StaffMedicationDetail = () => {
                         name="date"
                         value={adminFormData.date}
                         onChange={handleAdminFormChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100"
                       />
                     </div>
                     <div className="flex items-center">
@@ -635,18 +680,18 @@ const StaffMedicationDetail = () => {
                         name="administered"
                         checked={adminFormData.administered}
                         onChange={handleAdminFormChange}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-neutral-600 rounded"
                       />
                       <label
                         htmlFor="administered"
-                        className="ml-2 block text-sm text-gray-700"
+                        className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
                       >
                         Đã cấp thuốc thành công
                       </label>
                     </div>
                   </div>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Ghi chú
                     </label>
                     <textarea
@@ -654,7 +699,7 @@ const StaffMedicationDetail = () => {
                       value={adminFormData.notes}
                       onChange={handleAdminFormChange}
                       rows="3"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100"
                       placeholder="Nhập ghi chú về việc cấp thuốc..."
                     ></textarea>
                   </div>
@@ -662,7 +707,7 @@ const StaffMedicationDetail = () => {
                     <button
                       type="button"
                       onClick={() => setShowAdminForm(false)}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      className="inline-flex items-center px-4 py-2 border border-gray-400 text-sm font-medium rounded-md text-gray-700 bg-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                       Hủy
                     </button>
@@ -742,36 +787,52 @@ const StaffMedicationDetail = () => {
         {/* Right Column - Parent Info and History */}
         <div className="space-y-6">
           {/* Parent Information */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <FiUser className="mr-2 text-blue-500" /> Thông tin phụ huynh
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-neutral-700">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+              <FiUser className="mr-2 text-blue-500 dark:text-blue-400" /> Thông
+              tin phụ huynh
             </h2>
             <div className="space-y-4">
               <div>
-                <div className="text-sm text-gray-500">Họ và tên</div>
-                <div className="font-medium">{medication.parentName}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Họ và tên
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.parentName}
+                </div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Số điện thoại</div>
-                <div className="font-medium">{medication.parentPhone}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Số điện thoại
+                </div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {medication.parentPhone}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Status-specific information */}
           {medication.status === "approved" && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <FiInfo className="mr-2 text-blue-500" /> Thông tin duyệt
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-neutral-700">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+                <FiInfo className="mr-2 text-blue-500 dark:text-blue-400" />{" "}
+                Thông tin duyệt
               </h2>
               <div className="space-y-4">
                 <div>
-                  <div className="text-sm text-gray-500">Người duyệt</div>
-                  <div className="font-medium">{medication.approvedBy}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Người duyệt
+                  </div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                    {medication.approvedBy}
+                  </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">Thời gian duyệt</div>
-                  <div className="font-medium">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Thời gian duyệt
+                  </div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
                     {new Date(medication.approvedDate).toLocaleString("vi-VN")}
                   </div>
                 </div>
@@ -780,44 +841,60 @@ const StaffMedicationDetail = () => {
           )}
 
           {medication.status === "rejected" && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <FiInfo className="mr-2 text-blue-500" /> Thông tin từ chối
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-neutral-700">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+                <FiInfo className="mr-2 text-blue-500 dark:text-blue-400" />{" "}
+                Thông tin từ chối
               </h2>
               <div className="space-y-4">
                 <div>
-                  <div className="text-sm text-gray-500">Người từ chối</div>
-                  <div className="font-medium">{medication.rejectedBy}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Người từ chối
+                  </div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                    {medication.rejectedBy}
+                  </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">Thời gian từ chối</div>
-                  <div className="font-medium">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Thời gian từ chối
+                  </div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
                     {new Date(medication.rejectedDate).toLocaleString("vi-VN")}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">Lý do từ chối</div>
-                  <div className="font-medium">{medication.rejectReason}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Lý do từ chối
+                  </div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                    {medication.rejectReason}
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {medication.status === "completed" && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <FiInfo className="mr-2 text-blue-500" /> Thông tin hoàn thành
+            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-neutral-700">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+                <FiInfo className="mr-2 text-blue-500 dark:text-blue-400" />{" "}
+                Thông tin hoàn thành
               </h2>
               <div className="space-y-4">
                 <div>
-                  <div className="text-sm text-gray-500">Người xác nhận</div>
-                  <div className="font-medium">{medication.completedBy}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Người xác nhận
+                  </div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                    {medication.completedBy}
+                  </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
                     Thời gian hoàn thành
                   </div>
-                  <div className="font-medium">
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
                     {new Date(medication.completedDate).toLocaleString("vi-VN")}
                   </div>
                 </div>
@@ -826,9 +903,10 @@ const StaffMedicationDetail = () => {
           )}
 
           {/* Request History */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <FiCalendar className="mr-2 text-blue-500" /> Lịch sử yêu cầu
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-neutral-700">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+              <FiCalendar className="mr-2 text-blue-500 dark:text-blue-400" />{" "}
+              Lịch sử yêu cầu
             </h2>
             <div className="relative">
               {medication.requestHistory.map((history, index) => (
@@ -837,10 +915,12 @@ const StaffMedicationDetail = () => {
                   className="relative pl-6 pb-4 border-l-2 border-blue-200"
                 >
                   <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(history.date).toLocaleString("vi-VN")}
                   </div>
-                  <div className="font-medium">{history.action}</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                    {history.action}
+                  </div>
                 </div>
               ))}
             </div>

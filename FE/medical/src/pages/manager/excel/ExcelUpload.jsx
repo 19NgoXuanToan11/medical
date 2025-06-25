@@ -96,7 +96,7 @@ const ExcelUpload = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-8">
       {!uploadStatus.success ? (
         <>
           {/* File Drop Zone */}
@@ -106,7 +106,7 @@ const ExcelUpload = () => {
                 ? "border-blue-400 bg-blue-50"
                 : file
                 ? "border-green-300 bg-green-50"
-                : "border-gray-300 hover:border-gray-400"
+                : "border-gray-300 dark:border-gray-600 hover:border-gray-400"
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -119,16 +119,16 @@ const ExcelUpload = () => {
                   <FiFile className="h-12 w-12 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {file.name}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {(file.size / 1024).toFixed(1)} KB
                   </p>
                 </div>
                 <button
                   onClick={removeFile}
-                  className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded text-gray-700 dark:text-gray-200 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <FiX className="mr-1 h-3 w-3" />
                   Chọn file khác
@@ -140,7 +140,7 @@ const ExcelUpload = () => {
                   <FiUpload className="h-12 w-12 text-gray-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
                     Kéo và thả file Excel vào đây, hoặc{" "}
                     <button
                       onClick={() => fileInputRef.current?.click()}
@@ -149,7 +149,7 @@ const ExcelUpload = () => {
                       chọn file
                     </button>
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Chỉ chấp nhận file .xlsx, .xls (tối đa 10MB)
                   </p>
                 </div>
@@ -210,47 +210,53 @@ const ExcelUpload = () => {
       ) : (
         /* Success State */
         <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
-            <FiCheck className="h-8 w-8 text-green-600" />
+          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-800 mb-6">
+            <FiCheck className="h-8 w-8 text-green-600 dark:text-green-300" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
             Tải lên thành công!
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             File Excel của bạn đã được xử lý thành công.
           </p>
 
           {/* Upload Results */}
           {uploadStatus.result && (
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-600">
                     {uploadStatus.result.totalRows || 0}
                   </div>
-                  <div className="text-gray-600">Tổng số dòng</div>
+                  <div className="text-gray-600 dark:text-gray-300">
+                    Tổng số dòng
+                  </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-300">
                     {uploadStatus.result.successfullyImported || 0}
                   </div>
-                  <div className="text-gray-600">Thành công</div>
+                  <div className="text-gray-600 dark:text-gray-300">
+                    Thành công
+                  </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">
+                  <div className="text-2xl font-bold text-red-600 dark:text-red-300">
                     {uploadStatus.result.failedRows || 0}
                   </div>
-                  <div className="text-gray-600">Thất bại</div>
+                  <div className="text-gray-600 dark:text-gray-300">
+                    Thất bại
+                  </div>
                 </div>
               </div>
 
               {uploadStatus.result.errors &&
                 uploadStatus.result.errors.length > 0 && (
                   <div className="mt-4 text-left">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                       Lỗi chi tiết:
                     </h4>
-                    <div className="bg-red-50 border border-red-200 rounded p-3 text-xs text-red-700 max-h-32 overflow-y-auto">
+                    <div className="bg-red-50 dark:bg-red-900/40 border border-red-200 rounded p-3 text-xs text-red-700 max-h-32 overflow-y-auto">
                       {uploadStatus.result.errors.map((error, index) => (
                         <div key={index} className="mb-1">
                           {error}
@@ -264,7 +270,7 @@ const ExcelUpload = () => {
 
           <button
             onClick={resetUpload}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <FiRefreshCw className="mr-2 h-4 w-4" />
             Tải lên file khác
@@ -274,7 +280,7 @@ const ExcelUpload = () => {
 
       {/* Error Display */}
       {uploadStatus.error && (
-        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-md">
+        <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/40 border border-red-200 rounded-md">
           <div className="flex items-center">
             <FiAlertCircle className="h-5 w-5 text-red-400 mr-2" />
             <span className="text-red-800">{uploadStatus.error}</span>

@@ -287,13 +287,13 @@ const MedicineInventory = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-neutral-100 p-6">
+    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6">
       <div className="flex flex-col mb-6">
         <div className="mb-4">
-          <h2 className="text-2xl font-semibold text-neutral-800">
+          <h2 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100">
             Quản lý kho thuốc
           </h2>
-          <p className="text-neutral-600 mt-1">
+          <p className="text-neutral-600 dark:text-neutral-300 mt-1">
             Theo dõi và quản lý danh sách thuốc tại trường
           </p>
         </div>
@@ -310,45 +310,51 @@ const MedicineInventory = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 flex justify-between">
+        <div className="bg-primary-50 dark:bg-primary-900/30 p-4 rounded-lg border border-primary-100 dark:border-primary-800 flex justify-between">
           <div>
-            <p className="text-neutral-600 text-sm font-medium">
+            <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
               Tổng số thuốc
             </p>
-            <p className="text-3xl font-bold text-primary-700">{stats.total}</p>
+            <p className="text-3xl font-bold text-primary-700 dark:text-primary-400">
+              {stats.total}
+            </p>
           </div>
-          <div className="bg-primary-100 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiTablet className="h-6 w-6 text-primary-600" />
-          </div>
-        </div>
-
-        <div className="bg-red-50 p-4 rounded-lg border border-red-100 flex justify-between">
-          <div>
-            <p className="text-neutral-600 text-sm font-medium">Sắp hết hàng</p>
-            <p className="text-3xl font-bold text-red-600">{stats.lowStock}</p>
-          </div>
-          <div className="bg-red-100 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiAlertTriangle className="h-6 w-6 text-red-600" />
+          <div className="bg-primary-100 dark:bg-primary-800 h-12 w-12 rounded-full flex items-center justify-center">
+            <FiTablet className="h-6 w-6 text-primary-600 dark:text-primary-400" />
           </div>
         </div>
 
-        <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200 flex justify-between">
+        <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg border border-red-100 dark:border-red-800 flex justify-between">
           <div>
-            <p className="text-neutral-600 text-sm font-medium">
+            <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
+              Sắp hết hàng
+            </p>
+            <p className="text-3xl font-bold text-red-600 dark:text-red-400">
+              {stats.lowStock}
+            </p>
+          </div>
+          <div className="bg-red-100 dark:bg-red-800 h-12 w-12 rounded-full flex items-center justify-center">
+            <FiAlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+          </div>
+        </div>
+
+        <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg border border-neutral-200 flex justify-between">
+          <div>
+            <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
               Ngừng sử dụng
             </p>
-            <p className="text-3xl font-bold text-neutral-700">
+            <p className="text-3xl font-bold text-neutral-700 dark:text-neutral-200">
               {stats.inactive}
             </p>
           </div>
           <div className="bg-neutral-200 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiX className="h-6 w-6 text-neutral-600" />
+            <FiX className="h-6 w-6 text-neutral-600 dark:text-neutral-300" />
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-neutral-50 p-4 rounded-lg mb-6 border border-neutral-200">
+      <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg mb-6 border border-neutral-200">
         <div className="flex flex-col md:flex-row gap-4 md:items-center">
           <div className="flex-1">
             <div className="relative">
@@ -358,7 +364,7 @@ const MedicineInventory = () => {
               <input
                 type="text"
                 placeholder="Tìm kiếm theo tên hoặc mã thuốc..."
-                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary-600"
+                className="pl-10 pr-4 py-2 border rounded-lg w-full bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-600"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -367,7 +373,7 @@ const MedicineInventory = () => {
 
           <div>
             <select
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white"
+              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white dark:bg-neutral-700"
               value={filterStatus}
               onChange={(e) => handleFilterChange(e.target.value)}
             >
@@ -388,17 +394,17 @@ const MedicineInventory = () => {
         </div>
       </div>
 
-      {/* Inventory Table */}
+      {/* Medicine Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border-collapse">
+        <table className="min-w-full bg-white dark:bg-neutral-800 border-collapse">
           <thead>
-            <tr className="bg-neutral-50 border-y border-neutral-200">
+            <tr className="bg-neutral-50 dark:bg-neutral-800 border-y border-neutral-200 dark:border-neutral-600">
               <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("id")}
               >
                 <div className="flex items-center justify-center">
-                  Mã thuốc
+                  MÃ THUỐC
                   {sortBy === "id" && (
                     <span className="ml-1">
                       {sortOrder === "asc" ? "↑" : "↓"}
@@ -407,11 +413,11 @@ const MedicineInventory = () => {
                 </div>
               </th>
               <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("name")}
               >
                 <div className="flex items-center justify-center">
-                  Tên thuốc
+                  TÊN THUỐC
                   {sortBy === "name" && (
                     <span className="ml-1">
                       {sortOrder === "asc" ? "↑" : "↓"}
@@ -420,11 +426,11 @@ const MedicineInventory = () => {
                 </div>
               </th>
               <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 transition-colors duration-200 h-14"
+                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
                 onClick={() => handleSortChange("stock")}
               >
                 <div className="flex items-center justify-center">
-                  Số lượng
+                  SỐ LƯỢNG
                   {sortBy === "stock" && (
                     <span className="ml-1">
                       {sortOrder === "asc" ? "↑" : "↓"}
@@ -432,15 +438,15 @@ const MedicineInventory = () => {
                   )}
                 </div>
               </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
-                Trạng thái
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14 w-40 min-w-[160px]">
+                TRẠNG THÁI
               </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 uppercase tracking-wider h-14">
-                Thao tác
+              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                THAO TÁC
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-200">
+          <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
             {loading ? (
               <tr>
                 <td colSpan="5" className="text-center py-4">
@@ -473,14 +479,14 @@ const MedicineInventory = () => {
               sortedMedicines.map((item) => (
                 <tr
                   key={item.medicineId}
-                  className="hover:bg-neutral-50 transition-colors duration-200 h-16"
+                  className="hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors duration-200 h-16"
                 >
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900">
+                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
                     {item.medicineId}
                   </td>
                   <td className="py-4 px-6 align-middle">
                     <div className="flex items-center justify-center">
-                      <span className="font-medium text-neutral-900">
+                      <span className="font-medium text-neutral-900 dark:text-neutral-100">
                         {item.name}
                       </span>
                     </div>
@@ -489,7 +495,9 @@ const MedicineInventory = () => {
                     <div className="flex items-center justify-center">
                       <span
                         className={`font-medium ${
-                          isLowStock(item) ? "text-red-600" : "text-neutral-900"
+                          isLowStock(item)
+                            ? "text-red-600"
+                            : "text-neutral-900 dark:text-neutral-100"
                         }`}
                       >
                         {item.stockQuantity}
@@ -501,10 +509,10 @@ const MedicineInventory = () => {
                   </td>
                   <td className="py-4 px-6 text-center align-middle">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                         item.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-neutral-100 text-neutral-800"
+                          ? "bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100"
+                          : "bg-neutral-100 dark:bg-gray-800 text-neutral-800 dark:text-neutral-100"
                       }`}
                     >
                       {item.isActive ? "Đang sử dụng" : "Ngừng sử dụng"}
@@ -523,7 +531,7 @@ const MedicineInventory = () => {
                         onClick={() => toggleMedicineStatus(item)}
                         className={`${
                           item.isActive
-                            ? "text-neutral-600 hover:text-neutral-800"
+                            ? "text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:text-neutral-100"
                             : "text-green-600 hover:text-green-800"
                         }`}
                         title={
@@ -567,10 +575,10 @@ const MedicineInventory = () => {
                         d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                       ></path>
                     </svg>
-                    <p className="text-neutral-600 text-lg">
+                    <p className="text-neutral-600 dark:text-neutral-300 text-lg">
                       Không có thuốc nào phù hợp
                     </p>
-                    <p className="text-neutral-500 text-sm mt-1">
+                    <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">
                       Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác
                     </p>
                     <button
@@ -591,14 +599,14 @@ const MedicineInventory = () => {
       {/* Add/Edit Item Modal */}
       {showItemModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h3 className="text-xl font-bold text-neutral-900 mb-4">
+              <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">
                 {selectedItem ? "Chỉnh sửa thuốc" : "Thêm thuốc mới"}
               </h3>
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                  <label className="block text-neutral-700 font-medium mb-2">
+                  <label className="block text-neutral-700 dark:text-neutral-200 font-medium mb-2">
                     Tên thuốc
                   </label>
                   <input
@@ -618,7 +626,7 @@ const MedicineInventory = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-neutral-700 font-medium mb-2">
+                  <label className="block text-neutral-700 dark:text-neutral-200 font-medium mb-2">
                     Số lượng
                   </label>
                   <input
@@ -649,7 +657,9 @@ const MedicineInventory = () => {
                       onChange={handleInputChange}
                       className="form-checkbox h-5 w-5 text-primary-600 rounded focus:ring-primary-600 focus:ring-2"
                     />
-                    <span className="ml-2 text-neutral-700">Đang sử dụng</span>
+                    <span className="ml-2 text-neutral-700 dark:text-neutral-200">
+                      Đang sử dụng
+                    </span>
                   </label>
                 </div>
 
@@ -657,7 +667,7 @@ const MedicineInventory = () => {
                   <button
                     type="button"
                     onClick={() => setShowItemModal(false)}
-                    className="px-4 py-2 border border-neutral-300 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-colors duration-300"
+                    className="px-4 py-2 border border-neutral-300 rounded-lg text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-300"
                   >
                     Hủy
                   </button>

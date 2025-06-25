@@ -386,7 +386,7 @@ const MedicalInventory = () => {
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
             Quản lý kho thuốc và vật tư y tế
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             Theo dõi và quản lý danh sách thuốc, vật tư y tế tại trường
           </p>
         </div>
@@ -410,7 +410,7 @@ const MedicalInventory = () => {
               className={`py-4 px-6 font-medium text-sm focus:outline-none ${
                 activeTab === "medicine"
                   ? "border-b-2 border-teal-500 text-teal-600"
-                  : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:border-gray-600"
               }`}
             >
               <FiTablet className="inline-block mr-2" />
@@ -421,7 +421,7 @@ const MedicalInventory = () => {
               className={`py-4 px-6 font-medium text-sm focus:outline-none ${
                 activeTab === "medicalsupply"
                   ? "border-b-2 border-teal-500 text-teal-600"
-                  : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:border-gray-600"
               }`}
             >
               <FiPackage className="inline-block mr-2" />
@@ -433,10 +433,10 @@ const MedicalInventory = () => {
 
       {/* Status Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
+        <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
           <div className="flex justify-between items-center">
             <div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 {activeTab === "medicine" ? "Tổng số thuốc" : "Tổng số vật tư"}
               </div>
               <div className="text-2xl font-bold">{stats.total}</div>
@@ -451,33 +451,37 @@ const MedicalInventory = () => {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-red-500">
+        <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm border-l-4 border-red-500">
           <div className="flex justify-between items-center">
             <div>
-              <div className="text-sm text-gray-500">Sắp hết hàng</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Sắp hết hàng
+              </div>
               <div className="text-2xl font-bold">{stats.lowStock}</div>
             </div>
-            <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+            <div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-800 flex items-center justify-center">
               <FiAlertTriangle className="h-5 w-5 text-red-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-gray-500">
+        <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm border-l-4 border-gray-500">
           <div className="flex justify-between items-center">
             <div>
-              <div className="text-sm text-gray-500">Ngừng sử dụng</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Ngừng sử dụng
+              </div>
               <div className="text-2xl font-bold">{stats.inactive}</div>
             </div>
-            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
-              <FiX className="h-5 w-5 text-gray-600" />
+            <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+              <FiX className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+      <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow-sm mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -487,7 +491,7 @@ const MedicalInventory = () => {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-neutral-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
               placeholder={`Tìm kiếm theo tên hoặc mã ${
                 activeTab === "medicine" ? "thuốc" : "vật tư"
               }...`}
@@ -498,7 +502,7 @@ const MedicalInventory = () => {
             <select
               value={filterStatus}
               onChange={(e) => handleFilterChange(e.target.value)}
-              className="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+              className="block w-full pl-3 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-neutral-700 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
             >
               <option value="all">Tất cả trạng thái</option>
               <option value="active">Đang sử dụng</option>
@@ -510,7 +514,7 @@ const MedicalInventory = () => {
           <div className="flex justify-end">
             <button
               onClick={resetFilters}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
             >
               <FiRefreshCw className="mr-2 h-4 w-4" />
               Đặt lại
@@ -520,21 +524,23 @@ const MedicalInventory = () => {
       </div>
 
       {/* Inventory Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-8 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div>
-            <p className="mt-2 text-gray-500">Đang tải dữ liệu...</p>
+            <p className="mt-2 text-gray-500 dark:text-gray-400">
+              Đang tải dữ liệu...
+            </p>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSortChange("id")}
                     >
                       <div className="flex items-center">
@@ -548,7 +554,7 @@ const MedicalInventory = () => {
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSortChange("name")}
                     >
                       <div className="flex items-center">
@@ -563,14 +569,14 @@ const MedicalInventory = () => {
                     {activeTab === "medicalsupply" && (
                       <th
                         scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                       >
                         Loại
                       </th>
                     )}
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
                       onClick={() => handleSortChange("quantity")}
                     >
                       <div className="flex items-center">
@@ -585,32 +591,35 @@ const MedicalInventory = () => {
                     {activeTab === "medicalsupply" && (
                       <th
                         scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                       >
                         Mô tả
                       </th>
                     )}
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Trạng thái
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Thao tác
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {sortedInventory.length > 0 ? (
                     sortedInventory.map((item) => {
                       const idField =
                         activeTab === "medicine" ? "medicineId" : "supplyId";
                       return (
-                        <tr key={item[idField]} className="hover:bg-gray-50">
+                        <tr
+                          key={item[idField]}
+                          className="hover:bg-gray-50 dark:bg-gray-700"
+                        >
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {item[idField]}
                           </td>
@@ -621,7 +630,7 @@ const MedicalInventory = () => {
                           </td>
                           {activeTab === "medicalsupply" && (
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                              <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200">
                                 {item.category}
                               </span>
                             </td>
@@ -651,8 +660,8 @@ const MedicalInventory = () => {
                             <span
                               className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                 item.isActive
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-gray-100 text-gray-800"
+                                  ? "bg-green-100 dark:bg-green-800 text-white"
+                                  : "bg-neutral-100 dark:bg-gray-800 text-white"
                               }`}
                             >
                               {item.isActive ? "Đang sử dụng" : "Ngừng sử dụng"}
@@ -671,7 +680,7 @@ const MedicalInventory = () => {
                                 onClick={() => toggleItemStatus(item)}
                                 className={`${
                                   item.isActive
-                                    ? "text-gray-600 hover:text-gray-900"
+                                    ? "text-gray-600 dark:text-gray-300 hover:text-gray-900"
                                     : "text-green-600 hover:text-green-900"
                                 }`}
                                 title={
@@ -686,7 +695,7 @@ const MedicalInventory = () => {
                               </button>
                               <button
                                 onClick={() => deleteItem(item[idField])}
-                                className="text-red-600 hover:text-red-900"
+                                className="text-red-600 hover:text-red-800"
                                 title="Xóa"
                               >
                                 <FiTrash2 className="h-5 w-5" />
@@ -700,7 +709,7 @@ const MedicalInventory = () => {
                     <tr>
                       <td
                         colSpan={activeTab === "medicine" ? "5" : "7"}
-                        className="px-6 py-12 text-center text-gray-500"
+                        className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
                       >
                         <div className="flex flex-col items-center">
                           <FiFilter className="h-12 w-12 mb-4 text-gray-400" />
@@ -709,7 +718,7 @@ const MedicalInventory = () => {
                             {activeTab === "medicine" ? "thuốc" : "vật tư y tế"}{" "}
                             nào phù hợp
                           </h3>
-                          <p className="text-gray-500 mb-4">
+                          <p className="text-gray-500 dark:text-gray-400 mb-4">
                             Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác
                           </p>
                           <button
@@ -733,7 +742,7 @@ const MedicalInventory = () => {
       {/* Add/Edit Item Modal */}
       {showItemModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full">
             <div className="border-b px-6 py-4 flex justify-between items-center">
               <h3 className="text-lg font-medium text-gray-900">
                 {selectedItem
@@ -746,7 +755,7 @@ const MedicalInventory = () => {
               </h3>
               <button
                 onClick={() => setShowItemModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-200"
               >
                 <svg
                   className="h-6 w-6"
@@ -769,7 +778,7 @@ const MedicalInventory = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
                   >
                     Tên {activeTab === "medicine" ? "thuốc" : "vật tư y tế"}
                   </label>
@@ -782,7 +791,7 @@ const MedicalInventory = () => {
                     className={`block w-full rounded-md border ${
                       formErrors.name
                         ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                        : "border-gray-300 dark:border-gray-600 focus:border-teal-500 focus:ring-teal-500"
                     } shadow-sm py-2 px-3 focus:outline-none focus:ring-1 sm:text-sm`}
                   />
                   {formErrors.name && (
@@ -797,7 +806,7 @@ const MedicalInventory = () => {
                     <div className="mb-4">
                       <label
                         htmlFor="category"
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
                       >
                         Loại vật tư
                       </label>
@@ -810,7 +819,7 @@ const MedicalInventory = () => {
                         className={`block w-full rounded-md border ${
                           formErrors.category
                             ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                            : "border-gray-300 dark:border-gray-600 focus:border-teal-500 focus:ring-teal-500"
                         } shadow-sm py-2 px-3 focus:outline-none focus:ring-1 sm:text-sm`}
                       />
                       {formErrors.category && (
@@ -823,7 +832,7 @@ const MedicalInventory = () => {
                     <div className="mb-4">
                       <label
                         htmlFor="description"
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                        className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
                       >
                         Mô tả
                       </label>
@@ -833,7 +842,7 @@ const MedicalInventory = () => {
                         value={itemForm.description}
                         onChange={handleInputChange}
                         rows="3"
-                        className="block w-full rounded-md border border-gray-300 focus:border-teal-500 focus:ring-teal-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-1 sm:text-sm"
+                        className="block w-full rounded-md border border-gray-300 dark:border-gray-600 focus:border-teal-500 focus:ring-teal-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-1 sm:text-sm"
                       />
                     </div>
                   </>
@@ -842,7 +851,7 @@ const MedicalInventory = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="stockQuantity"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
                   >
                     Số lượng
                   </label>
@@ -856,7 +865,7 @@ const MedicalInventory = () => {
                     className={`block w-full rounded-md border ${
                       formErrors.stockQuantity
                         ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                        : "border-gray-300 dark:border-gray-600 focus:border-teal-500 focus:ring-teal-500"
                     } shadow-sm py-2 px-3 focus:outline-none focus:ring-1 sm:text-sm`}
                   />
                   {formErrors.stockQuantity && (
@@ -873,7 +882,7 @@ const MedicalInventory = () => {
                     name="isActive"
                     checked={itemForm.isActive}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 dark:border-gray-600 rounded"
                   />
                   <label
                     htmlFor="isActive"
@@ -884,11 +893,11 @@ const MedicalInventory = () => {
                 </div>
               </div>
 
-              <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3 border-t">
+              <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex justify-end space-x-3 border-t">
                 <button
                   type="button"
                   onClick={() => setShowItemModal(false)}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
                 >
                   Hủy
                 </button>

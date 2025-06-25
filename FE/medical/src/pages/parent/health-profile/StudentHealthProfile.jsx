@@ -408,8 +408,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
-      <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
+    <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden transition-colors duration-300">
         <div className="flex items-center mb-6 p-4">
           <Link
             to="/parent/health-profile"
@@ -435,14 +435,14 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
 
         <div className="p-6">
           <div className="text-center">
-            <h1 className="text-2xl font-semibold text-black mb-2">
+            <h1 className="text-2xl font-semibold text-black dark:text-white mb-2">
               {viewOnly
                 ? "Hồ sơ sức khỏe học sinh"
                 : id
                 ? "Cập nhật hồ sơ sức khỏe học sinh"
                 : "Khai báo hồ sơ sức khỏe học sinh"}
             </h1>
-            <p className="text-sm">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
               {viewOnly
                 ? "Xem thông tin sức khỏe đầy đủ của học sinh"
                 : "Cung cấp thông tin sức khỏe đầy đủ của học sinh để nhà trường có thể theo dõi và chăm sóc tốt nhất"}
@@ -453,7 +453,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
         <form onSubmit={handleSubmit} className="p-6">
           {/* Error and Success Messages */}
           {error && (
-            <div className="mb-6 p-4 rounded bg-red-50 border border-red-200 text-red-700">
+            <div className="mb-6 p-4 rounded bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">
               <p className="flex items-center">
                 <svg
                   className="w-5 h-5 mr-2"
@@ -472,7 +472,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
           )}
 
           {submitSuccess && (
-            <div className="mb-6 p-4 rounded bg-green-50 border border-green-200 text-green-700">
+            <div className="mb-6 p-4 rounded bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400">
               <p className="flex items-center">
                 <svg
                   className="w-5 h-5 mr-2"
@@ -495,8 +495,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
           <div className="space-y-8">
             {/* Section 1: Student Code Only */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -515,7 +515,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Thông tin học sinh
               </h2>
 
-              <div className="rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
                     id="studentCode"
@@ -534,8 +534,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
 
             {/* Section 3: Medical History */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -554,9 +554,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Tiền sử bệnh
               </h2>
 
-              <div className="rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="mb-4">
-                  <p className="text-sm text-neutral-600 mb-3 font-medium">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 font-medium">
                     Học sinh có tiền sử mắc bệnh nặng hoặc phải điều trị y tế
                     không?
                   </p>
@@ -573,7 +573,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                         className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                         disabled={viewOnly}
                       />
-                      <span className="ml-2 text-neutral-700">Không</span>
+                      <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                        Không
+                      </span>
                     </label>
                     <label className="inline-flex items-center cursor-pointer">
                       <input
@@ -587,7 +589,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                         className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                         disabled={viewOnly}
                       />
-                      <span className="ml-2 text-neutral-700">Có</span>
+                      <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                        Có
+                      </span>
                     </label>
                   </div>
                 </div>
@@ -614,8 +618,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
 
             {/* Section 4: Vaccination History */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -634,9 +638,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Tiền sử tiêm chủng
               </h2>
 
-              <div className="rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="mb-4">
-                  <p className="text-sm text-neutral-600 mb-3 font-medium">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 font-medium">
                     Học sinh đã được tiêm chủng đầy đủ theo lịch tiêm chủng quốc
                     gia chưa?
                   </p>
@@ -654,7 +658,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                         className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                         disabled={viewOnly}
                       />
-                      <span className="ml-2 text-neutral-700">
+                      <span className="ml-2 text-neutral-700 dark:text-neutral-300">
                         Đã tiêm đầy đủ
                       </span>
                     </label>
@@ -671,7 +675,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                         className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                         disabled={viewOnly}
                       />
-                      <span className="ml-2 text-neutral-700">
+                      <span className="ml-2 text-neutral-700 dark:text-neutral-300">
                         Đã tiêm một phần
                       </span>
                     </label>
@@ -688,7 +692,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                         className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                         disabled={viewOnly}
                       />
-                      <span className="ml-2 text-neutral-700">Chưa tiêm</span>
+                      <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                        Chưa tiêm
+                      </span>
                     </label>
                   </div>
                 </div>
@@ -698,7 +704,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                   formData.vaccinationHistory.hasCompleteVaccinations ===
                     "yes") && (
                   <div className="mt-6">
-                    <p className="text-sm font-medium text-neutral-700 mb-3">
+                    <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300 dark:text-neutral-300 mb-3">
                       Vắc-xin đã tiêm (đánh dấu tất cả những loại đã tiêm):
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
@@ -718,7 +724,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                             className="h-5 w-5 text-primary-600 border-neutral-300 rounded focus:ring-primary-500"
                             disabled={viewOnly}
                           />
-                          <span className="ml-2 text-neutral-700">
+                          <span className="ml-2 text-neutral-700 dark:text-neutral-300">
                             {vaccine.name}
                           </span>
                         </label>
@@ -744,8 +750,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
 
             {/* Section 5: Vision & Hearing */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -770,13 +776,13 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Thị lực & Thính lực
               </h2>
 
-              <div className="rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="mb-6">
-                  <h3 className="font-medium text-neutral-800 mb-3">
+                  <h3 className="font-medium text-neutral-800 dark:text-neutral-200 mb-3">
                     Thông tin thị lực
                   </h3>
                   <div className="mb-4">
-                    <p className="text-sm text-neutral-600 mb-3">
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
                       Học sinh có vấn đề về thị lực không?
                     </p>
                     <div className="flex items-center space-x-8">
@@ -790,7 +796,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                           className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                           disabled={viewOnly}
                         />
-                        <span className="ml-2 text-neutral-700">Không</span>
+                        <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                          Không
+                        </span>
                       </label>
                       <label className="inline-flex items-center cursor-pointer">
                         <input
@@ -802,7 +810,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                           className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                           disabled={viewOnly}
                         />
-                        <span className="ml-2 text-neutral-700">Có</span>
+                        <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                          Có
+                        </span>
                       </label>
                     </div>
                   </div>
@@ -848,11 +858,11 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 </div>
 
                 <div className="pt-4 border-t border-neutral-200">
-                  <h3 className="font-medium text-neutral-800 mb-3">
+                  <h3 className="font-medium text-neutral-800 dark:text-neutral-200 mb-3">
                     Thông tin thính lực
                   </h3>
                   <div className="mb-4">
-                    <p className="text-sm text-neutral-600 mb-3">
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
                       Học sinh có vấn đề về thính lực không?
                     </p>
                     <div className="flex items-center space-x-8">
@@ -866,7 +876,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                           className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                           disabled={viewOnly}
                         />
-                        <span className="ml-2 text-neutral-700">Không</span>
+                        <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                          Không
+                        </span>
                       </label>
                       <label className="inline-flex items-center cursor-pointer">
                         <input
@@ -878,7 +890,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                           className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                           disabled={viewOnly}
                         />
-                        <span className="ml-2 text-neutral-700">Có</span>
+                        <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                          Có
+                        </span>
                       </label>
                     </div>
                   </div>
@@ -927,8 +941,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
 
             {/* Section 6: Allergies */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -947,9 +961,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Thông tin dị ứng
               </h2>
 
-              <div className="rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="mb-4">
-                  <p className="text-sm text-neutral-600 mb-3 font-medium">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 font-medium">
                     Học sinh có bị dị ứng không?
                   </p>
                   <div className="flex items-center space-x-8">
@@ -963,7 +977,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                         className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                         disabled={viewOnly}
                       />
-                      <span className="ml-2 text-neutral-700">Không</span>
+                      <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                        Không
+                      </span>
                     </label>
                     <label className="inline-flex items-center cursor-pointer">
                       <input
@@ -975,7 +991,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                         className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                         disabled={viewOnly}
                       />
-                      <span className="ml-2 text-neutral-700">Có</span>
+                      <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                        Có
+                      </span>
                     </label>
                   </div>
                 </div>
@@ -1000,8 +1018,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
 
             {/* Section 7: Chronic Diseases */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -1020,9 +1038,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Bệnh mãn tính
               </h2>
 
-              <div className="rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="mb-4">
-                  <p className="text-sm text-neutral-600 mb-3 font-medium">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 font-medium">
                     Học sinh có mắc bệnh mãn tính nào không?
                   </p>
                   <div className="flex items-center space-x-8">
@@ -1036,7 +1054,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                         className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                         disabled={viewOnly}
                       />
-                      <span className="ml-2 text-neutral-700">Không</span>
+                      <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                        Không
+                      </span>
                     </label>
                     <label className="inline-flex items-center cursor-pointer">
                       <input
@@ -1047,7 +1067,9 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                         onChange={handleChange}
                         className="h-5 w-5 text-primary-600 border-neutral-300 focus:ring-primary-500"
                       />
-                      <span className="ml-2 text-neutral-700">Có</span>
+                      <span className="ml-2 text-neutral-700 dark:text-neutral-300">
+                        Có
+                      </span>
                     </label>
                   </div>
                 </div>
@@ -1071,8 +1093,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
 
             {/* Section 8: Vital Signs */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -1091,7 +1113,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Chỉ số sinh tồn
               </h2>
 
-              <div className="rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
                     id="bloodPressure"
@@ -1120,8 +1142,8 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
 
             {/* Section 9: Other Health Information */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
-                <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center">
+                <span className="flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 rounded-full w-10 h-10 mr-3 text-primary-600 dark:text-primary-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -1140,7 +1162,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
                 Thông tin sức khỏe khác
               </h2>
 
-              <div className="rounded-lg p-6">
+              <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <FormInput
                     id="height"
@@ -1305,7 +1327,7 @@ const StudentHealthProfile = ({ viewOnly = false }) => {
               )}
               <Link
                 to="/parent/health-profile"
-                className="inline-flex items-center px-4 py-2 bg-neutral-200 hover:bg-neutral-300 text-neutral-800 text-sm font-medium rounded shadow-sm transition-colors duration-200 ml-4"
+                className="inline-flex items-center px-4 py-2 text-neutral-800 text-sm font-medium rounded shadow-sm transition-colors duration-200 ml-4"
               >
                 {viewOnly ? "Quay lại" : "Hủy"}
               </Link>

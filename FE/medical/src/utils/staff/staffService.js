@@ -43,12 +43,22 @@ api.interceptors.response.use(
 // Staff API Service
 export const staffService = {
   // Get all staff members
-  getAllStaff: async (params = {}) => {
+  getAllStaff: async () => {
     try {
-      const response = await api.get("/Staff", { params });
+      const response = await api.get("/Staff");
+
+      // Security measure: Filter out admin users from the response
+      const filteredData = response.data.filter((staff) => {
+        return (
+          staff.roleId !== 1 &&
+          staff.roleName !== "Admin" &&
+          staff.roleName !== "Quản trị viên"
+        );
+      });
+
       return {
         success: true,
-        data: response.data,
+        data: filteredData,
         message: "Lấy danh sách nhân viên thành công",
       };
     } catch (error) {
@@ -57,7 +67,7 @@ export const staffService = {
         success: false,
         data: [],
         message:
-          error.response?.data?.message || "Không thể lấy danh sách nhân viên",
+          error.response?.data?.message || "Không thể tải danh sách nhân viên",
         error: error.response?.data || error.message,
       };
     }
@@ -87,6 +97,16 @@ export const staffService = {
   // Create new staff
   createStaff: async (staffData) => {
     try {
+      // Security check: Prevent admin role creation
+      if (parseInt(staffData.roleId) === 1) {
+        return {
+          success: false,
+          data: null,
+          message: "Không được phép tạo tài khoản Admin qua giao diện này",
+          error: { securityViolation: "Admin creation attempt blocked" },
+        };
+      }
+
       // Validate required fields before sending
       const requiredFields = [
         "username",
@@ -105,6 +125,17 @@ export const staffService = {
           data: null,
           message: `Thiếu thông tin bắt buộc: ${missingFields.join(", ")}`,
           error: { missingFields },
+        };
+      }
+
+      // Additional validation for role
+      if (![2, 3].includes(parseInt(staffData.roleId))) {
+        return {
+          success: false,
+          data: null,
+          message:
+            "Vai trò không hợp lệ. Chỉ được phép tạo tài khoản Quản lý hoặc Nhân viên y tế",
+          error: { invalidRole: true },
         };
       }
 
@@ -139,6 +170,27 @@ export const staffService = {
   // Update staff
   updateStaff: async (id, staffData) => {
     try {
+      // Security check: Prevent admin role update
+      if (parseInt(staffData.roleId) === 1) {
+        return {
+          success: false,
+          data: null,
+          message: "Không được phép chuyển đổi thành vai trò Admin",
+          error: { securityViolation: "Admin role update attempt blocked" },
+        };
+      }
+
+      // Additional validation for role
+      if (staffData.roleId && ![2, 3].includes(parseInt(staffData.roleId))) {
+        return {
+          success: false,
+          data: null,
+          message:
+            "Vai trò không hợp lệ. Chỉ được phép cập nhật thành Quản lý hoặc Nhân viên y tế",
+          error: { invalidRole: true },
+        };
+      }
+
       // Validate required fields
       const requiredFields = [
         "staffId",
@@ -292,9 +344,55 @@ export const getRoleDisplayInfo = (staff) => {
   };
 };
 
-// Validation utilities
+// Security utilities
+export const securityUtils = {
+  // Log security violations for monitoring
+  logSecurityViolation: (violation, details = {}) => {
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      violation,
+      details,
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+    };
+
+    // In production, this should send to a security monitoring service
+    console.warn("🔒 SECURITY VIOLATION:", logEntry);
+
+    // Store in session storage for debugging (remove in production)
+    if (typeof sessionStorage !== "undefined") {
+      const existing = sessionStorage.getItem("security_violations") || "[]";
+      const violations = JSON.parse(existing);
+      violations.push(logEntry);
+      sessionStorage.setItem(
+        "security_violations",
+        JSON.stringify(violations.slice(-10))
+      ); // Keep last 10
+    }
+  },
+
+  // Check if user is attempting unauthorized actions
+  isUnauthorizedAction: (roleId, action) => {
+    const unauthorizedActions = {
+      1: ["view", "edit", "delete", "create"], // Admin role - all actions unauthorized from this interface
+    };
+
+    return unauthorizedActions[roleId]?.includes(action) || false;
+  },
+};
+
+// Enhanced validation utilities with security logging
 export const validateStaffData = (data, isUpdate = false) => {
   const errors = {};
+
+  // Security check first
+  if (parseInt(data.roleId) === 1) {
+    securityUtils.logSecurityViolation("ADMIN_ROLE_ATTEMPT", {
+      action: isUpdate ? "update" : "create",
+      attemptedRoleId: data.roleId,
+      username: data.username,
+    });
+  }
 
   // Staff ID validation (for updates)
   if (isUpdate && !data.staffId) {
@@ -352,11 +450,14 @@ export const validateStaffData = (data, isUpdate = false) => {
     errors.phone = "Số điện thoại không hợp lệ (10-15 số)";
   }
 
-  // Role validation
+  // Role validation - Enhanced security check
   if (!data.roleId) {
     errors.roleId = "Vai trò là bắt buộc";
+  } else if (parseInt(data.roleId) === 1) {
+    errors.roleId = "Không được phép tạo/cập nhật tài khoản Admin";
   } else if (![2, 3].includes(parseInt(data.roleId))) {
-    errors.roleId = "Vai trò không hợp lệ";
+    errors.roleId =
+      "Vai trò không hợp lệ. Chỉ được phép chọn Quản lý hoặc Nhân viên y tế";
   }
 
   return {

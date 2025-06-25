@@ -2,16 +2,14 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FiHome,
-  FiFileText,
-  FiCalendar,
+  FiTablet,
   FiActivity,
-  FiBookOpen,
-  FiBell,
-  FiMessageSquare,
-  FiHelpCircle,
+  FiBook,
   FiLogOut,
+  FiBell,
 } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
+import ThemeToggle from "../../common/ThemeToggle";
 
 const StudentLayout = () => {
   const location = useLocation();
@@ -22,7 +20,7 @@ const StudentLayout = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/auth/login");
+    navigate("/login");
   };
 
   const menuItems = [
@@ -33,8 +31,8 @@ const StudentLayout = () => {
     },
     {
       path: "/student/medication",
-      name: "Lịch uống thuốc",
-      icon: <FiCalendar className="w-5 h-5" />,
+      name: "Thuốc của tôi",
+      icon: <FiTablet className="w-5 h-5" />,
     },
     {
       path: "/student/health-events",
@@ -42,30 +40,30 @@ const StudentLayout = () => {
       icon: <FiActivity className="w-5 h-5" />,
     },
     {
-      path: "/student/resources",
+      path: "/student/health-resources",
       name: "Tài liệu sức khỏe",
-      icon: <FiBookOpen className="w-5 h-5" />,
+      icon: <FiBook className="w-5 h-5" />,
     },
   ];
 
   return (
-    <div className="flex h-screen bg-neutral-50">
+    <div className="flex h-screen bg-neutral-50 dark:bg-neutral-900 transition-colors duration-300">
       {/* Sidebar */}
       <div
-        className={`bg-white border-r border-neutral-200 ${
+        className={`bg-white dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 ${
           collapsed ? "w-20" : "w-64"
         } flex flex-col transition-all duration-300 ease-in-out shadow-sm`}
       >
         {/* Logo */}
-        <div className="p-4 flex items-center justify-between border-b border-neutral-200">
+        <div className="p-4 flex items-center justify-between border-b border-neutral-200 dark:border-neutral-700">
           {!collapsed && (
-            <div className="text-xl font-bold text-primary-700">
+            <div className="text-xl font-bold text-primary-700 dark:text-primary-400">
               Medical Student
             </div>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1 rounded-full hover:bg-neutral-100 text-neutral-600"
+            className="p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300"
           >
             {collapsed ? (
               <svg
@@ -110,11 +108,15 @@ const StudentLayout = () => {
                   to={item.path}
                   className={`flex items-center px-4 py-3 text-sm rounded-lg ${
                     isActive
-                      ? "bg-primary-50 text-primary-700"
-                      : "text-neutral-600 hover:bg-neutral-100"
+                      ? "bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
+                      : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700"
                   } ${collapsed ? "justify-center" : "justify-start"}`}
                 >
-                  <span className={`${isActive ? "text-primary-600" : ""}`}>
+                  <span
+                    className={`${
+                      isActive ? "text-primary-600 dark:text-primary-400" : ""
+                    }`}
+                  >
                     {item.icon}
                   </span>
                   {!collapsed && (
@@ -127,10 +129,10 @@ const StudentLayout = () => {
         </div>
 
         {/* Logout */}
-        <div className="p-4 border-t border-neutral-200">
+        <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
           <button
             onClick={handleLogout}
-            className={`flex items-center text-neutral-600 hover:text-red-600 transition-colors ${
+            className={`flex items-center text-neutral-600 dark:text-neutral-300 hover:text-red-600 dark:hover:text-red-400 transition-colors ${
               collapsed ? "justify-center w-full" : ""
             }`}
           >
@@ -143,28 +145,26 @@ const StudentLayout = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="bg-white shadow-sm py-4 px-6 flex items-center justify-between border-b border-neutral-200">
+        <header className="bg-white dark:bg-neutral-800 shadow-sm py-4 px-6 flex items-center justify-between border-b border-neutral-200 dark:border-neutral-700 transition-colors duration-300">
           <div>
-            <h1 className="text-xl font-semibold text-neutral-800">
+            <h1 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200">
               {menuItems.find((item) => item.path === location.pathname)
                 ?.name || "Trang chủ"}
             </h1>
           </div>
           <div className="flex items-center space-x-4">
-            <button className="p-1 rounded-full text-neutral-500 hover:bg-neutral-100 relative">
+            <ThemeToggle />
+            <button className="p-1 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700">
               <FiBell className="w-6 h-6" />
-              <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                3
-              </span>
             </button>
-            <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
-              <span className="text-white font-medium text-sm">HS</span>
+            <div className="h-8 w-8 rounded-full bg-primary-600 dark:bg-primary-500 flex items-center justify-center">
+              <span className="text-white font-medium text-sm">ST</span>
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto bg-neutral-50 p-6">
+        <main className="flex-1 overflow-y-auto bg-neutral-50 dark:bg-neutral-900 p-6 transition-colors duration-300">
           <Outlet />
         </main>
       </div>

@@ -215,7 +215,7 @@ const Navbar = () => {
         onMouseEnter={() => handleDropdownMouseEnter(dropdownId)}
         onMouseLeave={() => handleDropdownMouseLeave(dropdownId)}
       >
-        <button className="text-gray-600 hover:text-blue-600 px-2 py-2 rounded-md hover:bg-blue-50 transition-colors duration-200 flex items-center group whitespace-nowrap">
+        <button className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-2 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-200 flex items-center group whitespace-nowrap">
           {icon}
           <span className="whitespace-nowrap">{title}</span>
           <svg
@@ -236,7 +236,7 @@ const Navbar = () => {
 
         {/* Dropdown menu with transition */}
         <div
-          className={`absolute mt-1 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 transition-all duration-200 ${
+          className={`absolute mt-1 w-64 rounded-md shadow-lg bg-white dark:bg-neutral-800 ring-1 ring-black dark:ring-neutral-600 ring-opacity-5 z-50 transition-all duration-200 ${
             activeDropdown === dropdownId
               ? "opacity-100 transform translate-y-0 pointer-events-auto"
               : "opacity-0 transform -translate-y-2 pointer-events-none"
@@ -249,10 +249,10 @@ const Navbar = () => {
                 return (
                   <div key={index}>
                     {index > 0 && (
-                      <div className="border-t border-gray-100 my-1"></div>
+                      <div className="border-t border-gray-100 dark:border-neutral-700 my-1"></div>
                     )}
                     {item.label && (
-                      <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                      <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">
                         {item.label}
                       </div>
                     )}
@@ -260,7 +260,7 @@ const Navbar = () => {
                       <Link
                         key={childIndex}
                         to={child.path}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                         role="menuitem"
                       >
                         {child.label}
@@ -274,7 +274,7 @@ const Navbar = () => {
                   <Link
                     key={index}
                     to={item.path}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                     role="menuitem"
                   >
                     {item.label}
@@ -288,24 +288,7 @@ const Navbar = () => {
     );
   };
 
-  return (
-    <>
-      {/* <nav className="bg-white shadow-md w-full sticky top-0 z-50">
-        <div className="w-full px-0">
-          <div className="flex items-center h-16">
-            <div className="flex-shrink-0 pl-4">
-              <Link to="/" className="flex items-center">
-                <img src={logo} alt="logo" className="h-8 w-8 mr-2" />
-                <span className="text-blue-600 font-bold text-xl tracking-tight">
-                  Med<span className="text-blue-800">School</span>
-                </span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav> */}
-    </>
-  );
+  return <></>;
 };
 
 export default Navbar;

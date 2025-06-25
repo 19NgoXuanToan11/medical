@@ -24,8 +24,8 @@ const SimpleGreeting = ({ roleTitle }) => {
   };
 
   return (
-    <div className="bg-white border border-neutral-200 rounded-lg p-4 mb-6">
-      <h1 className="text-xl font-medium text-neutral-800">
+    <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 mb-6 transition-colors duration-300">
+      <h1 className="text-xl font-medium text-neutral-800 dark:text-neutral-200">
         {getGreeting()}, {getDisplayName()}!
       </h1>
     </div>

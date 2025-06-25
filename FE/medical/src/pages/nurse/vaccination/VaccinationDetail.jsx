@@ -144,7 +144,7 @@ const VaccinationDetail = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -155,18 +155,18 @@ const VaccinationDetail = () => {
         <div className="flex items-center">
           <Link
             to="/nurse/vaccination"
-            className="mr-4 text-gray-600 hover:text-gray-900"
+            className="mr-4 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
           >
             <FiArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-800">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
             Chi tiết tiêm chủng
           </h1>
         </div>
         <div className="flex space-x-3">
           <Link
             to={`/nurse/vaccination/${id}/edit`}
-            className="inline-flex items-center px-3 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50"
+            className="inline-flex items-center px-3 py-2 border border-primary-600 dark:border-primary-400 text-primary-600 dark:text-primary-400 rounded-md hover:bg-primary-50 dark:hover:bg-neutral-700"
           >
             <FiEdit className="mr-2 h-4 w-4" />
             Chỉnh sửa
@@ -183,7 +183,7 @@ const VaccinationDetail = () => {
           {vaccination.status !== "completed" && (
             <button
               onClick={() => setNotificationModal(true)}
-              className="inline-flex items-center px-3 py-2 border border-purple-600 text-purple-600 rounded-md hover:bg-purple-50"
+              className="inline-flex items-center px-3 py-2 border border-purple-600 dark:border-purple-400 text-purple-600 dark:text-purple-400 rounded-md hover:bg-purple-50 dark:hover:bg-neutral-700"
             >
               <FiBell className="mr-2 h-4 w-4" />
               Gửi thông báo
@@ -191,7 +191,7 @@ const VaccinationDetail = () => {
           )}
           <button
             onClick={handleDeleteVaccination}
-            className="inline-flex items-center px-3 py-2 border border-red-600 text-red-600 rounded-md hover:bg-red-50"
+            className="inline-flex items-center px-3 py-2 border border-red-600 dark:border-red-400 text-red-600 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-neutral-700"
           >
             <FiTrash2 className="mr-2 h-4 w-4" />
             Xóa
@@ -199,346 +199,79 @@ const VaccinationDetail = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Vaccination Header */}
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-            <div className="flex items-start space-x-4">
-              <div className="p-3 rounded-full bg-blue-100">
-                <FiCalendar className="h-6 w-6 text-blue-600" />
+      {/* Vaccination Header */}
+      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm mb-6">
+        <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-full">
+                <FiClipboard className="h-6 w-6 text-primary-600 dark:text-primary-400" />
               </div>
               <div>
-                <div className="flex items-center space-x-3 mb-1">
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    {vaccination.title}
-                  </h2>
-                  {getStatusBadge(vaccination.status)}
-                </div>
-                <p className="text-gray-600">{vaccination.description}</p>
+                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                  {vaccination.title}
+                </h2>
+                <p className="text-neutral-600 dark:text-neutral-400 mt-1">
+                  {vaccination.description}
+                </p>
               </div>
             </div>
-            <div className="mt-4 md:mt-0">
-              <div className="flex items-center text-sm text-gray-500">
-                <FiClock className="mr-1 h-4 w-4" />
-                {new Date(vaccination.scheduledDate).toLocaleDateString(
-                  "vi-VN"
-                )}{" "}
-                ({vaccination.startTime} - {vaccination.endTime})
+            <div className="flex flex-col items-end space-y-2">
+              {getStatusBadge(vaccination.status)}
+              <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
+                <FiCalendar className="mr-1 h-4 w-4" />
+                {new Date(vaccination.scheduledDate).toLocaleDateString("vi-VN")}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-          {/* Left Column - Vaccination Details */}
-          <div className="md:col-span-2 space-y-6">
-            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">
-                Thông tin tiêm chủng
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg">
+              <div className="flex items-center">
+                <FiUsers className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
                 <div>
-                  <p className="text-sm text-gray-500">Loại vắc-xin</p>
-                  <p className="font-medium">{vaccination.vaccineInfo}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Địa điểm</p>
-                  <p className="font-medium">{vaccination.location}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Đơn vị thực hiện</p>
-                  <p className="font-medium">
-                    {vaccination.healthcareProvider}
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Tổng học sinh</p>
+                  <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                    {vaccination.totalStudents}
                   </p>
                 </div>
+              </div>
+            </div>
+
+            <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg">
+              <div className="flex items-center">
+                <FiCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
                 <div>
-                  <p className="text-sm text-gray-500">Phương pháp tiêm</p>
-                  <p className="font-medium">{vaccination.vaccinationMethod}</p>
-                </div>
-                <div className="md:col-span-2">
-                  <p className="text-sm text-gray-500">Lớp tham gia</p>
-                  <p className="font-medium">{vaccination.grades.join(", ")}</p>
-                </div>
-                <div className="md:col-span-2">
-                  <p className="text-sm text-gray-500">
-                    Tác dụng phụ có thể gặp
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Đã xác nhận</p>
+                  <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                    {vaccination.confirmedParents}
                   </p>
-                  <p className="font-medium">{vaccination.sideEffects}</p>
-                </div>
-                <div className="md:col-span-2">
-                  <p className="text-sm text-gray-500">Chống chỉ định</p>
-                  <p className="font-medium">{vaccination.contraindications}</p>
-                </div>
-                <div className="md:col-span-2">
-                  <p className="text-sm text-gray-500">Ghi chú</p>
-                  <p className="font-medium">{vaccination.notes}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">
-                Danh sách học sinh
-              </h3>
-              <div className="mb-4 flex justify-between items-center">
-                <div className="relative w-64">
-                  <input
-                    type="text"
-                    placeholder="Tìm kiếm học sinh..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                </div>
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() => setShowStudentList(!showStudentList)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    {showStudentList ? "Ẩn danh sách" : "Hiện danh sách"}
-                  </button>
-                  <button className="inline-flex items-center text-green-600 hover:text-green-800 text-sm font-medium">
-                    <FiDownload className="mr-1 h-4 w-4" />
-                    Xuất Excel
-                  </button>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                  <div className="flex items-center space-x-2">
-                    <div className="p-2 rounded-full bg-blue-100">
-                      <FiUsers className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <span className="font-medium">
-                      Tổng số học sinh: {vaccination.totalStudents}
-                    </span>
-                  </div>
-                  <div className="flex space-x-4">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                      <span className="text-sm">
-                        {vaccination.status === "completed"
-                          ? "Đã tiêm: " + vaccination.confirmedParents
-                          : "Đã xác nhận: " + vaccination.confirmedParents}
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-                      <span className="text-sm">
-                        {vaccination.status === "completed"
-                          ? "Chưa tiêm: " +
-                            (vaccination.totalStudents -
-                              vaccination.confirmedParents)
-                          : "Chưa xác nhận: " +
-                            (vaccination.totalStudents -
-                              vaccination.confirmedParents)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {showStudentList && (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            STT
-                          </th>
-                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Họ và tên
-                          </th>
-                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Lớp
-                          </th>
-                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Trạng thái
-                          </th>
-                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Ghi chú
-                          </th>
-                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Hành động
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredStudents.slice(0, 10).map((student, index) => (
-                          <tr key={student.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                              {index + 1}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">
-                              {student.name}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                              {student.class}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
-                              {vaccination.status === "completed" ? (
-                                student.vaccinated ? (
-                                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    Đã tiêm
-                                  </span>
-                                ) : (
-                                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                    Chưa tiêm
-                                  </span>
-                                )
-                              ) : student.parentConfirmed ? (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                  Đã xác nhận
-                                </span>
-                              ) : (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                  Chưa xác nhận
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                              {student.parentNote || "Không có"}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                              <div className="flex justify-center space-x-3">
-                                <button className="text-blue-600 hover:text-blue-900">
-                                  Chi tiết
-                                </button>
-                                {vaccination.status === "upcoming" &&
-                                  !student.parentConfirmed && (
-                                    <button className="text-purple-600 hover:text-purple-900">
-                                      Nhắc nhở
-                                    </button>
-                                  )}
-                                {vaccination.status === "completed" && (
-                                  <button className="text-green-600 hover:text-green-900">
-                                    Cập nhật
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    {filteredStudents.length > 10 && (
-                      <div className="px-6 py-4 border-t border-gray-200 text-center">
-                        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                          Xem thêm ({filteredStudents.length - 10} học sinh)
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Progress and Info */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">
-                Tiến độ tiêm chủng
-              </h3>
-              <div className="mb-4">
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    {vaccination.status === "completed"
-                      ? "Đã tiêm"
-                      : "Đã xác nhận"}
-                  </span>
-                  <span className="text-sm font-medium text-blue-600">
-                    {vaccination.confirmedParents}/{vaccination.totalStudents} (
-                    {Math.round(
-                      (vaccination.confirmedParents /
-                        vaccination.totalStudents) *
-                        100
-                    )}
-                    %)
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full"
-                    style={{
-                      width: `${
-                        (vaccination.confirmedParents /
-                          vaccination.totalStudents) *
-                        100
-                      }%`,
-                    }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="space-y-3 mt-6">
-                <div className="grid grid-cols-12 items-center">
-                  <div className="col-span-1">
-                    <FiCalendar className="text-gray-500" />
-                  </div>
-                  <div className="col-span-11">
-                    <p className="text-sm font-medium">Ngày tiêm chủng</p>
-                    <p className="text-sm text-gray-600">
-                      {new Date(vaccination.scheduledDate).toLocaleDateString(
-                        "vi-VN"
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-12 items-center">
-                  <div className="col-span-1">
-                    <FiClock className="text-gray-500" />
-                  </div>
-                  <div className="col-span-11">
-                    <p className="text-sm font-medium">Thời gian</p>
-                    <p className="text-sm text-gray-600">
-                      {vaccination.startTime} - {vaccination.endTime}
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-12 items-center">
-                  <div className="col-span-1">
-                    <FiInfo className="text-gray-500" />
-                  </div>
-                  <div className="col-span-11">
-                    <p className="text-sm font-medium">Tạo bởi</p>
-                    <p className="text-sm text-gray-600">
-                      {vaccination.createdBy}
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-12 items-center">
-                  <div className="col-span-1">
-                    <FiClock className="text-gray-500" />
-                  </div>
-                  <div className="col-span-11">
-                    <p className="text-sm font-medium">Cập nhật lần cuối</p>
-                    <p className="text-sm text-gray-600">
-                      {vaccination.lastUpdated}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
-              <div className="flex">
-                <FiAlertCircle className="h-5 w-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
+            <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg">
+              <div className="flex items-center">
+                <FiXCircle className="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
                 <div>
-                  <h3 className="text-md font-medium text-blue-800 mb-1">
-                    Lưu ý về tiêm chủng
-                  </h3>
-                  <ul className="text-sm text-blue-700 space-y-1">
-                    <li>• Chuẩn bị đầy đủ hồ sơ tiêm chủng của học sinh</li>
-                    <li>
-                      • Kiểm tra tình trạng sức khỏe học sinh trước khi tiêm
-                    </li>
-                    <li>• Đảm bảo có sự đồng ý của phụ huynh</li>
-                    <li>• Theo dõi phản ứng sau tiêm ít nhất 30 phút</li>
-                    <li>• Cập nhật kết quả tiêm chủng vào hồ sơ y tế</li>
-                  </ul>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Chưa xác nhận</p>
+                  <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                    {vaccination.totalStudents - vaccination.confirmedParents}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg">
+              <div className="flex items-center">
+                <FiClock className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
+                <div>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Thời gian</p>
+                  <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                    {vaccination.startTime} - {vaccination.endTime}
+                  </p>
                 </div>
               </div>
             </div>
@@ -546,30 +279,186 @@ const VaccinationDetail = () => {
         </div>
       </div>
 
+      {/* Vaccination Information */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm">
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+              <FiInfo className="inline mr-2" />
+              Thông tin tiêm chủng
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Loại vắc-xin</p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{vaccination.vaccineInfo}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Phương pháp tiêm</p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{vaccination.vaccinationMethod}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Địa điểm</p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{vaccination.location}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Đơn vị thực hiện</p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{vaccination.healthcareProvider}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm">
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+              <FiAlertCircle className="inline mr-2" />
+              Lưu ý quan trọng
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Tác dụng phụ có thể xảy ra</p>
+                <div className="mt-1 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <p className="text-sm text-neutral-900 dark:text-neutral-100">{vaccination.sideEffects}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Chống chỉ định</p>
+                <div className="mt-1 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-sm text-neutral-900 dark:text-neutral-100">{vaccination.contraindications}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Ghi chú</p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{vaccination.notes}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Student List */}
+      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm">
+        <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              Danh sách học sinh
+            </h3>
+            <button
+              onClick={() => setShowStudentList(!showStudentList)}
+              className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300"
+            >
+              {showStudentList ? "Ẩn danh sách" : "Xem danh sách"}
+            </button>
+          </div>
+
+          {showStudentList && (
+            <div className="mt-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiSearch className="h-5 w-5 text-neutral-400" />
+                </div>
+                <input
+                  type="text"
+                  className="block w-full pl-10 pr-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md leading-5 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  placeholder="Tìm kiếm học sinh..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {showStudentList && (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+              <thead className="bg-neutral-50 dark:bg-neutral-900">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                    Học sinh
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                    Lớp
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                    Xác nhận PH
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                    Tình trạng sức khỏe
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                    Đã tiêm
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-700">
+                {filteredStudents.map((student) => (
+                  <tr key={student.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                        {student.name}
+                      </div>
+                      {student.parentNote && (
+                        <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                          Ghi chú: {student.parentNote}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
+                      {student.class}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          student.parentConfirmed
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                            : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
+                        }`}
+                      >
+                        {student.parentConfirmed ? "Đã xác nhận" : "Chưa xác nhận"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
+                      {student.healthStatus}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          student.vaccinated
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                            : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-300"
+                        }`}
+                      >
+                        {student.vaccinated ? "Đã tiêm" : "Chưa tiêm"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
       {/* Confirmation Modal */}
       {confirmationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Xác nhận hoàn thành tiêm chủng
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+              Xác nhận hoàn thành
             </h3>
-            <p className="text-gray-600 mb-6">
-              Bạn có chắc chắn muốn đánh dấu đợt tiêm chủng này là đã hoàn
-              thành? Hành động này sẽ lưu trữ kết quả hiện tại và không thể hoàn
-              tác.
+            <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+              Bạn có chắc chắn muốn đánh dấu kế hoạch tiêm chủng này là đã hoàn thành?
             </p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setConfirmationModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-700"
               >
-                Hủy bỏ
+                Hủy
               </button>
               <button
-                onClick={() => {
-                  handleMarkAsCompleted();
-                  setConfirmationModal(false);
-                }}
+                onClick={handleMarkAsCompleted}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
                 Xác nhận
@@ -582,52 +471,23 @@ const VaccinationDetail = () => {
       {/* Notification Modal */}
       {notificationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
               Gửi thông báo nhắc nhở
             </h3>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tiêu đề thông báo
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                defaultValue={`Nhắc nhở: Tiêm chủng ${
-                  vaccination.title
-                } ngày ${new Date(vaccination.scheduledDate).toLocaleDateString(
-                  "vi-VN"
-                )}`}
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nội dung thông báo
-              </label>
-              <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                rows="4"
-                defaultValue={`Kính gửi Quý phụ huynh,\n\nNhà trường xin thông báo về lịch tiêm chủng ${
-                  vaccination.title
-                } vào ngày ${new Date(
-                  vaccination.scheduledDate
-                ).toLocaleDateString("vi-VN")} từ ${
-                  vaccination.startTime
-                } đến ${
-                  vaccination.endTime
-                }.\n\nXin vui lòng xác nhận tham gia hoặc không tham gia để nhà trường nắm được thông tin.`}
-              ></textarea>
-            </div>
+            <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+              Gửi thông báo nhắc nhở về lịch tiêm chủng đến phụ huynh chưa xác nhận?
+            </p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setNotificationModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-700"
               >
-                Hủy bỏ
+                Hủy
               </button>
               <button
                 onClick={handleSendNotification}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
               >
                 Gửi thông báo
               </button>

@@ -193,18 +193,18 @@ const TodaySchedule = () => {
 
     if (status === "completed") {
       return {
-        bg: "bg-gray-50",
-        border: "border-gray-200",
-        icon: "text-gray-400",
-        text: "text-gray-600",
+        bg: "bg-gray-50 dark:bg-gray-800/50",
+        border: "border-gray-200 dark:border-gray-600",
+        icon: "text-gray-400 dark:text-gray-500",
+        text: "text-gray-600 dark:text-gray-400",
       };
     }
 
     return {
-      bg: `bg-${color}-50`,
-      border: `border-${color}-200`,
-      icon: `text-${color}-600`,
-      text: `text-${color}-800`,
+      bg: `bg-${color}-50 dark:bg-${color}-900/30`,
+      border: `border-${color}-200 dark:border-${color}-800`,
+      icon: `text-${color}-600 dark:text-${color}-400`,
+      text: `text-${color}-800 dark:text-${color}-200`,
     };
   };
 
@@ -213,14 +213,14 @@ const TodaySchedule = () => {
     switch (status) {
       case "completed":
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
             <FiCheckCircle className="h-3 w-3 mr-1" />
             Hoàn thành
           </span>
         );
       case "in_progress":
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200">
             <FiClock className="h-3 w-3 mr-1" />
             Đang thực hiện
           </span>
@@ -228,14 +228,14 @@ const TodaySchedule = () => {
       case "upcoming":
         if (priority === "urgent") {
           return (
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
               <FiAlertCircle className="h-3 w-3 mr-1" />
               Khẩn cấp
             </span>
           );
         }
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
             <FiClock className="h-3 w-3 mr-1" />
             Sắp tới
           </span>
@@ -276,16 +276,16 @@ const TodaySchedule = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-neutral-200 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+    <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden hover:shadow-xl transition-all duration-300">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-50 to-blue-50 p-6 border-b border-neutral-100">
+      <div className="bg-gradient-to-r from-primary-50 dark:from-primary-900/30 to-blue-50 dark:to-blue-900/30 p-6 border-b border-neutral-100 dark:border-neutral-700">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-2xl font-bold text-neutral-800 flex items-center mb-2">
-              <FiCalendar className="h-7 w-7 mr-3 text-primary-600" />
+            <h3 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 flex items-center mb-2">
+              <FiCalendar className="h-7 w-7 mr-3 text-primary-600 dark:text-primary-400" />
               Lịch trình hôm nay
             </h3>
-            <p className="text-sm text-neutral-600">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
               {new Date().toLocaleDateString("vi-VN", {
                 weekday: "long",
                 year: "numeric",
@@ -295,37 +295,43 @@ const TodaySchedule = () => {
             </p>
           </div>
           <div className="text-right">
-            <div className="bg-white rounded-lg p-3 shadow-sm border">
-              <div className="text-2xl font-bold text-primary-600">
+            <div className="bg-white dark:bg-neutral-800 rounded-lg p-3 shadow-sm border border-neutral-200 dark:border-neutral-600">
+              <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                 {currentTime.toLocaleTimeString("vi-VN", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
               </div>
-              <div className="text-xs text-neutral-500 mt-1">Giờ hiện tại</div>
+              <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                Giờ hiện tại
+              </div>
             </div>
           </div>
         </div>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-4 gap-4 mb-4">
-          <div className="bg-white rounded-lg p-4 text-center shadow-sm border hover:shadow-md transition-shadow">
-            <div className="text-2xl font-bold text-neutral-800 mb-1">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 text-center shadow-sm border border-neutral-200 dark:border-neutral-600 hover:shadow-md transition-shadow">
+            <div className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-1">
               {scheduleItems.length}
             </div>
-            <div className="text-xs text-neutral-500 font-medium">Tổng số</div>
+            <div className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+              Tổng số
+            </div>
           </div>
-          <div className="bg-white rounded-lg p-4 text-center shadow-sm border hover:shadow-md transition-shadow">
-            <div className="text-2xl font-bold text-blue-600 mb-1">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 text-center shadow-sm border border-neutral-200 dark:border-neutral-600 hover:shadow-md transition-shadow">
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
               {
                 scheduleItems.filter((item) => item.status !== "completed")
                   .length
               }
             </div>
-            <div className="text-xs text-blue-600 font-medium">Chờ xử lý</div>
+            <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+              Chờ xử lý
+            </div>
           </div>
-          <div className="bg-white rounded-lg p-4 text-center shadow-sm border hover:shadow-md transition-shadow">
-            <div className="text-2xl font-bold text-red-600 mb-1">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 text-center shadow-sm border border-neutral-200 dark:border-neutral-600 hover:shadow-md transition-shadow">
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-1">
               {
                 scheduleItems.filter(
                   (item) =>
@@ -333,16 +339,20 @@ const TodaySchedule = () => {
                 ).length
               }
             </div>
-            <div className="text-xs text-red-600 font-medium">Khẩn cấp</div>
+            <div className="text-xs text-red-600 dark:text-red-400 font-medium">
+              Khẩn cấp
+            </div>
           </div>
-          <div className="bg-white rounded-lg p-4 text-center shadow-sm border hover:shadow-md transition-shadow">
-            <div className="text-2xl font-bold text-green-600 mb-1">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-4 text-center shadow-sm border border-neutral-200 dark:border-neutral-600 hover:shadow-md transition-shadow">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
               {
                 scheduleItems.filter((item) => item.status === "completed")
                   .length
               }
             </div>
-            <div className="text-xs text-green-600 font-medium">Hoàn thành</div>
+            <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+              Hoàn thành
+            </div>
           </div>
         </div>
 
@@ -353,14 +363,14 @@ const TodaySchedule = () => {
               key: "all",
               label: "Tất cả",
               count: scheduleItems.length,
-              color: "bg-neutral-600",
+              color: "bg-neutral-600 dark:bg-neutral-500",
             },
             {
               key: "pending",
               label: "Chờ xử lý",
               count: scheduleItems.filter((item) => item.status !== "completed")
                 .length,
-              color: "bg-blue-600",
+              color: "bg-blue-600 dark:bg-blue-500",
             },
             {
               key: "urgent",
@@ -368,14 +378,14 @@ const TodaySchedule = () => {
               count: scheduleItems.filter(
                 (item) => item.priority === "urgent" || item.priority === "high"
               ).length,
-              color: "bg-red-600",
+              color: "bg-red-600 dark:bg-red-500",
             },
             {
               key: "completed",
               label: "Hoàn thành",
               count: scheduleItems.filter((item) => item.status === "completed")
                 .length,
-              color: "bg-green-600",
+              color: "bg-green-600 dark:bg-green-500",
             },
           ].map((filterOption) => (
             <button
@@ -384,7 +394,7 @@ const TodaySchedule = () => {
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                 filter === filterOption.key
                   ? `${filterOption.color} text-white shadow-md transform scale-105`
-                  : "bg-white text-neutral-700 hover:bg-neutral-50 shadow-sm border border-neutral-200"
+                  : "bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700 shadow-sm border border-neutral-200 dark:border-neutral-600"
               }`}
             >
               {filterOption.label} ({filterOption.count})
@@ -397,14 +407,14 @@ const TodaySchedule = () => {
       <div className="p-4">
         {loading ? (
           <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
-            <span className="ml-3 text-neutral-500">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500 dark:border-primary-400"></div>
+            <span className="ml-3 text-neutral-500 dark:text-neutral-400">
               Đang tải lịch trình...
             </span>
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="p-8 text-center text-neutral-500">
-            <FiCalendar className="h-12 w-12 mx-auto mb-3 text-neutral-400" />
+          <div className="p-8 text-center text-neutral-500 dark:text-neutral-400">
+            <FiCalendar className="h-12 w-12 mx-auto mb-3 text-neutral-400 dark:text-neutral-500" />
             <p className="text-lg font-medium mb-1">Không có lịch trình</p>
             <p className="text-sm">
               {filter === "all"
@@ -427,18 +437,22 @@ const TodaySchedule = () => {
               return (
                 <div
                   key={item.id}
-                  className={`bg-white rounded-xl border-2 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden ${
+                  className={`bg-white dark:bg-neutral-800 rounded-xl border-2 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden ${
                     isCurrent
-                      ? "border-yellow-400 bg-yellow-50"
-                      : "border-neutral-200 hover:border-primary-200"
+                      ? "border-yellow-400 dark:border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20"
+                      : "border-neutral-200 dark:border-neutral-600 hover:border-primary-200 dark:hover:border-primary-600"
                   } ${
-                    item.priority === "urgent" ? "border-red-300 bg-red-50" : ""
+                    item.priority === "urgent"
+                      ? "border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20"
+                      : ""
                   }`}
                 >
                   {/* Header với timeline */}
                   <div
-                    className={`p-4 border-b ${
-                      isCurrent ? "bg-yellow-100" : "bg-neutral-50"
+                    className={`p-4 border-b border-neutral-200 dark:border-neutral-600 ${
+                      isCurrent
+                        ? "bg-yellow-100 dark:bg-yellow-900/30"
+                        : "bg-neutral-50 dark:bg-neutral-700/50"
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -447,8 +461,8 @@ const TodaySchedule = () => {
                         <div
                           className={`px-4 py-2 rounded-lg font-bold text-lg ${
                             isCurrent
-                              ? "bg-yellow-500 text-white"
-                              : "bg-white text-neutral-800 border"
+                              ? "bg-yellow-500 dark:bg-yellow-600 text-white"
+                              : "bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-600"
                           }`}
                         >
                           {item.time}
@@ -470,10 +484,10 @@ const TodaySchedule = () => {
 
                         {/* Title */}
                         <div>
-                          <h4 className="text-lg font-semibold text-neutral-800 mb-1">
+                          <h4 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-1">
                             {item.title}
                           </h4>
-                          <p className="text-sm text-neutral-600">
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
                             {item.subtitle}
                           </p>
                         </div>
@@ -483,7 +497,7 @@ const TodaySchedule = () => {
                       <div className="flex items-center space-x-2">
                         {getStatusBadge(item.status, item.priority)}
                         {isCurrent && (
-                          <div className="flex items-center px-2 py-1 bg-yellow-500 text-white rounded-full text-xs font-medium">
+                          <div className="flex items-center px-2 py-1 bg-yellow-500 dark:bg-yellow-600 text-white rounded-full text-xs font-medium">
                             <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></div>
                             Đang diễn ra
                           </div>
@@ -495,7 +509,7 @@ const TodaySchedule = () => {
                   {/* Content */}
                   <div className="p-4">
                     {item.details && (
-                      <p className="text-sm text-neutral-600 mb-3 bg-neutral-50 p-3 rounded-lg">
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 bg-neutral-50 dark:bg-neutral-700 p-3 rounded-lg">
                         {item.details}
                       </p>
                     )}
@@ -504,13 +518,13 @@ const TodaySchedule = () => {
                     {(item.location || item.studentsCount || item.consent) && (
                       <div className="flex flex-wrap gap-3 mb-4">
                         {item.location && (
-                          <div className="flex items-center bg-blue-50 px-3 py-1 rounded-full text-sm text-blue-700">
+                          <div className="flex items-center bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full text-sm text-blue-700 dark:text-blue-300">
                             <FiCalendar className="h-4 w-4 mr-2" />
                             {item.location}
                           </div>
                         )}
                         {item.studentsCount && (
-                          <div className="flex items-center bg-green-50 px-3 py-1 rounded-full text-sm text-green-700">
+                          <div className="flex items-center bg-green-50 dark:bg-green-900/30 px-3 py-1 rounded-full text-sm text-green-700 dark:text-green-300">
                             <FiUsers className="h-4 w-4 mr-2" />
                             {item.studentsCount} học sinh
                             {item.completedCount && (
@@ -521,7 +535,7 @@ const TodaySchedule = () => {
                           </div>
                         )}
                         {item.consent && (
-                          <div className="flex items-center bg-purple-50 px-3 py-1 rounded-full text-sm text-purple-700">
+                          <div className="flex items-center bg-purple-50 dark:bg-purple-900/30 px-3 py-1 rounded-full text-sm text-purple-700 dark:text-purple-300">
                             <FiFileText className="h-4 w-4 mr-2" />
                             Đồng ý: {item.consent.received}/
                             {item.consent.received + item.consent.pending}
@@ -535,17 +549,17 @@ const TodaySchedule = () => {
                       {item.status !== "completed" && (
                         <button
                           onClick={() => markAsCompleted(item.id)}
-                          className="flex items-center bg-green-100 hover:bg-green-200 text-green-800 px-4 py-2 rounded-lg transition-colors font-medium"
+                          className="flex items-center bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-900/50 text-green-800 dark:text-green-300 px-4 py-2 rounded-lg transition-colors font-medium"
                         >
                           <FiCheckCircle className="h-4 w-4 mr-2" />
                           Hoàn thành
                         </button>
                       )}
-                      <button className="flex items-center bg-neutral-100 hover:bg-neutral-200 text-neutral-700 px-4 py-2 rounded-lg transition-colors">
+                      <button className="flex items-center bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-300 px-4 py-2 rounded-lg transition-colors">
                         <FiEdit className="h-4 w-4 mr-2" />
                         Chỉnh sửa
                       </button>
-                      <button className="flex items-center bg-neutral-100 hover:bg-neutral-200 text-neutral-700 px-4 py-2 rounded-lg transition-colors">
+                      <button className="flex items-center bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-700 dark:text-neutral-300 px-4 py-2 rounded-lg transition-colors">
                         <FiUser className="h-4 w-4 mr-2" />
                         Chi tiết
                       </button>
@@ -553,8 +567,8 @@ const TodaySchedule = () => {
 
                     {/* Notes */}
                     {item.notes && item.status === "completed" && (
-                      <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                        <p className="text-sm text-green-800">
+                      <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800">
+                        <p className="text-sm text-green-800 dark:text-green-300">
                           <strong>Ghi chú:</strong> {item.notes}
                         </p>
                       </div>
@@ -568,18 +582,18 @@ const TodaySchedule = () => {
       </div>
 
       {/* Footer */}
-      <div className="p-4 bg-gradient-to-r from-neutral-50 to-blue-50 border-t border-neutral-100">
+      <div className="p-4 bg-gradient-to-r from-neutral-50 dark:from-neutral-800 to-blue-50 dark:to-blue-900/30 border-t border-neutral-100 dark:border-neutral-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="text-sm text-neutral-600">
+            <div className="text-sm text-neutral-600 dark:text-neutral-400">
               <span className="font-medium">Tổng cộng:</span>{" "}
               {scheduleItems.length} hoạt động
             </div>
             {/* Progress indicator */}
             <div className="flex items-center space-x-2">
-              <div className="w-32 bg-neutral-200 rounded-full h-2">
+              <div className="w-32 bg-neutral-200 dark:bg-neutral-700 rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-gradient-to-r from-green-400 to-green-600 dark:from-green-500 dark:to-green-400 h-2 rounded-full transition-all duration-300"
                   style={{
                     width: `${
                       scheduleItems.length > 0
@@ -593,7 +607,7 @@ const TodaySchedule = () => {
                   }}
                 ></div>
               </div>
-              <span className="text-xs text-neutral-500">
+              <span className="text-xs text-neutral-500 dark:text-neutral-400">
                 {
                   scheduleItems.filter((item) => item.status === "completed")
                     .length
@@ -604,7 +618,7 @@ const TodaySchedule = () => {
           </div>
           <Link
             to="/nurse/schedule"
-            className="flex items-center bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium shadow-sm"
+            className="flex items-center bg-primary-600 dark:bg-primary-700 hover:bg-primary-700 dark:hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium shadow-sm"
           >
             Xem lịch trình đầy đủ
             <FiCalendar className="h-4 w-4 ml-2" />
