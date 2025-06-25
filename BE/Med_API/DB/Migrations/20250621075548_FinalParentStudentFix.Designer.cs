@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(MedicalContext))]
-    [Migration("20250621073328_AddParentStudentNavigation")]
-    partial class AddParentStudentNavigation
+    [Migration("20250621075548_FinalParentStudentFix")]
+    partial class FinalParentStudentFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

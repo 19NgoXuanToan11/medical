@@ -17,4 +17,24 @@ public interface IMedicineRequestService
     Task<IEnumerable<MedicineRequest>> GetPendingRequestsAsync();
     Task<bool> AssignNurseToRequestAsync(int requestId, int staffId);
     Task<bool> CompleteRequestAsync(int requestId, int staffId);
+    
+    // New frequency-based methods
+    Task<RequestResult?> StartMedicineRequestAsync(int requestId, int staffId);
+    Task<bool> AdministerMedicineByFrequencyAsync(int requestResultId, int medicineRequestItemId, string frequency, int staffId, string? notes = null);
+    Task<bool> IsMedicineCompletedForDayAsync(int requestResultId, int medicineRequestItemId);
+    Task<IEnumerable<string>> GetPendingFrequenciesAsync(int requestResultId, int medicineRequestItemId);
+    Task<bool> CompleteMedicineRequestAsync(int requestResultId, int staffId);
+    
+    // New failure handling methods
+    Task<bool> ReportMedicineFailureAsync(int requestResultId, int medicineRequestItemId, string frequency, string failureReason, int staffId, string? notes = null);
+    Task<RequestResult?> CreateReRequestAsync(int originalRequestResultId, string reRequestReason, int staffId);
+    Task<bool> UpdateTimeBasedStatusAsync();
+    Task<IEnumerable<RequestResult>> GetFailedRequestsAsync();
+    Task<IEnumerable<RequestResult>> GetReRequestsAsync(int originalRequestResultId);
+    Task<bool> IsRequestEligibleForReRequestAsync(int requestResultId);
+    Task<string> GetReRequestReasonAsync(int requestResultId);
+    Task<bool> MarkRequestAsFailedAsync(int requestResultId, string reason);
+    Task<RequestResult?> GetRequestResultByIdAsync(int requestResultId);
+    Task<(bool isCompleted, IEnumerable<string> pendingFrequencies)> GetProgressInfoAsync(int requestResultId, int medicineRequestItemId);
+    Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId);
 } 

@@ -3,6 +3,7 @@ using API.DTOs;
 using AutoMapper;
 using DB;
 using Service;
+using System.Text.Json;
 
 namespace API.Controllers;
 
@@ -186,5 +187,174 @@ public class MedicineRequestController : ControllerBase
             return BadRequest("Failed to complete request. The request might not exist or you might not be assigned to it.");
         }
         return NoContent();
+    }
+
+    // New frequency-based endpoints
+
+    // POST: api/MedicineRequest/{id}/start-administration/{staffId}
+    [HttpPost("{id}/start-administration/{staffId}")]
+    public async Task<ActionResult<RequestResultDto.ViewModel>> StartMedicineRequest(int id, int staffId)
+    {
+        var requestResult = await _medicineRequestService.StartMedicineRequestAsync(id, staffId);
+        if (requestResult == null)
+        {
+            return BadRequest("Failed to start medicine request. The request might not exist or you might not be assigned to it.");
+        }
+        var viewModel = _mapper.Map<RequestResultDto.ViewModel>(requestResult);
+        return Ok(viewModel);
+    }
+
+    // POST: api/MedicineRequest/administer-frequency
+    [HttpPost("administer-frequency")]
+    public async Task<IActionResult> AdministerMedicineByFrequency(RequestResultDto.FrequencyCompleteRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var success = await _medicineRequestService.AdministerMedicineByFrequencyAsync(
+            request.RequestResultId, 
+            request.MedicineRequestItemId, 
+            request.Frequency, 
+            request.StaffId,
+            request.Notes);
+
+        if (!success)
+        {
+            return BadRequest("Failed to administer medicine. This frequency might have already been administered today.");
+        }
+        return NoContent();
+    }
+
+    // GET: api/MedicineRequest/{requestResultId}/progress/{medicineRequestItemId}
+    [HttpGet("{requestResultId}/progress/{medicineRequestItemId}")]
+    public async Task<ActionResult<object>> GetProgressInfo(int requestResultId, int medicineRequestItemId)
+    {
+        var (isCompleted, pendingFrequencies) = await _medicineRequestService.GetProgressInfoAsync(requestResultId, medicineRequestItemId);
+        return Ok(new { isCompleted, pendingFrequencies });
+    }
+
+    // GET: api/MedicineRequest/{requestResultId}/re-request-info
+    [HttpGet("{requestResultId}/re-request-info")]
+    public async Task<ActionResult<object>> GetReRequestInfo(int requestResultId)
+    {
+        var (canReRequest, _) = await _medicineRequestService.GetReRequestInfoAsync(requestResultId);
+        return Ok(new { canReRequest });
+    }
+
+    // POST: api/MedicineRequest/report-failure
+    [HttpPost("report-failure")]
+    public async Task<IActionResult> ReportMedicineFailure(RequestResultDto.FailureReport request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var success = await _medicineRequestService.ReportMedicineFailureAsync(
+            request.RequestResultId,
+            request.MedicineRequestItemId,
+            request.Frequency,
+            request.FailureReason,
+            request.StaffId
+        );
+
+        if (!success)
+        {
+            return BadRequest("Failed to report medicine failure.");
+        }
+        return NoContent();
+    }
+
+    // POST: api/MedicineRequest/create-re-request
+    [HttpPost("create-re-request")]
+    public async Task<ActionResult<RequestResultDto.ViewModel>> CreateReRequest(RequestResultDto.ReRequestCreate request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var reRequest = await _medicineRequestService.CreateReRequestAsync(
+            request.OriginalRequestResultId,
+            request.ReRequestReason,
+            request.StaffId ?? 1); // TODO: Get actual staff ID from authentication
+
+        if (reRequest == null)
+        {
+            return BadRequest("Failed to create re-request. It might be past 5 PM or the original request doesn't exist.");
+        }
+
+        var viewModel = _mapper.Map<RequestResultDto.ViewModel>(reRequest);
+        return Ok(viewModel);
+    }
+
+    // POST: api/MedicineRequest/update-time-based-status
+    [HttpPost("update-time-based-status")]
+    public async Task<IActionResult> UpdateTimeBasedStatus()
+    {
+        var success = await _medicineRequestService.UpdateTimeBasedStatusAsync();
+        if (!success)
+        {
+            return BadRequest("Failed to update time-based status.");
+        }
+        return NoContent();
+    }
+
+    // GET: api/MedicineRequest/failed-requests
+    [HttpGet("failed-requests")]
+    public async Task<ActionResult<IEnumerable<RequestResultDto.ViewModel>>> GetFailedRequests()
+    {
+        var failedRequests = await _medicineRequestService.GetFailedRequestsAsync();
+        var viewModels = _mapper.Map<IEnumerable<RequestResultDto.ViewModel>>(failedRequests);
+        return Ok(viewModels);
+    }
+
+    // GET: api/MedicineRequest/{originalRequestResultId}/re-requests
+    [HttpGet("{originalRequestResultId}/re-requests")]
+    public async Task<ActionResult<IEnumerable<RequestResultDto.ViewModel>>> GetReRequests(int originalRequestResultId)
+    {
+        var reRequests = await _medicineRequestService.GetReRequestsAsync(originalRequestResultId);
+        var viewModels = _mapper.Map<IEnumerable<RequestResultDto.ViewModel>>(reRequests);
+        return Ok(viewModels);
+    }
+
+    // POST: api/MedicineRequest/{requestResultId}/mark-failed
+    [HttpPost("{requestResultId}/mark-failed")]
+    public async Task<IActionResult> MarkRequestAsFailed(int requestResultId, [FromBody] string reason)
+    {
+        var success = await _medicineRequestService.MarkRequestAsFailedAsync(requestResultId, reason);
+        if (!success)
+        {
+            return BadRequest("Failed to mark request as failed.");
+        }
+        return NoContent();
+    }
+
+    // GET: api/MedicineRequest/{requestResultId}/failure-summary
+    [HttpGet("{requestResultId}/failure-summary")]
+    public async Task<ActionResult<object>> GetFailureSummary(int requestResultId)
+    {
+        var requestResult = await _medicineRequestService.GetRequestResultByIdAsync(requestResultId);
+        if (requestResult == null)
+        {
+            return NotFound();
+        }
+        // Parse JSON string to object for FailedFrequencies and FailureReasons
+        var failedFrequencies = string.IsNullOrEmpty(requestResult.FailedFrequencies)
+            ? new List<string>()
+            : JsonSerializer.Deserialize<List<string>>(requestResult.FailedFrequencies);
+        var failureReasons = string.IsNullOrEmpty(requestResult.FailureReasons)
+            ? new Dictionary<string, string>()
+            : JsonSerializer.Deserialize<Dictionary<string, string>>(requestResult.FailureReasons);
+        var summary = new
+        {
+            Status = requestResult.Status,
+            FailedFrequencies = failedFrequencies,
+            FailureReasons = failureReasons,
+            IsEligibleForReRequest = await _medicineRequestService.IsRequestEligibleForReRequestAsync(requestResultId)
+        };
+        return Ok(summary);
     }
 } 
