@@ -17,12 +17,14 @@ import {
 import { MdHealthAndSafety, MdOutlineSchool } from "react-icons/md";
 import { FiLogOut } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
+import { useParent } from "../../../utils/auth/ParentContext";
 import ThemeToggle from "../../common/ThemeToggle";
 
 const ParentLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const { students, selectedStudent, loading, selectStudent } = useParent();
   const [studentDropdown, setStudentDropdown] = useState(false);
   const [medicationDropdown, setMedicationDropdown] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -49,14 +51,14 @@ const ParentLayout = () => {
     };
   }, []);
 
-  // Placeholder data - in a real app, this would come from an API
-  const students = [
-    { id: 1, name: "Nguyễn Văn An", class: "10A1" },
-    { id: 2, name: "Nguyễn Thị Bình", class: "8B2" },
-  ];
+  // Handle student selection
+  const handleStudentSelect = (student) => {
+    selectStudent(student);
+    setStudentDropdown(false);
+  };
 
-  // Current selected student - would be state managed by context in a real app
-  const currentStudent = students[0];
+  // Current selected student
+  const currentStudent = selectedStudent;
 
   const menuItems = [
     {
@@ -164,60 +166,77 @@ const ParentLayout = () => {
         {/* Student Selector */}
         {!collapsed && (
           <div className="relative px-3 py-3 border-b border-neutral-100 dark:border-neutral-700">
-            <button
-              onClick={() => setStudentDropdown(!studentDropdown)}
-              className="flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 rounded hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors"
-            >
-              <div className="flex items-center">
-                <div className="w-8 h-8 mr-2 bg-primary-600 dark:bg-primary-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                  {currentStudent.name.charAt(0)}
-                </div>
-                <div className="text-left">
-                  <p className="font-medium">{currentStudent.name}</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                    Lớp {currentStudent.class}
-                  </p>
-                </div>
+            {loading ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+                <span className="ml-2 text-sm text-neutral-500 dark:text-neutral-400">Đang tải...</span>
               </div>
-              <svg
-                className="w-4 h-4 text-neutral-500 dark:text-neutral-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
+            ) : students.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-sm text-neutral-500 dark:text-neutral-400">Không có thông tin con em</p>
+              </div>
+            ) : currentStudent ? (
+              <>
+                <button
+                  onClick={() => setStudentDropdown(!studentDropdown)}
+                  className="flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 rounded hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors"
+                >
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 mr-2 bg-primary-600 dark:bg-primary-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
+                      {currentStudent.name.charAt(0)}
+                    </div>
+                    <div className="text-left">
+                      <p className="font-medium">{currentStudent.name}</p>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                        Lớp {currentStudent.class}
+                      </p>
+                    </div>
+                  </div>
+                  <svg
+                    className="w-4 h-4 text-neutral-500 dark:text-neutral-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
 
-            {/* Dropdown Menu */}
-            {studentDropdown && (
-              <div className="absolute left-0 right-0 z-10 px-3 mt-1">
-                <div className="bg-white dark:bg-neutral-800 rounded shadow-md border border-neutral-100 dark:border-neutral-600">
-                  {students.map((student) => (
-                    <button
-                      key={student.id}
-                      className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
-                      onClick={() => setStudentDropdown(false)}
-                    >
-                      <div className="w-8 h-8 mr-2 bg-primary-600 dark:bg-primary-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                        {student.name.charAt(0)}
-                      </div>
-                      <div className="text-left">
-                        <p className="font-medium">{student.name}</p>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                          Lớp {student.class}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+                {/* Dropdown Menu */}
+                {studentDropdown && (
+                  <div className="absolute left-0 right-0 z-10 px-3 mt-1">
+                    <div className="bg-white dark:bg-neutral-800 rounded shadow-md border border-neutral-100 dark:border-neutral-600">
+                      {students.map((student) => (
+                        <button
+                          key={student.studentId}
+                          className={`flex items-center w-full px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors ${
+                            currentStudent?.studentId === student.studentId
+                              ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                              : ''
+                          }`}
+                          onClick={() => handleStudentSelect(student)}
+                        >
+                          <div className="w-8 h-8 mr-2 bg-primary-600 dark:bg-primary-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
+                            {student.name.charAt(0)}
+                          </div>
+                          <div className="text-left">
+                            <p className="font-medium">{student.name}</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                              Lớp {student.class} - {student.studentCode}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : null}
           </div>
         )}
 

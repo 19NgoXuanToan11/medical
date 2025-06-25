@@ -311,7 +311,7 @@ const Login = () => {
             <div className="space-y-2">
               <label
                 htmlFor="role"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
               >
                 Tôi là
               </label>
@@ -319,7 +319,7 @@ const Login = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400 dark:text-gray-500"
+                    className="h-5 w-5 text-neutral-400 dark:text-neutral-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -336,7 +336,7 @@ const Login = () => {
                   value={formData.role}
                   onChange={handleChange}
                   required
-                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-neutral-700 dark:text-gray-100 appearance-none"
+                  className="block w-full pl-10 pr-10 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-100 appearance-none transition-colors duration-200"
                 >
                   {roles.map((role) => (
                     <option key={role.id} value={role.id}>
@@ -347,7 +347,7 @@ const Login = () => {
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400"
+                    className="h-5 w-5 text-neutral-400 dark:text-neutral-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -364,7 +364,7 @@ const Login = () => {
             <div className="space-y-2">
               <label
                 htmlFor="username"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
               >
                 {authService.getUsernameLabel(formData.role)}
               </label>
@@ -372,7 +372,7 @@ const Login = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400 dark:text-gray-500"
+                    className="h-5 w-5 text-neutral-400 dark:text-neutral-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -390,10 +390,10 @@ const Login = () => {
                   value={formData.username}
                   onChange={handleChange}
                   required
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-neutral-700 dark:text-gray-100 ${
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-100 transition-colors duration-200 ${
                     validationErrors.username
                       ? "border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 dark:border-gray-600"
+                      : "border-neutral-300 dark:border-neutral-600"
                   }`}
                   placeholder={authService.getPlaceholderText(formData.role)}
                 />
@@ -409,19 +409,19 @@ const Login = () => {
                 </p>
               )}
               {formData.role === "parent" && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                   Chỉ được phép nhập số (0-9)
                 </p>
               )}
               {formData.role === "student" && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                   Chỉ được phép nhập chữ cái, số và dấu gạch ngang, gạch dưới
                 </p>
               )}
               {(formData.role === "admin" ||
                 formData.role === "manager" ||
                 formData.role === "nurse") && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                   Chỉ được phép nhập chữ cái, số và dấu gạch dưới (VD: admin1,
                   nurse2)
                 </p>
@@ -431,7 +431,7 @@ const Login = () => {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
               >
                 Mật khẩu
               </label>
@@ -439,7 +439,7 @@ const Login = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400 dark:text-gray-500"
+                    className="h-5 w-5 text-neutral-400 dark:text-neutral-500"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -457,7 +457,7 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 dark:bg-neutral-700 dark:text-gray-100"
+                  className="block w-full pl-10 pr-3 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-100 transition-colors duration-200"
                   placeholder="••••••••"
                 />
               </div>
@@ -467,7 +467,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-800 focus:ring-indigo-500 transition duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 rounded-lg text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">

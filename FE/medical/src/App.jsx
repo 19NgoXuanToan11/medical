@@ -73,6 +73,7 @@ import HealthEventResultDetail from "./pages/parent/health-events/HealthEventRes
 import Notifications from "./pages/parent/notification/Notifications";
 import HealthProfileDetailView from "./pages/parent/health-profile/HealthProfileDetailView";
 
+
 // student
 import StudentDashboard from "./pages/student/dashboard/StudentDashboard";
 import StudentMedication from "./pages/student/medication/StudentMedication";

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../utils/auth/AuthContext";
+import { useParent } from "../../../utils/auth/ParentContext";
 import {
   FiUser,
   FiMail,
@@ -18,54 +19,93 @@ import {
 
 const ParentProfile = () => {
   const { user } = useAuth();
+  const { parentData, students, loading, updateParentData } = useParent();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    firstName: user?.firstName || "Phụ Huynh",
-    lastName: user?.lastName || "Mẫu Mực",
-    email: user?.email || "parent@medical.com",
-    phone: "0987654321",
-    address: "456 Đường Gia Đình, Quận 3, TP.HCM",
-    dateOfBirth: "1985-05-15",
-    occupation: "Kỹ sư phần mềm",
-    emergencyContact: "0123456789",
-    relationship: "Bố/Mẹ",
-    bio: "Phụ huynh quan tâm đến sức khỏe và giáo dục của con em.",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    dateOfBirth: "",
+    occupation: "",
+    emergencyContact: "",
+    relationship: "",
+    bio: "",
   });
 
-  // Thông tin con em (trong thực tế sẽ lấy từ API)
-  const [children] = useState([
-    {
-      id: 1,
-      name: "Nguyễn Văn An",
-      class: "10A1",
-      dateOfBirth: "2008-03-20",
-      studentId: "HS2024001",
-      bloodType: "O+",
-      allergies: "Không có",
-    },
-    {
-      id: 2,
-      name: "Nguyễn Thị Bình",
-      class: "8B2",
-      dateOfBirth: "2010-07-10",
-      studentId: "HS2024002",
-      bloodType: "A+",
-      allergies: "Đậu phộng",
-    },
-  ]);
-
   const [editedData, setEditedData] = useState(profileData);
+
+  // Update profile data when parentData changes
+  useEffect(() => {
+    if (parentData) {
+      const newProfileData = {
+        firstName: parentData.firstName || "",
+        lastName: parentData.lastName || "",
+        email: parentData.email || "",
+        phone: parentData.phone || "",
+        address: parentData.address || "",
+        dateOfBirth: parentData.dateOfBirth || "",
+        occupation: parentData.occupation || "",
+        emergencyContact: parentData.isEmergencyContact ? parentData.phone : "",
+        relationship: parentData.relationship || "",
+        bio: "Phụ huynh quan tâm đến sức khỏe và giáo dục của con em.",
+      };
+      setProfileData(newProfileData);
+      setEditedData(newProfileData);
+    } else if (user) {
+      // Use fallback data from user context when no parent data
+      const fallbackData = {
+        firstName: user?.firstName || "Phụ Huynh",
+        lastName: user?.lastName || "Mẫu Mực",
+        email: user?.email || "parent@medical.com",
+        phone: "0987654321",
+        address: "456 Đường Gia Đình, Quận 3, TP.HCM",
+        dateOfBirth: "1985-05-15",
+        occupation: "Kỹ sư phần mềm",
+        emergencyContact: "0123456789",
+        relationship: "Bố/Mẹ",
+        bio: "Phụ huynh quan tâm đến sức khỏe và giáo dục của con em.",
+      };
+      setProfileData(fallbackData);
+      setEditedData(fallbackData);
+    }
+  }, [parentData, user]);
 
   const handleEdit = () => {
     setIsEditing(true);
     setEditedData(profileData);
   };
 
-  const handleSave = () => {
-    setProfileData(editedData);
-    setIsEditing(false);
-    // Trong thực tế, bạn sẽ gọi API để cập nhật thông tin
-    console.log("Saving profile data:", editedData);
+  const handleSave = async () => {
+    try {
+      // Prepare data for API update
+      const updateData = {
+        parentId: parentData?.parentId || user?.id,
+        firstName: editedData.firstName,
+        lastName: editedData.lastName,
+        email: editedData.email,
+        phone: editedData.phone,
+        address: editedData.address,
+        occupation: editedData.occupation,
+        relationship: editedData.relationship,
+        isEmergencyContact: editedData.emergencyContact ? true : false,
+        isActive: true
+      };
+
+      // Call API to update parent information using context
+      await updateParentData(updateData);
+      
+      setProfileData(editedData);
+      setIsEditing(false);
+      
+      // Show success message (you can add a toast notification here)
+      console.log("Profile updated successfully:", editedData);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      // Show error message (you can add a toast notification here)
+      alert("Có lỗi xảy ra khi cập nhật thông tin. Vui lòng thử lại.");
+    }
   };
 
   const handleCancel = () => {
@@ -81,6 +121,18 @@ const ParentProfile = () => {
   };
 
   const currentData = isEditing ? editedData : profileData;
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 transition-colors duration-300 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-neutral-500 dark:text-neutral-400">Đang tải thông tin...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 transition-colors duration-300">
@@ -151,7 +203,7 @@ const ParentProfile = () => {
               </p>
               <p className="text-sm text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
                 <FiUsers className="w-4 h-4" />
-                Phụ huynh của {children.length} học sinh
+                Phụ huynh của {students.length} học sinh
               </p>
             </div>
           </div>
@@ -421,73 +473,102 @@ const ParentProfile = () => {
                   <FiUsers className="w-6 h-6 text-primary-600" />
                   Thông tin con em
                 </h2>
-                <button className="text-primary-600 hover:text-primary-700 flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
-                  <FiPlus className="w-4 h-4" />
-                  Thêm con
-                </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {children.map((child) => (
-                  <div
-                    key={child.id}
-                    className="border border-neutral-200 dark:border-neutral-600 rounded-xl p-6 hover:shadow-md dark:hover:shadow-lg transition-all duration-200 bg-neutral-50 dark:bg-neutral-700"
-                  >
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
-                        <span className="text-primary-600 dark:text-primary-400 font-semibold text-lg">
-                          {child.name.charAt(0)}
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 text-lg">
-                          {child.name}
-                        </h3>
-                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                          Lớp {child.class}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                          Mã học sinh:
-                        </span>
-                        <span className="text-sm text-neutral-900 dark:text-neutral-100 font-mono">
-                          {child.studentId}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                          Ngày sinh:
-                        </span>
-                        <span className="text-sm text-neutral-900 dark:text-neutral-100">
-                          {new Date(child.dateOfBirth).toLocaleDateString(
-                            "vi-VN"
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                          Nhóm máu:
-                        </span>
-                        <span className="text-sm text-neutral-900 dark:text-neutral-100 font-semibold">
-                          {child.bloodType}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                          Dị ứng:
-                        </span>
-                        <span className="text-sm text-neutral-900 dark:text-neutral-100">
-                          {child.allergies}
-                        </span>
-                      </div>
-                    </div>
+              {students.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-neutral-100 dark:bg-neutral-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FiUsers className="w-8 h-8 text-neutral-400" />
                   </div>
-                ))}
-              </div>
+                  <p className="text-neutral-500 dark:text-neutral-400 text-lg mb-2">
+                    Chưa có thông tin con em
+                  </p>
+                  <p className="text-neutral-400 dark:text-neutral-500 text-sm">
+                    Vui lòng liên hệ nhà trường để cập nhật thông tin
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {students.map((student) => (
+                    <div
+                      key={student.studentId}
+                      className="border border-neutral-200 dark:border-neutral-600 rounded-xl p-6 hover:shadow-md dark:hover:shadow-lg transition-all duration-200 bg-neutral-50 dark:bg-neutral-700"
+                    >
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
+                          <span className="text-primary-600 dark:text-primary-400 font-semibold text-lg">
+                            {student.name.charAt(0)}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 text-lg">
+                            {student.name}
+                          </h3>
+                          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                            Lớp {student.class}
+                          </p>
+                          {student.isActive === false && (
+                            <span className="inline-block px-2 py-1 text-xs font-medium bg-red-100 text-red-600 rounded-full mt-1">
+                              Không hoạt động
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                            Mã học sinh:
+                          </span>
+                          <span className="text-sm text-neutral-900 dark:text-neutral-100 font-mono">
+                            {student.studentCode || "N/A"}
+                          </span>
+                        </div>
+                        {student.dateOfBirth && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                              Ngày sinh:
+                            </span>
+                            <span className="text-sm text-neutral-900 dark:text-neutral-100">
+                              {new Date(student.dateOfBirth).toLocaleDateString("vi-VN")}
+                            </span>
+                          </div>
+                        )}
+                        {student.gender && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                              Giới tính:
+                            </span>
+                            <span className="text-sm text-neutral-900 dark:text-neutral-100">
+                              {student.gender}
+                            </span>
+                          </div>
+                        )}
+                        {student.gradeLevel && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                              Khối:
+                            </span>
+                            <span className="text-sm text-neutral-900 dark:text-neutral-100">
+                              {student.gradeLevel}
+                            </span>
+                          </div>
+                        )}
+                        {student.address && (
+                          <div className="pt-2 border-t border-neutral-200 dark:border-neutral-600">
+                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                              Địa chỉ:
+                            </span>
+                            <p className="text-sm text-neutral-900 dark:text-neutral-100 mt-1">
+                              {student.address}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -501,7 +582,7 @@ const ParentProfile = () => {
               <div className="space-y-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
-                    {children.length}
+                    {students.length}
                   </div>
                   <div className="text-sm text-neutral-500 dark:text-neutral-400">
                     Số con
