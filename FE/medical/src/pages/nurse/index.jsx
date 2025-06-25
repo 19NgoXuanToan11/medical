@@ -3,6 +3,9 @@ import NurseHealthCheck from "./health-check/NurseHealthCheck";
 import NurseProfile from "./profile/NurseProfile";
 import StudentHealthRecords from "./health-records/StudentHealthRecords";
 import StudentHealthRecordDetail from "./health-records/StudentHealthRecordDetail";
+import StaffMedicationList from "./medication/StaffMedicationList";
+import StaffMedicationDetail from "./medication/StaffMedicationDetail";
+import MedicationReminders from "./medication/MedicationReminders";
 
 export {
   NurseDashboard,
@@ -10,6 +13,9 @@ export {
   NurseProfile,
   StudentHealthRecords,
   StudentHealthRecordDetail,
+  StaffMedicationList,
+  StaffMedicationDetail,
+  MedicationReminders,
 };
 
 export default {
@@ -18,4 +24,7 @@ export default {
   NurseProfile,
   StudentHealthRecords,
   StudentHealthRecordDetail,
+  StaffMedicationList,
+  StaffMedicationDetail,
+  MedicationReminders,
 };

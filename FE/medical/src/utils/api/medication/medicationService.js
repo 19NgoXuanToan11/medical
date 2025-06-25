@@ -170,7 +170,7 @@ export const medicationService = {
   // Get pending medication requests
   getPendingMedicationRequests: async () => {
     try {
-      const response = await api.get("/MedicineRequest?status=pending");
+      const response = await api.get("/MedicineRequest/pending");
       return {
         success: true,
         data: response.data,
@@ -184,6 +184,150 @@ export const medicationService = {
         message:
           error.response?.data?.message ||
           "Không thể lấy danh sách yêu cầu thuốc chờ xử lý",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get assigned medication requests
+  getAssignedMedicationRequests: async () => {
+    try {
+      // First try to get all requests and filter by status
+      const response = await api.get("/MedicineRequest");
+
+      if (response.data) {
+        // Filter for assigned status
+        const assignedRequests = response.data.filter(
+          (req) => req.status === "Assigned" || req.status === "assigned"
+        );
+
+        console.log("All requests from API:", response.data);
+        console.log("Filtered assigned requests:", assignedRequests);
+
+        // For any requests missing medicineRequestItems, fetch them individually
+        const requestsWithCompleteData = await Promise.all(
+          assignedRequests.map(async (request) => {
+            if (
+              !request.medicineRequestItems ||
+              request.medicineRequestItems.length === 0
+            ) {
+              try {
+                console.log(
+                  `Fetching complete data for assigned request ${request.requestId}`
+                );
+                const detailResponse = await api.get(
+                  `/MedicineRequest/${request.requestId}`
+                );
+                if (detailResponse.data) {
+                  console.log(
+                    `Complete data for request ${request.requestId}:`,
+                    detailResponse.data
+                  );
+                  return { ...request, ...detailResponse.data };
+                }
+              } catch (error) {
+                console.error(
+                  `Error fetching detail for request ${request.requestId}:`,
+                  error
+                );
+              }
+            }
+            return request;
+          })
+        );
+
+        return {
+          success: true,
+          data: requestsWithCompleteData,
+          message: "Lấy danh sách yêu cầu thuốc đã giao nhiệm vụ thành công",
+        };
+      }
+
+      return {
+        success: false,
+        data: [],
+        message: "Không có dữ liệu từ API",
+      };
+    } catch (error) {
+      console.error("Error fetching assigned medication requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc đã giao nhiệm vụ",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get completed medication requests
+  getCompletedMedicationRequests: async () => {
+    try {
+      // First try to get all requests and filter by status
+      const response = await api.get("/MedicineRequest");
+
+      if (response.data) {
+        // Filter for completed status
+        const completedRequests = response.data.filter(
+          (req) => req.status === "Completed" || req.status === "completed"
+        );
+
+        console.log("All requests from API:", response.data);
+        console.log("Filtered completed requests:", completedRequests);
+
+        // For any requests missing medicineRequestItems, fetch them individually
+        const requestsWithCompleteData = await Promise.all(
+          completedRequests.map(async (request) => {
+            if (
+              !request.medicineRequestItems ||
+              request.medicineRequestItems.length === 0
+            ) {
+              try {
+                console.log(
+                  `Fetching complete data for completed request ${request.requestId}`
+                );
+                const detailResponse = await api.get(
+                  `/MedicineRequest/${request.requestId}`
+                );
+                if (detailResponse.data) {
+                  console.log(
+                    `Complete data for request ${request.requestId}:`,
+                    detailResponse.data
+                  );
+                  return { ...request, ...detailResponse.data };
+                }
+              } catch (error) {
+                console.error(
+                  `Error fetching detail for request ${request.requestId}:`,
+                  error
+                );
+              }
+            }
+            return request;
+          })
+        );
+
+        return {
+          success: true,
+          data: requestsWithCompleteData,
+          message: "Lấy danh sách yêu cầu thuốc đã hoàn thành thành công",
+        };
+      }
+
+      return {
+        success: false,
+        data: [],
+        message: "Không có dữ liệu từ API",
+      };
+    } catch (error) {
+      console.error("Error fetching completed medication requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc đã hoàn thành",
         error: error.response?.data || error.message,
       };
     }
@@ -246,6 +390,205 @@ export const medicationService = {
         message:
           error.response?.data?.message ||
           "Không thể lấy thống kê yêu cầu thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get available nurses
+  getAvailableNurses: async () => {
+    try {
+      const response = await api.get("/MedicineRequest/available-nurses");
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách y tá có sẵn thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching available nurses:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách y tá có sẵn",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Update medication request with selected staff
+  updateMedicationRequestWithStaff: async (id, staffId, action, notes = "") => {
+    try {
+      // Use the specific assignment endpoint that preserves medicineRequestItems
+      const response = await api.post(
+        `/MedicineRequest/${id}/assign-nurse/${staffId}`
+      );
+
+      return {
+        success: true,
+        data: response.data,
+        message: "Yêu cầu thuốc đã được giao nhiệm vụ thành công",
+      };
+    } catch (error) {
+      console.error("Error assigning medication request:", error);
+
+      // Fallback to the old method if the new endpoint doesn't exist
+      try {
+        console.log("Assignment endpoint failed, trying fallback method");
+
+        // First get the current request data to preserve all fields
+        const currentRequest = await api.get(`/MedicineRequest/${id}`);
+
+        if (currentRequest.data) {
+          const requestData = {
+            ...currentRequest.data, // Preserve all existing data including medicineRequestItems
+            staffId: staffId,
+            status: action === "approved" ? "Assigned" : action,
+            assignedBy: staffId,
+            assignedDate: new Date().toISOString(),
+            assignmentNotes: notes,
+          };
+
+          const fallbackResponse = await api.put(
+            `/MedicineRequest/${id}`,
+            requestData
+          );
+          return {
+            success: true,
+            data: fallbackResponse.data,
+            message: "Yêu cầu thuốc đã được giao nhiệm vụ thành công",
+          };
+        }
+      } catch (fallbackError) {
+        console.error("Error with fallback assignment:", fallbackError);
+      }
+
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message ||
+          "Không thể giao nhiệm vụ yêu cầu thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Complete medication request
+  completeMedicationRequest: async (id, staffId, notes = "") => {
+    try {
+      // Use the specific completion endpoint
+      const response = await api.post(
+        `/MedicineRequest/${id}/complete/${staffId}`,
+        {
+          completionNotes: notes,
+          completedDate: new Date().toISOString(),
+        }
+      );
+
+      return {
+        success: true,
+        data: response.data,
+        message: "Yêu cầu thuốc đã được hoàn thành thành công",
+      };
+    } catch (error) {
+      console.error("Error completing medication request:", error);
+
+      // Fallback to the old method if the new endpoint doesn't exist
+      try {
+        console.log("Completion endpoint failed, trying fallback method");
+
+        // First get the current request data to preserve all fields
+        const currentRequest = await api.get(`/MedicineRequest/${id}`);
+
+        if (currentRequest.data) {
+          const requestData = {
+            ...currentRequest.data, // Preserve all existing data including medicineRequestItems
+            status: "Completed",
+            completedBy: staffId,
+            completedDate: new Date().toISOString(),
+            completionNotes: notes,
+          };
+
+          const fallbackResponse = await api.put(
+            `/MedicineRequest/${id}`,
+            requestData
+          );
+          return {
+            success: true,
+            data: fallbackResponse.data,
+            message: "Yêu cầu thuốc đã được hoàn thành thành công",
+          };
+        }
+      } catch (fallbackError) {
+        console.error("Error with fallback completion:", fallbackError);
+      }
+
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể hoàn thành yêu cầu thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Start administration for medication request
+  startAdministrationRequest: async (id, staffId, notes = "") => {
+    try {
+      const response = await api.post(
+        `/MedicineRequest/${id}/start-administration/${staffId}`,
+        {
+          administrationNotes: notes,
+          startedDate: new Date().toISOString(),
+        }
+      );
+
+      return {
+        success: true,
+        data: response.data,
+        message: "Đã bắt đầu quá trình cấp thuốc thành công",
+      };
+    } catch (error) {
+      console.error("Error starting administration:", error);
+
+      // Fallback to status update
+      try {
+        const currentRequest = await api.get(`/MedicineRequest/${id}`);
+        if (currentRequest.data) {
+          const requestData = {
+            ...currentRequest.data,
+            status: "Administering",
+            administrationStartedBy: staffId,
+            administrationStartedDate: new Date().toISOString(),
+            administrationNotes: notes,
+          };
+
+          const fallbackResponse = await api.put(
+            `/MedicineRequest/${id}`,
+            requestData
+          );
+          return {
+            success: true,
+            data: fallbackResponse.data,
+            message: "Đã bắt đầu quá trình cấp thuốc thành công",
+          };
+        }
+      } catch (fallbackError) {
+        console.error(
+          "Error with fallback administration start:",
+          fallbackError
+        );
+      }
+
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message ||
+          "Không thể bắt đầu quá trình cấp thuốc",
         error: error.response?.data || error.message,
       };
     }

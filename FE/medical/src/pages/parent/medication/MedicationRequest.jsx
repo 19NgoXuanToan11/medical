@@ -5,6 +5,7 @@ import {
   notificationService,
 } from "../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../utils/auth/AuthContext";
+import { toast } from "react-toastify";
 
 const MedicationRequest = () => {
   const navigate = useNavigate();
@@ -105,35 +106,6 @@ const MedicationRequest = () => {
     }
 
     // Allow typing for date field with y/d/m format and auto-format
-    if (name === "date") {
-      // Only keep digits
-      let cleanValue = value.replace(/[^\d]/g, "");
-
-      // Limit to 8 digits max (yyyyddmm)
-      cleanValue = cleanValue.slice(0, 8);
-
-      // Auto-format as y/d/m based on length
-      let formattedValue = cleanValue;
-
-      if (cleanValue.length >= 7) {
-        // Format as yyyy/dd/mm
-        formattedValue =
-          cleanValue.slice(0, 4) +
-          "/" +
-          cleanValue.slice(4, 6) +
-          "/" +
-          cleanValue.slice(6, 8);
-      } else if (cleanValue.length >= 5) {
-        // Format as yyyy/dd
-        formattedValue = cleanValue.slice(0, 4) + "/" + cleanValue.slice(4);
-      }
-
-      setFormData((prev) => ({
-        ...prev,
-        [name]: formattedValue,
-      }));
-      return;
-    }
 
     setFormData((prev) => ({
       ...prev,
@@ -296,15 +268,6 @@ const MedicationRequest = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate date format before submitting
-    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-    if (!datePattern.test(formData.date)) {
-      alert(
-        "Vui lòng nhập ngày đúng định dạng: yyyy-mm-dd (ví dụ: 2024-01-15)"
-      );
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -327,12 +290,21 @@ const MedicationRequest = () => {
           medicineName: medication.medicineName,
           dosage: medication.dosage,
           frequency: medication.frequency,
-          timeOfDay: medication.timeOfDay,
+          timeOfDay: medication.timeOfDay.join(", "), // Convert array to string
           instructions: medication.instructions,
         };
 
         processedMedications.push(medicationItem);
       }
+
+      // Convert date from y/m/d to yyyy-mm-dd format for API
+      const convertDateFormat = (dateString) => {
+        if (dateString.includes("/")) {
+          const [year, month, day] = dateString.split("/");
+          return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        }
+        return dateString;
+      };
 
       // Prepare request data according to API schema
       const requestData = {
@@ -340,8 +312,7 @@ const MedicationRequest = () => {
         className: formData.className,
         parentID: user?.id || parseInt(formData.parentID) || 1, // Ưu tiên lấy từ user đã đăng nhập
         status: formData.status,
-        startDate: formData.date,
-        endDate: formData.date,
+        date: convertDateFormat(formData.date),
         medicineRequestItems: processedMedications,
       };
 
@@ -365,7 +336,6 @@ const MedicationRequest = () => {
       }
     } catch (error) {
       console.error("Error submitting medication request:", error);
-      alert("Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại!");
     } finally {
       setIsLoading(false);
     }
@@ -382,17 +352,17 @@ const MedicationRequest = () => {
     );
   };
 
-  // Kiểm tra ngày có hợp lệ không - định dạng y/d/m
+  // Kiểm tra ngày có hợp lệ không - định dạng y/m/d
   const isValidDate = (dateString) => {
     if (!dateString || !dateString.includes("/")) return false;
 
     const parts = dateString.split("/");
     if (parts.length !== 3) return false;
 
-    const [year, day, month] = parts.map(Number);
+    const [year, month, day] = parts.map(Number);
 
     // Kiểm tra các giá trị số hợp lệ
-    if (isNaN(year) || isNaN(day) || isNaN(month)) return false;
+    if (isNaN(year) || isNaN(month) || isNaN(day)) return false;
     if (year < 1900 || year > 2100) return false;
     if (month < 1 || month > 12) return false;
     if (day < 1 || day > 31) return false;
@@ -411,7 +381,7 @@ const MedicationRequest = () => {
   const isPastDate = (dateString) => {
     if (!isValidDate(dateString)) return false;
 
-    const [year, day, month] = dateString.split("/").map(Number);
+    const [year, month, day] = dateString.split("/").map(Number);
     const inputDate = new Date(year, month - 1, day);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -642,7 +612,7 @@ const MedicationRequest = () => {
                   value={formData.date}
                   onChange={handleInputChange}
                   required
-                  placeholder="y/d/m"
+                  placeholder="y/m/d"
                   className={`w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
                     formData.date && !isValidDate(formData.date)
                       ? "border-red-400 dark:border-red-500"
@@ -651,8 +621,8 @@ const MedicationRequest = () => {
                 />
                 {formData.date && !isValidDate(formData.date) && (
                   <p className="text-red-500 dark:text-red-400 text-sm mt-1">
-                    Ngày không hợp lệ. Vui lòng nhập theo định dạng y/d/m (ví
-                    dụ: 2024/15/12)
+                    Ngày không hợp lệ. Vui lòng nhập theo định dạng y/m/d (ví
+                    dụ: 2024/12/15)
                   </p>
                 )}
                 {formData.date &&
@@ -664,8 +634,8 @@ const MedicationRequest = () => {
                   )}
                 {!formData.date && (
                   <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                    Nhập ngày cần cấp thuốc (định dạng: y/d/m - ví dụ:
-                    2024/15/12)
+                    Nhập ngày cần cấp thuốc (định dạng: y/m/d - ví dụ:
+                    2024/12/15)
                   </p>
                 )}
               </div>
