@@ -3,6 +3,7 @@ using API.DTOs;
 using AutoMapper;
 using DB;
 using Service;
+using System.Text.Json;
 
 namespace API.Controllers;
 
@@ -190,8 +191,8 @@ public class MedicineRequestController : ControllerBase
 
     // New frequency-based endpoints
 
-    // POST: api/MedicineRequest/{id}/start/{staffId}
-    [HttpPost("{id}/start/{staffId}")]
+    // POST: api/MedicineRequest/{id}/start-administration/{staffId}
+    [HttpPost("{id}/start-administration/{staffId}")]
     public async Task<ActionResult<RequestResultDto.ViewModel>> StartMedicineRequest(int id, int staffId)
     {
         var requestResult = await _medicineRequestService.StartMedicineRequestAsync(id, staffId);
@@ -226,35 +227,21 @@ public class MedicineRequestController : ControllerBase
         return NoContent();
     }
 
-    // GET: api/MedicineRequest/{requestResultId}/pending-frequencies/{medicineRequestItemId}
-    [HttpGet("{requestResultId}/pending-frequencies/{medicineRequestItemId}")]
-    public async Task<ActionResult<IEnumerable<string>>> GetPendingFrequencies(int requestResultId, int medicineRequestItemId)
+    // GET: api/MedicineRequest/{requestResultId}/progress/{medicineRequestItemId}
+    [HttpGet("{requestResultId}/progress/{medicineRequestItemId}")]
+    public async Task<ActionResult<object>> GetProgressInfo(int requestResultId, int medicineRequestItemId)
     {
-        var pendingFrequencies = await _medicineRequestService.GetPendingFrequenciesAsync(requestResultId, medicineRequestItemId);
-        return Ok(pendingFrequencies);
+        var (isCompleted, pendingFrequencies) = await _medicineRequestService.GetProgressInfoAsync(requestResultId, medicineRequestItemId);
+        return Ok(new { isCompleted, pendingFrequencies });
     }
 
-    // GET: api/MedicineRequest/{requestResultId}/is-completed/{medicineRequestItemId}
-    [HttpGet("{requestResultId}/is-completed/{medicineRequestItemId}")]
-    public async Task<ActionResult<bool>> IsMedicineCompletedForDay(int requestResultId, int medicineRequestItemId)
+    // GET: api/MedicineRequest/{requestResultId}/re-request-info
+    [HttpGet("{requestResultId}/re-request-info")]
+    public async Task<ActionResult<object>> GetReRequestInfo(int requestResultId)
     {
-        var isCompleted = await _medicineRequestService.IsMedicineCompletedForDayAsync(requestResultId, medicineRequestItemId);
-        return Ok(isCompleted);
+        var (canReRequest, _) = await _medicineRequestService.GetReRequestInfoAsync(requestResultId);
+        return Ok(new { canReRequest });
     }
-
-    // POST: api/MedicineRequest/{requestResultId}/complete-medicine/{staffId}
-    [HttpPost("{requestResultId}/complete-medicine/{staffId}")]
-    public async Task<IActionResult> CompleteMedicineRequest(int requestResultId, int staffId)
-    {
-        var success = await _medicineRequestService.CompleteMedicineRequestAsync(requestResultId, staffId);
-        if (!success)
-        {
-            return BadRequest("Failed to complete medicine request.");
-        }
-        return NoContent();
-    }
-
-    // New failure handling endpoints
 
     // POST: api/MedicineRequest/report-failure
     [HttpPost("report-failure")]
@@ -270,8 +257,8 @@ public class MedicineRequestController : ControllerBase
             request.MedicineRequestItemId,
             request.Frequency,
             request.FailureReason,
-            request.StaffId,
-            request.Notes);
+            request.StaffId
+        );
 
         if (!success)
         {
@@ -333,22 +320,6 @@ public class MedicineRequestController : ControllerBase
         return Ok(viewModels);
     }
 
-    // GET: api/MedicineRequest/{requestResultId}/eligible-for-re-request
-    [HttpGet("{requestResultId}/eligible-for-re-request")]
-    public async Task<ActionResult<bool>> IsRequestEligibleForReRequest(int requestResultId)
-    {
-        var isEligible = await _medicineRequestService.IsRequestEligibleForReRequestAsync(requestResultId);
-        return Ok(isEligible);
-    }
-
-    // GET: api/MedicineRequest/{requestResultId}/re-request-reason
-    [HttpGet("{requestResultId}/re-request-reason")]
-    public async Task<ActionResult<string>> GetReRequestReason(int requestResultId)
-    {
-        var reason = await _medicineRequestService.GetReRequestReasonAsync(requestResultId);
-        return Ok(reason);
-    }
-
     // POST: api/MedicineRequest/{requestResultId}/mark-failed
     [HttpPost("{requestResultId}/mark-failed")]
     public async Task<IActionResult> MarkRequestAsFailed(int requestResultId, [FromBody] string reason)
@@ -370,20 +341,20 @@ public class MedicineRequestController : ControllerBase
         {
             return NotFound();
         }
-
+        // Parse JSON string to object for FailedFrequencies and FailureReasons
+        var failedFrequencies = string.IsNullOrEmpty(requestResult.FailedFrequencies)
+            ? new List<string>()
+            : JsonSerializer.Deserialize<List<string>>(requestResult.FailedFrequencies);
+        var failureReasons = string.IsNullOrEmpty(requestResult.FailureReasons)
+            ? new Dictionary<string, string>()
+            : JsonSerializer.Deserialize<Dictionary<string, string>>(requestResult.FailureReasons);
         var summary = new
         {
-            RequestResultId = requestResult.ResultId,
             Status = requestResult.Status,
-            FailedFrequencies = requestResult.FailedFrequencies,
-            FailureReasons = requestResult.FailureReasons,
-            FailedAttempts = requestResult.FailedAttempts,
-            LastAttemptTime = requestResult.LastAttemptTime,
-            ReRequestReason = requestResult.ReRequestReason,
-            IsEligibleForReRequest = await _medicineRequestService.IsRequestEligibleForReRequestAsync(requestResultId),
-            ReRequestReasonType = await _medicineRequestService.GetReRequestReasonAsync(requestResultId)
+            FailedFrequencies = failedFrequencies,
+            FailureReasons = failureReasons,
+            IsEligibleForReRequest = await _medicineRequestService.IsRequestEligibleForReRequestAsync(requestResultId)
         };
-
         return Ok(summary);
     }
 } 

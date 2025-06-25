@@ -1,6 +1,7 @@
 using DB;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Repo;
 
@@ -372,52 +373,34 @@ public class MedicineRequestRepository : IMedicineRequestRepository
 
     private List<string> ParseFrequencyToFrequencies(string? frequency)
     {
-        var frequencies = new List<string>();
-
         if (string.IsNullOrEmpty(frequency))
-        {
-            frequencies.Add("sáng");
-            return frequencies;
-        }
+            return new List<string>();
 
-        // Handle different frequency formats
-        if (frequency.Contains("sáng") || frequency.Contains("morning"))
-            frequencies.Add("sáng");
-        if (frequency.Contains("trưa") || frequency.Contains("noon") || frequency.Contains("lunch"))
-            frequencies.Add("trưa");
-        if (frequency.Contains("chiều") || frequency.Contains("afternoon"))
-            frequencies.Add("chiều");
-        if (frequency.Contains("tối") || frequency.Contains("evening") || frequency.Contains("night"))
-            frequencies.Add("tối");
-
-        // If no specific times found, use default based on times per day
-        if (frequencies.Count == 0)
+        var result = new List<string>();
+        var segments = frequency.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var segment in segments)
         {
-            var timesPerDay = ParseFrequencyToTimesPerDay(frequency);
-            switch (timesPerDay)
+            var part = segment.Trim().ToLower();
+            // Match patterns like 'sáng 2 lần', 'trưa 1 lần', etc.
+            var match = Regex.Match(part, @"(sáng|trưa|chiều)\s*(\d+)?\s*lần?");
+            if (match.Success)
             {
-                case 1:
-                    frequencies.Add("sáng");
-                    break;
-                case 2:
-                    frequencies.Add("sáng");
-                    frequencies.Add("tối");
-                    break;
-                case 3:
-                    frequencies.Add("sáng");
-                    frequencies.Add("trưa");
-                    frequencies.Add("tối");
-                    break;
-                case 4:
-                    frequencies.Add("sáng");
-                    frequencies.Add("trưa");
-                    frequencies.Add("chiều");
-                    frequencies.Add("tối");
-                    break;
+                var timeOfDay = match.Groups[1].Value;
+                var countStr = match.Groups[2].Value;
+                int count = 1;
+                if (!string.IsNullOrEmpty(countStr) && int.TryParse(countStr, out var parsed))
+                    count = parsed;
+                for (int i = 0; i < count; i++)
+                    result.Add(timeOfDay);
+            }
+            else
+            {
+                // Fallback: if just 'sáng', 'trưa', etc. (old format)
+                if (part == "sáng" || part == "trưa" || part == "chiều" || part == "tối")
+                    result.Add(part);
             }
         }
-
-        return frequencies;
+        return result;
     }
 
     private List<string> ParseAdministeredFrequencies(string? administeredFrequenciesJson)
@@ -675,6 +658,41 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         {
             return new Dictionary<string, string>();
         }
+    }
+
+    public async Task<(bool isCompleted, IEnumerable<string> pendingFrequencies)> GetProgressInfoAsync(int requestResultId, int medicineRequestItemId)
+    {
+        var requestResult = await _context.RequestResults
+            .Include(r => r.Request)
+            .ThenInclude(r => r!.MedicineRequestItems)
+            .FirstOrDefaultAsync(r => r.ResultId == requestResultId);
+        if (requestResult == null)
+            return (false, Enumerable.Empty<string>());
+        var medicineItem = requestResult.Request?.MedicineRequestItems
+            .FirstOrDefault(i => i.MedicineRequestItemId == medicineRequestItemId);
+        if (medicineItem == null)
+            return (false, Enumerable.Empty<string>());
+        var allFrequencies = ParseFrequencyToFrequencies(medicineItem.Frequency);
+        var administeredFrequencies = ParseAdministeredFrequencies(requestResult.AdministeredFrequencies);
+        var pending = allFrequencies.Except(administeredFrequencies).ToList();
+        bool isCompleted = pending.Count == 0;
+        return (isCompleted, pending);
+    }
+
+    public async Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId)
+    {
+        var requestResult = await _context.RequestResults
+            .FirstOrDefaultAsync(r => r.ResultId == requestResultId);
+        if (requestResult == null)
+            return (false, "Not found");
+        var currentTime = DateTime.Now;
+        if (currentTime.Hour >= 17)
+            return (false, "Time Expired");
+        if (requestResult.Status == "Failed")
+            return (true, "Complete Failure");
+        if (requestResult.Status == "Partially Failed")
+            return (true, "Partial Failure");
+        return (false, "");
     }
 }
 

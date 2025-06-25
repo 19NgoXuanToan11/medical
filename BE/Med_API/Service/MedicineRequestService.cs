@@ -198,4 +198,14 @@ public class MedicineRequestService : IMedicineRequestService
     {
         return await _medicineRequestRepository.GetRequestResultByIdAsync(requestResultId);
     }
+
+    public async Task<(bool isCompleted, IEnumerable<string> pendingFrequencies)> GetProgressInfoAsync(int requestResultId, int medicineRequestItemId)
+    {
+        return await _medicineRequestRepository.GetProgressInfoAsync(requestResultId, medicineRequestItemId);
+    }
+
+    public async Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId)
+    {
+        return await _medicineRequestRepository.GetReRequestInfoAsync(requestResultId);
+    }
 } 

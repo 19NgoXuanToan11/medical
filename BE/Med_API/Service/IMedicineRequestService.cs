@@ -35,4 +35,6 @@ public interface IMedicineRequestService
     Task<string> GetReRequestReasonAsync(int requestResultId);
     Task<bool> MarkRequestAsFailedAsync(int requestResultId, string reason);
     Task<RequestResult?> GetRequestResultByIdAsync(int requestResultId);
+    Task<(bool isCompleted, IEnumerable<string> pendingFrequencies)> GetProgressInfoAsync(int requestResultId, int medicineRequestItemId);
+    Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId);
 } 

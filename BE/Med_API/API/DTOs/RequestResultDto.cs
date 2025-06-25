@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace API.DTOs;
 
@@ -20,8 +21,8 @@ public static class RequestResultDto
         public string? AdministeredFrequencies { get; set; } // JSON string
         
         // New failure handling fields
-        public string? FailedFrequencies { get; set; } // JSON string
-        public string? FailureReasons { get; set; } // JSON string
+        public string? FailedFrequencies { get; set; } // JSON string, dùng cho FailureSummary
+        public string? FailureReasons { get; set; } // JSON string, dùng cho FailureSummary
         public bool IsReRequest { get; set; }
         public int? OriginalRequestResultId { get; set; }
         public DateTime? LastAttemptTime { get; set; }
@@ -32,7 +33,9 @@ public static class RequestResultDto
         public MedicineRequestDto.ViewModel? Request { get; set; }
         public StaffDto.ViewModel? AdministeredByStaff { get; set; }
         public StaffDto.ViewModel? ActionByStaff { get; set; }
+        [JsonIgnore]
         public RequestResultDto.ViewModel? OriginalRequestResult { get; set; }
+        [JsonIgnore]
         public ICollection<RequestResultDto.ViewModel> ReRequests { get; set; } = new List<RequestResultDto.ViewModel>();
     }
 
@@ -119,9 +122,6 @@ public static class RequestResultDto
         [Required]
         [StringLength(500)]
         public string FailureReason { get; set; } = null!;
-
-        [StringLength(500)]
-        public string? Notes { get; set; }
 
         [Required]
         public int StaffId { get; set; }

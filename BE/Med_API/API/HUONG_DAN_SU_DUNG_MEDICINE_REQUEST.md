@@ -29,89 +29,132 @@ Hệ thống quản lý yêu cầu thuốc cho học sinh với khả năng:
 
 ## **HƯỚNG DẪN SỬ DỤNG CƠ BẢN**
 
-### **Phần 1: Tạo Yêu Cầu Thuốc (MedicineRequest)**
+### **1. Tạo, Xem, Sửa, Xóa Yêu Cầu Thuốc (MedicineRequest)**
 
-#### **Bước 1: Tạo Yêu Cầu Thuốc Mới**
-
+#### **Tạo Yêu Cầu Thuốc**
 **API:** `POST /api/MedicineRequest`
-
-**Body:**
+- Body sử dụng `MedicineRequestDto.Create`:
 ```json
 {
   "studentCode": "STU001",
   "className": "Lớp 10A",
   "parentId": 1,
-  "status": "Pending",
-  "date": "2024-12-21",
   "medicineRequestItems": [
     {
       "medicineName": "Paracetamol",
       "dosage": "500mg",
-      "frequency": "3 lần/ngày",
-      "timeOfDay": "sáng, trưa, tối",
-      "instructions": "Uống sau khi ăn"
-    },
-    {
-      "medicineName": "Vitamin C",
-      "dosage": "100mg",
-      "frequency": "1 lần/ngày",
-      "timeOfDay": "sáng",
-      "instructions": "Uống buổi sáng"
+      "frequency": "sáng 1 lần,trưa 2 lần",
+      "timeOfDay": "sáng, trưa",
+      "instructions": "Uống sau khi ăn, buổi trưa uông trước và sau khi ăn 30 phút"
     }
   ]
 }
 ```
+- Trường `medicineRequestItems` là bắt buộc, phải có ít nhất 1 item.
+- Trạng thái mặc định: `Pending`.
 
-**Kết quả:** Tạo yêu cầu thuốc với trạng thái "Pending"
+#### **Xem Danh Sách và Chi Tiết**
+- `GET /api/MedicineRequest` — Tất cả yêu cầu
+- `GET /api/MedicineRequest/{id}` — Chi tiết theo ID
+- `GET /api/MedicineRequest/student/{studentCode}` — Theo học sinh
+- `GET /api/MedicineRequest/parent/{parentId}` — Theo phụ huynh
+- `GET /api/MedicineRequest/staff/{staffId}` — Theo y tá
+- `GET /api/MedicineRequest/status/{status}` — Theo trạng thái
+- `GET /api/MedicineRequest/pending` — Danh sách chờ xử lý
 
-#### **Bước 2: Gán Y Tá Cho Yêu Cầu**
+#### **Sửa & Xóa**
+- `PUT /api/MedicineRequest/{id}` — Cập nhật yêu cầu (body: `MedicineRequestDto.Update`)
+- `DELETE /api/MedicineRequest/{id}` — Xóa yêu cầu
 
-**API:** `POST /api/MedicineRequest/{requestId}/assign-nurse/{staffId}`
+### **2. Phân Công Y Tá & Quản Lý Trạng Thái**
+- `POST /api/MedicineRequest/{id}/assign-nurse/{staffId}` — Gán y tá cho yêu cầu (chỉ khi trạng thái là Pending, y tá chưa vượt quá 5 yêu cầu chờ)
+- `GET /api/MedicineRequest/available-nurses` — Lấy danh sách y tá còn khả dụng
+- `POST /api/MedicineRequest/{id}/complete/{staffId}` — Đánh dấu hoàn thành yêu cầu
 
-**Ví dụ:** `POST /api/MedicineRequest/1/assign-nurse/5`
+### **3. Quản Lý Quá Trình Cho Thuốc (RequestResult)**
+- `POST /api/MedicineRequest/{id}/start-administration/{staffId}` — Bắt đầu quá trình cho thuốc, sinh ra RequestResult
+- `POST /api/MedicineRequest/administer-frequency` — Cho thuốc theo từng tần suất (body: `RequestResultDto.FrequencyCompleteRequest`)
+- `GET /api/MedicineRequest/{requestResultId}/progress/{medicineRequestItemId}` — Xem tiến độ từng loại thuốc
+- `GET /api/MedicineRequest/{requestResultId}/is-completed/{medicineRequestItemId}` — Kiểm tra hoàn thành
+- `POST /api/MedicineRequest/{id}/complete/{staffId}` — Hoàn thành toàn bộ yêu cầu
 
-**Kết quả:** Yêu cầu chuyển từ "Pending" sang "Assigned"
+### **4. Xử Lý Thất Bại & Yêu Cầu Lại**
+- `POST /api/MedicineRequest/report-failure` — Báo cáo thất bại (body: `RequestResultDto.FailureReport`)
+- `GET /api/MedicineRequest/{requestResultId}/re-request-info` — Kiểm tra điều kiện tạo lại yêu cầu
+- `POST /api/MedicineRequest/create-re-request` — Tạo lại yêu cầu (body: `RequestResultDto.ReRequestCreate`)
+- `GET /api/MedicineRequest/failed-requests` — Danh sách thất bại
+- `GET /api/MedicineRequest/{originalRequestResultId}/re-requests` — Danh sách yêu cầu lại
+- `POST /api/MedicineRequest/{requestResultId}/mark-failed` — Đánh dấu thất bại với lý do (body: string reason)
+- `GET /api/MedicineRequest/{requestResultId}/failure-summary` — Tổng hợp thất bại
 
-#### **Bước 3: Xem Danh Sách Yêu Cầu**
+### **5. Cập Nhật Trạng Thái Theo Thời Gian**
+- `POST /api/MedicineRequest/update-time-based-status` — Tự động cập nhật trạng thái (ví dụ: sau 17h sẽ đánh dấu thất bại nếu chưa hoàn thành)
 
-**API:** `GET /api/MedicineRequest`
+---
 
-**Lọc theo:**
-- Theo học sinh: `GET /api/MedicineRequest/student/STU001`
-- Theo phụ huynh: `GET /api/MedicineRequest/parent/1`
-- Theo y tá: `GET /api/MedicineRequest/staff/5`
-- Theo trạng thái: `GET /api/MedicineRequest/status/pending`
-- Yêu cầu chờ: `GET /api/MedicineRequest/pending`
+## **QUY TẮC TRẠNG THÁI**
+- `Pending` → `Assigned` (khi gán y tá)
+- `Assigned` → `In Progress` (khi bắt đầu cho thuốc)
+- `In Progress` → `Completed` (khi hoàn thành đủ tần suất)
+- `In Progress` → `Failed` (nếu thất bại toàn bộ hoặc hết thời gian)
+- `In Progress` → `Partially Failed` (nếu thất bại một phần)
 
-### **Phần 2: Bắt Đầu Quá Trình Cho Thuốc (RequestResult)**
+---
 
-#### **Bước 4: Bắt Đầu Cho Thuốc**
+## **API RequestResultController**
+- `GET /api/RequestResult` — Danh sách kết quả
+- `GET /api/RequestResult/{id}` — Chi tiết kết quả
+- `GET /api/RequestResult/request/{requestId}` — Kết quả theo yêu cầu thuốc
+- `GET /api/RequestResult/request/{requestId}/latest` — Kết quả mới nhất theo yêu cầu thuốc (dùng MedicineRequest id)
+- `GET /api/RequestResult/status/{status}` — Kết quả theo trạng thái (dùng MedicineRequest status: Pending, Approved, Rejected)
+- `POST /api/RequestResult` — Tạo mới (body: `RequestResultDto.Create`) 
+- `PUT /api/RequestResult/{id}` — Cập nhật (body: `RequestResultDto.Update`)
+- `DELETE /api/RequestResult/{id}` — Xóa
 
-**API:** `POST /api/MedicineRequest/{requestId}/start/{staffId}`
+---
 
-**Ví dụ:** `POST /api/MedicineRequest/1/start/5`
+## **LƯU Ý & ĐIỂM MỚI**
+- Các endpoint đều trả về ViewModel/DTO tương ứng.
+- Các trường hợp lỗi sẽ trả về thông báo chi tiết (ví dụ: y tá vượt quá số lượng yêu cầu, trạng thái không hợp lệ, v.v.).
+- Đảm bảo truyền đúng tham số (ví dụ: `requestResultId`, `medicineRequestItemId`, `staffId`, ...).
+- Có thể kiểm tra danh sách y tá còn khả dụng trước khi gán.
+- Có thể tạo lại yêu cầu nếu đủ điều kiện (qua endpoint re-request-info).
+- Tự động cập nhật trạng thái dựa trên thời gian qua endpoint chuyên biệt.
 
-**Kết quả:** 
-- Tạo RequestResult với trạng thái "In Progress"
-- Phân tích tần suất từ MedicineRequestItems
-- Thiết lập TimesPerDay và CurrentDayCount = 0
+---
 
-#### **Bước 5: Kiểm Tra Tần Suất Cần Cho**
-
-**API:** `GET /api/MedicineRequest/{requestResultId}/pending-frequencies/{medicineRequestItemId}`
-
-**Ví dụ:** `GET /api/MedicineRequest/1/pending-frequencies/1`
-
-**Kết quả:** `["sáng", "trưa", "tối"]` (cho thuốc 3 lần/ngày)
-
-### **Phần 3: Cho Thuốc Theo Tần Suất**
-
-#### **Bước 6: Cho Thuốc Cho Từng Tần Suất**
-
-**API:** `POST /api/MedicineRequest/administer-frequency`
-
-**Body:**
-```json
+## **VÍ DỤ THỰC TẾ**
+### Tạo yêu cầu thuốc:
+```http
+POST /api/MedicineRequest
+Content-Type: application/json
+{
+  "studentCode": "STU001",
+  "className": "Lớp 10A",
+  "parentId": 1,
+  "medicineRequestItems": [
+    {
+      "medicineName": "Paracetamol",
+      "dosage": "500mg",
+      "frequency": "sáng 1 lần,trưa 2 lần",
+      "timeOfDay": "sáng, trưa",
+      "instructions": "Uống sau khi ăn, buổi trưa uông trước và sau khi ăn 30 phút"
+    }
+  ]
+}
+```
+### Gán y tá:
+```http
+POST /api/MedicineRequest/1/assign-nurse/5
+```
+### Bắt đầu cho thuốc:
+```http
+POST /api/MedicineRequest/1/start-administration/5
+```
+### Cho thuốc theo tần suất:
+```http
+POST /api/MedicineRequest/administer-frequency
+Content-Type: application/json
 {
   "requestResultId": 1,
   "medicineRequestItemId": 1,
@@ -119,38 +162,10 @@ Hệ thống quản lý yêu cầu thuốc cho học sinh với khả năng:
   "notes": "Học sinh uống thuốc bình thường"
 }
 ```
-
-**Lặp lại cho từng tần suất:**
-- "sáng" → "trưa" → "tối"
-
-#### **Bước 7: Kiểm Tra Tiến Độ**
-
-**API:** `GET /api/MedicineRequest/{requestResultId}/is-completed/{medicineRequestItemId}`
-
-**Kết quả:** 
-- `true`: Đã cho đủ số lần
-- `false`: Còn thiếu
-
-#### **Bước 8: Hoàn Thành Yêu Cầu**
-
-**API:** `POST /api/MedicineRequest/{requestResultId}/complete-medicine/{staffId}`
-
-**Kết quả:** 
-- RequestResult chuyển sang "Completed"
-- MedicineRequest chuyển sang "Completed"
-
----
-
-## **XỬ LÝ THẤT BẠI VÀ YÊU CẦU LẠI**
-
-### **Phần 4: Xử Lý Thất Bại**
-
-#### **Bước 9: Báo Cáo Thất Bại**
-
-**API:** `POST /api/MedicineRequest/report-failure`
-
-**Body:**
-```json
+### Báo cáo thất bại:
+```http
+POST /api/MedicineRequest/report-failure
+Content-Type: application/json
 {
   "requestResultId": 1,
   "medicineRequestItemId": 1,
@@ -159,158 +174,23 @@ Hệ thống quản lý yêu cầu thuốc cho học sinh với khả năng:
   "notes": "Học sinh nói không muốn uống, sẽ thử lại sau"
 }
 ```
-
-**Trạng thái sau báo cáo:**
-- "Partially Failed": Nếu chỉ một số tần suất thất bại
-- "Failed": Nếu tất cả tần suất thất bại
-
-#### **Bước 10: Tạo Yêu Cầu Lại (Nếu Cần)**
-
-**Kiểm tra điều kiện:**
-**API:** `GET /api/MedicineRequest/{requestResultId}/eligible-for-re-request`
-
-**Tạo yêu cầu lại:**
-**API:** `POST /api/MedicineRequest/create-re-request`
-
-**Body:**
-```json
+### Kiểm tra điều kiện tạo lại yêu cầu:
+```http
+GET /api/MedicineRequest/1/re-request-info
+```
+### Tạo lại yêu cầu:
+```http
+POST /api/MedicineRequest/create-re-request
+Content-Type: application/json
 {
   "originalRequestResultId": 1,
-  "reRequestReason": "Complete Failure",
-  "staffId": 5
+  "medicineRequestItemIds": [1]
 }
 ```
 
-### **Phần 5: Theo Dõi và Báo Cáo**
-
-#### **Bước 11: Xem Báo Cáo Thất Bại**
-
-**API:** `GET /api/MedicineRequest/failed-requests`
-
-**API:** `GET /api/MedicineRequest/{requestResultId}/failure-summary`
-
-#### **Bước 12: Xem Yêu Cầu Lại**
-
-**API:** `GET /api/MedicineRequest/{originalRequestResultId}/re-requests`
-
 ---
 
-## **QUY TẮC THỜI GIAN**
-
-### **Trước 5 giờ chiều:**
-- ✅ Có thể cho thuốc bình thường
-- ✅ Có thể tạo yêu cầu lại
-- ✅ Có thể báo cáo thất bại
-- ✅ Có thể bắt đầu yêu cầu mới
-
-### **Sau 5 giờ chiều:**
-- ❌ Không thể tạo yêu cầu mới
-- ❌ Không thể tạo yêu cầu lại
-- ✅ Hệ thống tự động đánh dấu thất bại
-- ✅ Có thể xem báo cáo
-
-### **Hệ Thống Tự Động:**
-- Background service chạy mỗi 5 phút
-- Tự động đánh dấu "Failed" cho yêu cầu sau 5 PM
-- Lý do: "Time Expired - Past 5 PM"
-
----
-
-## **API REFERENCE**
-
-### **MedicineRequest APIs**
-
-| Chức Năng | Method | Endpoint | Mô Tả |
-|-----------|--------|----------|-------|
-| Tạo yêu cầu | POST | `/api/MedicineRequest` | Tạo yêu cầu thuốc mới |
-| Xem tất cả | GET | `/api/MedicineRequest` | Lấy danh sách tất cả yêu cầu |
-| Xem theo ID | GET | `/api/MedicineRequest/{id}` | Xem chi tiết yêu cầu |
-| Cập nhật | PUT | `/api/MedicineRequest/{id}` | Cập nhật yêu cầu |
-| Xóa | DELETE | `/api/MedicineRequest/{id}` | Xóa yêu cầu |
-| Gán y tá | POST | `/api/MedicineRequest/{id}/assign-nurse/{staffId}` | Gán y tá cho yêu cầu |
-| Hoàn thành | POST | `/api/MedicineRequest/{id}/complete/{staffId}` | Hoàn thành yêu cầu |
-
-### **RequestResult APIs**
-
-| Chức Năng | Method | Endpoint | Mô Tả |
-|-----------|--------|----------|-------|
-| Bắt đầu | POST | `/api/MedicineRequest/{id}/start/{staffId}` | Bắt đầu quá trình cho thuốc |
-| Cho thuốc | POST | `/api/MedicineRequest/administer-frequency` | Cho thuốc theo tần suất |
-| Kiểm tra hoàn thành | GET | `/api/MedicineRequest/{id}/is-completed/{itemId}` | Kiểm tra đã hoàn thành chưa |
-| Tần suất chờ | GET | `/api/MedicineRequest/{id}/pending-frequencies/{itemId}` | Xem tần suất cần cho |
-| Hoàn thành | POST | `/api/MedicineRequest/{id}/complete-medicine/{staffId}` | Hoàn thành cho thuốc |
-
-### **Failure Handling APIs**
-
-| Chức Năng | Method | Endpoint | Mô Tả |
-|-----------|--------|----------|-------|
-| Báo cáo thất bại | POST | `/api/MedicineRequest/report-failure` | Báo cáo thất bại cho thuốc |
-| Tạo yêu cầu lại | POST | `/api/MedicineRequest/create-re-request` | Tạo yêu cầu lại |
-| Xem thất bại | GET | `/api/MedicineRequest/failed-requests` | Xem danh sách thất bại |
-| Kiểm tra điều kiện | GET | `/api/MedicineRequest/{id}/eligible-for-re-request` | Kiểm tra có thể tạo yêu cầu lại |
-| Tóm tắt thất bại | GET | `/api/MedicineRequest/{id}/failure-summary` | Xem tóm tắt thất bại |
-| Cập nhật thời gian | POST | `/api/MedicineRequest/update-time-based-status` | Cập nhật trạng thái theo thời gian |
-
----
-
-## **VÍ DỤ THỰC TẾ**
-
-### **Kịch Bản 1: Cho Thuốc 3 Lần/Ngày - Thành Công**
-
-#### **Ngày 1:**
-1. **Tạo yêu cầu:** Paracetamol 3 lần/ngày
-2. **Gán y tá:** Y tá A được gán
-3. **Bắt đầu:** Tạo RequestResult
-4. **Cho thuốc sáng:** ✅ Thành công
-5. **Cho thuốc trưa:** ✅ Thành công
-6. **Cho thuốc tối:** ✅ Thành công
-7. **Kết quả:** "Completed"
-
-### **Kịch Bản 2: Thất Bại Một Phần**
-
-#### **Ngày 1:**
-1. **Tạo yêu cầu:** Paracetamol 3 lần/ngày
-2. **Gán y tá:** Y tá A được gán
-3. **Bắt đầu:** Tạo RequestResult
-4. **Cho thuốc sáng:** ✅ Thành công
-5. **Cho thuốc trưa:** ❌ Thất bại (học sinh vắng)
-6. **Báo cáo thất bại:** Ghi nhận "trưa" thất bại
-7. **Cho thuốc tối:** ✅ Thành công
-8. **Kết quả:** "Partially Failed" (thiếu "trưa")
-
-#### **Ngày 2:**
-1. **Tạo yêu cầu lại:** Chỉ cho "trưa"
-2. **Cho thuốc trưa:** ✅ Thành công
-3. **Kết quả:** "Completed"
-
-### **Kịch Bản 3: Thất Bại Hoàn Toàn**
-
-#### **Ngày 1:**
-1. **Tạo yêu cầu:** Paracetamol 2 lần/ngày
-2. **Gán y tá:** Y tá A được gán
-3. **Bắt đầu:** Tạo RequestResult
-4. **Cho thuốc sáng:** ❌ Thất bại (học sinh từ chối)
-5. **Báo cáo thất bại:** Ghi nhận "sáng" thất bại
-6. **Cho thuốc tối:** ❌ Thất bại (học sinh từ chối)
-7. **Báo cáo thất bại:** Ghi nhận "tối" thất bại
-8. **Kết quả:** "Failed"
-
-#### **Ngày 2:**
-1. **Tạo yêu cầu lại:** Cho lại cả 2 lần
-2. **Cho thuốc sáng:** ✅ Thành công
-3. **Cho thuốc tối:** ✅ Thành công
-4. **Kết quả:** "Completed"
-
-### **Kịch Bản 4: Hết Thời Gian**
-
-#### **Ngày 1:**
-1. **Tạo yêu cầu:** Paracetamol 2 lần/ngày
-2. **Gán y tá:** Y tá A được gán
-3. **Bắt đầu:** Tạo RequestResult
-4. **Cho thuốc sáng:** ✅ Thành công
-5. **5:05 PM:** Hệ thống tự động đánh dấu "Failed"
-6. **Lý do:** "Time Expired - Past 5 PM"
-7. **Kết quả:** Không thể tạo yêu cầu lại
+# (Các ví dụ khác giữ nguyên hoặc bổ sung theo thực tế sử dụng)
 
 ---
 
@@ -339,10 +219,22 @@ Hệ thống quản lý yêu cầu thuốc cho học sinh với khả năng:
 - ⏰ Sau 5 PM: Hệ thống tự động đánh dấu thất bại
 - ⏰ Không thể tạo yêu cầu mới sau 5 PM
 
-### **Tần Suất:**
-- 📅 Hệ thống tự động phân tích: "2 lần/ngày" → ["sáng", "tối"]
-- 📅 "3 lần/ngày" → ["sáng", "trưa", "tối"]
-- 📅 "sáng và chiều" → ["sáng", "chiều"]
+### **Tần Suất (Frequency):**
+- Hệ thống hỗ trợ 2 kiểu nhập tần suất:
+  1. **Kiểu cũ:** Chỉ liệt kê các buổi, ví dụ: `"sáng,trưa"` (tương đương mỗi buổi 1 lần)
+  2. **Kiểu mới:** Ghi rõ số lần cho từng buổi, ví dụ: `"sáng 1 lần, trưa 2 lần"` (tức là buổi sáng 1 lần, buổi trưa 2 lần)
+- Có thể kết hợp nhiều buổi, ví dụ: `"sáng 2 lần, chiều 1 lần"`
+- Nếu không ghi số lần, mặc định là 1 lần cho buổi đó.
+- Các giá trị hợp lệ cho buổi: `sáng`, `trưa`, `chiều`.
+
+**Ví dụ:**
+- `"sáng,trưa"` → Sáng 1 lần, trưa 1 lần
+- `"sáng 2 lần, trưa 1 lần"` → Sáng 2 lần, trưa 1 lần
+- `"chiều 3 lần"` → Chiều 3 lần
+
+**Lưu ý:**
+- Hệ thống sẽ tự động phân tích và lặp lại số lần tương ứng cho từng buổi khi theo dõi và cho thuốc.
+- Bạn có thể nhập cả hai kiểu, hệ thống sẽ tự động nhận diện.
 
 ### **Thất Bại:**
 - ❌ Luôn báo cáo với lý do cụ thể
@@ -378,13 +270,6 @@ Hệ thống quản lý yêu cầu thuốc cho học sinh với khả năng:
 
 ---
 
-## **LIÊN HỆ HỖ TRỢ**
 
-Nếu gặp vấn đề hoặc cần hỗ trợ, vui lòng liên hệ:
-- Email: support@medicalapi.com
-- Hotline: 1900-xxxx
-- Documentation: /swagger
-
----
 
 *Tài liệu này được cập nhật lần cuối: 21/12/2024* 
