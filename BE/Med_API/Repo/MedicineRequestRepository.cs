@@ -19,7 +19,12 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return await _context.MedicineRequests
             .Include(m => m.Student)
             .Include(m => m.Parent)
+                .ThenInclude(p => p.StudentParents)
+                    .ThenInclude(sp => sp.Student)
+            .Include(m => m.Parent)
+                .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
+                .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .ToListAsync();
     }
@@ -29,7 +34,12 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return await _context.MedicineRequests
             .Include(m => m.Student)
             .Include(m => m.Parent)
+                .ThenInclude(p => p.StudentParents)
+                    .ThenInclude(sp => sp.Student)
+            .Include(m => m.Parent)
+                .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
+                .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .FirstOrDefaultAsync(m => m.RequestId == id);
     }
@@ -98,7 +108,12 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return await _context.MedicineRequests
             .Include(m => m.Student)
             .Include(m => m.Parent)
+                .ThenInclude(p => p.StudentParents)
+                    .ThenInclude(sp => sp.Student)
+            .Include(m => m.Parent)
+                .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
+                .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .Where(m => m.StudentCode == studentCode)
             .ToListAsync();
@@ -109,7 +124,12 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return await _context.MedicineRequests
             .Include(m => m.Student)
             .Include(m => m.Parent)
+                .ThenInclude(p => p.StudentParents)
+                    .ThenInclude(sp => sp.Student)
+            .Include(m => m.Parent)
+                .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
+                .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .Where(m => m.ParentId == parentId)
             .ToListAsync();
@@ -120,7 +140,12 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return await _context.MedicineRequests
             .Include(m => m.Student)
             .Include(m => m.Parent)
+                .ThenInclude(p => p.StudentParents)
+                    .ThenInclude(sp => sp.Student)
+            .Include(m => m.Parent)
+                .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
+                .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .Where(m => m.StaffId == staffId)
             .ToListAsync();
@@ -131,7 +156,12 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return await _context.MedicineRequests
             .Include(m => m.Student)
             .Include(m => m.Parent)
+                .ThenInclude(p => p.StudentParents)
+                    .ThenInclude(sp => sp.Student)
+            .Include(m => m.Parent)
+                .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
+                .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .Where(m => m.Status == status)
             .ToListAsync();
@@ -156,7 +186,12 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return await _context.MedicineRequests
             .Include(m => m.Student)
             .Include(m => m.Parent)
+                .ThenInclude(p => p.StudentParents)
+                    .ThenInclude(sp => sp.Student)
+            .Include(m => m.Parent)
+                .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
+                .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .Where(m => m.Status == "Pending")
             .ToListAsync();
@@ -524,21 +559,32 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         var currentTime = DateTime.Now;
         var currentDate = DateOnly.FromDateTime(currentTime.Date);
 
-        // Get all in-progress requests that are past 5 PM
+        // Mark as failed if the day has changed and request is still in progress
         var expiredRequests = await _context.RequestResults
-            .Where(r => r.Status == "In Progress" && 
-                       r.CurrentDate == currentDate &&
-                       r.LastAttemptTime.HasValue &&
-                       r.LastAttemptTime.Value.Hour >= 17)
+            .Where(r => r.Status == "In Progress" && r.CurrentDate < currentDate)
             .ToListAsync();
 
         foreach (var request in expiredRequests)
         {
             request.Status = "Failed";
+            request.ReRequestReason = "Time Expired - Day Changed";
+        }
+
+        // Existing logic: mark as failed if still in progress and past 5 PM today
+        var lateTodayRequests = await _context.RequestResults
+            .Where(r => r.Status == "In Progress" &&
+                       r.CurrentDate == currentDate &&
+                       r.LastAttemptTime.HasValue &&
+                       r.LastAttemptTime.Value.Hour >= 17)
+            .ToListAsync();
+
+        foreach (var request in lateTodayRequests)
+        {
+            request.Status = "Failed";
             request.ReRequestReason = "Time Expired - Past 5 PM";
         }
 
-        if (expiredRequests.Any())
+        if (expiredRequests.Any() || lateTodayRequests.Any())
         {
             await _context.SaveChangesAsync();
         }

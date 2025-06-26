@@ -16,6 +16,22 @@ public class RequestResultRepository : IRequestResultRepository
     {
         return await _context.RequestResults
             .Include(r => r.Request)
+                .ThenInclude(rq => rq.Student)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+                    .ThenInclude(p => p.StudentParents)
+                        .ThenInclude(sp => sp.Student)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+                    .ThenInclude(p => p.Students)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Staff)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.MedicineRequestItems)
+            .Include(r => r.AdministeredByStaff)
+                .ThenInclude(staff => staff.Role)
+            .Include(r => r.ActionByStaff)
+                .ThenInclude(staff => staff.Role)
             .ToListAsync();
     }
 
@@ -23,6 +39,22 @@ public class RequestResultRepository : IRequestResultRepository
     {
         return await _context.RequestResults
             .Include(r => r.Request)
+                .ThenInclude(rq => rq.Student)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+                    .ThenInclude(p => p.StudentParents)
+                        .ThenInclude(sp => sp.Student)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+                    .ThenInclude(p => p.Students)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Staff)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.MedicineRequestItems)
+            .Include(r => r.AdministeredByStaff)
+                .ThenInclude(staff => staff.Role)
+            .Include(r => r.ActionByStaff)
+                .ThenInclude(staff => staff.Role)
             .FirstOrDefaultAsync(r => r.ResultId == id);
     }
 
@@ -62,6 +94,22 @@ public class RequestResultRepository : IRequestResultRepository
     {
         return await _context.RequestResults
             .Include(r => r.Request)
+                .ThenInclude(rq => rq.Student)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+                    .ThenInclude(p => p.StudentParents)
+                        .ThenInclude(sp => sp.Student)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+                    .ThenInclude(p => p.Students)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Staff)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.MedicineRequestItems)
+            .Include(r => r.AdministeredByStaff)
+                .ThenInclude(staff => staff.Role)
+            .Include(r => r.ActionByStaff)
+                .ThenInclude(staff => staff.Role)
             .Where(r => r.RequestId == requestId)
             .OrderByDescending(r => r.SubmittedAt)
             .ToListAsync();
@@ -71,6 +119,22 @@ public class RequestResultRepository : IRequestResultRepository
     {
         return await _context.RequestResults
             .Include(r => r.Request)
+                .ThenInclude(rq => rq.Student)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+                    .ThenInclude(p => p.StudentParents)
+                        .ThenInclude(sp => sp.Student)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+                    .ThenInclude(p => p.Students)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Staff)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.MedicineRequestItems)
+            .Include(r => r.AdministeredByStaff)
+                .ThenInclude(staff => staff.Role)
+            .Include(r => r.ActionByStaff)
+                .ThenInclude(staff => staff.Role)
             .Where(r => r.Status == status)
             .OrderByDescending(r => r.SubmittedAt)
             .ToListAsync();
@@ -80,6 +144,22 @@ public class RequestResultRepository : IRequestResultRepository
     {
         return await _context.RequestResults
             .Include(r => r.Request)
+                .ThenInclude(rq => rq.Student)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+                    .ThenInclude(p => p.StudentParents)
+                        .ThenInclude(sp => sp.Student)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+                    .ThenInclude(p => p.Students)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Staff)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.MedicineRequestItems)
+            .Include(r => r.AdministeredByStaff)
+                .ThenInclude(staff => staff.Role)
+            .Include(r => r.ActionByStaff)
+                .ThenInclude(staff => staff.Role)
             .Where(r => r.RequestId == requestId)
             .OrderByDescending(r => r.SubmittedAt)
             .FirstOrDefaultAsync();

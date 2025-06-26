@@ -3,6 +3,7 @@ using DB;
 using API.DTOs;
 using System.Security.Cryptography;
 using System.Text;
+using System.Linq;
 
 namespace API.MappingProfiles;
 
@@ -13,7 +14,14 @@ public class ParentProfile : Profile
         // Map from Parent to ParentDto.ViewModel
         CreateMap<Parent, ParentDto.ViewModel>()
             .ForMember(dest => dest.Students, opt => opt.MapFrom(src => src.Students))
-            .ForMember(dest => dest.StudentParents, opt => opt.MapFrom(src => src.StudentParents));
+            .ForMember(dest => dest.StudentParents, opt => opt.MapFrom(src => src.StudentParents))
+            .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src =>
+                src.StudentParents != null
+                    ? src.StudentParents
+                        .Where(sp => sp.Student != null && !string.IsNullOrEmpty(sp.Student.StudentCode))
+                        .Select(sp => sp.Student.StudentCode)
+                        .FirstOrDefault()
+                    : null));
 
         // Map from Student to ParentDto.StudentSummary
         CreateMap<Student, ParentDto.StudentSummary>();
