@@ -359,6 +359,183 @@
         }
       }
     },
+    "/api/Auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.LoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.LoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Blog": {
+      "get": {
+        "tags": [
+          "Blog"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Blog"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.BlogDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.BlogDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.BlogDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Blog/{id}": {
+      "get": {
+        "tags": [
+          "Blog"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Blog"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.BlogDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.BlogDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.BlogDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Blog"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Blog/search": {
+      "get": {
+        "tags": [
+          "Blog"
+        ],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/DashboardSummary": {
       "get": {
         "tags": [
@@ -645,6 +822,29 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/DashboardSummary/{id}/export": {
+      "get": {
+        "tags": [
+          "DashboardSummary"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -1386,7 +1586,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               },
@@ -1394,7 +1594,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               },
@@ -1402,7 +1602,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               }
@@ -1418,17 +1618,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthEventDto_Create"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthEventDto_Create"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthEventDto_Create"
               }
             }
           }
@@ -1439,17 +1639,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                 }
               }
             }
@@ -1479,17 +1679,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                 }
               }
             }
@@ -1515,17 +1715,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthEventDto_Update"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthEventDto_Update"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthEventDto_Update"
               }
             }
           }
@@ -1558,19 +1758,18 @@
         }
       }
     },
-    "/api/HealthEvent/student/{studentId}": {
+    "/api/HealthEvent/student/{studentCode}": {
       "get": {
         "tags": [
           "HealthEvent"
         ],
         "parameters": [
           {
-            "name": "studentId",
+            "name": "studentCode",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1582,7 +1781,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               },
@@ -1590,7 +1789,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               },
@@ -1598,7 +1797,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               }
@@ -1631,7 +1830,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               },
@@ -1639,7 +1838,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               },
@@ -1647,7 +1846,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               }
@@ -1687,7 +1886,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               },
@@ -1695,7 +1894,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               },
@@ -1703,7 +1902,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthEventDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthEventDto_ViewModel"
                   }
                 }
               }
@@ -1725,7 +1924,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                   }
                 }
               },
@@ -1733,7 +1932,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                   }
                 }
               },
@@ -1741,7 +1940,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                    "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                   }
                 }
               }
@@ -1757,17 +1956,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_Create"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_Create"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_Create"
               }
             }
           }
@@ -1778,17 +1977,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                 }
               }
             }
@@ -1818,17 +2017,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                 }
               }
             }
@@ -1854,17 +2053,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_Update"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_Update"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_Update"
               }
             }
           }
@@ -1897,19 +2096,18 @@
         }
       }
     },
-    "/api/HealthProfile/student/{studentId}": {
+    "/api/HealthProfile/student/{studentCode}": {
       "get": {
         "tags": [
           "HealthProfile"
         ],
         "parameters": [
           {
-            "name": "studentId",
+            "name": "studentCode",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -1919,17 +2117,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.HealthProfileDTO"
+                  "$ref": "#/components/schemas/API.DTOs.HealthProfileDto_ViewModel"
                 }
               }
             }
@@ -2264,6 +2462,107 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/InjectionForm/approved-students": {
+      "get": {
+        "tags": [
+          "InjectionForm"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.ViewModels.InjectionFormDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.ViewModels.InjectionFormDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.ViewModels.InjectionFormDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/InjectionForm/parent-read/{formId}": {
+      "get": {
+        "tags": [
+          "InjectionForm"
+        ],
+        "parameters": [
+          {
+            "name": "formId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.ViewModels.InjectionFormDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.ViewModels.InjectionFormDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.ViewModels.InjectionFormDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/InjectionForm/parent-confirm/{formId}": {
+      "post": {
+        "tags": [
+          "InjectionForm"
+        ],
+        "parameters": [
+          {
+            "name": "formId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -3222,19 +3521,18 @@
         }
       }
     },
-    "/api/MedicineRequest/student/{studentId}": {
+    "/api/MedicineRequest/student/{studentCode}": {
       "get": {
         "tags": [
           "MedicineRequest"
         ],
         "parameters": [
           {
-            "name": "studentId",
+            "name": "studentCode",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -3413,6 +3711,524 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/available-nurses": {
+      "get": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/pending": {
+      "get": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.MedicineRequestDto_ViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.MedicineRequestDto_ViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.MedicineRequestDto_ViewModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/{id}/assign-nurse/{staffId}": {
+      "post": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "staffId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/{id}/complete/{staffId}": {
+      "post": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "staffId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/{id}/start-administration/{staffId}": {
+      "post": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "staffId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/administer-frequency": {
+      "post": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.RequestResultDto_FrequencyCompleteRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.RequestResultDto_FrequencyCompleteRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.RequestResultDto_FrequencyCompleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/{requestResultId}/progress/{medicineRequestItemId}": {
+      "get": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "parameters": [
+          {
+            "name": "requestResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "medicineRequestItemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/{requestResultId}/re-request-info": {
+      "get": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "parameters": [
+          {
+            "name": "requestResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/report-failure": {
+      "post": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.RequestResultDto_FailureReport"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.RequestResultDto_FailureReport"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.RequestResultDto_FailureReport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/create-re-request": {
+      "post": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ReRequestCreate"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ReRequestCreate"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ReRequestCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/update-time-based-status": {
+      "post": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/failed-requests": {
+      "get": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/{originalRequestResultId}/re-requests": {
+      "get": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "parameters": [
+          {
+            "name": "originalRequestResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/{requestResultId}/mark-failed": {
+      "post": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "parameters": [
+          {
+            "name": "requestResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/{requestResultId}/failure-summary": {
+      "get": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "parameters": [
+          {
+            "name": "requestResultId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -3598,344 +4414,6 @@
         "responses": {
           "200": {
             "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Report": {
-      "get": {
-        "tags": [
-          "Report"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Report"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Report/{id}": {
-      "get": {
-        "tags": [
-          "Report"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Report"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Report"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Report/type/{reportType}": {
-      "get": {
-        "tags": [
-          "Report"
-        ],
-        "parameters": [
-          {
-            "name": "reportType",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Report/staff/{staffId}": {
-      "get": {
-        "tags": [
-          "Report"
-        ],
-        "parameters": [
-          {
-            "name": "staffId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Report/daterange": {
-      "get": {
-        "tags": [
-          "Report"
-        ],
-        "parameters": [
-          {
-            "name": "startDate",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "date-time"
-            }
-          },
-          {
-            "name": "endDate",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "date-time"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.ViewModels.ReportDTO"
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -5050,19 +5528,18 @@
         }
       }
     },
-    "/api/StudentParent/student/{studentId}": {
+    "/api/StudentParent/student/{studentCode}": {
       "get": {
         "tags": [
           "StudentParent"
         ],
         "parameters": [
           {
-            "name": "studentId",
+            "name": "studentCode",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           }
         ],
@@ -5190,6 +5667,24 @@
   },
   "components": {
     "schemas": {
+      "API.Controllers.LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.AppointmentDto_Create": {
         "required": [
           "appointmentDate",
@@ -5340,6 +5835,812 @@
               "type": "string"
             },
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthEventDto_Create": {
+        "required": [
+          "eventType",
+          "staffId",
+          "studentCode"
+        ],
+        "type": "object",
+        "properties": {
+          "studentCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventType": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string"
+          },
+          "symptoms": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "assessment": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "treatment": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "parentNotified": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "followUpRequired": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "notes": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "healthEventMedicines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.HealthEventMedicineDto_Create"
+            },
+            "nullable": true
+          },
+          "healthEventMedicalSupplies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.HealthEventMedicalSupplyDto_Create"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthEventDto_Update": {
+        "required": [
+          "eventType",
+          "staffId",
+          "studentCode"
+        ],
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventType": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string"
+          },
+          "symptoms": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "assessment": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "treatment": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "parentNotified": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "followUpRequired": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "notes": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "healthEventMedicines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.HealthEventMedicineDto_Update"
+            },
+            "nullable": true
+          },
+          "healthEventMedicalSupplies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.HealthEventMedicalSupplyDto_Update"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthEventDto_ViewModel": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "eventType": {
+            "type": "string",
+            "nullable": true
+          },
+          "symptoms": {
+            "type": "string",
+            "nullable": true
+          },
+          "assessment": {
+            "type": "string",
+            "nullable": true
+          },
+          "treatment": {
+            "type": "string",
+            "nullable": true
+          },
+          "parentNotified": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "followUpRequired": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "student": {
+            "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
+          },
+          "staff": {
+            "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
+          },
+          "healthEventMedicines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.HealthEventMedicineDto_ViewModel"
+            },
+            "nullable": true
+          },
+          "healthEventMedicalSupplies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.HealthEventMedicalSupplyDto_ViewModel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthEventMedicalSupplyDto_Create": {
+        "required": [
+          "medicalSupplyId"
+        ],
+        "type": "object",
+        "properties": {
+          "medicalSupplyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "quantity": {
+            "minimum": 0,
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "time": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthEventMedicalSupplyDto_Update": {
+        "type": "object",
+        "properties": {
+          "healthEventMedicalSupplyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicalSupplyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "quantity": {
+            "minimum": 0,
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "time": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthEventMedicalSupplyDto_ViewModel": {
+        "type": "object",
+        "properties": {
+          "healthEventMedicalSupplyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "healthEventId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicalSupplyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicalSupplyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "time": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthEventMedicineDto_Create": {
+        "required": [
+          "medicineId"
+        ],
+        "type": "object",
+        "properties": {
+          "medicineId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dosage": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "time": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthEventMedicineDto_Update": {
+        "type": "object",
+        "properties": {
+          "healthEventMedicineId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicineId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dosage": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "time": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthEventMedicineDto_ViewModel": {
+        "type": "object",
+        "properties": {
+          "healthEventMedicineId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "healthEventId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicineId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicineName": {
+            "type": "string",
+            "nullable": true
+          },
+          "dosage": {
+            "type": "string",
+            "nullable": true
+          },
+          "time": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthProfileDto_Create": {
+        "required": [
+          "studentCode"
+        ],
+        "type": "object",
+        "properties": {
+          "studentCode": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "bloodType": {
+            "maxLength": 5,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "height": {
+            "maximum": 300,
+            "minimum": 0,
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "weight": {
+            "maximum": 500,
+            "minimum": 0,
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "hasAllergies": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "allergyDetails": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hasChronicDiseases": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "chronicDetails": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hasPreviousTreatment": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "treatmentDetails": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hasCompleteVaccinations": {
+            "maxLength": 10,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "vaccinationDetails": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "vaccinations": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hasVisionIssues": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "leftEye": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "rightEye": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "visionNotes": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hasHearingIssues": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "leftEar": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "rightEar": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hearingNotes": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "bloodPressure": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "heartRate": {
+            "maximum": 250,
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "emergencyContact": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "otherInfo": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthProfileDto_Update": {
+        "required": [
+          "studentCode"
+        ],
+        "type": "object",
+        "properties": {
+          "healthProfileId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentCode": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "bloodType": {
+            "maxLength": 5,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "height": {
+            "maximum": 300,
+            "minimum": 0,
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "weight": {
+            "maximum": 500,
+            "minimum": 0,
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "hasAllergies": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "allergyDetails": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hasChronicDiseases": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "chronicDetails": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hasPreviousTreatment": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "treatmentDetails": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hasCompleteVaccinations": {
+            "maxLength": 10,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "vaccinationDetails": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "vaccinations": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hasVisionIssues": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "leftEye": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "rightEye": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "visionNotes": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hasHearingIssues": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "leftEar": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "rightEar": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "hearingNotes": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "bloodPressure": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "heartRate": {
+            "maximum": 250,
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "emergencyContact": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "otherInfo": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.HealthProfileDto_ViewModel": {
+        "type": "object",
+        "properties": {
+          "healthProfileId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "bloodType": {
+            "type": "string",
+            "nullable": true
+          },
+          "height": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "weight": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "hasAllergies": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "allergyDetails": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasChronicDiseases": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "chronicDetails": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasPreviousTreatment": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "treatmentDetails": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasCompleteVaccinations": {
+            "type": "string",
+            "nullable": true
+          },
+          "vaccinationDetails": {
+            "type": "string",
+            "nullable": true
+          },
+          "vaccinations": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasVisionIssues": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "leftEye": {
+            "type": "string",
+            "nullable": true
+          },
+          "rightEye": {
+            "type": "string",
+            "nullable": true
+          },
+          "visionNotes": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasHearingIssues": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "leftEar": {
+            "type": "string",
+            "nullable": true
+          },
+          "rightEar": {
+            "type": "string",
+            "nullable": true
+          },
+          "hearingNotes": {
+            "type": "string",
+            "nullable": true
+          },
+          "bloodPressure": {
+            "type": "string",
+            "nullable": true
+          },
+          "heartRate": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "emergencyContact": {
+            "type": "string",
+            "nullable": true
+          },
+          "otherInfo": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "student": {
+            "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
           }
         },
         "additionalProperties": false
@@ -5516,74 +6817,39 @@
       },
       "API.DTOs.MedicineRequestDto_Create": {
         "required": [
-          "medicineName",
           "parentId",
-          "staffId",
-          "studentId"
+          "studentCode"
         ],
         "type": "object",
         "properties": {
-          "medicineName": {
-            "maxLength": 100,
-            "minLength": 0,
+          "studentCode": {
+            "minLength": 1,
             "type": "string"
           },
-          "dosage": {
-            "maxLength": 100,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "frequency": {
-            "maxLength": 100,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "instructions": {
-            "maxLength": 500,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "mealRelation": {
+          "className": {
             "maxLength": 50,
             "minLength": 0,
             "type": "string",
             "nullable": true
           },
-          "timeOfDay": {
-            "maxLength": 100,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "medicationImagePath": {
-            "maxLength": 255,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "prescriptionImagePath": {
-            "maxLength": 255,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "studentId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "parentId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "staffId": {
             "type": "integer",
             "format": "int32"
           },
           "status": {
             "type": "string",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-01-01"
+          },
+          "medicineRequestItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.MedicineRequestItemDto_Create"
+            },
             "nullable": true
           }
         },
@@ -5592,58 +6858,28 @@
       "API.DTOs.MedicineRequestDto_Update": {
         "type": "object",
         "properties": {
-          "medicineName": {
-            "maxLength": 100,
+          "status": {
+            "maxLength": 20,
             "minLength": 0,
             "type": "string",
             "nullable": true
           },
-          "dosage": {
-            "maxLength": 100,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "frequency": {
-            "maxLength": 100,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "instructions": {
-            "maxLength": 500,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "mealRelation": {
+          "className": {
             "maxLength": 50,
             "minLength": 0,
             "type": "string",
             "nullable": true
           },
-          "timeOfDay": {
-            "maxLength": 100,
-            "minLength": 0,
+          "date": {
             "type": "string",
+            "format": "date",
             "nullable": true
           },
-          "medicationImagePath": {
-            "maxLength": 255,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "prescriptionImagePath": {
-            "maxLength": 255,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "maxLength": 20,
-            "minLength": 0,
-            "type": "string",
+          "medicineRequestItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.MedicineRequestItemDto_Update"
+            },
             "nullable": true
           }
         },
@@ -5656,6 +6892,144 @@
             "type": "integer",
             "format": "int32"
           },
+          "requestDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "className": {
+            "type": "string",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-01-01"
+          },
+          "student": {
+            "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/API.DTOs.ParentDto_ViewModel"
+          },
+          "staff": {
+            "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
+          },
+          "medicineRequestItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.MedicineRequestItemDto_ViewModel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.MedicineRequestItemDto_Create": {
+        "required": [
+          "dosage",
+          "frequency",
+          "medicineName"
+        ],
+        "type": "object",
+        "properties": {
+          "medicineName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "dosage": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "frequency": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "timeOfDay": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "instructions": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.MedicineRequestItemDto_Update": {
+        "type": "object",
+        "properties": {
+          "medicineRequestItemId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicineName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "dosage": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "frequency": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "timeOfDay": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "instructions": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.MedicineRequestItemDto_ViewModel": {
+        "type": "object",
+        "properties": {
+          "medicineRequestItemId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicineRequestId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "medicineName": {
             "type": "string",
             "nullable": true
@@ -5668,54 +7042,13 @@
             "type": "string",
             "nullable": true
           },
-          "instructions": {
-            "type": "string",
-            "nullable": true
-          },
-          "mealRelation": {
-            "type": "string",
-            "nullable": true
-          },
           "timeOfDay": {
             "type": "string",
             "nullable": true
           },
-          "medicationImagePath": {
+          "instructions": {
             "type": "string",
             "nullable": true
-          },
-          "prescriptionImagePath": {
-            "type": "string",
-            "nullable": true
-          },
-          "requestDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "studentId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "parentId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "staffId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "student": {
-            "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
-          },
-          "parent": {
-            "$ref": "#/components/schemas/API.DTOs.ParentDto_ViewModel"
-          },
-          "staff": {
-            "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
           }
         },
         "additionalProperties": false
@@ -5724,11 +7057,18 @@
         "required": [
           "firstName",
           "lastName",
+          "password",
           "phone",
-          "relationship"
+          "relationship",
+          "studentCode"
         ],
         "type": "object",
         "properties": {
+          "studentCode": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
           "firstName": {
             "maxLength": 50,
             "minLength": 0,
@@ -5771,6 +7111,12 @@
             "type": "string",
             "nullable": true
           },
+          "password": {
+            "maxLength": 255,
+            "minLength": 6,
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$",
+            "type": "string"
+          },
           "isEmergencyContact": {
             "type": "boolean",
             "nullable": true
@@ -5786,9 +7132,56 @@
         },
         "additionalProperties": false
       },
-      "API.DTOs.ParentDto_Update": {
+      "API.DTOs.ParentDto_StudentSummary": {
         "type": "object",
         "properties": {
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "className": {
+            "type": "string",
+            "nullable": true
+          },
+          "gradeLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ParentDto_Update": {
+        "required": [
+          "parentId",
+          "studentCode"
+        ],
+        "type": "object",
+        "properties": {
+          "parentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "studentCode": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
           "firstName": {
             "maxLength": 50,
             "minLength": 0,
@@ -5857,6 +7250,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "studentCode": {
+            "type": "string",
+            "nullable": true
+          },
           "firstName": {
             "type": "string",
             "nullable": true
@@ -5896,6 +7293,20 @@
           "isActive": {
             "type": "boolean",
             "nullable": true
+          },
+          "students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.ParentDto_StudentSummary"
+            },
+            "nullable": true
+          },
+          "studentParents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.StudentParentDto_ViewModel"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5920,6 +7331,153 @@
             "maxLength": 20,
             "minLength": 0,
             "type": "string"
+          },
+          "frequency": {
+            "type": "string",
+            "nullable": true
+          },
+          "timesPerDay": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentDayCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "administeredFrequencies": {
+            "type": "string",
+            "nullable": true
+          },
+          "failedFrequencies": {
+            "type": "string",
+            "nullable": true
+          },
+          "failureReasons": {
+            "type": "string",
+            "nullable": true
+          },
+          "isReRequest": {
+            "type": "boolean"
+          },
+          "originalRequestResultId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "lastAttemptTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "failedAttempts": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "reRequestReason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.RequestResultDto_FailureReport": {
+        "required": [
+          "failureReason",
+          "frequency",
+          "medicineRequestItemId",
+          "requestResultId",
+          "staffId"
+        ],
+        "type": "object",
+        "properties": {
+          "requestResultId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicineRequestItemId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "frequency": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "failureReason": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string"
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.RequestResultDto_FrequencyCompleteRequest": {
+        "required": [
+          "frequency",
+          "medicineRequestItemId",
+          "requestResultId",
+          "staffId"
+        ],
+        "type": "object",
+        "properties": {
+          "requestResultId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicineRequestItemId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "frequency": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "notes": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.RequestResultDto_ReRequestCreate": {
+        "required": [
+          "originalRequestResultId",
+          "reRequestReason"
+        ],
+        "type": "object",
+        "properties": {
+          "originalRequestResultId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reRequestReason": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string"
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5936,6 +7494,47 @@
             "maxLength": 20,
             "minLength": 0,
             "type": "string",
+            "nullable": true
+          },
+          "frequency": {
+            "type": "string",
+            "nullable": true
+          },
+          "timesPerDay": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentDayCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "administeredFrequencies": {
+            "type": "string",
+            "nullable": true
+          },
+          "failedFrequencies": {
+            "type": "string",
+            "nullable": true
+          },
+          "failureReasons": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastAttemptTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "failedAttempts": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           }
         },
@@ -5965,8 +7564,67 @@
             "type": "string",
             "format": "date-time"
           },
+          "frequency": {
+            "type": "string",
+            "nullable": true
+          },
+          "timesPerDay": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentDayCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "administeredFrequencies": {
+            "type": "string",
+            "nullable": true
+          },
+          "failedFrequencies": {
+            "type": "string",
+            "nullable": true
+          },
+          "failureReasons": {
+            "type": "string",
+            "nullable": true
+          },
+          "isReRequest": {
+            "type": "boolean"
+          },
+          "originalRequestResultId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "lastAttemptTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "failedAttempts": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "reRequestReason": {
+            "type": "string",
+            "nullable": true
+          },
           "request": {
             "$ref": "#/components/schemas/API.DTOs.MedicineRequestDto_ViewModel"
+          },
+          "administeredByStaff": {
+            "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
+          },
+          "actionByStaff": {
+            "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
           }
         },
         "additionalProperties": false
@@ -6202,6 +7860,10 @@
           "parentCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "medicineRequestCount": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -6214,6 +7876,7 @@
           "gender",
           "gradeLevel",
           "lastName",
+          "password",
           "studentCode"
         ],
         "type": "object",
@@ -6264,8 +7927,56 @@
             "type": "string",
             "nullable": true
           },
+          "password": {
+            "maxLength": 255,
+            "minLength": 6,
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$",
+            "type": "string"
+          },
           "isActive": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.StudentDto_ParentSummary": {
+        "type": "object",
+        "properties": {
+          "parentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "relationship": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "isEmergencyContact": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isMainContact": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6412,6 +8123,20 @@
           "parentCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.StudentDto_ParentSummary"
+            },
+            "nullable": true
+          },
+          "studentParents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.StudentParentDto_ViewModel"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6419,13 +8144,14 @@
       "API.DTOs.StudentParentDto_Create": {
         "required": [
           "parentId",
-          "studentId"
+          "studentCode"
         ],
         "type": "object",
         "properties": {
-          "studentId": {
-            "type": "integer",
-            "format": "int32"
+          "studentCode": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
           },
           "parentId": {
             "type": "integer",
@@ -6437,7 +8163,7 @@
       "API.DTOs.StudentParentDto_Update": {
         "required": [
           "parentId",
-          "studentId",
+          "studentCode",
           "studentParentId"
         ],
         "type": "object",
@@ -6446,9 +8172,10 @@
             "type": "integer",
             "format": "int32"
           },
-          "studentId": {
-            "type": "integer",
-            "format": "int32"
+          "studentCode": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
           },
           "parentId": {
             "type": "integer",
@@ -6464,9 +8191,9 @@
             "type": "integer",
             "format": "int32"
           },
-          "studentId": {
-            "type": "integer",
-            "format": "int32"
+          "studentCode": {
+            "type": "string",
+            "nullable": true
           },
           "parentId": {
             "type": "integer",
@@ -6477,6 +8204,53 @@
             "nullable": true
           },
           "parentName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.ViewModels.BlogDTO": {
+        "type": "object",
+        "properties": {
+          "blogId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffUsername": {
             "type": "string",
             "nullable": true
           }
@@ -6807,237 +8581,6 @@
         },
         "additionalProperties": false
       },
-      "API.ViewModels.HealthEventDTO": {
-        "required": [
-          "eventType",
-          "staffId",
-          "studentId"
-        ],
-        "type": "object",
-        "properties": {
-          "eventId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "studentId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "staffId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "eventDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "eventType": {
-            "maxLength": 50,
-            "minLength": 0,
-            "type": "string"
-          },
-          "symptoms": {
-            "maxLength": 500,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "assessment": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "treatment": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "parentNotified": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "followUpRequired": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "notes": {
-            "maxLength": 500,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "medicinesUsed": {
-            "maxLength": 500,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "suppliesUsed": {
-            "maxLength": 500,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "student": {
-            "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
-          },
-          "staff": {
-            "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
-          }
-        },
-        "additionalProperties": false
-      },
-      "API.ViewModels.HealthProfileDTO": {
-        "required": [
-          "studentId"
-        ],
-        "type": "object",
-        "properties": {
-          "healthProfileId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "studentId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "bloodType": {
-            "maxLength": 5,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "height": {
-            "maximum": 300,
-            "minimum": 0,
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "weight": {
-            "maximum": 500,
-            "minimum": 0,
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "hasAllergies": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "allergyDetails": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "hasChronicDiseases": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "chronicDetails": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "hasPreviousTreatment": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "treatmentDetails": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "hasCompleteVaccinations": {
-            "maxLength": 10,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "vaccinationDetails": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "vaccinations": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "hasVisionIssues": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "leftEye": {
-            "maxLength": 20,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "rightEye": {
-            "maxLength": 20,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "visionNotes": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "hasHearingIssues": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "leftEar": {
-            "maxLength": 100,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "rightEar": {
-            "maxLength": 100,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "hearingNotes": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "emergencyContact": {
-            "maxLength": 255,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "otherInfo": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
-          "lastUpdated": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "student": {
-            "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
-          }
-        },
-        "additionalProperties": false
-      },
       "API.ViewModels.InjectionFormDTO": {
         "required": [
           "injectionName",
@@ -7163,85 +8706,6 @@
           },
           "administeredByStaff": {
             "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
-          }
-        },
-        "additionalProperties": false
-      },
-      "API.ViewModels.ReportDTO": {
-        "required": [
-          "reportName",
-          "reportType"
-        ],
-        "type": "object",
-        "properties": {
-          "reportId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "reportType": {
-            "maxLength": 50,
-            "minLength": 0,
-            "type": "string"
-          },
-          "reportName": {
-            "maxLength": 100,
-            "minLength": 0,
-            "type": "string"
-          },
-          "generatedDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "dateRangeStart": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "dateRangeEnd": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "injectionData": {
-            "type": "string",
-            "nullable": true
-          },
-          "healthCheckData": {
-            "type": "string",
-            "nullable": true
-          },
-          "healthEventData": {
-            "type": "string",
-            "nullable": true
-          },
-          "inventoryData": {
-            "type": "string",
-            "nullable": true
-          },
-          "nonParticipantData": {
-            "type": "string",
-            "nullable": true
-          },
-          "appointmentData": {
-            "type": "string",
-            "nullable": true
-          },
-          "generatedBy": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "basedOnDashboardId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "generatedByStaff": {
-            "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
-          },
-          "basedOnDashboard": {
-            "$ref": "#/components/schemas/API.ViewModels.DashboardSummaryDTO"
           }
         },
         "additionalProperties": false

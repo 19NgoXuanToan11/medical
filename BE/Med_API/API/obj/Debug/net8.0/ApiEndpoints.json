@@ -197,6 +197,117 @@
     ]
   },
   {
+    "ContainingType": "API.Controllers.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/Auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "API.Controllers.LoginRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.BlogController",
+    "Method": "GetAll",
+    "RelativePath": "api/Blog",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.BlogController",
+    "Method": "Create",
+    "RelativePath": "api/Blog",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "API.ViewModels.BlogDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.BlogController",
+    "Method": "Get",
+    "RelativePath": "api/Blog/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.BlogController",
+    "Method": "Update",
+    "RelativePath": "api/Blog/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "API.ViewModels.BlogDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.BlogController",
+    "Method": "Delete",
+    "RelativePath": "api/Blog/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.BlogController",
+    "Method": "Search",
+    "RelativePath": "api/Blog/search",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "query",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "API.Controllers.DashboardSummaryController",
     "Method": "GetAllDashboardSummaries",
     "RelativePath": "api/DashboardSummary",
@@ -294,6 +405,22 @@
     "Method": "DeleteDashboardSummary",
     "RelativePath": "api/DashboardSummary/{id}",
     "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.DashboardSummaryController",
+    "Method": "ExportDashboardSummary",
+    "RelativePath": "api/DashboardSummary/{id}/export",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -803,7 +930,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.ViewModels.HealthEventDTO, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.DTOs.HealthEventDto\u002BViewModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -822,14 +949,14 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "eventDto",
-        "Type": "API.ViewModels.HealthEventDTO",
+        "Name": "createDto",
+        "Type": "API.DTOs.HealthEventDto\u002BCreate",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "API.ViewModels.HealthEventDTO",
+        "Type": "API.DTOs.HealthEventDto\u002BViewModel",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -855,7 +982,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "API.ViewModels.HealthEventDTO",
+        "Type": "API.DTOs.HealthEventDto\u002BViewModel",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -879,8 +1006,8 @@
         "IsRequired": true
       },
       {
-        "Name": "eventDto",
-        "Type": "API.ViewModels.HealthEventDTO",
+        "Name": "updateDto",
+        "Type": "API.DTOs.HealthEventDto\u002BUpdate",
         "IsRequired": true
       }
     ],
@@ -923,7 +1050,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.ViewModels.HealthEventDTO, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.DTOs.HealthEventDto\u002BViewModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -949,7 +1076,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.ViewModels.HealthEventDTO, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.DTOs.HealthEventDto\u002BViewModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -961,21 +1088,21 @@
   },
   {
     "ContainingType": "API.Controllers.HealthEventController",
-    "Method": "GetHealthEventsByStudentId",
-    "RelativePath": "api/HealthEvent/student/{studentId}",
+    "Method": "GetHealthEventsByStudentCode",
+    "RelativePath": "api/HealthEvent/student/{studentCode}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "studentId",
-        "Type": "System.Int32",
+        "Name": "studentCode",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.ViewModels.HealthEventDTO, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.DTOs.HealthEventDto\u002BViewModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -995,7 +1122,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.ViewModels.HealthProfileDTO, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.DTOs.HealthProfileDto\u002BViewModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -1014,14 +1141,14 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "profileDto",
-        "Type": "API.ViewModels.HealthProfileDTO",
+        "Name": "createDto",
+        "Type": "API.DTOs.HealthProfileDto\u002BCreate",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "API.ViewModels.HealthProfileDTO",
+        "Type": "API.DTOs.HealthProfileDto\u002BViewModel",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -1047,7 +1174,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "API.ViewModels.HealthProfileDTO",
+        "Type": "API.DTOs.HealthProfileDto\u002BViewModel",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -1071,8 +1198,8 @@
         "IsRequired": true
       },
       {
-        "Name": "profileDto",
-        "Type": "API.ViewModels.HealthProfileDTO",
+        "Name": "updateDto",
+        "Type": "API.DTOs.HealthProfileDto\u002BUpdate",
         "IsRequired": true
       }
     ],
@@ -1096,21 +1223,21 @@
   },
   {
     "ContainingType": "API.Controllers.HealthProfileController",
-    "Method": "GetHealthProfileByStudentId",
-    "RelativePath": "api/HealthProfile/student/{studentId}",
+    "Method": "GetHealthProfileByStudentCode",
+    "RelativePath": "api/HealthProfile/student/{studentCode}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "studentId",
-        "Type": "System.Int32",
+        "Name": "studentCode",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "API.ViewModels.HealthProfileDTO",
+        "Type": "API.DTOs.HealthProfileDto\u002BViewModel",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -1228,6 +1355,68 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.InjectionFormController",
+    "Method": "GetApprovedInjectionStudents",
+    "RelativePath": "api/InjectionForm/approved-students",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.ViewModels.InjectionFormDTO, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "API.Controllers.InjectionFormController",
+    "Method": "ParentConfirmConsent",
+    "RelativePath": "api/InjectionForm/parent-confirm/{formId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "formId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.InjectionFormController",
+    "Method": "GetInjectionFormForParent",
+    "RelativePath": "api/InjectionForm/parent-read/{formId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "formId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "API.ViewModels.InjectionFormDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "API.Controllers.InjectionFormController",
@@ -1863,6 +2052,261 @@
   },
   {
     "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "AssignNurseToRequest",
+    "RelativePath": "api/MedicineRequest/{id}/assign-nurse/{staffId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "staffId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "CompleteRequest",
+    "RelativePath": "api/MedicineRequest/{id}/complete/{staffId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "staffId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "StartMedicineRequest",
+    "RelativePath": "api/MedicineRequest/{id}/start-administration/{staffId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "staffId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "API.DTOs.RequestResultDto\u002BViewModel",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "GetReRequests",
+    "RelativePath": "api/MedicineRequest/{originalRequestResultId}/re-requests",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "originalRequestResultId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.DTOs.RequestResultDto\u002BViewModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "GetFailureSummary",
+    "RelativePath": "api/MedicineRequest/{requestResultId}/failure-summary",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestResultId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "MarkRequestAsFailed",
+    "RelativePath": "api/MedicineRequest/{requestResultId}/mark-failed",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestResultId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "reason",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "GetProgressInfo",
+    "RelativePath": "api/MedicineRequest/{requestResultId}/progress/{medicineRequestItemId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestResultId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "medicineRequestItemId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "GetReRequestInfo",
+    "RelativePath": "api/MedicineRequest/{requestResultId}/re-request-info",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestResultId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "AdministerMedicineByFrequency",
+    "RelativePath": "api/MedicineRequest/administer-frequency",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "API.DTOs.RequestResultDto\u002BFrequencyCompleteRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "GetAvailableNurses",
+    "RelativePath": "api/MedicineRequest/available-nurses",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.DTOs.StaffDto\u002BViewModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "CreateReRequest",
+    "RelativePath": "api/MedicineRequest/create-re-request",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "API.DTOs.RequestResultDto\u002BReRequestCreate",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "API.DTOs.RequestResultDto\u002BViewModel",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "GetFailedRequests",
+    "RelativePath": "api/MedicineRequest/failed-requests",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.DTOs.RequestResultDto\u002BViewModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
     "Method": "GetMedicineRequestsByParent",
     "RelativePath": "api/MedicineRequest/parent/{parentId}",
     "HttpMethod": "GET",
@@ -1886,6 +2330,42 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "GetPendingRequests",
+    "RelativePath": "api/MedicineRequest/pending",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.DTOs.MedicineRequestDto\u002BViewModel, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "ReportMedicineFailure",
+    "RelativePath": "api/MedicineRequest/report-failure",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "API.DTOs.RequestResultDto\u002BFailureReport",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "API.Controllers.MedicineRequestController",
@@ -1942,14 +2422,14 @@
   {
     "ContainingType": "API.Controllers.MedicineRequestController",
     "Method": "GetMedicineRequestsByStudent",
-    "RelativePath": "api/MedicineRequest/student/{studentId}",
+    "RelativePath": "api/MedicineRequest/student/{studentCode}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "studentId",
-        "Type": "System.Int32",
+        "Name": "studentCode",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],
@@ -1964,6 +2444,16 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "API.Controllers.MedicineRequestController",
+    "Method": "UpdateTimeBasedStatus",
+    "RelativePath": "api/MedicineRequest/update-time-based-status",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "API.Controllers.ParentController",
@@ -2073,198 +2563,6 @@
       }
     ],
     "ReturnTypes": []
-  },
-  {
-    "ContainingType": "API.Controllers.ReportController",
-    "Method": "GetAllReports",
-    "RelativePath": "api/Report",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.ViewModels.ReportDTO, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "API.Controllers.ReportController",
-    "Method": "CreateReport",
-    "RelativePath": "api/Report",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "reportDto",
-        "Type": "API.ViewModels.ReportDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "API.ViewModels.ReportDTO",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "API.Controllers.ReportController",
-    "Method": "GetReportById",
-    "RelativePath": "api/Report/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "API.ViewModels.ReportDTO",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "API.Controllers.ReportController",
-    "Method": "UpdateReport",
-    "RelativePath": "api/Report/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "reportDto",
-        "Type": "API.ViewModels.ReportDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "API.Controllers.ReportController",
-    "Method": "DeleteReport",
-    "RelativePath": "api/Report/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "API.Controllers.ReportController",
-    "Method": "GetReportsByDateRange",
-    "RelativePath": "api/Report/daterange",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "startDate",
-        "Type": "System.DateTime",
-        "IsRequired": false
-      },
-      {
-        "Name": "endDate",
-        "Type": "System.DateTime",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.ViewModels.ReportDTO, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "API.Controllers.ReportController",
-    "Method": "GetReportsByStaffId",
-    "RelativePath": "api/Report/staff/{staffId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "staffId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.ViewModels.ReportDTO, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "API.Controllers.ReportController",
-    "Method": "GetReportsByType",
-    "RelativePath": "api/Report/type/{reportType}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "reportType",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[API.ViewModels.ReportDTO, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
   },
   {
     "ContainingType": "API.Controllers.RequestResultController",
@@ -2808,7 +3106,7 @@
   },
   {
     "ContainingType": "API.Controllers.StudentParentController",
-    "Method": "GetAll",
+    "Method": "GetStudentParents",
     "RelativePath": "api/StudentParent",
     "HttpMethod": "GET",
     "IsController": true,
@@ -2854,7 +3152,7 @@
   },
   {
     "ContainingType": "API.Controllers.StudentParentController",
-    "Method": "GetById",
+    "Method": "GetStudentParent",
     "RelativePath": "api/StudentParent/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -2917,7 +3215,7 @@
   },
   {
     "ContainingType": "API.Controllers.StudentParentController",
-    "Method": "GetByParentId",
+    "Method": "GetStudentParentsByParentId",
     "RelativePath": "api/StudentParent/parent/{parentId}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -2943,15 +3241,15 @@
   },
   {
     "ContainingType": "API.Controllers.StudentParentController",
-    "Method": "GetByStudentId",
-    "RelativePath": "api/StudentParent/student/{studentId}",
+    "Method": "GetStudentParentsByStudentCode",
+    "RelativePath": "api/StudentParent/student/{studentCode}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "studentId",
-        "Type": "System.Int32",
+        "Name": "studentCode",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],
