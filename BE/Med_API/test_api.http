@@ -1,0 +1,39 @@
+### Test HealthCheckForm API
+
+### 1. Create HealthCheckForm - Success case
+POST https://localhost:7111/api/HealthCheckForm
+Content-Type: application/json
+
+{
+  "studentId": 1,
+  "parentId": 1,
+  "consentStatus": "Pending",
+  "className": "10A"
+}
+
+### 2. Create HealthCheckForm - Missing required field
+POST https://localhost:7111/api/HealthCheckForm
+Content-Type: application/json
+
+{
+  "parentId": 1,
+  "consentStatus": "Pending",
+  "className": "10A"
+}
+
+### 3. Create HealthCheckForm - Invalid status
+POST https://localhost:7111/api/HealthCheckForm
+Content-Type: application/json
+
+{
+  "studentId": 1,
+  "parentId": 1,
+  "consentStatus": "InvalidStatus",
+  "className": "10A"
+}
+
+### 4. Get all HealthCheckForms
+GET https://localhost:7111/api/HealthCheckForm
+
+### 5. Get HealthCheckForm by ID
+GET https://localhost:7111/api/HealthCheckForm/1 

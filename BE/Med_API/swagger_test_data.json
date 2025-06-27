@@ -1,0 +1,159 @@
+{
+  "test_cases": {
+    "create_healthcheckform_success": {
+      "description": "Tạo HealthCheckForm thành công với dữ liệu hợp lệ",
+      "request": {
+        "studentId": 1,
+        "parentId": 1,
+        "consentStatus": "Pending",
+        "className": "10A"
+      },
+      "expected_status": 201
+    },
+    "create_healthcheckform_missing_student": {
+      "description": "Tạo HealthCheckForm thiếu StudentId (bắt buộc)",
+      "request": {
+        "parentId": 1,
+        "consentStatus": "Pending",
+        "className": "10A"
+      },
+      "expected_status": 400
+    },
+    "create_healthcheckform_invalid_status": {
+      "description": "Tạo HealthCheckForm với consentStatus không hợp lệ",
+      "request": {
+        "studentId": 1,
+        "parentId": 1,
+        "consentStatus": "InvalidStatus",
+        "className": "10A"
+      },
+      "expected_status": 400
+    },
+    "create_healthcheckform_student_not_found": {
+      "description": "Tạo HealthCheckForm với StudentId không tồn tại",
+      "request": {
+        "studentId": 999,
+        "parentId": 1,
+        "consentStatus": "Pending",
+        "className": "10A"
+      },
+      "expected_status": 400
+    },
+    "create_healthcheckform_parent_not_found": {
+      "description": "Tạo HealthCheckForm với ParentId không tồn tại",
+      "request": {
+        "studentId": 1,
+        "parentId": 999,
+        "consentStatus": "Pending",
+        "className": "10A"
+      },
+      "expected_status": 400
+    },
+    "create_healthcheckform_minimal_data": {
+      "description": "Tạo HealthCheckForm với dữ liệu tối thiểu (chỉ StudentId)",
+      "request": {
+        "studentId": 1
+      },
+      "expected_status": 201
+    },
+    "create_healthcheckform_with_all_fields": {
+      "description": "Tạo HealthCheckForm với tất cả các trường",
+      "request": {
+        "studentId": 2,
+        "parentId": 3,
+        "consentStatus": "Approved",
+        "className": "10A",
+        "confirmStatus": "Confirmed",
+        "confirmedBy": 1
+      },
+      "expected_status": 201
+    }
+  },
+  "sample_responses": {
+    "success_response": {
+      "formId": 1,
+      "studentId": 1,
+      "parentId": 1,
+      "createdDate": "2025-06-27T13:21:57.016Z",
+      "consentStatus": "Pending",
+      "consentDate": null,
+      "className": "10A",
+      "confirmStatus": null,
+      "confirmedBy": null,
+      "confirmedDate": null,
+      "student": {
+        "studentId": 1,
+        "studentCode": "ST001",
+        "firstName": "Nguyễn",
+        "lastName": "Văn A",
+        "dateOfBirth": "2010-05-15",
+        "gender": "Nam",
+        "className": "10A",
+        "gradeLevel": 10,
+        "address": "123 Đường ABC, Quận 1, TP.HCM",
+        "isActive": true
+      },
+      "parent": {
+        "parentId": 1,
+        "firstName": "Nguyễn",
+        "lastName": "Văn Cha",
+        "relationship": "Cha",
+        "phone": "0901234567",
+        "email": "cha.nguyen@email.com",
+        "isEmergencyContact": true,
+        "isMainContact": true,
+        "isActive": true
+      },
+      "confirmedByStaff": null,
+      "results": []
+    },
+    "error_response": {
+      "error": "Student not found"
+    }
+  },
+  "swagger_test_data": [
+    {
+      "name": "Test Case 1 - Success",
+      "data": {
+        "studentId": 1,
+        "parentId": 1,
+        "consentStatus": "Pending",
+        "className": "10A"
+      }
+    },
+    {
+      "name": "Test Case 2 - Missing StudentId",
+      "data": {
+        "parentId": 1,
+        "consentStatus": "Pending",
+        "className": "10A"
+      }
+    },
+    {
+      "name": "Test Case 3 - Invalid Status",
+      "data": {
+        "studentId": 1,
+        "parentId": 1,
+        "consentStatus": "InvalidStatus",
+        "className": "10A"
+      }
+    },
+    {
+      "name": "Test Case 4 - Minimal Data",
+      "data": {
+        "studentId": 1
+      }
+    },
+    {
+      "name": "Test Case 5 - All Fields",
+      "data": {
+        "studentId": 2,
+        "parentId": 3,
+        "consentStatus": "Approved",
+        "className": "10A",
+        "confirmStatus": "Confirmed",
+        "confirmedBy": 1
+      }
+    }
+  ]
+} 

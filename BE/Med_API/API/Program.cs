@@ -144,10 +144,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", builder =>
     {
         builder
-            .SetIsOriginAllowed(_ => true) // Allow any origin
+            .SetIsOriginAllowed(_ => true) // Cho phép mọi origin
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials()
             .WithExposedHeaders("Content-Disposition", "Content-Length", "Content-Type");
     });
 });
