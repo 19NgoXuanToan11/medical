@@ -13,6 +13,7 @@ import {
   FiChevronDown,
   FiSettings,
   FiEdit,
+  FiCheckCircle,
 } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import ThemeToggle from "../../common/ThemeToggle";
@@ -68,6 +69,11 @@ const NurseLayout = () => {
       path: "/nurse/medication",
       name: "Yêu cầu thuốc",
       icon: <FiTablet className="w-5 h-5" />,
+    },
+    {
+      path: "/nurse/medication-administration",
+      name: "Uống thuốc",
+      icon: <FiCheckCircle className="w-5 h-5" />,
     },
     {
       path: "/nurse/health-events",

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { FaCalendarPlus, FaTimes } from "react-icons/fa";
+import appointmentService from "../../../utils/api/appointment/appointmentService";
+import { medicationService } from "../../../utils/api/medication/medicationService";
 
 const HealthCheckConfirmation = ({ initialTab = "pending" }) => {
   const [loading, setLoading] = useState(true);
@@ -7,9 +10,41 @@ const HealthCheckConfirmation = ({ initialTab = "pending" }) => {
   const [confirmedChecks, setConfirmedChecks] = useState([]);
   const [completedChecks, setCompletedChecks] = useState([]);
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [availableNurses, setAvailableNurses] = useState([]);
+
+  // Modal state
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [appointmentForm, setAppointmentForm] = useState({
+    studentId: 0,
+    parentId: 0,
+    staffId: 0,
+    appointmentDate: "",
+    appointmentType: "",
+    reason: "",
+    notes: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  // Fetch available nurses from API
+  const fetchAvailableNurses = async () => {
+    try {
+      const result = await medicationService.getAvailableNurses();
+      if (result.success) {
+        setAvailableNurses(result.data);
+      } else {
+        console.error("Failed to fetch nurses:", result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching nurses:", error);
+    }
+  };
 
   // Mock data - would be replaced by API calls
   useEffect(() => {
+    // Fetch available nurses
+    fetchAvailableNurses();
+
     // Simulate API call to fetch health checks for parent's children
     setTimeout(() => {
       setPendingChecks([
@@ -66,6 +101,74 @@ const HealthCheckConfirmation = ({ initialTab = "pending" }) => {
       checkToMove.status = "confirmed";
       setConfirmedChecks([...confirmedChecks, checkToMove]);
       setPendingChecks(pendingChecks.filter((check) => check.id !== checkId));
+    }
+  };
+
+  // Handle appointment modal
+  const openAppointmentModal = (student) => {
+    setSelectedStudent(student);
+    setAppointmentForm({
+      studentId: student.id,
+      parentId: 1, // This should be retrieved from context/auth
+      staffId: 0, // To be selected by parent
+      appointmentDate: "",
+      appointmentType: "",
+      reason:
+        "Tái khám và theo dõi sức khỏe sau khi kiểm tra y tế định kỳ tại trường phát hiện dấu hiệu bất thường cần được chú ý",
+      notes: "",
+    });
+    setShowAppointmentModal(true);
+  };
+
+  const closeAppointmentModal = () => {
+    setShowAppointmentModal(false);
+    setSelectedStudent(null);
+    setAppointmentForm({
+      studentId: 0,
+      parentId: 0,
+      staffId: 0,
+      appointmentDate: "",
+      appointmentType: "",
+      reason: "",
+      notes: "",
+    });
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setAppointmentForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const submitAppointment = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      // Format the date to match API requirement
+      const formData = {
+        ...appointmentForm,
+        appointmentDate: new Date(
+          appointmentForm.appointmentDate
+        ).toISOString(),
+      };
+
+      // Call API to create appointment using service
+      const result = await appointmentService.createAppointment(formData);
+
+      if (result.success) {
+        alert(result.message);
+        closeAppointmentModal();
+      } else {
+        alert(`Lỗi: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error creating appointment:", error);
+      alert("Có lỗi xảy ra khi đặt lịch hẹn. Vui lòng thử lại.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -155,6 +258,13 @@ const HealthCheckConfirmation = ({ initialTab = "pending" }) => {
                         "vi-VN"
                       )}
                     </p>
+                    <button
+                      onClick={() => openAppointmentModal(check)}
+                      className="mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-neutral-800"
+                    >
+                      <FaCalendarPlus className="mr-1.5" />
+                      Đặt lịch hẹn mới
+                    </button>
                   </div>
                 )}
                 {activeTab === "completed" && !check.hasAbnormality && (
@@ -285,6 +395,126 @@ const HealthCheckConfirmation = ({ initialTab = "pending" }) => {
         </div>
       ) : (
         renderCheckList()
+      )}
+
+      {/* Appointment Modal */}
+      {showAppointmentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-neutral-200 dark:border-neutral-700">
+              <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">
+                Đặt lịch hẹn cho {selectedStudent?.childName}
+              </h3>
+              <button
+                onClick={closeAppointmentModal}
+                className="text-neutral-400 hover:text-neutral-500 dark:hover:text-neutral-300"
+              >
+                <FaTimes className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={submitAppointment} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  Ngày hẹn *
+                </label>
+                <input
+                  type="datetime-local"
+                  name="appointmentDate"
+                  value={appointmentForm.appointmentDate}
+                  onChange={handleFormChange}
+                  required
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:text-neutral-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  Loại cuộc hẹn *
+                </label>
+                <input
+                  type="text"
+                  name="appointmentType"
+                  value={appointmentForm.appointmentType}
+                  onChange={handleFormChange}
+                  required
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:text-neutral-100"
+                  placeholder="Ví dụ: Tái khám sức khỏe, Tiêm chủng, Khám răng miệng..."
+                />
+                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                  Nhập loại cuộc hẹn phù hợp với tình trạng sức khỏe của con em
+                  bạn
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  Nhân viên y tế *
+                </label>
+                <select
+                  name="staffId"
+                  value={appointmentForm.staffId}
+                  onChange={handleFormChange}
+                  required
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:text-neutral-100"
+                >
+                  <option value="">Chọn nhân viên y tế</option>
+                  {availableNurses.map((nurse) => (
+                    <option key={nurse.staffId} value={nurse.staffId}>
+                      {nurse.firstName} {nurse.lastName} - {nurse.email}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  Lý do khám *
+                </label>
+                <textarea
+                  name="reason"
+                  value={appointmentForm.reason}
+                  onChange={handleFormChange}
+                  required
+                  rows={3}
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:text-neutral-100"
+                  placeholder="Mô tả lý do cần khám..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  Ghi chú thêm
+                </label>
+                <textarea
+                  name="notes"
+                  value={appointmentForm.notes}
+                  onChange={handleFormChange}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:text-neutral-100"
+                  placeholder="Ghi chú thêm (không bắt buộc)..."
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeAppointmentModal}
+                  className="px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? "Đang xử lý..." : "Đặt lịch hẹn"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -6,6 +6,7 @@ import {
   FiCheck,
   FiAlertCircle,
   FiRefreshCw,
+  FiXCircle,
 } from "react-icons/fi";
 import ExcelService from "../../../utils/api/excel/excelService";
 
@@ -97,7 +98,7 @@ const ExcelUpload = () => {
 
   return (
     <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-8">
-      {!uploadStatus.success ? (
+      {!uploadStatus.success && !uploadStatus.error ? (
         <>
           {/* File Drop Zone */}
           <div
@@ -207,7 +208,7 @@ const ExcelUpload = () => {
             </div>
           )}
         </>
-      ) : (
+      ) : uploadStatus.success ? (
         /* Success State */
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-800 mb-6">
@@ -276,15 +277,38 @@ const ExcelUpload = () => {
             Tải lên file khác
           </button>
         </div>
-      )}
-
-      {/* Error Display */}
-      {uploadStatus.error && (
-        <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/40 border border-red-200 rounded-md">
-          <div className="flex items-center">
-            <FiAlertCircle className="h-5 w-5 text-red-400 mr-2" />
-            <span className="text-red-800">{uploadStatus.error}</span>
+      ) : (
+        /* Error State */
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-800 mb-6">
+            <FiXCircle className="h-8 w-8 text-red-600 dark:text-red-300" />
           </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
+            Tải lên không thành công!
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Đã xảy ra lỗi trong quá trình xử lý file Excel của bạn.
+          </p>
+
+          {/* Error Details */}
+          {uploadStatus.error && (
+            <div className="bg-red-50 dark:bg-red-900/40 border border-red-200 rounded-lg p-4 mb-6">
+              <h4 className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">
+                Lỗi chi tiết:
+              </h4>
+              <p className="text-sm text-red-700 dark:text-red-300">
+                {uploadStatus.error}
+              </p>
+            </div>
+          )}
+
+          <button
+            onClick={resetUpload}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white hover:bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <FiRefreshCw className="mr-2 h-4 w-4" />
+            Thử lại
+          </button>
         </div>
       )}
     </div>

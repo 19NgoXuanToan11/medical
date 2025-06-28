@@ -6,6 +6,7 @@ import StudentHealthRecordDetail from "./health-records/StudentHealthRecordDetai
 import StaffMedicationList from "./medication/StaffMedicationList";
 import StaffMedicationDetail from "./medication/StaffMedicationDetail";
 import MedicationReminders from "./medication/MedicationReminders";
+import MedicationAdministration from "./medication/MedicationAdministration";
 
 export {
   NurseDashboard,
@@ -16,6 +17,7 @@ export {
   StaffMedicationList,
   StaffMedicationDetail,
   MedicationReminders,
+  MedicationAdministration,
 };
 
 export default {
@@ -27,4 +29,5 @@ export default {
   StaffMedicationList,
   StaffMedicationDetail,
   MedicationReminders,
+  MedicationAdministration,
 };
