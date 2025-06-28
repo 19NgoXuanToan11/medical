@@ -650,6 +650,29 @@ export const medicationService = {
       };
     }
   },
+
+  // Update time-based status for medication requests
+  updateTimeBasedStatus: async () => {
+    try {
+      const response = await api.post('/MedicineRequest/update-time-based-status');
+      
+      return {
+        success: true,
+        data: response.data,
+        message: "Cập nhật trạng thái theo thời gian thành công",
+      };
+    } catch (error) {
+      console.error("Error updating time-based status:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message ||
+          "Không thể cập nhật trạng thái theo thời gian",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
 };
 
 // Notification Service for Medication Requests

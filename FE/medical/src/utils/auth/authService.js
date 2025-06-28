@@ -89,10 +89,15 @@ class AuthService {
       }
 
       const data = await response.json();
+      console.log("API response data:", data);
 
-      // Save token to localStorage
-      if (data.Token) {
-        localStorage.setItem("token", data.Token);
+      // Save token to localStorage (handle both lowercase and uppercase)
+      const token = data.token || data.Token;
+      if (token) {
+        localStorage.setItem("token", token);
+        console.log("Token saved to localStorage:", token);
+      } else {
+        console.warn("No token found in response:", data);
       }
 
       return data;
