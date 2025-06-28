@@ -6168,23 +6168,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\admin\\.nuget\\packages\\": {},
+    "C:\\Users\\ACER\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Git\\medical\\BE\\Med_API\\API\\API.csproj",
+      "projectUniqueName": "D:\\SWP391\\medical\\BE\\Med_API\\API\\API.csproj",
       "projectName": "API",
-      "projectPath": "D:\\Git\\medical\\BE\\Med_API\\API\\API.csproj",
-      "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
-      "outputPath": "D:\\Git\\medical\\BE\\Med_API\\API\\obj\\",
+      "projectPath": "D:\\SWP391\\medical\\BE\\Med_API\\API\\API.csproj",
+      "packagesPath": "C:\\Users\\ACER\\.nuget\\packages\\",
+      "outputPath": "D:\\SWP391\\medical\\BE\\Med_API\\API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ACER\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -6193,17 +6193,18 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\Git\\medical\\BE\\Med_API\\DB\\DB.csproj": {
-              "projectPath": "D:\\Git\\medical\\BE\\Med_API\\DB\\DB.csproj"
+            "D:\\SWP391\\medical\\BE\\Med_API\\DB\\DB.csproj": {
+              "projectPath": "D:\\SWP391\\medical\\BE\\Med_API\\DB\\DB.csproj"
             },
-            "D:\\Git\\medical\\BE\\Med_API\\Service\\Service.csproj": {
-              "projectPath": "D:\\Git\\medical\\BE\\Med_API\\Service\\Service.csproj"
+            "D:\\SWP391\\medical\\BE\\Med_API\\Service\\Service.csproj": {
+              "projectPath": "D:\\SWP391\\medical\\BE\\Med_API\\Service\\Service.csproj"
             }
           }
         }
@@ -6217,8 +6218,7 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      },
-      "SdkAnalysisLevel": "9.0.300"
+      }
     },
     "frameworks": {
       "net8.0": {
@@ -6280,7 +6280,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.405/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
