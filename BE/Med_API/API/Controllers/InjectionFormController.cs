@@ -124,6 +124,13 @@ public class InjectionFormController : ControllerBase
         var forms = await _injectionFormService.GetInjectionFormsByStatusAsync("Approved");
         return Ok(_mapper.Map<IEnumerable<InjectionFormDTO>>(forms));
     }
+    [HttpGet("pending-students")]
+    public async Task<ActionResult<IEnumerable<InjectionFormDTO>>> GetPendingInjectionStudents()
+    {
+        var forms = await _injectionFormService.GetInjectionFormsByStatusAsync("pending");
+        return Ok(_mapper.Map<IEnumerable<InjectionFormDTO>>(forms));
+    }
+
     [HttpGet("parent-read/{formId}")]
     public async Task<ActionResult<InjectionFormDTO>> GetInjectionFormForParent(int formId)
     {
@@ -144,6 +151,17 @@ public class InjectionFormController : ControllerBase
         {
             return NotFound("Không tìm thấy phiếu tiêm chủng");
         }
+
+        if (form.ConsentStatus == "Approved")
+        {
+            return BadRequest("Phiếu tiêm chủng đã được xác nhận đồng ý trước đó");
+        }
+
+        if (form.ConsentStatus == "Rejected")
+        {
+            return BadRequest("Phiếu tiêm chủng đã bị từ chối trước đó");
+        }
+
         form.ConsentStatus = "Approved";
         form.ConsentDate = DateTime.UtcNow;
         var result = await _injectionFormService.UpdateInjectionFormAsync(form);
@@ -153,4 +171,99 @@ public class InjectionFormController : ControllerBase
         }
         return Ok("Phụ huynh đã xác nhận đồng ý tiêm chủng thành công");
     }
-} 
+
+    // API cho phụ huynh từ chối tiêm chủng
+    [HttpPost("parent-reject/{formId}")]
+    public async Task<IActionResult> ParentRejectConsent(int formId, [FromBody] string? reason = null)
+    {
+        var form = await _injectionFormService.GetInjectionFormByIdAsync(formId);
+        if (form == null)
+        {
+            return NotFound("Không tìm thấy phiếu tiêm chủng");
+        }
+
+        if (form.ConsentStatus == "Approved")
+        {
+            return BadRequest("Phiếu tiêm chủng đã được xác nhận đồng ý trước đó");
+        }
+
+        if (form.ConsentStatus == "Rejected")
+        {
+            return BadRequest("Phiếu tiêm chủng đã bị từ chối trước đó");
+        }
+
+        form.ConsentStatus = "Rejected";
+        form.ConsentDate = DateTime.UtcNow;
+
+        // Thêm lý do từ chối vào description nếu có
+        if (!string.IsNullOrEmpty(reason))
+        {
+            form.Description = string.IsNullOrEmpty(form.Description)
+                ? $"Lý do từ chối: {reason}"
+                : $"{form.Description}\nLý do từ chối: {reason}";
+        }
+
+        var result = await _injectionFormService.UpdateInjectionFormAsync(form);
+        if (!result)
+        {
+            return StatusCode(500, "Lỗi từ chối phiếu tiêm chủng");
+        }
+        return Ok("Phụ huynh đã từ chối tiêm chủng thành công");
+    }
+
+    // API để hủy phiếu tiêm chủng (cho nhân viên y tế)
+    [HttpPost("cancel/{formId}")]
+    public async Task<IActionResult> CancelInjectionForm(int formId, [FromBody] string? reason = null)
+    {
+        var form = await _injectionFormService.GetInjectionFormByIdAsync(formId);
+        if (form == null)
+        {
+            return NotFound("Không tìm thấy phiếu tiêm chủng");
+        }
+
+        if (form.ConsentStatus == "Cancelled")
+        {
+            return BadRequest("Phiếu tiêm chủng đã bị hủy trước đó");
+        }
+
+        form.ConsentStatus = "Cancelled";
+        form.ConsentDate = DateTime.UtcNow;
+
+        // Thêm lý do hủy vào description nếu có
+        if (!string.IsNullOrEmpty(reason))
+        {
+            form.Description = string.IsNullOrEmpty(form.Description)
+                ? $"Lý do hủy: {reason}"
+                : $"{form.Description}\nLý do hủy: {reason}";
+        }
+
+        var result = await _injectionFormService.UpdateInjectionFormAsync(form);
+        if (!result)
+        {
+            return StatusCode(500, "Lỗi hủy phiếu tiêm chủng");
+        }
+        return Ok("Phiếu tiêm chủng đã được hủy thành công");
+    }
+
+    // API để lấy thống kê phiếu tiêm chủng
+    [HttpGet("statistics")]
+    public async Task<ActionResult<object>> GetInjectionFormStatistics()
+    {
+        var allForms = await _injectionFormService.GetAllInjectionFormsAsync();
+        var formsList = allForms.ToList();
+
+        var statistics = new
+        {
+            Total = formsList.Count,
+            Pending = formsList.Count(f => f.ConsentStatus == "Pending"),
+            Approved = formsList.Count(f => f.ConsentStatus == "Approved"),
+            Rejected = formsList.Count(f => f.ConsentStatus == "Rejected"),
+            Cancelled = formsList.Count(f => f.ConsentStatus == "Cancelled"),
+            TodayCreated = formsList.Count(f => f.CreatedDate?.Date == DateTime.UtcNow.Date),
+            ThisWeekCreated = formsList.Count(f => f.CreatedDate >= DateTime.UtcNow.AddDays(-7)),
+            ThisMonthCreated = formsList.Count(f => f.CreatedDate >= DateTime.UtcNow.AddMonths(-1))
+        };
+
+        return Ok(statistics);
+    }
+}
