@@ -8,88 +8,88 @@ import ProtectedRoute, {
   NurseRoute,
   ParentRoute,
   StudentRoute,
-} from "./components/common/ProtectedRoute";
-import UnauthorizedPage from "./components/common/UnauthorizedPage";
+} from "../../components/common/ProtectedRoute";
+import UnauthorizedPage from "../../components/common/UnauthorizedPage";
 
 // home
-import HomePage from "./components/home/HomePage";
+import HomePage from "../../components/home/HomePage";
 
 // layout
-import AuthLayout from "./components/layout/auth/AuthLayout";
-import AdminLayout from "./components/layout/admin/AdminLayout";
-import ManagerLayout from "./components/layout/manager/ManagerLayout";
-import MainLayout from "./components/layout/main/MainLayout";
-import ParentLayout from "./components/layout/parent/ParentLayout";
-import NurseLayout from "./components/layout/nurse/NurseLayout";
-import StudentLayout from "./components/layout/student/StudentLayout";
+import AuthLayout from "../../components/layout/auth/AuthLayout";
+import AdminLayout from "../../components/layout/admin/AdminLayout";
+import ManagerLayout from "../../components/layout/manager/ManagerLayout";
+import MainLayout from "../../components/layout/main/MainLayout";
+import ParentLayout from "../../components/layout/parent/ParentLayout";
+import NurseLayout from "../../components/layout/nurse/NurseLayout";
+import StudentLayout from "../../components/layout/student/StudentLayout";
 
 // auth
-import Login from "./pages/auth/login/Login";
+import Login from "../../pages/auth/login/Login";
 
 // admin
-import AdminDashboard from "./pages/admin/dashboard/AdminDashboard";
-import StaffManagement from "./pages/admin/staff/StaffManagement";
-import ReportsAnalytics from "./pages/admin/report/ReportsAnalytics";
+import AdminDashboard from "../../pages/admin/dashboard/AdminDashboard";
+import StaffManagement from "../../pages/admin/staff/StaffManagement";
+import ReportsAnalytics from "../../pages/admin/report/ReportsAnalytics";
 
 // manager
-import Dashboard from "./pages/manager/dashboard/Dashboard";
-import ParentManagement from "./pages/manager/manage/ParentManagement";
-import StudentManagement from "./pages/manager/manage/StudentManagement";
-import MedicineInventory from "./pages/manager/inventory/MedicineInventory";
-import SupplyInventory from "./pages/manager/inventory/SupplyInventory";
-import ExcelImport from "./pages/manager/inventory/ExcelImport";
-import ExcelManagement from "./pages/manager/excel/ExcelManagement";
+import Dashboard from "../../pages/manager/dashboard/Dashboard";
+import ParentManagement from "../../pages/manager/manage/ParentManagement";
+import StudentManagement from "../../pages/manager/manage/StudentManagement";
+import MedicineInventory from "../../pages/manager/inventory/MedicineInventory";
+import SupplyInventory from "../../pages/manager/inventory/SupplyInventory";
+import ExcelImport from "../../pages/manager/inventory/ExcelImport";
+import ExcelManagement from "../../pages/manager/excel/ExcelManagement";
 
 // nurse
-import NurseDashboard from "./pages/nurse/dashboard/NurseDashboard";
-import NurseProfile from "./pages/nurse/profile/NurseProfile";
-import NurseHealthCheck from "./pages/nurse/health-check/NurseHealthCheck";
-import NurseHealthCheckCreate from "./pages/nurse/health-check/NurseHealthCheckCreate";
-import NurseHealthCheckDetail from "./pages/nurse/health-check/NurseHealthCheckDetail";
-import StudentHealthHistory from "./pages/nurse/health-check/StudentHealthHistory";
-import HealthEventList from "./pages/nurse/health-events/HealthEventList";
-import HealthEventDetail from "./pages/nurse/health-events/HealthEventDetail";
-import HealthEventCreate from "./pages/nurse/health-events/HealthEventCreate";
-import HealthEventEdit from "./pages/nurse/health-events/HealthEventEdit";
-import VaccinationManagement from "./pages/nurse/vaccination/VaccinationManagement";
-import VaccinationDetail from "./pages/nurse/vaccination/VaccinationDetail";
-import VaccinationEdit from "./pages/nurse/vaccination/VaccinationEdit";
-import VaccinationPlanCreate from "./pages/nurse/vaccination/VaccinationPlanCreate";
-import StaffMedicationList from "./pages/nurse/medication/StaffMedicationList";
-import StaffMedicationDetail from "./pages/nurse/medication/StaffMedicationDetail";
-import MedicationAdministration from "./pages/nurse/medication/MedicationAdministration";
-import StudentHealthDetail from "./pages/nurse/health-check/StudentHealthDetail";
-import NurseSchedule from "./pages/nurse/schedule/NurseSchedule";
-import StudentHealthRecords from "./pages/nurse/health-records/StudentHealthRecords";
-import StudentHealthRecordDetail from "./pages/nurse/health-records/StudentHealthRecordDetail";
+import NurseDashboard from "../../pages/nurse/dashboard/NurseDashboard";
+import NurseProfile from "../../pages/nurse/profile/NurseProfile";
+import NurseHealthCheck from "../../pages/nurse/health-check/NurseHealthCheck";
+import NurseHealthCheckCreate from "../../pages/nurse/health-check/NurseHealthCheckCreate";
+import NurseHealthCheckDetail from "../../pages/nurse/health-check/NurseHealthCheckDetail";
+import StudentHealthHistory from "../../pages/nurse/health-check/StudentHealthHistory";
+import HealthEventList from "../../pages/nurse/health-events/HealthEventList";
+import HealthEventDetail from "../../pages/nurse/health-events/HealthEventDetail";
+import HealthEventCreate from "../../pages/nurse/health-events/HealthEventCreate";
+import HealthEventEdit from "../../pages/nurse/health-events/HealthEventEdit";
+import VaccinationManagement from "../../pages/nurse/vaccination/VaccinationManagement";
+import VaccinationDetail from "../../pages/nurse/vaccination/VaccinationDetail";
+import VaccinationEdit from "../../pages/nurse/vaccination/VaccinationEdit";
+import VaccinationPlanCreate from "../../pages/nurse/vaccination/VaccinationPlanCreate";
+import StaffMedicationList from "../../pages/nurse/medication/StaffMedicationList";
+import StaffMedicationDetail from "../../pages/nurse/medication/StaffMedicationDetail";
+import MedicationAdministration from "../../pages/nurse/medication/MedicationAdministration";
+import StudentHealthDetail from "../../pages/nurse/health-check/StudentHealthDetail";
+import NurseSchedule from "../../pages/nurse/schedule/NurseSchedule";
+import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealthRecords";
+import StudentHealthRecordDetail from "../../pages/nurse/health-records/StudentHealthRecordDetail";
 
 // parent
-import ParentDashboard from "./pages/parent/dashboard/ParentDashboard";
-import ParentProfile from "./pages/parent/profile/ParentProfile";
-import StudentHealthProfile from "./pages/parent/health-profile/StudentHealthProfile";
-import HealthProfileList from "./pages/parent/health-profile/HealthProfileList";
-import ComprehensiveHealthTable from "./pages/parent/health-profile/ComprehensiveHealthTable";
-import MedicationRequest from "./pages/parent/medication/MedicationRequest";
-import MedicationHistory from "./pages/parent/medication/MedicationHistory";
-import MedicationDetail from "./pages/parent/medication/MedicationDetail";
-import VaccinationIndex from "./pages/parent/vaccination/index";
-import VaccinationConsent from "./pages/parent/vaccination/VaccinationConsent";
-import HealthCheckConfirmation from "./pages/parent/health-check/HealthCheckConfirmation";
-import HealthCheckResultDetail from "./pages/parent/health-check/HealthCheckResultDetail";
-import HealthEventsList from "./pages/parent/health-events/HealthEventsList";
-import ParentHealthEventDetail from "./pages/parent/health-events/HealthEventDetail";
-import HealthEventResultDetail from "./pages/parent/health-events/HealthEventResultDetail";
-import Notifications from "./pages/parent/notification/Notifications";
-import HealthProfileDetailView from "./pages/parent/health-profile/HealthProfileDetailView";
+import ParentDashboard from "../../pages/parent/dashboard/ParentDashboard";
+import ParentProfile from "../../pages/parent/profile/ParentProfile";
+import StudentHealthProfile from "../../pages/parent/health-profile/StudentHealthProfile";
+import HealthProfileList from "../../pages/parent/health-profile/HealthProfileList";
+import ComprehensiveHealthTable from "../../pages/parent/health-profile/ComprehensiveHealthTable";
+import MedicationRequest from "../../pages/parent/medication/MedicationRequest";
+import MedicationHistory from "../../pages/parent/medication/MedicationHistory";
+import MedicationDetail from "../../pages/parent/medication/MedicationDetail";
+import VaccinationIndex from "../../pages/parent/vaccination/index";
+import VaccinationConsent from "../../pages/parent/vaccination/VaccinationConsent";
+import HealthCheckConfirmation from "../../pages/parent/health-check/HealthCheckConfirmation";
+import HealthCheckResultDetail from "../../pages/parent/health-check/HealthCheckResultDetail";
+import HealthEventsList from "../../pages/parent/health-events/HealthEventsList";
+import ParentHealthEventDetail from "../../pages/parent/health-events/HealthEventDetail";
+import HealthEventResultDetail from "../../pages/parent/health-events/HealthEventResultDetail";
+import Notifications from "../../pages/parent/notification/Notifications";
+import HealthProfileDetailView from "../../pages/parent/health-profile/HealthProfileDetailView";
 
 // student
-import StudentDashboard from "./pages/student/dashboard/StudentDashboard";
-import StudentMedication from "./pages/student/medication/StudentMedication";
-import StudentHealthEvents from "./pages/student/health-events/StudentHealthEvents";
-import StudentHealthResources from "./pages/student/health-resources/StudentHealthResources";
+import StudentDashboard from "../../pages/student/dashboard/StudentDashboard";
+import StudentMedication from "../../pages/student/medication/StudentMedication";
+import StudentHealthEvents from "../../pages/student/health-events/StudentHealthEvents";
+import StudentHealthResources from "../../pages/student/health-resources/StudentHealthResources";
 
 // Demo component
-import ProtectedRouteDemo from "./components/demo/ProtectedRouteDemo";
+import ProtectedRouteDemo from "../../components/demo/ProtectedRouteDemo";
 
 function AppRoutes() {
   return (
