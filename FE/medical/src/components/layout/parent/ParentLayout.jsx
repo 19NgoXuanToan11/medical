@@ -96,14 +96,10 @@ const ParentLayout = () => {
       icon: <MdHealthAndSafety className="w-5 h-5" />,
     },
     {
-      path: "/parent/vaccination",
-      label: "Tiêm chủng",
+      path: "/parent/health-services",
+      label: "Dịch vụ Y tế",
       icon: <FaSyringe className="w-5 h-5" />,
-    },
-    {
-      path: "/parent/health-check",
-      label: "Kiểm tra y tế định kỳ",
-      icon: <FaCalendarCheck className="w-5 h-5" />,
+      description: "Tiêm chủng & Khám sức khỏe định kỳ"
     },
     {
       path: "/parent/notifications",
