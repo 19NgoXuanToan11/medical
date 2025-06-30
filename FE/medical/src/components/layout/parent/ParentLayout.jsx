@@ -102,7 +102,11 @@ const ParentLayout = () => {
       path: "/parent/health-services",
       label: "Dịch vụ Y tế",
       icon: <FaSyringe className="w-5 h-5" />,
+<<<<<<< HEAD
       description: "Tiêm chủng & Khám sức khỏe định kỳ",
+=======
+      description: "Tiêm chủng & Khám sức khỏe định kỳ"
+>>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
     },
     {
       path: "/parent/notifications",

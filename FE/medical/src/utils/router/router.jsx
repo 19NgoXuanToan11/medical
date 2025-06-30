@@ -53,27 +53,38 @@ import NurseHealthCheck from "../../pages/nurse/health-check/NurseHealthCheck";
 import NurseHealthCheckCreate from "../../pages/nurse/health-check/NurseHealthCheckCreate";
 import NurseHealthCheckDetail from "../../pages/nurse/health-check/NurseHealthCheckDetail";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import HealthCheckLiveMonitoring from "../../pages/nurse/health-check/HealthCheckLiveMonitoring";
 import HealthCheckManagement from "../../pages/nurse/health-check/HealthCheckManagement";
 =======
 >>>>>>> efbfeee (rename router)
+=======
+import HealthCheckLiveMonitoring from "../../pages/nurse/health-check/HealthCheckLiveMonitoring";
+import HealthCheckManagement from "../../pages/nurse/health-check/HealthCheckManagement";
+>>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
 import StudentHealthHistory from "../../pages/nurse/health-check/StudentHealthHistory";
 import HealthEventList from "../../pages/nurse/health-events/HealthEventList";
 import HealthEventDetail from "../../pages/nurse/health-events/HealthEventDetail";
 import HealthEventCreate from "../../pages/nurse/health-events/HealthEventCreate";
 import HealthEventEdit from "../../pages/nurse/health-events/HealthEventEdit";
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
 import HealthServicesManagement from "../../pages/nurse/health-services/HealthServicesManagement";
 import HealthServiceCreate from "../../pages/nurse/health-services/HealthServiceCreate";
 // Placeholder imports for remaining components
 const HealthServiceDetail = () => <div>Health Service Detail - Coming Soon</div>;
 const HealthServiceEdit = () => <div>Health Service Edit - Coming Soon</div>;
+<<<<<<< HEAD
 import NurseMedicationManagement from "../../pages/nurse/medication/MedicationManagement";
 =======
 import VaccinationManagement from "../../pages/nurse/vaccination/VaccinationManagement";
 import VaccinationDetail from "../../pages/nurse/vaccination/VaccinationDetail";
 import VaccinationEdit from "../../pages/nurse/vaccination/VaccinationEdit";
 import VaccinationPlanCreate from "../../pages/nurse/vaccination/VaccinationPlanCreate";
+=======
+>>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
 import StaffMedicationList from "../../pages/nurse/medication/StaffMedicationList";
 import StaffMedicationDetail from "../../pages/nurse/medication/StaffMedicationDetail";
 import MedicationAdministration from "../../pages/nurse/medication/MedicationAdministration";
@@ -88,9 +99,13 @@ import ParentDashboard from "../../pages/parent/dashboard/ParentDashboard";
 import ParentProfile from "../../pages/parent/profile/ParentProfile";
 import StudentHealthProfile from "../../pages/parent/health-profile/StudentHealthProfile";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import HealthServices from "../../pages/parent/health-services/HealthServices";
 =======
 >>>>>>> efbfeee (rename router)
+=======
+import HealthServices from "../../pages/parent/health-services/HealthServices";
+>>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
 import HealthProfileList from "../../pages/parent/health-profile/HealthProfileList";
 import ComprehensiveHealthTable from "../../pages/parent/health-profile/ComprehensiveHealthTable";
 import MedicationRequest from "../../pages/parent/medication/MedicationRequest";
@@ -225,6 +240,7 @@ function AppRoutes() {
         />
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         {/* Parent Health Services Routes (Unified Vaccination + Health Check) */}
         <Route
           path="/parent/health-services"
@@ -253,22 +269,33 @@ function AppRoutes() {
           element={<Navigate to="/parent/health-services" replace />}
 =======
         {/* Parent Vaccination Routes */}
+=======
+        {/* Parent Health Services Routes (Unified Vaccination + Health Check) */}
+>>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
         <Route
-          path="/parent/vaccination"
-          element={<Navigate to="/parent/vaccination/upcoming" replace />}
+          path="/parent/health-services"
+          element={<HealthServices />}
         />
-        <Route path="/parent/vaccination/*" element={<VaccinationIndex />} />
         <Route
-          path="/parent/vaccination/consent/:id"
-          element={<VaccinationConsent />}
+          path="/parent/health-services/:id/detail"
+          element={<HealthCheckResultDetail />}
         />
 
-        {/* Parent Health Check Routes */}
+        {/* Legacy routes for backward compatibility */}
         <Route
-          path="/parent/health-check"
-          element={<HealthCheckConfirmation />}
+          path="/parent/vaccination"
+          element={<Navigate to="/parent/health-services" replace />}
         />
         <Route
+          path="/parent/vaccination/*"
+          element={<Navigate to="/parent/health-services" replace />}
+        />
+        <Route
+          path="/parent/health-check"
+          element={<Navigate to="/parent/health-services" replace />}
+        />
+        <Route
+<<<<<<< HEAD
           path="/parent/health-check/results"
           element={<HealthCheckConfirmation initialTab="completed" />}
         />
@@ -276,6 +303,10 @@ function AppRoutes() {
           path="/parent/health-check/:id/results"
           element={<HealthCheckResultDetail />}
 >>>>>>> efbfeee (rename router)
+=======
+          path="/parent/health-check/*"
+          element={<Navigate to="/parent/health-services" replace />}
+>>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
         />
 
         {/* Parent Health Events Routes */}
@@ -378,24 +409,56 @@ function AppRoutes() {
           element={<MedicationAdministration />}
         />
 
-        {/* Health Check Routes */}
-        <Route path="/nurse/health-check" element={<NurseHealthCheck />} />
+        {/* Health Services Routes (Unified Vaccination + Health Check) */}
+        <Route path="/nurse/health-services" element={<HealthServicesManagement />} />
         <Route
-          path="/nurse/health-check/new"
-          element={<NurseHealthCheckCreate />}
+          path="/nurse/health-services/create"
+          element={<HealthServiceCreate />}
         />
         <Route
-          path="/nurse/health-check/:id"
-          element={<NurseHealthCheckDetail />}
+          path="/nurse/health-services/:id"
+          element={<HealthServiceDetail />}
         />
         <Route
-          path="/nurse/health-check/:id/student/:studentId"
+          path="/nurse/health-services/:id/edit"
+          element={<HealthServiceEdit />}
+        />
+        <Route
+          path="/nurse/health-services/:id/live"
+          element={<HealthCheckLiveMonitoring />}
+        />
+        <Route
+          path="/nurse/health-services/:id/manage"
+          element={<HealthCheckManagement />}
+        />
+        <Route
+          path="/nurse/health-services/:id/student/:studentId"
           element={<StudentHealthDetail />}
         />
+<<<<<<< HEAD
         <Route
           path="/nurse/student/:id/health-history"
           element={<StudentHealthHistory />}
 >>>>>>> efbfeee (rename router)
+=======
+
+        {/* Legacy routes for backward compatibility */}
+        <Route 
+          path="/nurse/health-check" 
+          element={<Navigate to="/nurse/health-services" replace />} 
+        />
+        <Route 
+          path="/nurse/health-check/*" 
+          element={<Navigate to="/nurse/health-services" replace />} 
+        />
+        <Route 
+          path="/nurse/vaccination" 
+          element={<Navigate to="/nurse/health-services" replace />} 
+        />
+        <Route 
+          path="/nurse/vaccination/*" 
+          element={<Navigate to="/nurse/health-services" replace />} 
+>>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
         />
 
         {/* Health Events Routes */}
@@ -414,6 +477,7 @@ function AppRoutes() {
         />
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         {/* Student Health History Route */}
         <Route
           path="/nurse/student/:id/health-history"
@@ -430,6 +494,12 @@ function AppRoutes() {
           path="/nurse/vaccination/:id/edit"
           element={<VaccinationEdit />}
 >>>>>>> efbfeee (rename router)
+=======
+        {/* Student Health History Route */}
+        <Route
+          path="/nurse/student/:id/health-history"
+          element={<StudentHealthHistory />}
+>>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
         />
       </Route>
 

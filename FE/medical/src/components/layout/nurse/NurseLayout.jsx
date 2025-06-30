@@ -84,7 +84,11 @@ const NurseLayout = () => {
       path: "/nurse/health-services",
       name: "Dịch vụ Y tế",
       icon: <FiCalendar className="w-5 h-5" />,
+<<<<<<< HEAD
       description: "Quản lý Tiêm chủng & Khám sức khỏe",
+=======
+      description: "Quản lý Tiêm chủng & Khám sức khỏe"
+>>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
     },
   ];
 
