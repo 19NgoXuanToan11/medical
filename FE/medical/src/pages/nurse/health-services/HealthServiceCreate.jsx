@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiActivity, FiShield, FiArrowLeft, FiArrowRight } from "react-icons/fi";
@@ -125,551 +126,131 @@ const HealthServiceCreate = () => {
       </div>
 =======
 import React, { useState, useEffect } from "react";
+=======
+import React, { useState } from "react";
+>>>>>>> 19ec55e (change the look of vaccinations and routine medical checkups)
 import { useNavigate } from "react-router-dom";
-import {
-  FiSave,
-  FiX,
-  FiCalendar,
-  FiClock,
-  FiUsers,
-  FiInfo,
-  FiAlertCircle,
-  FiShield,
-  FiActivity,
-  FiMapPin,
-  FiPlus,
-  FiMinus,
-  FiCheckCircle,
-} from "react-icons/fi";
+import { FiActivity, FiShield, FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import VaccinationCreate from "./VaccinationCreate";
+import HealthCheckCreate from "./HealthCheckCreate";
 
 const HealthServiceCreate = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [serviceType, setServiceType] = useState("vaccination"); // vaccination or health_check
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    scheduledDate: "",
-    scheduledTime: "",
-    location: "Phòng y tế trường",
-    targetGrades: [],
-    requiresConsent: true,
-    reminderDaysBefore: 7,
-    maxStudentsPerSession: 50,
-    estimatedDuration: 60,
-    notes: "",
+  const [serviceType, setServiceType] = useState(""); // vaccination or health_check
 
-    // Vaccination specific fields
-    vaccineType: "",
-    vaccinationDetails: {
-      dosage: "",
-      manufacturer: "",
-      lotNumber: "",
-      expiryDate: "",
-      sideEffects: "",
-      contraindications: "",
-    },
+  // Nếu đã chọn loại dịch vụ, hiển thị component tương ứng
+  if (serviceType === "vaccination") {
+    return <VaccinationCreate onBack={() => setServiceType("")} />;
+  }
 
-    // Health check specific fields
-    checkItems: ["Chiều cao", "Cân nặng", "Thị lực", "Răng miệng"],
-    abnormalityProtocol: "",
-    followUpRequired: false,
-  });
+  if (serviceType === "health_check") {
+    return <HealthCheckCreate onBack={() => setServiceType("")} />;
+  }
 
-  const [availableGrades, setAvailableGrades] = useState([]);
-  const [vaccineTypes, setVaccineTypes] = useState([]);
-  const [healthCheckItems, setHealthCheckItems] = useState([
-    "Chiều cao",
-    "Cân nặng",
-    "Thị lực",
-    "Răng miệng",
-    "Tim mạch",
-    "Phổi",
-    "Xương khớp",
-    "Da liễu",
-    "Thần kinh",
-    "Tiêu hóa",
-  ]);
-
-  // Load data from API and draft
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Load draft if exists
-        const savedDraft = localStorage.getItem("healthServiceDraft");
-        if (savedDraft) {
-          const draftData = JSON.parse(savedDraft);
-          if (
-            confirm(
-              "Phát hiện bản nháp đã lưu. Bạn có muốn tiếp tục chỉnh sửa không?"
-            )
-          ) {
-            setFormData((prev) => ({ ...prev, ...draftData }));
-            setServiceType(draftData.type || "vaccination");
-            localStorage.removeItem("healthServiceDraft"); // Clean up after loading
-          }
-        }
-
-        // Simulate API calls
-        setTimeout(() => {
-          setAvailableGrades([
-            { id: "1A", name: "Lớp 1A", studentCount: 25 },
-            { id: "1B", name: "Lớp 1B", studentCount: 24 },
-            { id: "1C", name: "Lớp 1C", studentCount: 26 },
-            { id: "2A", name: "Lớp 2A", studentCount: 28 },
-            { id: "2B", name: "Lớp 2B", studentCount: 27 },
-            { id: "2C", name: "Lớp 2C", studentCount: 25 },
-            { id: "3A", name: "Lớp 3A", studentCount: 30 },
-            { id: "3B", name: "Lớp 3B", studentCount: 29 },
-            { id: "3C", name: "Lớp 3C", studentCount: 28 },
-            { id: "4A", name: "Lớp 4A", studentCount: 27 },
-            { id: "4B", name: "Lớp 4B", studentCount: 26 },
-            { id: "5A", name: "Lớp 5A", studentCount: 24 },
-            { id: "5B", name: "Lớp 5B", studentCount: 25 },
-          ]);
-
-          setVaccineTypes([
-            {
-              id: "flu",
-              name: "Vắc-xin cúm mùa",
-              recommendedAges: ["6-18 tuổi"],
-              dosage: "0.5ml",
-              sideEffects: "Sốt nhẹ, đau tại chỗ tiêm trong 24-48 giờ",
-              contraindications: "Dị ứng với thành phần vắc-xin, sốt cao",
-            },
-            {
-              id: "mmr",
-              name: "Vắc-xin MMR (Sởi-Quai bị-Rubella)",
-              recommendedAges: ["12-15 tháng", "4-6 tuổi"],
-              dosage: "0.5ml",
-              sideEffects: "Sốt nhẹ, phát ban nhẹ sau 1-2 tuần",
-              contraindications: "Thai kỳ, suy giảm miễn dịch, dị ứng neomycin",
-            },
-            {
-              id: "hepatitis_b",
-              name: "Vắc-xin Viêm gan B",
-              recommendedAges: ["Sơ sinh", "Trẻ em chưa tiêm"],
-              dosage: "0.5ml",
-              sideEffects: "Đau, sưng tại chỗ tiêm, sốt nhẹ",
-              contraindications: "Dị ứng với men bia, sốt cao",
-            },
-            {
-              id: "japanese_encephalitis",
-              name: "Vắc-xin Viêm não Nhật Bản",
-              recommendedAges: ["12 tháng - 15 tuổi"],
-              dosage: "0.5ml",
-              sideEffects: "Sốt, đau đầu nhẹ, đau tại chỗ tiêm",
-              contraindications: "Dị ứng với protein động vật, bệnh cấp tính",
-            },
-            {
-              id: "hpv",
-              name: "Vắc-xin HPV",
-              recommendedAges: ["9-14 tuổi (nữ)"],
-              dosage: "0.5ml",
-              sideEffects: "Đau, sưng tại chỗ tiêm, choáng váng nhẹ",
-              contraindications: "Thai kỳ, dị ứng với thành phần vắc-xin",
-            },
-            {
-              id: "varicella",
-              name: "Vắc-xin Thủy đậu",
-              recommendedAges: ["12-15 tháng", "4-6 tuổi"],
-              dosage: "0.5ml",
-              sideEffects: "Sốt nhẹ, phát ban thủy đậu nhẹ",
-              contraindications:
-                "Thai kỳ, suy giảm miễn dịch, thuốc ức chế miễn dịch",
-            },
-            {
-              id: "dpt",
-              name: "Vắc-xin DPT (Bạch hầu-Ho gà-Uốn ván)",
-              recommendedAges: ["2-6 tháng", "nhắc lại 4-6 tuổi"],
-              dosage: "0.5ml",
-              sideEffects: "Sưng đỏ tại chỗ tiêm, sốt, quấy khóc",
-              contraindications:
-                "Bệnh não cấp tính, dị ứng với thành phần vắc-xin",
-            },
-          ]);
-        }, 500);
-      } catch (error) {
-        console.error("Lỗi khi tải dữ liệu:", error);
-      }
-    };
-
-    loadData();
-  }, []);
-
-  // Auto-fill vaccine details when vaccine type is selected
-  useEffect(() => {
-    if (formData.vaccineType && vaccineTypes.length > 0) {
-      const selectedVaccine = vaccineTypes.find(
-        (v) => v.id === formData.vaccineType
-      );
-      if (selectedVaccine) {
-        setFormData((prev) => ({
-          ...prev,
-          vaccinationDetails: {
-            ...prev.vaccinationDetails,
-            dosage: selectedVaccine.dosage || prev.vaccinationDetails.dosage,
-            sideEffects:
-              selectedVaccine.sideEffects ||
-              prev.vaccinationDetails.sideEffects,
-            contraindications:
-              selectedVaccine.contraindications ||
-              prev.vaccinationDetails.contraindications,
-          },
-          // Auto-suggest title if empty
-          title: prev.title || `Tiêm ${selectedVaccine.name}`,
-          // Auto-adjust duration based on vaccine type
-          estimatedDuration: formData.vaccineType === "hpv" ? 90 : 60,
-        }));
-      }
-    }
-  }, [formData.vaccineType, vaccineTypes]);
-
-  // Auto-suggest title for health check
-  useEffect(() => {
-    if (
-      serviceType === "health_check" &&
-      !formData.title &&
-      formData.checkItems.length > 0
-    ) {
-      const season = new Date().getMonth() >= 8 ? "học kỳ 1" : "học kỳ 2";
-      setFormData((prev) => ({
-        ...prev,
-        title: `Khám sức khỏe định kỳ ${season}`,
-        estimatedDuration: formData.checkItems.length * 10 + 30, // 10 min per item + 30 min buffer
-      }));
-    }
-  }, [serviceType, formData.checkItems, formData.title]);
-
-  // Smart default reminder days based on service type
-  useEffect(() => {
-    if (serviceType === "vaccination" && formData.reminderDaysBefore === 7) {
-      setFormData((prev) => ({ ...prev, reminderDaysBefore: 14 })); // More time for vaccination consent
-    } else if (
-      serviceType === "health_check" &&
-      formData.reminderDaysBefore === 14
-    ) {
-      setFormData((prev) => ({ ...prev, reminderDaysBefore: 7 })); // Less time for health check
-    }
-  }, [serviceType]);
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (name.includes("vaccinationDetails.")) {
-      const field = name.split(".")[1];
-      setFormData((prev) => ({
-        ...prev,
-        vaccinationDetails: {
-          ...prev.vaccinationDetails,
-          [field]: value,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }));
-    }
-  };
-
-  const handleGradeSelection = (gradeId) => {
-    setFormData((prev) => ({
-      ...prev,
-      targetGrades: prev.targetGrades.includes(gradeId)
-        ? prev.targetGrades.filter((id) => id !== gradeId)
-        : [...prev.targetGrades, gradeId],
-    }));
-  };
-
-  const handleCheckItemToggle = (item) => {
-    setFormData((prev) => ({
-      ...prev,
-      checkItems: prev.checkItems.includes(item)
-        ? prev.checkItems.filter((i) => i !== item)
-        : [...prev.checkItems, item],
-    }));
-  };
-
-  const calculateTotalStudents = () => {
-    return formData.targetGrades.reduce((total, gradeId) => {
-      const grade = availableGrades.find((g) => g.id === gradeId);
-      return total + (grade ? grade.studentCount : 0);
-    }, 0);
-  };
-
-  // Validation functions
-  const validateBasicInfo = () => {
-    const errors = {};
-    if (!formData.title.trim()) errors.title = "Tiêu đề là bắt buộc";
-    if (!formData.scheduledDate)
-      errors.scheduledDate = "Ngày thực hiện là bắt buộc";
-    if (!formData.scheduledTime) errors.scheduledTime = "Thời gian là bắt buộc";
-    if (!formData.location.trim()) errors.location = "Địa điểm là bắt buộc";
-    if (formData.targetGrades.length === 0)
-      errors.targetGrades = "Phải chọn ít nhất một lớp";
-
-    // Check date is not in the past
-    const selectedDate = new Date(formData.scheduledDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (selectedDate < today) {
-      errors.scheduledDate = "Ngày thực hiện không thể trong quá khứ";
-    }
-
-    return errors;
-  };
-
-  const validateVaccination = () => {
-    const errors = {};
-    if (!formData.vaccineType) errors.vaccineType = "Loại vắc-xin là bắt buộc";
-    return errors;
-  };
-
-  const validateHealthCheck = () => {
-    const errors = {};
-    if (formData.checkItems.length === 0) {
-      errors.checkItems = "Phải chọn ít nhất một hạng mục kiểm tra";
-    }
-    return errors;
-  };
-
-  // Check for scheduling conflicts
-  const checkSchedulingConflicts = () => {
-    // This would normally call an API to check existing schedules
-    // For now, simulate conflict detection
-    const conflicts = [];
-
-    // Check if too many students for time slot
-    const totalStudents = calculateTotalStudents();
-    const estimatedTimePerStudent = serviceType === "vaccination" ? 5 : 15; // minutes
-    const totalTimeNeeded =
-      (totalStudents * estimatedTimePerStudent) /
-      formData.maxStudentsPerSession;
-
-    if (totalTimeNeeded > formData.estimatedDuration) {
-      conflicts.push({
-        type: "time",
-        message: `Thời gian dự kiến (${
-          formData.estimatedDuration
-        } phút) không đủ cho ${totalStudents} học sinh. Cần ít nhất ${Math.ceil(
-          totalTimeNeeded
-        )} phút.`,
-      });
-    }
-
-    return conflicts;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      // Comprehensive validation
-      const basicErrors = validateBasicInfo();
-      const serviceErrors =
-        serviceType === "vaccination"
-          ? validateVaccination()
-          : validateHealthCheck();
-      const allErrors = { ...basicErrors, ...serviceErrors };
-
-      if (Object.keys(allErrors).length > 0) {
-        alert(
-          "Vui lòng kiểm tra lại thông tin: " +
-            Object.values(allErrors).join(", ")
-        );
-        setLoading(false);
-        return;
-      }
-
-      // Check for conflicts
-      const conflicts = checkSchedulingConflicts();
-      if (conflicts.length > 0) {
-        const conflictMessages = conflicts.map((c) => c.message).join("\n");
-        if (
-          !confirm(
-            `Phát hiện xung đột:\n${conflictMessages}\n\nBạn có muốn tiếp tục không?`
-          )
-        ) {
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Prepare comprehensive data for API
-      const serviceData = {
-        ...formData,
-        type: serviceType,
-        grades: formData.targetGrades,
-        totalStudents: calculateTotalStudents(),
-        status: "draft", // Start as draft, then move to scheduled after approval
-        createdBy: "current_nurse_id", // Would come from auth context
-        workflow: {
-          requiresApproval:
-            totalStudents > 100 || serviceType === "vaccination",
-          approvalLevel: totalStudents > 100 ? "manager" : "nurse_supervisor",
-          estimatedCost: calculateEstimatedCost(),
-          resourceRequirements: calculateResourceRequirements(),
-        },
-        notifications: {
-          parentReminderDays: formData.reminderDaysBefore,
-          autoSendReminders: true,
-          requiresConsent: formData.requiresConsent,
-        },
-      };
-
-      // Simulate API call with better success handling
-      setTimeout(() => {
-        const successMessage =
-          `Đã tạo thành công ${
-            serviceType === "vaccination"
-              ? "kế hoạch tiêm chủng"
-              : "lịch khám sức khỏe"
-          } cho ${calculateTotalStudents()} học sinh!\n\n` +
-          `${
-            serviceData.workflow.requiresApproval
-              ? "Kế hoạch đang chờ phê duyệt."
-              : "Kế hoạch đã được lên lịch."
-          }`;
-
-        alert(successMessage);
-        navigate("/nurse/health-services");
-      }, 1500);
-    } catch (error) {
-      console.error("Lỗi khi tạo dịch vụ:", error);
-      alert("Có lỗi xảy ra khi tạo dịch vụ. Vui lòng thử lại.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Helper functions for business logic
-  const calculateEstimatedCost = () => {
-    const baseCost = serviceType === "vaccination" ? 50000 : 30000; // VND per student
-    return calculateTotalStudents() * baseCost;
-  };
-
-  const calculateResourceRequirements = () => {
-    const totalStudents = calculateTotalStudents();
-    return {
-      staff: Math.ceil(totalStudents / formData.maxStudentsPerSession),
-      equipment:
-        serviceType === "vaccination"
-          ? { syringes: totalStudents, vaccines: totalStudents }
-          : { stethoscopes: 2, scales: 1, heightMeasure: 1 },
-      timeSlots: Math.ceil(totalStudents / formData.maxStudentsPerSession),
-    };
-  };
-
+  // Hiển thị màn hình chọn loại dịch vụ
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex flex-col">
-      <div className="container mx-auto px-4 py-6 max-w-4xl flex-grow flex flex-col">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-              Tạo Dịch vụ Y tế mới
-            </h1>
-            <p className="text-neutral-600 dark:text-neutral-400 mt-1">
-              Tạo lịch tiêm chủng hoặc khám sức khỏe định kỳ cho học sinh
-            </p>
+        <div className="mb-8">
+          <div className="flex items-center mb-4">
+            <button
+              onClick={() => navigate("/nurse/health-services")}
+              className="flex items-center text-neutral-600 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mr-4"
+            >
+              <FiArrowLeft className="w-5 h-5 mr-2" />
+              Quay lại
+            </button>
           </div>
-          <button
-            onClick={() => navigate("/nurse/health-services")}
-            className="inline-flex items-center px-4 py-2 border border-neutral-300 rounded-lg text-neutral-700 bg-white hover:bg-neutral-50 dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-700"
-          >
-            <FiX className="w-4 h-4 mr-2" />
-            Hủy
-          </button>
+          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+            Tạo Dịch vụ Y tế mới
+          </h1>
+          <p className="text-neutral-600 dark:text-neutral-400 mt-2">
+            Vui lòng chọn loại dịch vụ y tế mà bạn muốn tạo lịch
+          </p>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-8 pb-8 flex-grow flex flex-col"
-        >
-          {/* Service Type Selection */}
-          <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-700 p-6">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
-              Loại dịch vụ y tế
+        {/* Service Type Selection */}
+        <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-700 p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+              Chọn loại dịch vụ y tế
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setServiceType("vaccination")}
-                className={`p-6 rounded-xl border-2 transition-all duration-200 ${
-                  serviceType === "vaccination"
-                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                    : "border-neutral-200 dark:border-neutral-600 hover:border-blue-300"
-                }`}
-              >
-                <div className="flex items-center justify-center mb-3">
-                  <FiShield
-                    className={`w-8 h-8 ${
-                      serviceType === "vaccination"
-                        ? "text-blue-600"
-                        : "text-neutral-400"
-                    }`}
-                  />
+            <p className="text-neutral-600 dark:text-neutral-400">
+              Lựa chọn dịch vụ phù hợp với nhu cầu chăm sóc sức khỏe học sinh
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Vaccination Option */}
+            <button
+              type="button"
+              onClick={() => setServiceType("vaccination")}
+              className="group p-8 rounded-2xl border-2 border-neutral-200 dark:border-neutral-600 hover:border-blue-300 hover:shadow-md transition-all duration-300 hover:scale-[1.02]"
+            >
+              <div className="text-center">
+                <div className="mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-6 bg-neutral-100 dark:bg-neutral-700 text-neutral-400 group-hover:bg-blue-100 group-hover:text-blue-500 transition-all duration-300">
+                  <FiShield className="w-10 h-10" />
                 </div>
-                <h3
-                  className={`font-medium mb-2 ${
-                    serviceType === "vaccination"
-                      ? "text-blue-900 dark:text-blue-100"
-                      : "text-neutral-700 dark:text-neutral-300"
-                  }`}
-                >
+
+                <h3 className="text-xl font-semibold mb-3 text-neutral-800 dark:text-neutral-200">
                   Tiêm chủng
                 </h3>
-                <p
-                  className={`text-sm ${
-                    serviceType === "vaccination"
-                      ? "text-blue-700 dark:text-blue-200"
-                      : "text-neutral-500 dark:text-neutral-400"
-                  }`}
-                >
-                  Tạo lịch tiêm chủng với các loại vắc-xin khác nhau
-                </p>
-              </button>
 
-              <button
-                type="button"
-                onClick={() => setServiceType("health_check")}
-                className={`p-6 rounded-xl border-2 transition-all duration-200 ${
-                  serviceType === "health_check"
-                    ? "border-green-500 bg-green-50 dark:bg-green-900/20"
-                    : "border-neutral-200 dark:border-neutral-600 hover:border-green-300"
-                }`}
-              >
-                <div className="flex items-center justify-center mb-3">
-                  <FiActivity
-                    className={`w-8 h-8 ${
-                      serviceType === "health_check"
-                        ? "text-green-600"
-                        : "text-neutral-400"
-                    }`}
-                  />
+                <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                  Tạo lịch tiêm phòng các loại vắc-xin cho học sinh theo độ tuổi và chương trình y tế học đường
+                </p>
+
+                <div className="mt-6 flex items-center justify-center">
+                  <div className="flex items-center space-x-4 text-xs text-neutral-500 dark:text-neutral-400">
+                    <span className="flex items-center">
+                      <FiShield className="w-3 h-3 mr-1" />
+                      Phòng bệnh
+                    </span>
+                    <span className="flex items-center">
+                      <FiActivity className="w-3 h-3 mr-1" />
+                      Theo lứa tuổi
+                    </span>
+                  </div>
                 </div>
-                <h3
-                  className={`font-medium mb-2 ${
-                    serviceType === "health_check"
-                      ? "text-green-900 dark:text-green-100"
-                      : "text-neutral-700 dark:text-neutral-300"
-                  }`}
-                >
+              </div>
+            </button>
+
+            {/* Health Check Option */}
+            <button
+              type="button"
+              onClick={() => setServiceType("health_check")}
+              className="group p-8 rounded-2xl border-2 border-neutral-200 dark:border-neutral-600 hover:border-green-300 hover:shadow-md transition-all duration-300 hover:scale-[1.02]"
+            >
+              <div className="text-center">
+                <div className="mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-6 bg-neutral-100 dark:bg-neutral-700 text-neutral-400 group-hover:bg-green-100 group-hover:text-green-500 transition-all duration-300">
+                  <FiActivity className="w-10 h-10" />
+                </div>
+
+                <h3 className="text-xl font-semibold mb-3 text-neutral-800 dark:text-neutral-200">
                   Khám sức khỏe định kỳ
                 </h3>
-                <p
-                  className={`text-sm ${
-                    serviceType === "health_check"
-                      ? "text-green-700 dark:text-green-200"
-                      : "text-neutral-500 dark:text-neutral-400"
-                  }`}
-                >
-                  Tạo lịch khám sức khỏe toàn diện cho học sinh
+
+                <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                  Tạo lịch khám sức khỏe tổng quát và chuyên khoa cho học sinh theo quy định của Bộ Y tế
                 </p>
-              </button>
-            </div>
+
+                <div className="mt-6 flex items-center justify-center">
+                  <div className="flex items-center space-x-4 text-xs text-neutral-500 dark:text-neutral-400">
+                    <span className="flex items-center">
+                      <FiActivity className="w-3 h-3 mr-1" />
+                      Tổng quát
+                    </span>
+                    <span className="flex items-center">
+                      <FiShield className="w-3 h-3 mr-1" />
+                      Định kỳ
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </button>
           </div>
+<<<<<<< HEAD
 
           {/* Basic Information */}
           <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-700 p-6">
@@ -1197,6 +778,9 @@ const HealthServiceCreate = () => {
             </div>
           </div>
         </form>
+=======
+        </div>
+>>>>>>> 19ec55e (change the look of vaccinations and routine medical checkups)
       </div>
 >>>>>>> 512000a (edit nurse role medical service management interface)
     </div>
