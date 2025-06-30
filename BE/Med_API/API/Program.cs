@@ -33,9 +33,9 @@ builder.Services.AddEndpointsApiExplorer();
 // Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Medical API",
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "Medical API", 
         Version = "v1",
         Description = "API for Medical Management System",
         Contact = new OpenApiContact
@@ -115,10 +115,6 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IExcelImportRepository, ExcelImportRepository>();
 builder.Services.AddScoped<IStudentParentRepository, StudentParentRepository>();
 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IInjectionFormRepository, InjectionFormRepository>();
-builder.Services.AddScoped<IInjectionFormService, InjectionFormService>();
 
 // Register Services
 builder.Services.AddScoped<IStudentService, StudentService>();
@@ -141,16 +137,18 @@ builder.Services.AddScoped<IExcelImportService, ExcelImportService>();
 builder.Services.AddScoped<IStudentParentService, StudentParentService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
 
+// Register Background Services
+builder.Services.AddHostedService<TimeBasedStatusService>();
+
 // Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
     {
         builder
-            .SetIsOriginAllowed(_ => true) // Allow any origin
+            .SetIsOriginAllowed(_ => true) // Cho phép mọi origin
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials()
             .WithExposedHeaders("Content-Disposition", "Content-Length", "Content-Type");
     });
 });

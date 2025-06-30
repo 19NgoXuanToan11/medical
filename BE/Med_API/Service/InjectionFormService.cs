@@ -8,18 +8,15 @@ public class InjectionFormService : IInjectionFormService
     private readonly IInjectionFormRepository _injectionFormRepository;
     private readonly IStudentRepository _studentRepository;
     private readonly IParentRepository _parentRepository;
-    private readonly INotificationService _notificationService;
 
     public InjectionFormService(
         IInjectionFormRepository injectionFormRepository,
         IStudentRepository studentRepository,
-        IParentRepository parentRepository,
-        INotificationService notificationService)
+        IParentRepository parentRepository)
     {
         _injectionFormRepository = injectionFormRepository;
         _studentRepository = studentRepository;
         _parentRepository = parentRepository;
-        _notificationService = notificationService;
     }
 
     public async Task<IEnumerable<InjectionForm>> GetAllInjectionFormsAsync()
@@ -66,30 +63,7 @@ public class InjectionFormService : IInjectionFormService
             throw new InvalidOperationException("Invalid consent status value");
         }
 
-        // Create the injection form
-        var createdForm = await _injectionFormRepository.CreateInjectionFormAsync(injectionForm);
-
-        // Create notification for parent if ParentId is provided
-        if (createdForm.ParentId.HasValue)
-        {
-            try
-            {
-                var studentName = $"{student.FirstName} {student.LastName}";
-                await _notificationService.CreateInjectionConsentNotificationAsync(
-                    createdForm.FormId,
-                    createdForm.ParentId.Value,
-                    studentName,
-                    createdForm.InjectionName);
-            }
-            catch (Exception ex)
-            {
-                // Log the error but don't fail the form creation
-                // In a real application, you might want to use a proper logging framework
-                Console.WriteLine($"Failed to create notification: {ex.Message}");
-            }
-        }
-
-        return createdForm;
+        return await _injectionFormRepository.CreateInjectionFormAsync(injectionForm);
     }
 
     public async Task<bool> UpdateInjectionFormAsync(InjectionForm injectionForm)
@@ -129,26 +103,7 @@ public class InjectionFormService : IInjectionFormService
             throw new InvalidOperationException("Invalid consent status value");
         }
 
-        // Update the form
-        var success = await _injectionFormRepository.UpdateInjectionFormAsync(injectionForm);
-
-        // Update notification status if consent status changed
-        if (success && existingForm.ConsentStatus != injectionForm.ConsentStatus)
-        {
-            try
-            {
-                await _notificationService.UpdateInjectionConsentNotificationAsync(
-                    injectionForm.FormId,
-                    injectionForm.ConsentStatus);
-            }
-            catch (Exception ex)
-            {
-                // Log the error but don't fail the form update
-                Console.WriteLine($"Failed to update notification: {ex.Message}");
-            }
-        }
-
-        return success;
+        return await _injectionFormRepository.UpdateInjectionFormAsync(injectionForm);
     }
 
     public async Task<bool> DeleteInjectionFormAsync(int id)
@@ -184,4 +139,4 @@ public class InjectionFormService : IInjectionFormService
         var validStatuses = new[] { "Pending", "Approved", "Rejected", "Cancelled" };
         return validStatuses.Contains(status);
     }
-}
+} 

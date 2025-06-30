@@ -417,21 +417,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         if (string.IsNullOrEmpty(frequency))
             return 1;
 
-        var trimmedFrequency = frequency.Trim().ToLower();
-
-        // Handle cases where frequency is just a number or "number lần"
-        var numberMatch = Regex.Match(trimmedFrequency, @"^(\d+)\s*lần?$");
-        if (numberMatch.Success)
-        {
-            if (int.TryParse(numberMatch.Groups[1].Value, out var number))
-                return number;
-        }
-
-        // Handle cases where frequency is just a number
-        if (int.TryParse(trimmedFrequency, out var parsedNumber))
-            return parsedNumber;
-
-        // Handle different frequency formats with time periods
+        // Handle different frequency formats
         if (frequency.Contains("2") || frequency.Contains("hai") || frequency.Contains("two"))
             return 2;
         if (frequency.Contains("3") || frequency.Contains("ba") || frequency.Contains("three"))
@@ -448,37 +434,6 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             return new List<string>();
 
         var result = new List<string>();
-        var trimmedFrequency = frequency.Trim().ToLower();
-
-        // Handle cases where frequency is just a number or "number lần"
-        var numberMatch = Regex.Match(trimmedFrequency, @"^(\d+)\s*lần?$");
-        if (numberMatch.Success)
-        {
-            if (int.TryParse(numberMatch.Groups[1].Value, out var number))
-            {
-                // For simple number format, distribute across standard times
-                var times = new[] { "sáng", "trưa", "chiều", "tối" };
-                for (int i = 0; i < number && i < times.Length; i++)
-                {
-                    result.Add(times[i]);
-                }
-                return result;
-            }
-        }
-
-        // Handle cases where frequency is just a number
-        if (int.TryParse(trimmedFrequency, out var parsedNumber))
-        {
-            // For simple number format, distribute across standard times
-            var times = new[] { "sáng", "trưa", "chiều", "tối" };
-            for (int i = 0; i < parsedNumber && i < times.Length; i++)
-            {
-                result.Add(times[i]);
-            }
-            return result;
-        }
-
-        // Handle complex frequency formats with time periods
         var segments = frequency.Split(',', StringSplitOptions.RemoveEmptyEntries);
         foreach (var segment in segments)
         {
