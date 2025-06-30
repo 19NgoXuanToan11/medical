@@ -21,6 +21,8 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         // Handle DateOnly serialization
         options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+        // Do not escape non-ASCII characters (show Vietnamese, etc. as-is)
+        options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
     });
 
 builder.Services.AddEndpointsApiExplorer();

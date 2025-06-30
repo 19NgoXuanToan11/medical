@@ -225,7 +225,29 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             return false;
         }
 
-        request.Status = "Completed";
+        // Find the latest RequestResult for this MedicineRequest
+        var latestResult = await _context.RequestResults
+            .Where(r => r.RequestId == requestId)
+            .OrderByDescending(r => r.SubmittedAt)
+            .FirstOrDefaultAsync();
+
+        if (latestResult != null)
+        {
+            if (latestResult.Status == "Failed")
+            {
+                request.Status = "Failed";
+            }
+            else
+            {
+                request.Status = "Completed";
+                latestResult.Status = "Completed";
+            }
+        }
+        else
+        {
+            request.Status = "Completed";
+        }
+
         await _context.SaveChangesAsync();
         return true;
     }

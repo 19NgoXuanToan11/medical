@@ -18,11 +18,11 @@ public static class RequestResultDto
         public int? TimesPerDay { get; set; }
         public int? CurrentDayCount { get; set; }
         public DateOnly? CurrentDate { get; set; }
-        public string? AdministeredFrequencies { get; set; } // JSON string
+        public List<string>? AdministeredFrequencies { get; set; }
         
         // New failure handling fields
-        public string? FailedFrequencies { get; set; } // JSON string, dùng cho FailureSummary
-        public string? FailureReasons { get; set; } // JSON string, dùng cho FailureSummary
+        public List<string>? FailedFrequencies { get; set; }
+        public Dictionary<string, string>? FailureReasons { get; set; }
         public bool IsReRequest { get; set; }
         public int? OriginalRequestResultId { get; set; }
         public DateTime? LastAttemptTime { get; set; }
