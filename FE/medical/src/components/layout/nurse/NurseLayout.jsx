@@ -75,14 +75,10 @@ const NurseLayout = () => {
       icon: <FiActivity className="w-5 h-5" />,
     },
     {
-      path: "/nurse/vaccination",
-      name: "Tiêm chủng",
+      path: "/nurse/health-services",
+      name: "Dịch vụ Y tế",
       icon: <FiCalendar className="w-5 h-5" />,
-    },
-    {
-      path: "/nurse/health-check",
-      name: "Kiểm tra y tế định kỳ",
-      icon: <FiClipboard className="w-5 h-5" />,
+      description: "Quản lý Tiêm chủng & Khám sức khỏe",
     },
   ];
 

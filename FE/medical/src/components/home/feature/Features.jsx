@@ -161,7 +161,9 @@ const Features = () => {
           />
         </svg>
       ),
-      color: "bg-yellow-100",
+      color: "bg-amber-50 border-amber-200",
+      iconColor: "text-amber-600",
+      textColor: "text-amber-800",
       buttonText: "Tìm hiểu thêm",
     },
     {
@@ -184,7 +186,9 @@ const Features = () => {
           />
         </svg>
       ),
-      color: "bg-green-100",
+      color: "bg-emerald-50 border-emerald-200",
+      iconColor: "text-emerald-600",
+      textColor: "text-emerald-800",
       buttonText: "Tìm hiểu thêm",
       link: "/parent/health-profile",
     },
@@ -208,7 +212,9 @@ const Features = () => {
           />
         </svg>
       ),
-      color: "bg-red-100",
+      color: "bg-rose-50 border-rose-200",
+      iconColor: "text-rose-600",
+      textColor: "text-rose-800",
       buttonText: "Tìm hiểu thêm",
     },
     {
@@ -231,7 +237,9 @@ const Features = () => {
           />
         </svg>
       ),
-      color: "bg-purple-100",
+      color: "bg-violet-50 border-violet-200",
+      iconColor: "text-violet-600",
+      textColor: "text-violet-800",
       buttonText: "Tìm hiểu thêm",
     },
   ];
@@ -239,13 +247,13 @@ const Features = () => {
   return (
     <>
       {/* Global Care Section */}
-      <section className="bg-white py-16">
+      <section className="bg-gradient-to-br from-white to-blue-50 py-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center">
             {/* Video - On the left for this section */}
             <div className="w-full md:w-1/2 pr-0 md:pr-8 mb-8 md:mb-0">
               <video
-                className="w-full h-auto rounded-lg shadow-lg"
+                className="w-full h-auto rounded-lg shadow-xl border border-gray-200"
                 autoPlay
                 muted
                 loop
@@ -261,12 +269,12 @@ const Features = () => {
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
                 Chăm sóc sức khỏe lấy học sinh làm trung tâm
               </h2>
-              <p className="text-lg text-gray-700 mb-8">
+              <p className="text-lg text-gray-700 mb-8 leading-relaxed">
                 Chúng tôi cung cấp giải pháp y tế đáng tin cậy, hỗ trợ học sinh
                 phát triển toàn diện trong môi trường học đường an toàn và lành
                 mạnh.
               </p>
-              <button className="border border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg text-base font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-200">
+              <button className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-3 rounded-lg text-base font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-md hover:shadow-lg">
                 Tìm hiểu thêm
               </button>
             </div>
@@ -275,7 +283,7 @@ const Features = () => {
       </section>
 
       {/* Patient-Centered Care Section */}
-      <section className="bg-white py-16">
+      <section className="bg-gradient-to-br from-indigo-50 to-white py-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center">
             {/* Text Content - On the left for this section */}
@@ -283,12 +291,12 @@ const Features = () => {
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
                 Sức khỏe học đường lấy học sinh làm trọng tâm
               </h2>
-              <p className="text-lg text-gray-700 mb-8">
+              <p className="text-lg text-gray-700 mb-8 leading-relaxed">
                 Nền tảng của chúng tôi mang đến dịch vụ y tế an toàn, đồng hành
                 cùng học sinh phát triển toàn diện trong môi trường giáo dục
                 thân thiện và bảo vệ sức khỏe.
               </p>
-              <button className="border border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg text-base font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-200">
+              <button className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-3 rounded-lg text-base font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-md hover:shadow-lg">
                 Tìm hiểu thêm
               </button>
             </div>
@@ -296,7 +304,7 @@ const Features = () => {
             {/* Video - On the right for this section */}
             <div className="w-full md:w-1/2 pl-0 md:pl-8">
               <video
-                className="w-full h-auto rounded-lg shadow-lg"
+                className="w-full h-auto rounded-lg shadow-xl border border-gray-200"
                 autoPlay
                 muted
                 loop

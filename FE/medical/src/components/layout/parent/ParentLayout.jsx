@@ -40,14 +40,17 @@ const ParentLayout = () => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target)
+      ) {
         setUserDropdown(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -96,14 +99,10 @@ const ParentLayout = () => {
       icon: <MdHealthAndSafety className="w-5 h-5" />,
     },
     {
-      path: "/parent/vaccination",
-      label: "Tiêm chủng",
+      path: "/parent/health-services",
+      label: "Dịch vụ Y tế",
       icon: <FaSyringe className="w-5 h-5" />,
-    },
-    {
-      path: "/parent/health-check",
-      label: "Kiểm tra y tế định kỳ",
-      icon: <FaCalendarCheck className="w-5 h-5" />,
+      description: "Tiêm chủng & Khám sức khỏe định kỳ",
     },
     {
       path: "/parent/notifications",
@@ -169,11 +168,15 @@ const ParentLayout = () => {
             {loading ? (
               <div className="flex items-center justify-center py-4">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
-                <span className="ml-2 text-sm text-neutral-500 dark:text-neutral-400">Đang tải...</span>
+                <span className="ml-2 text-sm text-neutral-500 dark:text-neutral-400">
+                  Đang tải...
+                </span>
               </div>
             ) : students.length === 0 ? (
               <div className="text-center py-4">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Không có thông tin con em</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                  Không có thông tin con em
+                </p>
               </div>
             ) : currentStudent ? (
               <>
@@ -216,8 +219,8 @@ const ParentLayout = () => {
                           key={student.studentId}
                           className={`flex items-center w-full px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors ${
                             currentStudent?.studentId === student.studentId
-                              ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
-                              : ''
+                              ? "bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400"
+                              : ""
                           }`}
                           onClick={() => handleStudentSelect(student)}
                         >
@@ -388,7 +391,7 @@ const ParentLayout = () => {
 
             {/* User Profile Section */}
             <div className="relative" ref={userDropdownRef}>
-              <button 
+              <button
                 onClick={() => setUserDropdown(!userDropdown)}
                 className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-lg cursor-pointer transition-colors"
               >
@@ -406,7 +409,11 @@ const ParentLayout = () => {
                     Phụ huynh học sinh
                   </p>
                 </div>
-                <FaChevronDown className={`w-3 h-3 text-neutral-400 hidden md:block transition-transform ${userDropdown ? 'rotate-180' : ''}`} />
+                <FaChevronDown
+                  className={`w-3 h-3 text-neutral-400 hidden md:block transition-transform ${
+                    userDropdown ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {/* User Dropdown Menu */}
@@ -420,7 +427,7 @@ const ParentLayout = () => {
                       {user?.email || "parent@medical.com"}
                     </p>
                   </div>
-                  
+
                   <Link
                     to="/parent/profile"
                     onClick={() => setUserDropdown(false)}
@@ -429,7 +436,7 @@ const ParentLayout = () => {
                     <FaUser className="w-4 h-4 mr-3 text-neutral-500" />
                     Hồ sơ cá nhân
                   </Link>
-                  
+
                   <div className="border-t border-neutral-100 dark:border-neutral-700 mt-2 pt-2">
                     <button
                       onClick={() => {
