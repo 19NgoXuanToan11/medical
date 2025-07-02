@@ -39,6 +39,9 @@ import MedicineInventory from "../../pages/manager/inventory/MedicineInventory";
 import SupplyInventory from "../../pages/manager/inventory/SupplyInventory";
 import ExcelImport from "../../pages/manager/inventory/ExcelImport";
 import ExcelManagement from "../../pages/manager/excel/ExcelManagement";
+import ManagerMedicationManagement from "../../pages/manager/medication/MedicationManagement";
+import VaccinationManagement from "../../pages/manager/vaccination/VaccinationManagement";
+import ManagerHealthCheckManagement from "../../pages/manager/health-check/HealthCheckManagement";
 
 // nurse
 import NurseDashboard from "../../pages/nurse/dashboard/NurseDashboard";
@@ -58,9 +61,7 @@ import HealthServiceCreate from "../../pages/nurse/health-services/HealthService
 // Placeholder imports for remaining components
 const HealthServiceDetail = () => <div>Health Service Detail - Coming Soon</div>;
 const HealthServiceEdit = () => <div>Health Service Edit - Coming Soon</div>;
-import StaffMedicationList from "../../pages/nurse/medication/StaffMedicationList";
-import StaffMedicationDetail from "../../pages/nurse/medication/StaffMedicationDetail";
-import MedicationAdministration from "../../pages/nurse/medication/pages/MedicineAdministration";
+import NurseMedicationManagement from "../../pages/nurse/medication/MedicationManagement";
 import StudentHealthDetail from "../../pages/nurse/health-check/StudentHealthDetail";
 import NurseSchedule from "../../pages/nurse/schedule/NurseSchedule";
 import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealthRecords";
@@ -149,6 +150,9 @@ function AppRoutes() {
         <Route path="/manager/supply-inventory" element={<SupplyInventory />} />
         <Route path="/manager/upload" element={<ExcelImport />} />
         <Route path="/manager/excel" element={<ExcelManagement />} />
+        <Route path="/manager/medication" element={<ManagerMedicationManagement />} />
+        <Route path="/manager/vaccination" element={<VaccinationManagement />} />
+        <Route path="/manager/health-check" element={<ManagerHealthCheckManagement />} />
       </Route>
 
       {/* Parent Routes - Only Parent can access */}
@@ -269,15 +273,7 @@ function AppRoutes() {
         />
 
         {/* Medication Routes */}
-        <Route path="/nurse/medication" element={<StaffMedicationList />} />
-        <Route
-          path="/nurse/medication/:id"
-          element={<StaffMedicationDetail />}
-        />
-        <Route
-          path="/nurse/medication-administration"
-          element={<MedicationAdministration />}
-        />
+        <Route path="/nurse/medication" element={<NurseMedicationManagement />} />
 
         {/* Health Services Routes (Unified Vaccination + Health Check) */}
         <Route path="/nurse/health-services" element={<HealthServicesManagement />} />
