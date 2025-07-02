@@ -3,6 +3,17 @@ import axios from "axios";
 const API_URL = "https://localhost:7111/api";
 
 const healthProfileService = {
+  // Get all health profiles
+  getAll: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/HealthProfile`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching all health profiles:", error);
+      throw error;
+    }
+  },
+
   // Get health profile by student code
   getByStudentCode: async (studentCode) => {
     try {

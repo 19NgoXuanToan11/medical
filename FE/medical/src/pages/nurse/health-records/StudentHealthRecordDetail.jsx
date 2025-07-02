@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   FiArrowLeft,
@@ -16,6 +16,7 @@ import {
   FiAlertTriangle,
   FiInfo,
 } from "react-icons/fi";
+import healthProfileService from "../../../utils/api/health-profile/healthProfileService";
 
 const StudentHealthRecordDetail = () => {
   const { studentId } = useParams();
@@ -26,89 +27,152 @@ const StudentHealthRecordDetail = () => {
   const [editData, setEditData] = useState(null);
 
   useEffect(() => {
-    // Simulate API call to fetch student health record
-    setTimeout(() => {
-      const studentData = {
-        id: studentId,
-        studentId: "HS001",
-        name: "Nguyễn Văn An",
-        gender: "Nam",
-        dateOfBirth: "2010-05-15",
-        className: "10A1",
-        parentName: "Nguyễn Văn Bình",
-        parentPhone: "0987654321",
-        parentEmail: "nguyenvanbinh@email.com",
-        address: "123 Đường ABC, Quận 1, TP.HCM",
-        lastCheckup: "2024-06-15",
-        healthStatus: "Tốt",
-        physicalMeasurements: {
-          height: 165,
-          weight: 55,
-          bmi: 20.2,
-          bloodPressure: "120/80",
-          heartRate: 75,
-          temperature: 36.5,
-          vision: {
-            left: "6/6",
-            right: "6/6",
-            status: "Bình thường",
-          },
-        },
-        allergies: ["Không có"],
-        medications: ["Không có"],
-        chronicConditions: ["Không có"],
-        vaccinationHistory: [
-          {
-            vaccine: "Vaccine COVID-19",
-            date: "2024-01-15",
-            dose: "Mũi 3",
-            status: "Hoàn thành",
-          },
-          {
-            vaccine: "Vaccine viêm gan B",
-            date: "2023-08-20",
-            dose: "Mũi nhắc lại",
-            status: "Hoàn thành",
-          },
-        ],
-        healthHistory: [
-          {
-            date: "2024-06-15",
-            event: "Khám sức khỏe định kỳ",
-            result: "Tốt",
-            notes: "Học sinh khỏe mạnh, không có vấn đề gì đặc biệt",
-            nurseId: "N001",
-            nurseName: "Trần Thị Y",
-          },
-          {
-            date: "2024-03-10",
-            event: "Khám sức khỏe định kỳ",
-            result: "Tốt",
-            notes: "Cần theo dõi cân nặng",
-            nurseId: "N001",
-            nurseName: "Trần Thị Y",
-          },
-        ],
-        notes:
-          "Học sinh có sức khỏe tốt, tham gia đầy đủ các hoạt động thể chất",
-        recommendations: [
-          "Duy trì chế độ ăn uống cân bằng",
-          "Tập thể dục đều đặn",
-          "Khám sức khỏe định kỳ 6 tháng/lần",
-        ],
-      };
+    const fetchStudentHealthRecord = async () => {
+      try {
+        setLoading(true);
 
-      setStudent(studentData);
-      setEditData({
-        notes: studentData.notes,
-        recommendations: [...studentData.recommendations],
-        allergies: [...studentData.allergies],
-        medications: [...studentData.medications],
-        chronicConditions: [...studentData.chronicConditions],
-      });
-      setLoading(false);
-    }, 1000);
+        // Fetch health profile by student code
+        const profileData = await healthProfileService.getByStudentCode(
+          studentId
+        );
+
+        // Transform API data to component format
+        const studentData = {
+          id: profileData.healthProfileId,
+          studentId: profileData.studentCode,
+          name: profileData.studentCode || "Không có tên", // API might need student name from another endpoint
+          gender: "Chưa xác định", // This info might come from student table
+          dateOfBirth: "Chưa xác định", // This info might come from student table
+          className: "Chưa xác định", // This info might come from student table
+          parentName: "Chưa xác định", // This info might come from student table
+          parentPhone: "Chưa xác định", // This info might come from student table
+          parentEmail: "Chưa xác định", // This info might come from student table
+          address: "Chưa xác định", // This info might come from student table
+          lastCheckup: profileData.createdAt
+            ? new Date(profileData.createdAt).toISOString().split("T")[0]
+            : "N/A",
+          healthStatus: getHealthStatusFromProfile(profileData),
+          physicalMeasurements: {
+            height: profileData.height || 0,
+            weight: profileData.weight || 0,
+            bmi:
+              profileData.height && profileData.weight
+                ? (
+                    profileData.weight / Math.pow(profileData.height / 100, 2)
+                  ).toFixed(1)
+                : 0,
+            bloodPressure: profileData.bloodPressure || "N/A",
+            heartRate: profileData.heartRate || 0,
+            temperature: 36.5, // Default, might need separate measurement data
+            vision: {
+              left: profileData.leftEye || "N/A",
+              right: profileData.rightEye || "N/A",
+              status: profileData.hasVisionIssues ? "Có vấn đề" : "Bình thường",
+            },
+          },
+          allergies: profileData.hasAllergies
+            ? profileData.allergyDetails
+              ? [profileData.allergyDetails]
+              : ["Có dị ứng"]
+            : ["Không có"],
+          medications: profileData.hasPreviousTreatment
+            ? profileData.treatmentDetails
+              ? [profileData.treatmentDetails]
+              : ["Có điều trị"]
+            : ["Không có"],
+          chronicConditions: profileData.hasChronicDiseases
+            ? profileData.chronicDetails
+              ? [profileData.chronicDetails]
+              : ["Có bệnh mãn tính"]
+            : ["Không có"],
+          vaccinationHistory: profileData.hasCompleteVaccinations
+            ? [
+                {
+                  vaccine: "Tiêm chủng đầy đủ",
+                  date: "N/A",
+                  dose: profileData.vaccinationDetails || "Đầy đủ",
+                  status: "Hoàn thành",
+                },
+              ]
+            : [],
+          healthHistory: [
+            {
+              date: profileData.createdAt
+                ? new Date(profileData.createdAt).toISOString().split("T")[0]
+                : "N/A",
+              event: "Hồ sơ sức khỏe được tạo",
+              result: getHealthStatusFromProfile(profileData),
+              notes: profileData.otherInfo || "Không có ghi chú đặc biệt",
+              nurseId: "N/A",
+              nurseName: "Hệ thống",
+            },
+          ],
+          notes: profileData.otherInfo || "Không có ghi chú đặc biệt",
+          recommendations: generateRecommendations(profileData),
+        };
+
+        setStudent(studentData);
+        setEditData({
+          notes: studentData.notes,
+          recommendations: [...studentData.recommendations],
+          allergies: [...studentData.allergies],
+          medications: [...studentData.medications],
+          chronicConditions: [...studentData.chronicConditions],
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching student health record:", error);
+        setStudent(null);
+        setLoading(false);
+      }
+    };
+
+    if (studentId) {
+      fetchStudentHealthRecord();
+    }
   }, [studentId]);
+
+  // Helper function to determine health status from profile data
+  const getHealthStatusFromProfile = (profile) => {
+    if (profile.hasChronicDiseases || profile.hasPreviousTreatment) {
+      return "Cần theo dõi";
+    }
+    if (
+      profile.hasAllergies ||
+      profile.hasVisionIssues ||
+      profile.hasHearingIssues
+    ) {
+      return "Bình thường";
+    }
+    return "Tốt";
+  };
+
+  // Helper function to generate recommendations based on profile
+  const generateRecommendations = (profile) => {
+    const recommendations = [];
+
+    if (profile.hasAllergies) {
+      recommendations.push("Tránh tiếp xúc với các chất gây dị ứng đã biết");
+    }
+    if (profile.hasChronicDiseases) {
+      recommendations.push("Theo dõi định kỳ tình trạng bệnh mãn tính");
+    }
+    if (profile.hasVisionIssues) {
+      recommendations.push("Khám mắt định kỳ và đeo kính nếu cần");
+    }
+    if (profile.hasHearingIssues) {
+      recommendations.push("Kiểm tra thính lực định kỳ");
+    }
+
+    // Default recommendations
+    if (recommendations.length === 0) {
+      recommendations.push("Duy trì chế độ ăn uống cân bằng");
+      recommendations.push("Tập thể dục đều đặn");
+    }
+    recommendations.push("Khám sức khỏe định kỳ 6 tháng/lần");
+
+    return recommendations;
+  };
 
   const getBmiStatus = (bmi) => {
     if (bmi < 18.5) return { label: "Thiếu cân", color: "text-yellow-600" };
@@ -168,19 +232,32 @@ const StudentHealthRecordDetail = () => {
     }));
   };
 
-  const handleSave = () => {
-    // Simulate API call to save changes
-    console.log("Saving changes:", editData);
-    setStudent((prev) => ({
-      ...prev,
-      notes: editData.notes,
-      recommendations: editData.recommendations,
-      allergies: editData.allergies,
-      medications: editData.medications,
-      chronicConditions: editData.chronicConditions,
-    }));
-    setIsEditing(false);
-    alert("Đã lưu thay đổi thành công!");
+  const handleSave = async () => {
+    try {
+      // Prepare data for API update
+      const updateData = {
+        ...student, // Keep existing data
+        otherInfo: editData.notes,
+        // Note: API might need different field mapping for other editable data
+        // This is a simplified version focusing on notes
+      };
+
+      await healthProfileService.update(student.id, updateData);
+
+      setStudent((prev) => ({
+        ...prev,
+        notes: editData.notes,
+        recommendations: editData.recommendations,
+        allergies: editData.allergies,
+        medications: editData.medications,
+        chronicConditions: editData.chronicConditions,
+      }));
+      setIsEditing(false);
+      alert("Đã lưu thay đổi thành công!");
+    } catch (error) {
+      console.error("Error saving changes:", error);
+      alert("Có lỗi xảy ra khi lưu thay đổi. Vui lòng thử lại.");
+    }
   };
 
   if (loading) {

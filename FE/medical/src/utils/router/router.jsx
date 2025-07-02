@@ -60,7 +60,7 @@ const HealthServiceDetail = () => <div>Health Service Detail - Coming Soon</div>
 const HealthServiceEdit = () => <div>Health Service Edit - Coming Soon</div>;
 import StaffMedicationList from "../../pages/nurse/medication/StaffMedicationList";
 import StaffMedicationDetail from "../../pages/nurse/medication/StaffMedicationDetail";
-import MedicationAdministration from "../../pages/nurse/medication/MedicationAdministration";
+import MedicationAdministration from "../../pages/nurse/medication/pages/MedicineAdministration";
 import StudentHealthDetail from "../../pages/nurse/health-check/StudentHealthDetail";
 import NurseSchedule from "../../pages/nurse/schedule/NurseSchedule";
 import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealthRecords";
