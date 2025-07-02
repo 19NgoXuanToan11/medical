@@ -87,8 +87,12 @@ import VaccinationPlanCreate from "../../pages/nurse/vaccination/VaccinationPlan
 >>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
 import StaffMedicationList from "../../pages/nurse/medication/StaffMedicationList";
 import StaffMedicationDetail from "../../pages/nurse/medication/StaffMedicationDetail";
+<<<<<<< HEAD
 import MedicationAdministration from "../../pages/nurse/medication/MedicationAdministration";
 >>>>>>> efbfeee (rename router)
+=======
+import MedicationAdministration from "../../pages/nurse/medication/pages/MedicineAdministration";
+>>>>>>> f9b18e8 (create "give medicine" interface and get list of student health records)
 import StudentHealthDetail from "../../pages/nurse/health-check/StudentHealthDetail";
 import NurseSchedule from "../../pages/nurse/schedule/NurseSchedule";
 import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealthRecords";
