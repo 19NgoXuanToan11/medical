@@ -17,7 +17,6 @@ import {
 import MedicationReminders from "../medication/MedicationReminders";
 import TodaySchedule from "../../../components/nurse/TodaySchedule";
 import SimpleGreeting from "../../../components/common/SimpleGreeting";
-import ApiTest from "../../../components/common/ApiTest";
 
 const NurseDashboard = () => {
   const navigate = useNavigate();
@@ -172,11 +171,6 @@ const NurseDashboard = () => {
         <>
           {/* Simple Greeting */}
           <SimpleGreeting roleTitle="Nurse" />
-
-          {/* API Test Section - Remove this in production */}
-          <div className="mb-6">
-            <ApiTest />
-          </div>
 
           {/* Notifications Section */}
           {notifications.length > 0 && (

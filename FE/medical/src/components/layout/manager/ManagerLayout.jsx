@@ -7,6 +7,9 @@ import {
   FiFileText,
   FiLogOut,
   FiBell,
+  FiTablet,
+  FiHeart,
+  FiShield,
 } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import ThemeToggle from "../../common/ThemeToggle";
@@ -38,6 +41,21 @@ const ManagerLayout = () => {
       path: "/manager/student-management",
       name: "Quản lý học sinh",
       icon: <FiUsers className="w-5 h-5" />,
+    },
+    {
+      path: "/manager/medication",
+      name: "Quản lý thuốc",
+      icon: <FiTablet className="w-5 h-5" />,
+    },
+    {
+      path: "/manager/vaccination",
+      name: "Quản lý tiêm chủng",
+      icon: <FiShield className="w-5 h-5" />,
+    },
+    {
+      path: "/manager/health-check",
+      name: "Quản lý kiểm tra y tế",
+      icon: <FiHeart className="w-5 h-5" />,
     },
     {
       path: "/manager/medicine-inventory",
