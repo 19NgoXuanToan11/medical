@@ -83,11 +83,12 @@ const NurseLayout = () => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-neutral-50 dark:bg-neutral-900 transition-colors duration-300">
+    <div className="flex h-screen bg-neutral-50 dark:bg-neutral-900 transition-colors duration-300">
       {/* Sidebar */}
       <div
-        className={`bg-white dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 ${collapsed ? "w-20" : "w-64"
-          } flex flex-col transition-all duration-300 ease-in-out shadow-sm`}
+        className={`bg-white dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 ${
+          collapsed ? "w-20" : "w-64"
+        } flex flex-col transition-all duration-300 ease-in-out shadow-sm`}
       >
         {/* Logo */}
         <div className="p-4 flex items-center justify-between border-b border-neutral-200 dark:border-neutral-700">
@@ -141,14 +142,16 @@ const NurseLayout = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center px-4 py-3 text-sm rounded-lg ${isActive
+                  className={`flex items-center px-4 py-3 text-sm rounded-lg ${
+                    isActive
                       ? "bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
                       : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700"
-                    } ${collapsed ? "justify-center" : "justify-start"}`}
+                  } ${collapsed ? "justify-center" : "justify-start"}`}
                 >
                   <span
-                    className={`${isActive ? "text-primary-600 dark:text-primary-400" : ""
-                      }`}
+                    className={`${
+                      isActive ? "text-primary-600 dark:text-primary-400" : ""
+                    }`}
                   >
                     {item.icon}
                   </span>
@@ -165,8 +168,9 @@ const NurseLayout = () => {
         <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
           <button
             onClick={handleLogout}
-            className={`flex items-center text-neutral-600 dark:text-neutral-300 hover:text-red-600 dark:hover:text-red-400 transition-colors ${collapsed ? "justify-center w-full" : ""
-              }`}
+            className={`flex items-center text-neutral-600 dark:text-neutral-300 hover:text-red-600 dark:hover:text-red-400 transition-colors ${
+              collapsed ? "justify-center w-full" : ""
+            }`}
           >
             <FiLogOut className="w-5 h-5" />
             {!collapsed && <span className="ml-3">Đăng xuất</span>}
@@ -175,7 +179,7 @@ const NurseLayout = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
         <header className="bg-white dark:bg-neutral-800 shadow-sm py-4 px-6 flex items-center justify-between border-b border-neutral-200 dark:border-neutral-700 transition-colors duration-300">
           <div>
@@ -211,8 +215,9 @@ const NurseLayout = () => {
                   </p>
                 </div>
                 <FiChevronDown
-                  className={`w-4 h-4 text-neutral-400 dark:text-neutral-500 hidden md:block transition-transform ${profileDropdownOpen ? "rotate-180" : ""
-                    }`}
+                  className={`w-4 h-4 text-neutral-400 dark:text-neutral-500 hidden md:block transition-transform ${
+                    profileDropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -262,7 +267,7 @@ const NurseLayout = () => {
         </header>
 
         {/* Content */}
-        <main className="bg-neutral-50 dark:bg-neutral-900 p-6 transition-colors duration-300">
+        <main className="flex-1 overflow-y-auto bg-neutral-50 dark:bg-neutral-900 p-6 transition-colors duration-300">
           <Outlet />
         </main>
       </div>
