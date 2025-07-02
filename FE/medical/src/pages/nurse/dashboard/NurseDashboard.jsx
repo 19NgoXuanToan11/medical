@@ -17,7 +17,6 @@ import {
 import MedicationReminders from "../medication/MedicationReminders";
 import TodaySchedule from "../../../components/nurse/TodaySchedule";
 import SimpleGreeting from "../../../components/common/SimpleGreeting";
-import ApiTest from "../../../components/common/ApiTest";
 
 const NurseDashboard = () => {
   const navigate = useNavigate();
@@ -173,14 +172,6 @@ const NurseDashboard = () => {
           {/* Simple Greeting */}
           <SimpleGreeting roleTitle="Nurse" />
 
-<<<<<<< HEAD
-=======
-          {/* API Test Section - Remove this in production */}
-          <div className="mb-6">
-            <ApiTest />
-          </div>
-
->>>>>>> f9b18e8 (create "give medicine" interface and get list of student health records)
           {/* Notifications Section */}
           {notifications.length > 0 && (
             <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden mb-6">

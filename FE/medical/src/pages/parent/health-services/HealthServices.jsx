@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 512000a (edit nurse role medical service management interface)
 import {
   FiCalendar,
   FiClock,
@@ -11,26 +7,13 @@ import {
   FiMapPin,
   FiInfo,
   FiCheckCircle,
-<<<<<<< HEAD
-  FiAlertCircle,
-  FiFileText,
-  FiActivity,
-  FiShield,
-} from "react-icons/fi";
-
-const HealthServices = () => {
-  const [activeTab, setActiveTab] = useState("health_check");
-  const [activeSubTab, setActiveSubTab] = useState("upcoming");
-=======
 import { 
   FiCalendar, 
   FiClock, 
   FiUser, 
   FiMapPin, 
   FiInfo, 
-  FiCheckCircle, 
-=======
->>>>>>> 512000a (edit nurse role medical service management interface)
+  FiCheckCircle,
   FiAlertCircle,
   FiFileText,
   FiActivity,
@@ -41,7 +24,6 @@ const HealthServices = () => {
 <<<<<<< HEAD
   const [activeTab, setActiveTab] = useState("upcoming");
 >>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
-=======
   const [activeTab, setActiveTab] = useState("health_check");
   const [activeSubTab, setActiveSubTab] = useState("upcoming");
 >>>>>>> 512000a (edit nurse role medical service management interface)
@@ -54,12 +36,7 @@ const HealthServices = () => {
   useEffect(() => {
     const loadHealthServices = async () => {
       setLoading(true);
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
       
->>>>>>> 02f67a7 (combined UI vaccination and regular medical check-ups)
 =======
 
 >>>>>>> 512000a (edit nurse role medical service management interface)
