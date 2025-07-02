@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   FiSearch,
@@ -8,47 +8,71 @@ import {
   FiActivity,
   FiEye,
 } from "react-icons/fi";
+import healthProfileService from "../../../utils/api/health-profile/healthProfileService";
 
 const StudentHealthRecords = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState("all");
+  const [healthRecords, setHealthRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data - thay thế bằng API call thực tế
-  const healthRecords = [
-    {
-      id: 1,
-      studentId: "HS001",
-      studentName: "Nguyễn Văn An",
-      className: "10A1",
-      lastCheckup: "2024-06-15",
-      healthStatus: "Tốt",
-      allergies: "Không",
-      medications: "Không",
-      notes: "Học sinh khỏe mạnh, không có vấn đề gì đặc biệt",
-    },
-    {
-      id: 2,
-      studentId: "HS002",
-      studentName: "Trần Thị Bình",
-      className: "10A2",
-      lastCheckup: "2024-06-14",
-      healthStatus: "Bình thường",
-      allergies: "Phấn hoa",
-      medications: "Thuốc chống dị ứng",
-      notes: "Cần theo dõi tình trạng dị ứng",
-    },
-    {
-      id: 3,
-      studentId: "HS003",
-      studentName: "Lê Minh Cường",
-      className: "10B1",
-      lastCheckup: "2024-06-13",
-      healthStatus: "Cần theo dõi",
-      allergies: "Không",
-      medications: "Vitamin D",
-      notes: "Cần tăng cường vận động",
-    },
-  ];
+  // Fetch health records from API
+  useEffect(() => {
+    const fetchHealthRecords = async () => {
+      try {
+        setLoading(true);
+        const data = await healthProfileService.getAll();
+
+        // Transform API data to match component structure
+        const transformedData = data.map((profile) => ({
+          id: profile.healthProfileId,
+          studentId: profile.studentCode,
+          studentName: profile.studentCode || "Không có tên", // API may need student name
+          className: "10A1", // This might need to come from student data
+          lastCheckup: profile.createdAt
+            ? new Date(profile.createdAt).toISOString().split("T")[0]
+            : "N/A",
+          healthStatus: getHealthStatusFromProfile(profile),
+          allergies: profile.hasAllergies
+            ? profile.allergyDetails || "Có"
+            : "Không",
+          medications: profile.hasPreviousTreatment
+            ? profile.treatmentDetails || "Có"
+            : "Không",
+          notes: profile.otherInfo || "Không có ghi chú",
+        }));
+
+        setHealthRecords(transformedData);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching health records:", err);
+        setError(
+          "Không thể tải danh sách hồ sơ sức khỏe. Vui lòng thử lại sau."
+        );
+        setHealthRecords([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHealthRecords();
+  }, []);
+
+  // Helper function to determine health status from profile data
+  const getHealthStatusFromProfile = (profile) => {
+    if (profile.hasChronicDiseases || profile.hasPreviousTreatment) {
+      return "Cần theo dõi";
+    }
+    if (
+      profile.hasAllergies ||
+      profile.hasVisionIssues ||
+      profile.hasHearingIssues
+    ) {
+      return "Bình thường";
+    }
+    return "Tốt";
+  };
 
   const classes = [
     "all",
@@ -83,6 +107,47 @@ const StudentHealthRecords = () => {
         return "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-300";
     }
   };
+
+  // Calculate summary statistics
+  const healthyCount = filteredRecords.filter(
+    (record) => record.healthStatus === "Tốt"
+  ).length;
+  const needMonitoringCount = filteredRecords.filter(
+    (record) => record.healthStatus === "Cần theo dõi"
+  ).length;
+  const totalCount = filteredRecords.length;
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-6 max-w-7xl">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 max-w-7xl">
+        <div className="text-center py-12">
+          <div className="mx-auto h-12 w-12 text-red-500 mb-4">
+            <FiActivity className="h-12 w-12" />
+          </div>
+          <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
+            Lỗi tải dữ liệu
+          </h2>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-6 max-w-7xl">
@@ -140,7 +205,7 @@ const StudentHealthRecords = () => {
                 Học sinh khỏe mạnh
               </div>
               <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                1
+                {healthyCount}
               </div>
             </div>
             <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-800 flex items-center justify-center">
@@ -156,7 +221,7 @@ const StudentHealthRecords = () => {
                 Cần theo dõi
               </div>
               <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                1
+                {needMonitoringCount}
               </div>
             </div>
             <div className="h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-800 flex items-center justify-center">
@@ -172,7 +237,7 @@ const StudentHealthRecords = () => {
                 Tổng học sinh
               </div>
               <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                3
+                {totalCount}
               </div>
             </div>
             <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">

@@ -535,6 +535,63 @@ export const medicationService = {
     }
   },
 
+  // Record medicine administration
+  recordMedicineAdministration: async (administrationData) => {
+    try {
+      // For now, use a generic endpoint. This should be replaced with actual API endpoint
+      const response = await api.post(
+        "/MedicineRequest/administration",
+        administrationData
+      );
+
+      return {
+        success: true,
+        data: response.data,
+        message: "Đã ghi nhận việc cho uống thuốc thành công",
+      };
+    } catch (error) {
+      console.error("Error recording medicine administration:", error);
+
+      // Fallback: update the request status to indicate administration has started
+      try {
+        const requestId = administrationData.requestId;
+        if (requestId) {
+          const updateData = {
+            status: "Administered",
+            administeredTime: administrationData.administeredTime,
+            administrationStatus: administrationData.status,
+            administrationNotes: administrationData.notes || "",
+            administeredBy: administrationData.administeredByStaff?.staffId,
+          };
+
+          const fallbackResponse = await api.put(
+            `/MedicineRequest/${requestId}/status`,
+            updateData
+          );
+          return {
+            success: true,
+            data: fallbackResponse.data,
+            message: "Đã ghi nhận việc cho uống thuốc thành công",
+          };
+        }
+      } catch (fallbackError) {
+        console.error(
+          "Error with fallback administration recording:",
+          fallbackError
+        );
+      }
+
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message ||
+          "Không thể ghi nhận việc cho uống thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
   // Start administration for medication request
   startAdministrationRequest: async (id, staffId, notes = "") => {
     try {
