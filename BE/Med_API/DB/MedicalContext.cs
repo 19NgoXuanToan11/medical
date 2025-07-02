@@ -444,6 +444,14 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.StockQuantity)
                 .HasDefaultValue(0m)
                 .HasColumnType("decimal(10, 2)");
+
+            // New fields for vaccine support
+            entity.Property(e => e.Type).HasMaxLength(50);
+            entity.Property(e => e.BatchNumber).HasMaxLength(100);
+            entity.Property(e => e.ExpiryDate).HasColumnType("date");
+            entity.Property(e => e.Manufacturer).HasMaxLength(100);
+            entity.Property(e => e.Dose).HasMaxLength(50);
+            entity.Property(e => e.AdministrationMethod).HasMaxLength(50);
         });
 
         modelBuilder.Entity<MedicineRequest>(entity =>

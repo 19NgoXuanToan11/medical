@@ -52,6 +52,13 @@ public class MedicineService : IMedicineService
         existing.Name = medicine.Name ?? existing.Name;
         existing.StockQuantity = medicine.StockQuantity ?? existing.StockQuantity;
         existing.IsActive = medicine.IsActive ?? existing.IsActive;
+        // New vaccine-related fields
+        existing.Type = medicine.Type ?? existing.Type;
+        existing.BatchNumber = medicine.BatchNumber ?? existing.BatchNumber;
+        existing.ExpiryDate = medicine.ExpiryDate ?? existing.ExpiryDate;
+        existing.Manufacturer = medicine.Manufacturer ?? existing.Manufacturer;
+        existing.Dose = medicine.Dose ?? existing.Dose;
+        existing.AdministrationMethod = medicine.AdministrationMethod ?? existing.AdministrationMethod;
         await _medicineRepository.UpdateMedicineAsync(existing);
         return true;
     }
