@@ -231,12 +231,20 @@ const HealthEventDetail = () => {
           <div className="bg-neutral-50 dark:bg-neutral-900 rounded-lg p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Họ và tên</p>
-                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.studentName}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Họ và tên
+                </p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                  {event.studentName}
+                </p>
               </div>
               <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Lớp</p>
-                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.class}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Lớp
+                </p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                  {event.class}
+                </p>
               </div>
             </div>
           </div>
@@ -250,25 +258,37 @@ const HealthEventDetail = () => {
           </h3>
           <div className="space-y-4">
             <div>
-              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Mô tả ngắn</p>
-              <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.description}</p>
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                Mô tả ngắn
+              </p>
+              <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                {event.description}
+              </p>
             </div>
             {event.details && event.details.length > 0 && (
               <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Chi tiết</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
+                  Chi tiết
+                </p>
                 <ul className="space-y-1">
                   {event.details.map((detail, index) => (
                     <li key={index} className="flex items-start">
                       <span className="text-primary-500 mr-2">•</span>
-                      <span className="text-neutral-900 dark:text-neutral-100">{detail}</span>
+                      <span className="text-neutral-900 dark:text-neutral-100">
+                        {detail}
+                      </span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
             <div>
-              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Hành động đã thực hiện</p>
-              <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.actionTaken}</p>
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                Hành động đã thực hiện
+              </p>
+              <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                {event.actionTaken}
+              </p>
             </div>
           </div>
         </div>
@@ -282,20 +302,36 @@ const HealthEventDetail = () => {
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-lg">
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Thân nhiệt</p>
-                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{event.vitalSigns.temperature}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Thân nhiệt
+                </p>
+                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                  {event.vitalSigns.temperature}
+                </p>
               </div>
               <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-lg">
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Mạch</p>
-                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{event.vitalSigns.pulse}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Mạch
+                </p>
+                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                  {event.vitalSigns.pulse}
+                </p>
               </div>
               <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-lg">
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Huyết áp</p>
-                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{event.vitalSigns.bloodPressure}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Huyết áp
+                </p>
+                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                  {event.vitalSigns.bloodPressure}
+                </p>
               </div>
               <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-lg">
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Nhịp thở</p>
-                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{event.vitalSigns.respiratoryRate}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Nhịp thở
+                </p>
+                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                  {event.vitalSigns.respiratoryRate}
+                </p>
               </div>
             </div>
           </div>
@@ -323,7 +359,9 @@ const HealthEventDetail = () => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{medication.time}</p>
+                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      {medication.time}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -353,7 +391,9 @@ const HealthEventDetail = () => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{supply.time}</p>
+                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      {supply.time}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -371,20 +411,36 @@ const HealthEventDetail = () => {
             <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Người liên hệ</p>
-                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.parentContacted.person}</p>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                    Người liên hệ
+                  </p>
+                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                    {event.parentContacted.person}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Phương thức</p>
-                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.parentContacted.method}</p>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                    Phương thức
+                  </p>
+                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                    {event.parentContacted.method}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Thời gian liên hệ</p>
-                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.parentContacted.time}</p>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                    Thời gian liên hệ
+                  </p>
+                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                    {event.parentContacted.time}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Phản hồi</p>
-                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">{event.parentContacted.response}</p>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                    Phản hồi
+                  </p>
+                  <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                    {event.parentContacted.response}
+                  </p>
                 </div>
               </div>
             </div>
@@ -399,7 +455,9 @@ const HealthEventDetail = () => {
               Theo dõi
             </h3>
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-              <p className="text-neutral-900 dark:text-neutral-100">{event.followUp}</p>
+              <p className="text-neutral-900 dark:text-neutral-100">
+                {event.followUp}
+              </p>
             </div>
           </div>
         )}

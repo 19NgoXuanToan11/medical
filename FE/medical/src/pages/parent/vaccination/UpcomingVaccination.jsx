@@ -91,9 +91,9 @@ const UpcomingVaccination = () => {
         <div className="p-8">
           <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-l-4 border-blue-500 dark:border-blue-400 rounded-r-2xl">
             <p className="text-blue-800 dark:text-blue-300 font-medium">
-              <span className="font-bold">Lưu ý quan trọng:</span> Danh sách
-              các mũi tiêm chủng đã được lên lịch cho con của bạn tại trường.
-              Vui lòng xác nhận đồng ý hoặc từ chối cho con tham gia tiêm chủng.
+              <span className="font-bold">Lưu ý quan trọng:</span> Danh sách các
+              mũi tiêm chủng đã được lên lịch cho con của bạn tại trường. Vui
+              lòng xác nhận đồng ý hoặc từ chối cho con tham gia tiêm chủng.
             </p>
           </div>
 
@@ -152,7 +152,8 @@ const UpcomingVaccination = () => {
                           </p>
                         </div>
                       </div>
-                      <div className={`inline-flex items-center px-5 py-3 rounded-2xl text-sm font-bold shadow-lg transition-all duration-300 hover:scale-105 ${
+                      <div
+                        className={`inline-flex items-center px-5 py-3 rounded-2xl text-sm font-bold shadow-lg transition-all duration-300 hover:scale-105 ${
                           vaccination.status === "Chờ xác nhận"
                             ? "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-900/40 dark:via-yellow-900/30 dark:to-orange-900/40 text-amber-800 dark:text-amber-200 border-2 border-amber-200 dark:border-amber-700/50 shadow-amber-200/50 dark:shadow-amber-900/30"
                             : vaccination.status === "Đã xác nhận"
@@ -160,16 +161,19 @@ const UpcomingVaccination = () => {
                             : vaccination.status === "Đã hoàn thành"
                             ? "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/40 dark:via-indigo-900/30 dark:to-purple-900/40 text-blue-800 dark:text-blue-200 border-2 border-blue-200 dark:border-blue-700/50 shadow-blue-200/50 dark:shadow-blue-900/30"
                             : "bg-gradient-to-br from-rose-50 via-red-50 to-pink-50 dark:from-rose-900/40 dark:via-red-900/30 dark:to-pink-900/40 text-rose-800 dark:text-rose-200 border-2 border-rose-200 dark:border-rose-700/50 shadow-rose-200/50 dark:shadow-rose-900/30"
-                        }`}>
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center mr-3 ${
-                          vaccination.status === "Chờ xác nhận"
-                            ? "bg-amber-200 dark:bg-amber-800/60"
-                            : vaccination.status === "Đã xác nhận"
-                            ? "bg-emerald-200 dark:bg-emerald-800/60"
-                            : vaccination.status === "Đã hoàn thành"
-                            ? "bg-blue-200 dark:bg-blue-800/60"
-                            : "bg-rose-200 dark:bg-rose-800/60"
-                        }`}>
+                        }`}
+                      >
+                        <div
+                          className={`w-7 h-7 rounded-full flex items-center justify-center mr-3 ${
+                            vaccination.status === "Chờ xác nhận"
+                              ? "bg-amber-200 dark:bg-amber-800/60"
+                              : vaccination.status === "Đã xác nhận"
+                              ? "bg-emerald-200 dark:bg-emerald-800/60"
+                              : vaccination.status === "Đã hoàn thành"
+                              ? "bg-blue-200 dark:bg-blue-800/60"
+                              : "bg-rose-200 dark:bg-rose-800/60"
+                          }`}
+                        >
                           <svg
                             className={`w-4 h-4 ${
                               vaccination.status === "Chờ xác nhận"
@@ -215,7 +219,9 @@ const UpcomingVaccination = () => {
                             )}
                           </svg>
                         </div>
-                        <span className="font-bold tracking-wide">{vaccination.status}</span>
+                        <span className="font-bold tracking-wide">
+                          {vaccination.status}
+                        </span>
                       </div>
                     </div>
 
@@ -363,7 +369,9 @@ const UpcomingVaccination = () => {
                               />
                             </svg>
                           </div>
-                          <span className="text-lg font-bold tracking-wide">Bạn đã đồng ý cho con tham gia tiêm chủng</span>
+                          <span className="text-lg font-bold tracking-wide">
+                            Bạn đã đồng ý cho con tham gia tiêm chủng
+                          </span>
                         </div>
                       )}
                       {vaccination.status === "Đã hoàn thành" && (
@@ -383,7 +391,9 @@ const UpcomingVaccination = () => {
                               />
                             </svg>
                           </div>
-                          <span className="text-lg font-bold tracking-wide">Con bạn đã hoàn thành tiêm chủng</span>
+                          <span className="text-lg font-bold tracking-wide">
+                            Con bạn đã hoàn thành tiêm chủng
+                          </span>
                         </div>
                       )}
                       {vaccination.status === "Đã từ chối" && (
@@ -403,7 +413,9 @@ const UpcomingVaccination = () => {
                               />
                             </svg>
                           </div>
-                          <span className="text-lg font-bold tracking-wide">Bạn đã từ chối cho con tham gia tiêm chủng</span>
+                          <span className="text-lg font-bold tracking-wide">
+                            Bạn đã từ chối cho con tham gia tiêm chủng
+                          </span>
                         </div>
                       )}
                     </div>

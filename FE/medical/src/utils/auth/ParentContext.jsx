@@ -16,20 +16,20 @@ export const ParentProvider = ({ children }) => {
   // Fetch parent data from API
   const fetchParentData = async () => {
     if (!user || !user.id) return;
-    
+
     try {
       setLoading(true);
       setError(null);
-      
+
       const data = await parentService.getCurrentParent();
       setParentData(data);
-      
+
       // Extract and format students from parent data
       if (data.students && data.students.length > 0) {
-        const formattedStudents = data.students.map(student => ({
+        const formattedStudents = data.students.map((student) => ({
           studentId: student.studentId,
           name: `${student.firstName} ${student.lastName}`,
-          class: student.className || 'N/A',
+          class: student.className || "N/A",
           studentCode: student.studentCode,
           firstName: student.firstName,
           lastName: student.lastName,
@@ -38,11 +38,11 @@ export const ParentProvider = ({ children }) => {
           gender: student.gender,
           gradeLevel: student.gradeLevel,
           address: student.address,
-          isActive: student.isActive
+          isActive: student.isActive,
         }));
-        
+
         setStudents(formattedStudents);
-        
+
         // Set first student as selected if none is selected
         if (!selectedStudent && formattedStudents.length > 0) {
           setSelectedStudent(formattedStudents[0]);
@@ -52,7 +52,7 @@ export const ParentProvider = ({ children }) => {
         setSelectedStudent(null);
       }
     } catch (error) {
-      console.error('Error fetching parent data:', error);
+      console.error("Error fetching parent data:", error);
       setError(error);
     } finally {
       setLoading(false);
@@ -64,16 +64,16 @@ export const ParentProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const updatedData = await parentService.updateParent(
-        parentData?.parentId || user?.id, 
+        parentData?.parentId || user?.id,
         updateData
       );
-      
+
       setParentData(updatedData);
       return updatedData;
     } catch (error) {
-      console.error('Error updating parent data:', error);
+      console.error("Error updating parent data:", error);
       setError(error);
       throw error;
     } finally {
@@ -115,9 +115,7 @@ export const ParentProvider = ({ children }) => {
   };
 
   return (
-    <ParentContext.Provider value={value}>
-      {children}
-    </ParentContext.Provider>
+    <ParentContext.Provider value={value}>{children}</ParentContext.Provider>
   );
 };
 
@@ -130,4 +128,4 @@ export const useParent = () => {
   return context;
 };
 
-export default ParentContext; 
+export default ParentContext;

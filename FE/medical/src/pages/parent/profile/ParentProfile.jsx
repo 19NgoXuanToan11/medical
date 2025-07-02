@@ -90,15 +90,15 @@ const ParentProfile = () => {
         occupation: editedData.occupation,
         relationship: editedData.relationship,
         isEmergencyContact: editedData.emergencyContact ? true : false,
-        isActive: true
+        isActive: true,
       };
 
       // Call API to update parent information using context
       await updateParentData(updateData);
-      
+
       setProfileData(editedData);
       setIsEditing(false);
-      
+
       // Show success message (you can add a toast notification here)
       console.log("Profile updated successfully:", editedData);
     } catch (error) {
@@ -128,7 +128,9 @@ const ParentProfile = () => {
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 transition-colors duration-300 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-neutral-500 dark:text-neutral-400">Đang tải thông tin...</p>
+          <p className="text-neutral-500 dark:text-neutral-400">
+            Đang tải thông tin...
+          </p>
         </div>
       </div>
     );
@@ -530,7 +532,9 @@ const ParentProfile = () => {
                               Ngày sinh:
                             </span>
                             <span className="text-sm text-neutral-900 dark:text-neutral-100">
-                              {new Date(student.dateOfBirth).toLocaleDateString("vi-VN")}
+                              {new Date(student.dateOfBirth).toLocaleDateString(
+                                "vi-VN"
+                              )}
                             </span>
                           </div>
                         )}

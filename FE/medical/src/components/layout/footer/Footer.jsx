@@ -209,9 +209,7 @@ const Footer = () => {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <span className="text-gray-600">
-                  FPT University
-                </span>
+                <span className="text-gray-600">FPT University</span>
               </li>
               <li className="flex items-center">
                 <svg

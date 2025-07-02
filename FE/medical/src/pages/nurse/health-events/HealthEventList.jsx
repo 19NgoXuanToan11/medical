@@ -320,7 +320,7 @@ const HealthEventList = () => {
           <Link
             to="/nurse/health-events/new"
             className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md mr-3 transition-colors text-base font-medium"
-            style={{ height: '48px' }}
+            style={{ height: "48px" }}
           >
             <FiPlus className="mr-2" />
             Tạo lịch mới

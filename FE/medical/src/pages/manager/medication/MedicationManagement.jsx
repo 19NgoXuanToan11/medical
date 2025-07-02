@@ -37,7 +37,7 @@ const MedicationManagement = () => {
       {/* Main Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-          Quản lý yêu cầu thuốc
+          Quản lý thuốc
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
           Xem xét và phê duyệt các yêu cầu cấp thuốc từ phụ huynh

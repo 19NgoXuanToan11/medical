@@ -291,3 +291,18 @@ export const formatAdministrationHistory = (result) => {
 
   return history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 };
+
+// Get status display text in Vietnamese
+export const getStatusDisplayText = (status) => {
+  const statusMap = {
+    pending: "Chờ cấp thuốc",
+    administered: "Đã cấp thuốc",
+    completed: "Hoàn thành",
+    failed: "Thất bại",
+    cancelled: "Đã hủy",
+    expired: "Hết hạn",
+    partial: "Cấp một phần",
+  };
+
+  return statusMap[status] || status;
+};

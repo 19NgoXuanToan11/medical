@@ -39,6 +39,9 @@ import MedicineInventory from "./pages/manager/inventory/MedicineInventory";
 import SupplyInventory from "./pages/manager/inventory/SupplyInventory";
 import ExcelImport from "./pages/manager/inventory/ExcelImport";
 import ExcelManagement from "./pages/manager/excel/ExcelManagement";
+import MedicationManagement from "./pages/manager/medication/MedicationManagement";
+import HealthCheckManagement from "./pages/manager/health-check/HealthCheckManagement";
+import VaccinationManagement from "./pages/manager/vaccination/VaccinationManagement";
 
 // nurse
 import NurseDashboard from "./pages/nurse/dashboard/NurseDashboard";
@@ -51,17 +54,19 @@ import HealthEventList from "./pages/nurse/health-events/HealthEventList";
 import HealthEventDetail from "./pages/nurse/health-events/HealthEventDetail";
 import HealthEventCreate from "./pages/nurse/health-events/HealthEventCreate";
 import HealthEventEdit from "./pages/nurse/health-events/HealthEventEdit";
-import VaccinationManagement from "./pages/nurse/vaccination/VaccinationManagement";
 import VaccinationDetail from "./pages/nurse/vaccination/VaccinationDetail";
 import VaccinationEdit from "./pages/nurse/vaccination/VaccinationEdit";
 import VaccinationPlanCreate from "./pages/nurse/vaccination/VaccinationPlanCreate";
 import StaffMedicationList from "./pages/nurse/medication/StaffMedicationList";
 import StaffMedicationDetail from "./pages/nurse/medication/StaffMedicationDetail";
 import MedicationAdministration from "./pages/nurse/medication/MedicationAdministration";
+import NurseMedicationManagement from "./pages/nurse/medication/MedicationManagement";
 import StudentHealthDetail from "./pages/nurse/health-check/StudentHealthDetail";
 import NurseSchedule from "./pages/nurse/schedule/NurseSchedule";
 import StudentHealthRecords from "./pages/nurse/health-records/StudentHealthRecords";
 import StudentHealthRecordDetail from "./pages/nurse/health-records/StudentHealthRecordDetail";
+import HealthServicesManagement from "./pages/nurse/health-services/HealthServicesManagement";
+import HealthServiceCreate from "./pages/nurse/health-services/HealthServiceCreate";
 
 // parent
 import ParentDashboard from "./pages/parent/dashboard/ParentDashboard";
@@ -81,6 +86,7 @@ import ParentHealthEventDetail from "./pages/parent/health-events/HealthEventDet
 import HealthEventResultDetail from "./pages/parent/health-events/HealthEventResultDetail";
 import Notifications from "./pages/parent/notification/Notifications";
 import HealthProfileDetailView from "./pages/parent/health-profile/HealthProfileDetailView";
+import HealthServices from "./pages/parent/health-services/HealthServices";
 
 // student
 import StudentDashboard from "./pages/student/dashboard/StudentDashboard";
@@ -137,6 +143,15 @@ function AppRoutes() {
         <Route
           path="/manager/student-management"
           element={<StudentManagement />}
+        />
+        <Route path="/manager/medication" element={<MedicationManagement />} />
+        <Route
+          path="/manager/health-check"
+          element={<HealthCheckManagement />}
+        />
+        <Route
+          path="/manager/vaccination"
+          element={<VaccinationManagement />}
         />
         <Route
           path="/manager/medicine-inventory"
@@ -232,6 +247,9 @@ function AppRoutes() {
 
         {/* Parent Notifications Routes */}
         <Route path="/parent/notifications" element={<Notifications />} />
+
+        {/* Parent Health Services Routes */}
+        <Route path="/parent/health-services" element={<HealthServices />} />
       </Route>
 
       {/* Nurse Routes - Only Nurse can access */}
@@ -262,14 +280,19 @@ function AppRoutes() {
         />
 
         {/* Medication Routes */}
-        <Route path="/nurse/medication" element={<StaffMedicationList />} />
         <Route
-          path="/nurse/medication/:id"
-          element={<StaffMedicationDetail />}
+          path="/nurse/medication"
+          element={<NurseMedicationManagement />}
+        />
+
+        {/* Health Services Routes */}
+        <Route
+          path="/nurse/health-services"
+          element={<HealthServicesManagement />}
         />
         <Route
-          path="/nurse/medication-administration"
-          element={<MedicationAdministration />}
+          path="/nurse/health-services/create"
+          element={<HealthServiceCreate />}
         />
 
         {/* Health Check Routes */}

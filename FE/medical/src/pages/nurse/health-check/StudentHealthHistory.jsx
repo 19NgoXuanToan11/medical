@@ -202,7 +202,8 @@ const StudentHealthHistory = () => {
               Lịch sử sức khỏe - {student.name}
             </h1>
             <p className="text-neutral-600 dark:text-neutral-400">
-              {student.grade} - Ngày sinh: {new Date(student.dateOfBirth).toLocaleDateString("vi-VN")}
+              {student.grade} - Ngày sinh:{" "}
+              {new Date(student.dateOfBirth).toLocaleDateString("vi-VN")}
             </p>
           </div>
         </div>
@@ -211,30 +212,106 @@ const StudentHealthHistory = () => {
       {/* Personal Information Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm">
-          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Thông tin cá nhân</h3>
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+            Thông tin cá nhân
+          </h3>
           <div className="space-y-2">
-            <p><span className="text-neutral-600 dark:text-neutral-400">Họ và tên:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.name}</span></p>
-            <p><span className="text-neutral-600 dark:text-neutral-400">Ngày sinh:</span> <span className="text-neutral-900 dark:text-neutral-100">{new Date(student.dateOfBirth).toLocaleDateString("vi-VN")}</span></p>
-            <p><span className="text-neutral-600 dark:text-neutral-400">Giới tính:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.gender}</span></p>
-            <p><span className="text-neutral-600 dark:text-neutral-400">Lớp:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.grade}</span></p>
-            <p><span className="text-neutral-600 dark:text-neutral-400">Nhóm máu:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.bloodType}</span></p>
+            <p>
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Họ và tên:
+              </span>{" "}
+              <span className="text-neutral-900 dark:text-neutral-100">
+                {student.name}
+              </span>
+            </p>
+            <p>
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Ngày sinh:
+              </span>{" "}
+              <span className="text-neutral-900 dark:text-neutral-100">
+                {new Date(student.dateOfBirth).toLocaleDateString("vi-VN")}
+              </span>
+            </p>
+            <p>
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Giới tính:
+              </span>{" "}
+              <span className="text-neutral-900 dark:text-neutral-100">
+                {student.gender}
+              </span>
+            </p>
+            <p>
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Lớp:
+              </span>{" "}
+              <span className="text-neutral-900 dark:text-neutral-100">
+                {student.grade}
+              </span>
+            </p>
+            <p>
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Nhóm máu:
+              </span>{" "}
+              <span className="text-neutral-900 dark:text-neutral-100">
+                {student.bloodType}
+              </span>
+            </p>
           </div>
         </div>
 
         <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm">
-          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Thông tin liên hệ</h3>
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+            Thông tin liên hệ
+          </h3>
           <div className="space-y-2">
-            <p><span className="text-neutral-600 dark:text-neutral-400">Phụ huynh:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.parentName}</span></p>
-            <p><span className="text-neutral-600 dark:text-neutral-400">Điện thoại:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.parentPhone}</span></p>
-            <p><span className="text-neutral-600 dark:text-neutral-400">Địa chỉ:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.address}</span></p>
+            <p>
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Phụ huynh:
+              </span>{" "}
+              <span className="text-neutral-900 dark:text-neutral-100">
+                {student.parentName}
+              </span>
+            </p>
+            <p>
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Điện thoại:
+              </span>{" "}
+              <span className="text-neutral-900 dark:text-neutral-100">
+                {student.parentPhone}
+              </span>
+            </p>
+            <p>
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Địa chỉ:
+              </span>{" "}
+              <span className="text-neutral-900 dark:text-neutral-100">
+                {student.address}
+              </span>
+            </p>
           </div>
         </div>
 
         <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm">
-          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Thông tin y tế</h3>
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+            Thông tin y tế
+          </h3>
           <div className="space-y-2">
-            <p><span className="text-neutral-600 dark:text-neutral-400">Dị ứng:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.allergies}</span></p>
-            <p><span className="text-neutral-600 dark:text-neutral-400">Bệnh mãn tính:</span> <span className="text-neutral-900 dark:text-neutral-100">{student.chronicConditions}</span></p>
+            <p>
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Dị ứng:
+              </span>{" "}
+              <span className="text-neutral-900 dark:text-neutral-100">
+                {student.allergies}
+              </span>
+            </p>
+            <p>
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Bệnh mãn tính:
+              </span>{" "}
+              <span className="text-neutral-900 dark:text-neutral-100">
+                {student.chronicConditions}
+              </span>
+            </p>
             <button className="w-full mt-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
               Cập nhật thông tin y tế
             </button>
@@ -244,7 +321,9 @@ const StudentHealthHistory = () => {
 
       {/* Growth Chart */}
       <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm mb-6">
-        <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Biểu đồ tăng trưởng</h3>
+        <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+          Biểu đồ tăng trưởng
+        </h3>
         <div style={{ height: "400px" }}>
           <Line data={chartData} options={chartOptions} />
         </div>
@@ -253,7 +332,9 @@ const StudentHealthHistory = () => {
       {/* Health Records Table */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Lịch sử khám sức khỏe</h3>
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            Lịch sử khám sức khỏe
+          </h3>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -289,7 +370,10 @@ const StudentHealthHistory = () => {
               {recordsWithBMI.map((record) => {
                 const bmiStatus = getBmiStatus(record.bmi);
                 return (
-                  <tr key={record.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700">
+                  <tr
+                    key={record.id}
+                    className="hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
                       {new Date(record.date).toLocaleDateString("vi-VN")}
                     </td>
@@ -300,7 +384,9 @@ const StudentHealthHistory = () => {
                       {record.weight}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-neutral-900 dark:text-neutral-100">{record.bmi}</div>
+                      <div className="text-sm text-neutral-900 dark:text-neutral-100">
+                        {record.bmi}
+                      </div>
                       <div className={`text-xs ${bmiStatus.color}`}>
                         {bmiStatus.label}
                       </div>

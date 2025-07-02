@@ -75,7 +75,9 @@ const AdminDashboard = () => {
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-700 dark:border-primary-400"></div>
-          <p className="ml-2 text-neutral-500 dark:text-neutral-400">Đang tải dữ liệu...</p>
+          <p className="ml-2 text-neutral-500 dark:text-neutral-400">
+            Đang tải dữ liệu...
+          </p>
         </div>
       ) : (
         <>

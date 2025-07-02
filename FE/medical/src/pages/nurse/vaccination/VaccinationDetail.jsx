@@ -220,7 +220,9 @@ const VaccinationDetail = () => {
               {getStatusBadge(vaccination.status)}
               <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
                 <FiCalendar className="mr-1 h-4 w-4" />
-                {new Date(vaccination.scheduledDate).toLocaleDateString("vi-VN")}
+                {new Date(vaccination.scheduledDate).toLocaleDateString(
+                  "vi-VN"
+                )}
               </div>
             </div>
           </div>
@@ -232,7 +234,9 @@ const VaccinationDetail = () => {
               <div className="flex items-center">
                 <FiUsers className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
                 <div>
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Tổng học sinh</p>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                    Tổng học sinh
+                  </p>
                   <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                     {vaccination.totalStudents}
                   </p>
@@ -244,7 +248,9 @@ const VaccinationDetail = () => {
               <div className="flex items-center">
                 <FiCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
                 <div>
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Đã xác nhận</p>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                    Đã xác nhận
+                  </p>
                   <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                     {vaccination.confirmedParents}
                   </p>
@@ -256,7 +262,9 @@ const VaccinationDetail = () => {
               <div className="flex items-center">
                 <FiXCircle className="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
                 <div>
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Chưa xác nhận</p>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                    Chưa xác nhận
+                  </p>
                   <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                     {vaccination.totalStudents - vaccination.confirmedParents}
                   </p>
@@ -268,7 +276,9 @@ const VaccinationDetail = () => {
               <div className="flex items-center">
                 <FiClock className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
                 <div>
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Thời gian</p>
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                    Thời gian
+                  </p>
                   <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                     {vaccination.startTime} - {vaccination.endTime}
                   </p>
@@ -289,20 +299,36 @@ const VaccinationDetail = () => {
             </h3>
             <div className="space-y-4">
               <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Loại vắc-xin</p>
-                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{vaccination.vaccineInfo}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Loại vắc-xin
+                </p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                  {vaccination.vaccineInfo}
+                </p>
               </div>
               <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Phương pháp tiêm</p>
-                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{vaccination.vaccinationMethod}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Phương pháp tiêm
+                </p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                  {vaccination.vaccinationMethod}
+                </p>
               </div>
               <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Địa điểm</p>
-                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{vaccination.location}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Địa điểm
+                </p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                  {vaccination.location}
+                </p>
               </div>
               <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Đơn vị thực hiện</p>
-                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{vaccination.healthcareProvider}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Đơn vị thực hiện
+                </p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                  {vaccination.healthcareProvider}
+                </p>
               </div>
             </div>
           </div>
@@ -316,20 +342,32 @@ const VaccinationDetail = () => {
             </h3>
             <div className="space-y-4">
               <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Tác dụng phụ có thể xảy ra</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Tác dụng phụ có thể xảy ra
+                </p>
                 <div className="mt-1 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                  <p className="text-sm text-neutral-900 dark:text-neutral-100">{vaccination.sideEffects}</p>
+                  <p className="text-sm text-neutral-900 dark:text-neutral-100">
+                    {vaccination.sideEffects}
+                  </p>
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Chống chỉ định</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Chống chỉ định
+                </p>
                 <div className="mt-1 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                  <p className="text-sm text-neutral-900 dark:text-neutral-100">{vaccination.contraindications}</p>
+                  <p className="text-sm text-neutral-900 dark:text-neutral-100">
+                    {vaccination.contraindications}
+                  </p>
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Ghi chú</p>
-                <p className="mt-1 text-neutral-900 dark:text-neutral-100">{vaccination.notes}</p>
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  Ghi chú
+                </p>
+                <p className="mt-1 text-neutral-900 dark:text-neutral-100">
+                  {vaccination.notes}
+                </p>
               </div>
             </div>
           </div>
@@ -393,7 +431,10 @@ const VaccinationDetail = () => {
               </thead>
               <tbody className="bg-white dark:bg-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-700">
                 {filteredStudents.map((student) => (
-                  <tr key={student.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700">
+                  <tr
+                    key={student.id}
+                    className="hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                         {student.name}
@@ -415,7 +456,9 @@ const VaccinationDetail = () => {
                             : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
                         }`}
                       >
-                        {student.parentConfirmed ? "Đã xác nhận" : "Chưa xác nhận"}
+                        {student.parentConfirmed
+                          ? "Đã xác nhận"
+                          : "Chưa xác nhận"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100">
@@ -448,7 +491,8 @@ const VaccinationDetail = () => {
               Xác nhận hoàn thành
             </h3>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-              Bạn có chắc chắn muốn đánh dấu kế hoạch tiêm chủng này là đã hoàn thành?
+              Bạn có chắc chắn muốn đánh dấu kế hoạch tiêm chủng này là đã hoàn
+              thành?
             </p>
             <div className="flex justify-end space-x-3">
               <button
@@ -476,7 +520,8 @@ const VaccinationDetail = () => {
               Gửi thông báo nhắc nhở
             </h3>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-              Gửi thông báo nhắc nhở về lịch tiêm chủng đến phụ huynh chưa xác nhận?
+              Gửi thông báo nhắc nhở về lịch tiêm chủng đến phụ huynh chưa xác
+              nhận?
             </p>
             <div className="flex justify-end space-x-3">
               <button

@@ -19,7 +19,9 @@ const VaccinationWidget = () => {
   return (
     <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden hover:shadow-sm transition-all duration-200">
       <div className="border-b border-neutral-100 dark:border-neutral-700 px-4 py-3 flex justify-between items-center">
-        <h2 className="font-medium text-neutral-800 dark:text-neutral-200">Tiêm chủng</h2>
+        <h2 className="font-medium text-neutral-800 dark:text-neutral-200">
+          Tiêm chủng
+        </h2>
         <Link
           to="/parent/vaccination"
           className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
@@ -39,13 +41,17 @@ const VaccinationWidget = () => {
               <span className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                 {upcomingCount}
               </span>
-              <span className="text-sm text-neutral-600 dark:text-neutral-400">Sắp tới</span>
+              <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                Sắp tới
+              </span>
             </div>
             <div className="flex flex-col items-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
               <span className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">
                 {pendingCount}
               </span>
-              <span className="text-sm text-neutral-600 dark:text-neutral-400">Chờ xác nhận</span>
+              <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                Chờ xác nhận
+              </span>
             </div>
           </div>
 

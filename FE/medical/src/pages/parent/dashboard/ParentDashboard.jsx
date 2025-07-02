@@ -91,7 +91,9 @@ const ParentDashboard = () => {
 
             <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden hover:shadow-sm transition-all duration-200">
               <div className="border-b border-neutral-100 dark:border-neutral-700 px-4 py-3 flex justify-between items-center">
-                <h2 className="font-medium text-neutral-800 dark:text-neutral-200">Thông báo mới</h2>
+                <h2 className="font-medium text-neutral-800 dark:text-neutral-200">
+                  Thông báo mới
+                </h2>
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-1 ring-green-600/20 dark:ring-green-400/20">
                   {notificationCount} thông báo
                 </span>

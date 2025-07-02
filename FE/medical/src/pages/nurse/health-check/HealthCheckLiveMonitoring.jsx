@@ -43,11 +43,16 @@ const HealthCheckLiveMonitoring = () => {
       abnormalFound: 2,
       staffAssigned: ["Y tá Hương", "Y tá Mai"],
       stations: [
-        { id: "height-weight", name: "Đo chiều cao, cân nặng", status: "active", queue: 3 },
+        {
+          id: "height-weight",
+          name: "Đo chiều cao, cân nặng",
+          status: "active",
+          queue: 3,
+        },
         { id: "vision", name: "Kiểm tra thị lực", status: "waiting", queue: 8 },
         { id: "general", name: "Khám tổng quát", status: "waiting", queue: 15 },
         { id: "dental", name: "Khám răng miệng", status: "waiting", queue: 20 },
-      ]
+      ],
     };
 
     const mockStudents = [
@@ -63,13 +68,13 @@ const HealthCheckLiveMonitoring = () => {
           weight: 28,
           vision: "Bình thường",
           general: "Tốt",
-          abnormal: false
-        }
+          abnormal: false,
+        },
       },
       {
         id: 2,
         name: "Trần Thị Bảo",
-        studentCode: "3A002", 
+        studentCode: "3A002",
         status: "in-progress",
         currentStation: "Kiểm tra thị lực",
         timeStarted: "09:20",
@@ -77,27 +82,27 @@ const HealthCheckLiveMonitoring = () => {
           height: 122,
           weight: 26,
           vision: "Đang kiểm tra",
-          general: "Chưa kiểm tra"
-        }
+          general: "Chưa kiểm tra",
+        },
       },
       {
         id: 3,
         name: "Lê Văn Cường",
         studentCode: "3A003",
-        status: "in-progress", 
+        status: "in-progress",
         currentStation: "Đo chiều cao, cân nặng",
         timeStarted: "09:25",
         results: {
           height: "Đang đo",
-          weight: "Đang đo"
-        }
+          weight: "Đang đo",
+        },
       },
       {
         id: 4,
         name: "Phạm Thị Dung",
         studentCode: "3A004",
         status: "completed",
-        currentStation: "Hoàn thành", 
+        currentStation: "Hoàn thành",
         timeCompleted: "09:10",
         results: {
           height: 118,
@@ -105,8 +110,8 @@ const HealthCheckLiveMonitoring = () => {
           vision: "Cận thị nhẹ",
           general: "Tốt",
           abnormal: true,
-          abnormalNote: "Cận thị -0.5D, cần theo dõi"
-        }
+          abnormalNote: "Cận thị -0.5D, cần theo dõi",
+        },
       },
       {
         id: 5,
@@ -114,17 +119,17 @@ const HealthCheckLiveMonitoring = () => {
         studentCode: "3A005",
         status: "waiting",
         currentStation: "Chờ đến lượt",
-        queuePosition: 1
+        queuePosition: 1,
       },
       // Thêm nhiều học sinh khác...
-      ...Array.from({length: 27}, (_, i) => ({
+      ...Array.from({ length: 27 }, (_, i) => ({
         id: i + 6,
         name: `Học sinh ${i + 6}`,
-        studentCode: `3A${String(i + 6).padStart(3, '0')}`,
+        studentCode: `3A${String(i + 6).padStart(3, "0")}`,
         status: "waiting",
         currentStation: "Chờ đến lượt",
-        queuePosition: i + 2
-      }))
+        queuePosition: i + 2,
+      })),
     ];
 
     setHealthCheck(mockHealthCheck);
@@ -143,12 +148,12 @@ const HealthCheckLiveMonitoring = () => {
   // Auto refresh data
   useEffect(() => {
     if (!autoRefresh) return;
-    
+
     const refreshTimer = setInterval(() => {
       // Simulate data updates
       console.log("Refreshing data...");
     }, 5000);
-    
+
     return () => clearInterval(refreshTimer);
   }, [autoRefresh]);
 
@@ -181,7 +186,7 @@ const HealthCheckLiveMonitoring = () => {
   };
 
   const calculateProgress = () => {
-    const completed = students.filter(s => s.status === "completed").length;
+    const completed = students.filter((s) => s.status === "completed").length;
     return Math.round((completed / healthCheck.totalStudents) * 100);
   };
 
@@ -229,18 +234,19 @@ const HealthCheckLiveMonitoring = () => {
               Theo dõi trực tiếp - {healthCheck.grade}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Ngày: {new Date(healthCheck.scheduledDate).toLocaleDateString("vi-VN")} | 
-              Thời gian hiện tại: {currentTime.toLocaleTimeString("vi-VN")}
+              Ngày:{" "}
+              {new Date(healthCheck.scheduledDate).toLocaleDateString("vi-VN")}{" "}
+              | Thời gian hiện tại: {currentTime.toLocaleTimeString("vi-VN")}
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
             className={`px-3 py-2 rounded-md border ${
-              autoRefresh 
-                ? "bg-green-100 border-green-300 text-green-800" 
+              autoRefresh
+                ? "bg-green-100 border-green-300 text-green-800"
                 : "bg-gray-100 border-gray-300 text-gray-800"
             }`}
           >
@@ -269,41 +275,62 @@ const HealthCheckLiveMonitoring = () => {
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Tiến độ</p>
-              <p className="text-2xl font-bold text-blue-600">{calculateProgress()}%</p>
-              <p className="text-xs text-gray-500">{students.filter(s => s.status === "completed").length}/{healthCheck.totalStudents} học sinh</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Tiến độ
+              </p>
+              <p className="text-2xl font-bold text-blue-600">
+                {calculateProgress()}%
+              </p>
+              <p className="text-xs text-gray-500">
+                {students.filter((s) => s.status === "completed").length}/
+                {healthCheck.totalStudents} học sinh
+              </p>
             </div>
             <FiUser className="h-8 w-8 text-blue-600" />
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Thời gian đã trôi</p>
-              <p className="text-2xl font-bold text-orange-600">{getElapsedTime()}</p>
-              <p className="text-xs text-gray-500">Bắt đầu lúc {healthCheck.startTime}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Thời gian đã trôi
+              </p>
+              <p className="text-2xl font-bold text-orange-600">
+                {getElapsedTime()}
+              </p>
+              <p className="text-xs text-gray-500">
+                Bắt đầu lúc {healthCheck.startTime}
+              </p>
             </div>
             <FiClock className="h-8 w-8 text-orange-600" />
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Đang kiểm tra</p>
-              <p className="text-2xl font-bold text-green-600">{students.filter(s => s.status === "in-progress").length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Đang kiểm tra
+              </p>
+              <p className="text-2xl font-bold text-green-600">
+                {students.filter((s) => s.status === "in-progress").length}
+              </p>
               <p className="text-xs text-gray-500">học sinh</p>
             </div>
             <FiActivity className="h-8 w-8 text-green-600" />
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Bất thường</p>
-              <p className="text-2xl font-bold text-red-600">{students.filter(s => s.results?.abnormal).length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Bất thường
+              </p>
+              <p className="text-2xl font-bold text-red-600">
+                {students.filter((s) => s.results?.abnormal).length}
+              </p>
               <p className="text-xs text-gray-500">trường hợp</p>
             </div>
             <FiAlertTriangle className="h-8 w-8 text-red-600" />
@@ -314,7 +341,9 @@ const HealthCheckLiveMonitoring = () => {
       {/* Stations Status */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow border mb-8">
         <div className="p-6 border-b">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Trạng thái các trạm kiểm tra</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Trạng thái các trạm kiểm tra
+          </h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -324,14 +353,20 @@ const HealthCheckLiveMonitoring = () => {
                 className="p-4 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-600"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStationStatus(station)}`}>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${getStationStatus(
+                      station
+                    )}`}
+                  >
                     {station.status === "active" ? "Đang hoạt động" : "Chờ"}
                   </span>
                   {station.status === "active" && (
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   )}
                 </div>
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-1">{station.name}</h4>
+                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+                  {station.name}
+                </h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Hàng đợi: {station.queue} học sinh
                 </p>
@@ -344,7 +379,9 @@ const HealthCheckLiveMonitoring = () => {
       {/* Students List */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow border">
         <div className="p-6 border-b">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Danh sách học sinh</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Danh sách học sinh
+          </h3>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -372,7 +409,10 @@ const HealthCheckLiveMonitoring = () => {
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {students.map((student) => (
-                <tr key={student.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr
+                  key={student.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -384,7 +424,11 @@ const HealthCheckLiveMonitoring = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(student.status)}`}>
+                    <span
+                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(
+                        student.status
+                      )}`}
+                    >
                       {student.status === "completed" && "Hoàn thành"}
                       {student.status === "in-progress" && "Đang kiểm tra"}
                       {student.status === "waiting" && "Chờ đến lượt"}
@@ -396,11 +440,14 @@ const HealthCheckLiveMonitoring = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">
                     {student.currentStation}
                     {student.queuePosition && (
-                      <div className="text-xs text-gray-500">Thứ tự: {student.queuePosition}</div>
+                      <div className="text-xs text-gray-500">
+                        Thứ tự: {student.queuePosition}
+                      </div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">
-                    {student.timeCompleted && `Hoàn thành: ${student.timeCompleted}`}
+                    {student.timeCompleted &&
+                      `Hoàn thành: ${student.timeCompleted}`}
                     {student.timeStarted && `Bắt đầu: ${student.timeStarted}`}
                     {student.status === "waiting" && "Chưa bắt đầu"}
                   </td>
@@ -430,11 +477,12 @@ const HealthCheckLiveMonitoring = () => {
                       >
                         <FiEye className="w-4 h-4" />
                       </Link>
-                      {student.status === "completed" && student.results?.abnormal && (
-                        <button className="text-red-600 hover:text-red-900">
-                          <FiAlertTriangle className="w-4 h-4" />
-                        </button>
-                      )}
+                      {student.status === "completed" &&
+                        student.results?.abnormal && (
+                          <button className="text-red-600 hover:text-red-900">
+                            <FiAlertTriangle className="w-4 h-4" />
+                          </button>
+                        )}
                     </div>
                   </td>
                 </tr>
@@ -453,7 +501,7 @@ const HealthCheckLiveMonitoring = () => {
           <FiEdit className="inline mr-1" />
           Quản lý chi tiết
         </Link>
-        <button 
+        <button
           onClick={() => window.print()}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
         >
@@ -465,4 +513,4 @@ const HealthCheckLiveMonitoring = () => {
   );
 };
 
-export default HealthCheckLiveMonitoring; 
+export default HealthCheckLiveMonitoring;

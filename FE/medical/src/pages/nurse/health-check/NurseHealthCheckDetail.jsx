@@ -112,10 +112,13 @@ const NurseHealthCheckDetail = () => {
               Kết quả kiểm tra y tế {healthCheck.grade}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Ngày kiểm tra: {new Date(healthCheck.scheduledDate).toLocaleDateString("vi-VN")}
+              Ngày kiểm tra:{" "}
+              {new Date(healthCheck.scheduledDate).toLocaleDateString("vi-VN")}
             </p>
             {healthCheck.description && (
-              <p className="text-gray-600 dark:text-gray-400 mt-1">{healthCheck.description}</p>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                {healthCheck.description}
+              </p>
             )}
           </div>
           <div className="flex space-x-2 print:hidden">
@@ -262,7 +265,11 @@ const NurseHealthCheckDetail = () => {
               {filteredStudents.map((student, index) => (
                 <tr
                   key={student.id}
-                  className={student.hasAbnormality ? "bg-red-50 dark:bg-red-900/20" : "hover:bg-gray-50 dark:hover:bg-neutral-700"}
+                  className={
+                    student.hasAbnormality
+                      ? "bg-red-50 dark:bg-red-900/20"
+                      : "hover:bg-gray-50 dark:hover:bg-neutral-700"
+                  }
                 >
                   <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
                     {index + 1}
@@ -363,30 +370,40 @@ const NurseHealthCheckDetail = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 p-4 rounded-lg shadow-md">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">BMI</h3>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              BMI
+            </h3>
             <div className="mt-2 space-y-2">
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600 dark:text-gray-400">Thiếu cân</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  Thiếu cân
+                </span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.bmi < 18.5).length} học sinh
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600 dark:text-gray-400">Bình thường</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  Bình thường
+                </span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.bmi >= 18.5 && s.bmi < 25).length}{" "}
                   học sinh
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600 dark:text-gray-400">Thừa cân</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  Thừa cân
+                </span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.bmi >= 25 && s.bmi < 30).length} học
                   sinh
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600 dark:text-gray-400">Béo phì</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  Béo phì
+                </span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.bmi >= 30).length} học sinh
                 </span>
@@ -395,16 +412,22 @@ const NurseHealthCheckDetail = () => {
           </div>
 
           <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 p-4 rounded-lg shadow-md">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Thị lực</h3>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              Thị lực
+            </h3>
             <div className="mt-2 space-y-2">
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600 dark:text-gray-400">Tốt</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  Tốt
+                </span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.vision === "Tốt").length} học sinh
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600 dark:text-gray-400">Kém</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  Kém
+                </span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.vision === "Kém").length} học sinh
                 </span>
@@ -413,17 +436,23 @@ const NurseHealthCheckDetail = () => {
           </div>
 
           <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 p-4 rounded-lg shadow-md">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Răng miệng</h3>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              Răng miệng
+            </h3>
             <div className="mt-2 space-y-2">
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600 dark:text-gray-400">Bình thường</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  Bình thường
+                </span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.dental === "Bình thường").length}{" "}
                   học sinh
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-600 dark:text-gray-400">Cần điều trị</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  Cần điều trị
+                </span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                   {students.filter((s) => s.dental === "Cần điều trị").length}{" "}
                   học sinh

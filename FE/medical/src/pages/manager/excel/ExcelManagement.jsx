@@ -43,7 +43,9 @@ const ExcelManagement = () => {
     <div className="h-full flex flex-col">
       {/* Header - Center aligned */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100">Quản lý Excel</h1>
+        <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100">
+          Quản lý Excel
+        </h1>
         <p className="mt-2 text-neutral-600 dark:text-neutral-300">
           Tải xuống mẫu Excel và tải lên dữ liệu học sinh
         </p>

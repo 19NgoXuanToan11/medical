@@ -314,7 +314,8 @@ const VaccinationPage = () => {
                             )}
                           </div>
                           <div className="flex-shrink-0">
-                            <div className={`inline-flex items-center px-4 py-2 rounded-2xl text-sm font-bold shadow-lg transition-all duration-300 hover:scale-105 ${
+                            <div
+                              className={`inline-flex items-center px-4 py-2 rounded-2xl text-sm font-bold shadow-lg transition-all duration-300 hover:scale-105 ${
                                 vaccination.status === "Chờ xác nhận"
                                   ? "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-900/40 dark:via-yellow-900/30 dark:to-orange-900/40 text-amber-800 dark:text-amber-200 border-2 border-amber-200 dark:border-amber-700/50 shadow-amber-200/50 dark:shadow-amber-900/30"
                                   : vaccination.status === "Đã xác nhận"
@@ -322,16 +323,19 @@ const VaccinationPage = () => {
                                   : vaccination.status === "Đã hoàn thành"
                                   ? "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/40 dark:via-indigo-900/30 dark:to-purple-900/40 text-blue-800 dark:text-blue-200 border-2 border-blue-200 dark:border-blue-700/50 shadow-blue-200/50 dark:shadow-blue-900/30"
                                   : "bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-900/40 dark:via-green-900/30 dark:to-teal-900/40 text-emerald-800 dark:text-emerald-200 border-2 border-emerald-200 dark:border-emerald-700/50 shadow-emerald-200/50 dark:shadow-emerald-900/30"
-                              }`}>
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
-                                vaccination.status === "Chờ xác nhận"
-                                  ? "bg-amber-200 dark:bg-amber-800/60"
-                                  : vaccination.status === "Đã xác nhận"
-                                  ? "bg-emerald-200 dark:bg-emerald-800/60"
-                                  : vaccination.status === "Đã hoàn thành"
-                                  ? "bg-blue-200 dark:bg-blue-800/60"
-                                  : "bg-emerald-200 dark:bg-emerald-800/60"
-                              }`}>
+                              }`}
+                            >
+                              <div
+                                className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
+                                  vaccination.status === "Chờ xác nhận"
+                                    ? "bg-amber-200 dark:bg-amber-800/60"
+                                    : vaccination.status === "Đã xác nhận"
+                                    ? "bg-emerald-200 dark:bg-emerald-800/60"
+                                    : vaccination.status === "Đã hoàn thành"
+                                    ? "bg-blue-200 dark:bg-blue-800/60"
+                                    : "bg-emerald-200 dark:bg-emerald-800/60"
+                                }`}
+                              >
                                 <svg
                                   className={`w-3 h-3 ${
                                     vaccination.status === "Chờ xác nhận"
@@ -370,7 +374,9 @@ const VaccinationPage = () => {
                                   )}
                                 </svg>
                               </div>
-                              <span className="font-bold tracking-wide">{vaccination.status}</span>
+                              <span className="font-bold tracking-wide">
+                                {vaccination.status}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -476,23 +482,30 @@ const VaccinationPage = () => {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className={`inline-flex items-center px-3 py-2 rounded-2xl text-xs font-bold shadow-md transition-all duration-300 hover:scale-105 ${
-                                vaccination.status === "Đã tiêm" || vaccination.status === "Đã hoàn thành"
+                            <div
+                              className={`inline-flex items-center px-3 py-2 rounded-2xl text-xs font-bold shadow-md transition-all duration-300 hover:scale-105 ${
+                                vaccination.status === "Đã tiêm" ||
+                                vaccination.status === "Đã hoàn thành"
                                   ? "bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-900/40 dark:via-green-900/30 dark:to-teal-900/40 text-emerald-800 dark:text-emerald-200 border-2 border-emerald-200 dark:border-emerald-700/50 shadow-emerald-200/50 dark:shadow-emerald-900/30"
                                   : vaccination.status === "Chờ xác nhận"
                                   ? "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-900/40 dark:via-yellow-900/30 dark:to-orange-900/40 text-amber-800 dark:text-amber-200 border-2 border-amber-200 dark:border-amber-700/50 shadow-amber-200/50 dark:shadow-amber-900/30"
                                   : "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/40 dark:via-indigo-900/30 dark:to-purple-900/40 text-blue-800 dark:text-blue-200 border-2 border-blue-200 dark:border-blue-700/50 shadow-blue-200/50 dark:shadow-blue-900/30"
-                              }`}>
-                              <div className={`w-4 h-4 rounded-full flex items-center justify-center mr-2 ${
-                                vaccination.status === "Đã tiêm" || vaccination.status === "Đã hoàn thành"
-                                  ? "bg-emerald-200 dark:bg-emerald-800/60"
-                                  : vaccination.status === "Chờ xác nhận"
-                                  ? "bg-amber-200 dark:bg-amber-800/60"
-                                  : "bg-blue-200 dark:bg-blue-800/60"
-                              }`}>
+                              }`}
+                            >
+                              <div
+                                className={`w-4 h-4 rounded-full flex items-center justify-center mr-2 ${
+                                  vaccination.status === "Đã tiêm" ||
+                                  vaccination.status === "Đã hoàn thành"
+                                    ? "bg-emerald-200 dark:bg-emerald-800/60"
+                                    : vaccination.status === "Chờ xác nhận"
+                                    ? "bg-amber-200 dark:bg-amber-800/60"
+                                    : "bg-blue-200 dark:bg-blue-800/60"
+                                }`}
+                              >
                                 <svg
                                   className={`w-2.5 h-2.5 ${
-                                    vaccination.status === "Đã tiêm" || vaccination.status === "Đã hoàn thành"
+                                    vaccination.status === "Đã tiêm" ||
+                                    vaccination.status === "Đã hoàn thành"
                                       ? "text-emerald-700 dark:text-emerald-300"
                                       : vaccination.status === "Chờ xác nhận"
                                       ? "text-amber-700 dark:text-amber-300"
@@ -526,7 +539,9 @@ const VaccinationPage = () => {
                                   )}
                                 </svg>
                               </div>
-                              <span className="font-bold tracking-wide">{vaccination.status}</span>
+                              <span className="font-bold tracking-wide">
+                                {vaccination.status}
+                              </span>
                             </div>
                           </td>
                         </tr>

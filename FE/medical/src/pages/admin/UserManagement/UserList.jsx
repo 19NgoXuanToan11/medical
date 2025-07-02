@@ -10,7 +10,7 @@ import {
   FiSave,
   FiX,
 } from "react-icons/fi";
-  
+
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);

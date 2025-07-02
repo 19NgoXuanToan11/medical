@@ -121,8 +121,12 @@ const NurseProfile = () => {
               <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                 {currentData.firstName} {currentData.lastName}
               </h1>
-              <p className="text-neutral-600 dark:text-neutral-400">{currentData.specialization}</p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">{currentData.department}</p>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                {currentData.specialization}
+              </p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                {currentData.department}
+              </p>
             </div>
           </div>
         </div>
@@ -190,7 +194,9 @@ const NurseProfile = () => {
                     <input
                       type="email"
                       value={currentData.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                   ) : (
@@ -210,7 +216,9 @@ const NurseProfile = () => {
                     <input
                       type="tel"
                       value={currentData.phone}
-                      onChange={(e) => handleInputChange("phone", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("phone", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                   ) : (
@@ -230,13 +238,17 @@ const NurseProfile = () => {
                     <input
                       type="date"
                       value={currentData.dateOfBirth}
-                      onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("dateOfBirth", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                   ) : (
                     <div className="flex items-center gap-2 text-neutral-900 dark:text-neutral-100">
                       <FiCalendar className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
-                      {new Date(currentData.dateOfBirth).toLocaleDateString("vi-VN")}
+                      {new Date(currentData.dateOfBirth).toLocaleDateString(
+                        "vi-VN"
+                      )}
                     </div>
                   )}
                 </div>
@@ -250,7 +262,9 @@ const NurseProfile = () => {
                     <input
                       type="text"
                       value={currentData.licenseNumber}
-                      onChange={(e) => handleInputChange("licenseNumber", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("licenseNumber", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                   ) : (
@@ -270,7 +284,9 @@ const NurseProfile = () => {
                     <input
                       type="text"
                       value={currentData.address}
-                      onChange={(e) => handleInputChange("address", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("address", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                   ) : (
@@ -320,7 +336,9 @@ const NurseProfile = () => {
                     <input
                       type="text"
                       value={currentData.specialization}
-                      onChange={(e) => handleInputChange("specialization", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("specialization", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                   ) : (
@@ -339,7 +357,9 @@ const NurseProfile = () => {
                     <input
                       type="text"
                       value={currentData.department}
-                      onChange={(e) => handleInputChange("department", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("department", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                   ) : (
@@ -358,7 +378,9 @@ const NurseProfile = () => {
                     <input
                       type="text"
                       value={currentData.workingHours}
-                      onChange={(e) => handleInputChange("workingHours", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("workingHours", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                   ) : (
@@ -377,7 +399,9 @@ const NurseProfile = () => {
                     <input
                       type="text"
                       value={currentData.experience}
-                      onChange={(e) => handleInputChange("experience", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("experience", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                   ) : (
@@ -397,20 +421,36 @@ const NurseProfile = () => {
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-neutral-600 dark:text-neutral-400">Học sinh đã chăm sóc</span>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100">1,247</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">
+                    Học sinh đã chăm sóc
+                  </span>
+                  <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                    1,247
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-neutral-600 dark:text-neutral-400">Khám sức khỏe</span>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100">156</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">
+                    Khám sức khỏe
+                  </span>
+                  <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                    156
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-neutral-600 dark:text-neutral-400">Tiêm chủng</span>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100">89</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">
+                    Tiêm chủng
+                  </span>
+                  <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                    89
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-neutral-600 dark:text-neutral-400">Sự kiện y tế</span>
-                  <span className="font-semibold text-neutral-900 dark:text-neutral-100">32</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">
+                    Sự kiện y tế
+                  </span>
+                  <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                    32
+                  </span>
                 </div>
               </div>
             </div>

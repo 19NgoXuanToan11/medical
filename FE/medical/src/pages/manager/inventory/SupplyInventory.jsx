@@ -335,7 +335,9 @@ const SupplyInventory = () => {
             <p className="text-neutral-700 dark:text-white text-sm font-semibold">
               Tổng số vật tư
             </p>
-            <p className="text-3xl font-bold text-primary-700 dark:text-primary-300">{stats.total}</p>
+            <p className="text-3xl font-bold text-primary-700 dark:text-primary-300">
+              {stats.total}
+            </p>
           </div>
           <div className="bg-primary-100 dark:bg-primary-800 h-12 w-12 rounded-full flex items-center justify-center">
             <FiPackage className="h-6 w-6 text-primary-600 dark:text-primary-300" />
@@ -344,8 +346,12 @@ const SupplyInventory = () => {
 
         <div className="bg-red-50 dark:bg-red-900/40 p-4 rounded-lg border border-red-100 dark:border-red-800 flex justify-between">
           <div>
-            <p className="text-neutral-700 dark:text-white text-sm font-semibold">Sắp hết hàng</p>
-            <p className="text-3xl font-bold text-red-600 dark:text-red-300">{stats.lowStock}</p>
+            <p className="text-neutral-700 dark:text-white text-sm font-semibold">
+              Sắp hết hàng
+            </p>
+            <p className="text-3xl font-bold text-red-600 dark:text-red-300">
+              {stats.lowStock}
+            </p>
           </div>
           <div className="bg-red-100 dark:bg-red-800 h-12 w-12 rounded-full flex items-center justify-center">
             <FiAlertTriangle className="h-6 w-6 text-red-600 dark:text-red-300" />
@@ -541,7 +547,9 @@ const SupplyInventory = () => {
                     <div className="flex items-center justify-center">
                       <span
                         className={`font-medium ${
-                          isLowStock(item) ? "text-red-600 dark:text-red-300" : "text-neutral-900 dark:text-neutral-100"
+                          isLowStock(item)
+                            ? "text-red-600 dark:text-red-300"
+                            : "text-neutral-900 dark:text-neutral-100"
                         }`}
                       >
                         {item.stockQuantity}
@@ -727,7 +735,9 @@ const SupplyInventory = () => {
                       onChange={handleInputChange}
                       className="form-checkbox h-5 w-5 text-primary-600 dark:text-primary-300 rounded focus:ring-primary-600 focus:ring-2"
                     />
-                    <span className="ml-2 text-neutral-700 dark:text-neutral-200">Đang sử dụng</span>
+                    <span className="ml-2 text-neutral-700 dark:text-neutral-200">
+                      Đang sử dụng
+                    </span>
                   </label>
                 </div>
 

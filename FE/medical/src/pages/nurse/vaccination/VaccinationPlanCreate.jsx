@@ -322,10 +322,11 @@ const VaccinationPlanCreate = () => {
             {availableGrades.map((grade) => (
               <div
                 key={grade.id}
-                className={`border rounded-lg p-4 cursor-pointer transition-colors ${formData.targetGrades.includes(grade.id)
+                className={`border rounded-lg p-4 cursor-pointer transition-colors ${
+                  formData.targetGrades.includes(grade.id)
                     ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
                     : "border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/10"
-                  }`}
+                }`}
                 onClick={() => handleGradeSelection(grade.id)}
               >
                 <div className="flex items-center justify-between">

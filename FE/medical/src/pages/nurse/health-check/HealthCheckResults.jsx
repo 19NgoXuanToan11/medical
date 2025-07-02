@@ -107,9 +107,21 @@ const HealthCheckResults = () => {
   });
 
   const getBmiStatus = (bmi) => {
-    if (bmi < 18.5) return { label: "Thiếu cân", color: "text-yellow-600 dark:text-yellow-400" };
-    if (bmi < 25) return { label: "Bình thường", color: "text-green-600 dark:text-green-400" };
-    if (bmi < 30) return { label: "Thừa cân", color: "text-orange-600 dark:text-orange-400" };
+    if (bmi < 18.5)
+      return {
+        label: "Thiếu cân",
+        color: "text-yellow-600 dark:text-yellow-400",
+      };
+    if (bmi < 25)
+      return {
+        label: "Bình thường",
+        color: "text-green-600 dark:text-green-400",
+      };
+    if (bmi < 30)
+      return {
+        label: "Thừa cân",
+        color: "text-orange-600 dark:text-orange-400",
+      };
     return { label: "Béo phì", color: "text-red-600 dark:text-red-400" };
   };
 
@@ -149,7 +161,9 @@ const HealthCheckResults = () => {
             {new Date(healthCheck.scheduledDate).toLocaleDateString("vi-VN")}
           </p>
           {healthCheck.description && (
-            <p className="text-neutral-600 dark:text-neutral-400 mt-1">{healthCheck.description}</p>
+            <p className="text-neutral-600 dark:text-neutral-400 mt-1">
+              {healthCheck.description}
+            </p>
           )}
         </div>
         <div className="flex space-x-2 print:hidden">
@@ -176,7 +190,9 @@ const HealthCheckResults = () => {
               <FiCheck className="text-blue-600 dark:text-blue-400 w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">Tổng số học sinh</p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                Tổng số học sinh
+              </p>
               <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
                 {healthCheck.totalStudents}
               </p>
@@ -190,7 +206,9 @@ const HealthCheckResults = () => {
               <FiCheck className="text-green-600 dark:text-green-400 w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">Kết quả bình thường</p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                Kết quả bình thường
+              </p>
               <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
                 {healthCheck.totalStudents - healthCheck.abnormalResults}
               </p>
@@ -204,7 +222,9 @@ const HealthCheckResults = () => {
               <FiAlertCircle className="text-red-600 dark:text-red-400 w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">Kết quả bất thường</p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                Kết quả bất thường
+              </p>
               <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
                 {healthCheck.abnormalResults}
               </p>
@@ -218,7 +238,9 @@ const HealthCheckResults = () => {
               <FiClock className="text-purple-600 dark:text-purple-400 w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">Hoàn thành bởi</p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                Hoàn thành bởi
+              </p>
               <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                 {healthCheck.completedBy}
               </p>
@@ -340,7 +362,10 @@ const HealthCheckResults = () => {
               {filteredStudents.map((student) => {
                 const bmiStatus = getBmiStatus(student.bmi);
                 return (
-                  <tr key={student.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700">
+                  <tr
+                    key={student.id}
+                    className="hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex flex-col items-center">
                         <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
@@ -358,7 +383,9 @@ const HealthCheckResults = () => {
                       {student.weight}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm text-neutral-900 dark:text-neutral-100">{student.bmi}</div>
+                      <div className="text-sm text-neutral-900 dark:text-neutral-100">
+                        {student.bmi}
+                      </div>
                       <div className={"text-xs " + bmiStatus.color}>
                         {bmiStatus.label}
                       </div>
