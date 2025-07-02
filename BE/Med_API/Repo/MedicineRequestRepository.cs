@@ -762,6 +762,29 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             return (true, "Partial Failure");
         return (false, "");
     }
+
+    public async Task<IEnumerable<MedicineRequest>> GetRequestsWithFrequencyMoreThanOneAsync()
+    {
+        var requests = await _context.MedicineRequests
+            .Include(r => r.MedicineRequestItems)
+            .Include(r => r.Student)
+            .Include(r => r.Parent)
+            .Include(r => r.Staff)
+            .ToListAsync();
+        return requests.Where(r => r.MedicineRequestItems.Any(item => ParseFrequencyToTimesPerDay(item.Frequency) > 1)).ToList();
+    }
+
+    public async Task<IEnumerable<MedicineRequest>> GetRequestsNeedingTimeOfDayAsync(string timeOfDay)
+    {
+        var requests = await _context.MedicineRequests
+            .Include(r => r.MedicineRequestItems)
+            .Include(r => r.Student)
+            .Include(r => r.Parent)
+            .Include(r => r.Staff)
+            .ToListAsync();
+        timeOfDay = timeOfDay.ToLower();
+        return requests.Where(r => r.MedicineRequestItems.Any(item => ParseFrequencyToFrequencies(item.Frequency).Any(f => f == timeOfDay))).ToList();
+    }
 }
 
 public class MedicineRequestItemComparer : IEqualityComparer<MedicineRequestItem>

@@ -208,4 +208,14 @@ public class MedicineRequestService : IMedicineRequestService
     {
         return await _medicineRequestRepository.GetReRequestInfoAsync(requestResultId);
     }
+
+    public async Task<IEnumerable<MedicineRequest>> GetRequestsWithFrequencyMoreThanOneAsync()
+    {
+        return await _medicineRequestRepository.GetRequestsWithFrequencyMoreThanOneAsync();
+    }
+
+    public async Task<IEnumerable<MedicineRequest>> GetRequestsNeedingTimeOfDayAsync(string timeOfDay)
+    {
+        return await _medicineRequestRepository.GetRequestsNeedingTimeOfDayAsync(timeOfDay);
+    }
 } 

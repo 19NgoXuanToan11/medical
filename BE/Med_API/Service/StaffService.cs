@@ -131,4 +131,30 @@ public class StaffService : IStaffService
         var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
         return Convert.ToBase64String(hashedBytes);
     }
+
+    // GradeNurse management
+    public async Task<GradeNurse> CreateGradeNurseAsync(GradeNurse gradeNurse)
+    {
+        return await _staffRepository.CreateGradeNurseAsync(gradeNurse);
+    }
+
+    public async Task<bool> DeleteGradeNurseAsync(int gradeNurseId)
+    {
+        return await _staffRepository.DeleteGradeNurseAsync(gradeNurseId);
+    }
+
+    public async Task<IEnumerable<GradeNurse>> GetGradeNursesByGradeAsync(int grade)
+    {
+        return await _staffRepository.GetGradeNursesByGradeAsync(grade);
+    }
+
+    public async Task<IEnumerable<GradeNurse>> GetGradeNursesByStaffIdAsync(int staffId)
+    {
+        return await _staffRepository.GetGradeNursesByStaffIdAsync(staffId);
+    }
+
+    public async Task<IEnumerable<GradeNurse>> GetAllGradeNursesAsync()
+    {
+        return await _staffRepository.GetAllGradeNursesAsync();
+    }
 } 

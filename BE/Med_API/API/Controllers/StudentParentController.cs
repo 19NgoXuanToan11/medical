@@ -5,6 +5,7 @@ using AutoMapper;
 using Service;
 using API.DTOs;
 using DB;
+using System.Linq;
 
 namespace API.Controllers
 {
@@ -55,6 +56,15 @@ namespace API.Controllers
         {
             var studentParents = await _studentParentService.GetStudentParentsByParentIdAsync(parentId);
             var viewModels = _mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(studentParents);
+            return Ok(viewModels);
+        }
+
+        [HttpGet("by-grade/{grade}")]
+        public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetStudentParentsByGrade(int grade)
+        {
+            var studentParents = await _studentParentService.GetAllStudentParentsAsync();
+            var filtered = studentParents.Where(sp => sp.Student != null && sp.Student.GradeLevel == grade);
+            var viewModels = _mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(filtered);
             return Ok(viewModels);
         }
 

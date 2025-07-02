@@ -103,4 +103,14 @@ public class StudentController : ControllerBase
 
         return NoContent();
     }
+
+    // GET: api/Student/by-grade/{grade}
+    [HttpGet("by-grade/{grade}")]
+    public async Task<ActionResult<IEnumerable<StudentDto.ViewModel>>> GetStudentsByGrade(int grade)
+    {
+        var students = await _studentService.GetAllStudentsAsync();
+        var filtered = students.Where(s => s.GradeLevel == grade);
+        var studentViewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(filtered);
+        return Ok(studentViewModels);
+    }
 } 

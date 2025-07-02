@@ -38,5 +38,10 @@ public class StaffProfile : Profile
             .ForMember(dest => dest.AdministeredRequestResults, opt => opt.Ignore())
             .ForMember(dest => dest.ActionedRequestResults, opt => opt.Ignore())
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+        // GradeNurse mappings
+        CreateMap<GradeNurse, StaffDto.GradeNurseViewModel>()
+            .ForMember(dest => dest.Nurse, opt => opt.MapFrom(src => src.Nurse));
+        CreateMap<StaffDto.GradeNurseCreate, GradeNurse>();
     }
 } 

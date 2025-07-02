@@ -108,4 +108,18 @@ public static class StaffDto
 
         public int? RoleId { get; set; }
     }
+
+    public class GradeNurseViewModel
+    {
+        public int GradeNurseId { get; set; }
+        public int StaffId { get; set; }
+        public int Grade { get; set; }
+        public StaffDto.ViewModel? Nurse { get; set; }
+    }
+
+    public class GradeNurseCreate
+    {
+        public int StaffId { get; set; }
+        public int Grade { get; set; }
+    }
 } 

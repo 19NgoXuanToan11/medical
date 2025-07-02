@@ -13,7 +13,10 @@ public class MedicineRequestProfile : Profile
             .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src => src.StudentCode))
             .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
-            .ForMember(dest => dest.MedicineRequestItems, opt => opt.MapFrom(src => src.MedicineRequestItems));
+            .ForMember(dest => dest.MedicineRequestItems, opt => opt.MapFrom(src => src.MedicineRequestItems))
+            .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Student))
+            .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.Parent))
+            .ForMember(dest => dest.Staff, opt => opt.MapFrom(src => src.Staff));
 
         // Map from MedicineRequestDto.Create to MedicineRequest
         CreateMap<MedicineRequestDto.Create, MedicineRequest>()

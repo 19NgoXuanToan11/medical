@@ -81,4 +81,36 @@ public class StaffRepository : IStaffRepository
             .Include(s => s.MedicineRequests)
             .FirstOrDefaultAsync(s => s.Email == email);
     }
+
+    // GradeNurse management
+    public async Task<GradeNurse> CreateGradeNurseAsync(GradeNurse gradeNurse)
+    {
+        _context.GradeNurses.Add(gradeNurse);
+        await _context.SaveChangesAsync();
+        return gradeNurse;
+    }
+
+    public async Task<bool> DeleteGradeNurseAsync(int gradeNurseId)
+    {
+        var entity = await _context.GradeNurses.FindAsync(gradeNurseId);
+        if (entity == null) return false;
+        _context.GradeNurses.Remove(entity);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<IEnumerable<GradeNurse>> GetGradeNursesByGradeAsync(int grade)
+    {
+        return await _context.GradeNurses.Include(g => g.Nurse).Where(g => g.Grade == grade).ToListAsync();
+    }
+
+    public async Task<IEnumerable<GradeNurse>> GetGradeNursesByStaffIdAsync(int staffId)
+    {
+        return await _context.GradeNurses.Include(g => g.Nurse).Where(g => g.StaffId == staffId).ToListAsync();
+    }
+
+    public async Task<IEnumerable<GradeNurse>> GetAllGradeNursesAsync()
+    {
+        return await _context.GradeNurses.Include(g => g.Nurse).ToListAsync();
+    }
 } 

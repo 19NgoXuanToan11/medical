@@ -38,4 +38,6 @@ public interface IMedicineRequestRepository
     Task<RequestResult?> GetRequestResultByIdAsync(int requestResultId);
     Task<(bool isCompleted, IEnumerable<string> pendingFrequencies)> GetProgressInfoAsync(int requestResultId, int medicineRequestItemId);
     Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId);
+    Task<IEnumerable<MedicineRequest>> GetRequestsWithFrequencyMoreThanOneAsync();
+    Task<IEnumerable<MedicineRequest>> GetRequestsNeedingTimeOfDayAsync(string timeOfDay);
 } 

@@ -357,4 +357,22 @@ public class MedicineRequestController : ControllerBase
         };
         return Ok(summary);
     }
+
+    // GET: api/MedicineRequest/frequency/more-than-one
+    [HttpGet("frequency/more-than-one")]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetRequestsWithFrequencyMoreThanOne()
+    {
+        var requests = await _medicineRequestService.GetRequestsWithFrequencyMoreThanOneAsync();
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
+        return Ok(viewModels);
+    }
+
+    // GET: api/MedicineRequest/frequency/need-time-of-day
+    [HttpGet("frequency/need-time-of-day")]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetRequestsNeedingTimeOfDay([FromQuery] string time)
+    {
+        var requests = await _medicineRequestService.GetRequestsNeedingTimeOfDayAsync(time);
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
+        return Ok(viewModels);
+    }
 } 
