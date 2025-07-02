@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 
 namespace API.DTOs;
 
@@ -78,7 +77,6 @@ public static class MedicineRequestItemDto
 
         [Required]
         [StringLength(100)]
-        [FrequencyValidation]
         public string Frequency { get; set; } = null!;
 
         [StringLength(100)]
@@ -99,7 +97,6 @@ public static class MedicineRequestItemDto
         public string? Dosage { get; set; }
 
         [StringLength(100)]
-        [FrequencyValidation]
         public string? Frequency { get; set; }
 
         [StringLength(100)]
@@ -107,76 +104,5 @@ public static class MedicineRequestItemDto
 
         [StringLength(500)]
         public string? Instructions { get; set; }
-    }
-}
-
-// Custom validation attribute for frequency
-public class FrequencyValidationAttribute : ValidationAttribute
-{
-    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-    {
-        if (value == null)
-        {
-            return ValidationResult.Success; // Allow null for Update DTOs
-        }
-
-        var frequency = value.ToString();
-        if (string.IsNullOrWhiteSpace(frequency))
-        {
-            return new ValidationResult("Frequency cannot be empty.");
-        }
-
-        var trimmedFrequency = frequency.Trim().ToLower();
-
-        // Check for simple number format (e.g., "2", "3")
-        if (int.TryParse(trimmedFrequency, out var number))
-        {
-            if (number < 1 || number > 4)
-            {
-                return new ValidationResult("Frequency number must be between 1 and 4.");
-            }
-            return ValidationResult.Success;
-        }
-
-        // Check for "number lần" format (e.g., "2 lần", "3 lần")
-        var numberMatch = Regex.Match(trimmedFrequency, @"^(\d+)\s*lần?$");
-        if (numberMatch.Success)
-        {
-            if (int.TryParse(numberMatch.Groups[1].Value, out var parsedNumber))
-            {
-                if (parsedNumber < 1 || parsedNumber > 4)
-                {
-                    return new ValidationResult("Frequency number must be between 1 and 4.");
-                }
-                return ValidationResult.Success;
-            }
-        }
-
-        // Check for time-based format (e.g., "sáng", "sáng, trưa", "sáng 2 lần")
-        var segments = frequency.Split(',', StringSplitOptions.RemoveEmptyEntries);
-        foreach (var segment in segments)
-        {
-            var part = segment.Trim().ToLower();
-            
-            // Check for time period with optional count
-            var timeMatch = Regex.Match(part, @"^(sáng|trưa|chiều|tối)\s*(\d+)?\s*lần?$");
-            if (timeMatch.Success)
-            {
-                var countStr = timeMatch.Groups[2].Value;
-                if (!string.IsNullOrEmpty(countStr))
-                {
-                    if (int.TryParse(countStr, out var count) && (count < 1 || count > 3))
-                    {
-                        return new ValidationResult("Time period count must be between 1 and 3.");
-                    }
-                }
-            }
-            else if (part != "sáng" && part != "trưa" && part != "chiều" && part != "tối")
-            {
-                return new ValidationResult("Invalid frequency format. Use numbers (1-4), 'number lần', or time periods (sáng, trưa, chiều, tối).");
-            }
-        }
-
-        return ValidationResult.Success;
     }
 } 

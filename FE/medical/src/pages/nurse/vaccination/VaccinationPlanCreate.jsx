@@ -128,7 +128,7 @@ const VaccinationPlanCreate = () => {
     } catch (error) {
       console.error("Lỗi khi tạo kế hoạch:", error);
       alert("Có lỗi xảy ra khi tạo kế hoạch. Vui lòng thử lại.");
-    } finally {
+
       setLoading(false);
     }
   };
@@ -167,7 +167,7 @@ const VaccinationPlanCreate = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Ví dụ: Tiêm vắc-xin cúm mùa 2024"
                 required
               />
@@ -181,7 +181,7 @@ const VaccinationPlanCreate = () => {
                 name="vaccineType"
                 value={formData.vaccineType}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 required
               >
                 <option value="">Chọn loại vắc-xin</option>
@@ -208,7 +208,7 @@ const VaccinationPlanCreate = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Mô tả chi tiết về kế hoạch tiêm chủng..."
               />
             </div>
@@ -232,7 +232,7 @@ const VaccinationPlanCreate = () => {
                 name="scheduledDate"
                 value={formData.scheduledDate}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 required
               />
             </div>
@@ -246,7 +246,7 @@ const VaccinationPlanCreate = () => {
                 name="scheduledTime"
                 value={formData.scheduledTime}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
               />
             </div>
 
@@ -259,7 +259,7 @@ const VaccinationPlanCreate = () => {
                 name="location"
                 value={formData.location}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Phòng y tế trường"
               />
             </div>
@@ -275,7 +275,7 @@ const VaccinationPlanCreate = () => {
                 onChange={handleInputChange}
                 min="1"
                 max="30"
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
               />
             </div>
 
@@ -290,7 +290,7 @@ const VaccinationPlanCreate = () => {
                 onChange={handleInputChange}
                 min="10"
                 max="100"
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
               />
             </div>
 
@@ -305,7 +305,7 @@ const VaccinationPlanCreate = () => {
                 onChange={handleInputChange}
                 min="15"
                 max="180"
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
               />
             </div>
           </div>
@@ -318,32 +318,23 @@ const VaccinationPlanCreate = () => {
             Chọn lớp học ({totalStudents} học sinh)
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {availableGrades.map((grade) => (
               <div
                 key={grade.id}
-                className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                  formData.targetGrades.includes(grade.id)
-                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-400"
-                    : "border-neutral-200 dark:border-neutral-600 hover:border-neutral-300 dark:hover:border-neutral-500 bg-white dark:bg-neutral-900"
-                }`}
+                className={`border rounded-lg p-4 cursor-pointer transition-colors ${formData.targetGrades.includes(grade.id)
+                    ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
+                    : "border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/10"
+                  }`}
                 onClick={() => handleGradeSelection(grade.id)}
               >
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.targetGrades.includes(grade.id)}
-                    onChange={() => handleGradeSelection(grade.id)}
-                    className="mr-2"
-                  />
-                  <div>
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">
-                      {grade.name}
-                    </p>
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                      {grade.studentCount} học sinh
-                    </p>
-                  </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                    {grade.name}
+                  </span>
+                  <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                    {grade.studentCount} HS
+                  </span>
                 </div>
               </div>
             ))}
@@ -366,7 +357,7 @@ const VaccinationPlanCreate = () => {
                 name="vaccinationDetails.dosage"
                 value={formData.vaccinationDetails.dosage}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Ví dụ: 0.5ml"
               />
             </div>
@@ -380,7 +371,7 @@ const VaccinationPlanCreate = () => {
                 name="vaccinationDetails.manufacturer"
                 value={formData.vaccinationDetails.manufacturer}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Tên nhà sản xuất"
               />
             </div>
@@ -394,7 +385,7 @@ const VaccinationPlanCreate = () => {
                 name="vaccinationDetails.lotNumber"
                 value={formData.vaccinationDetails.lotNumber}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Số lô sản xuất"
               />
             </div>
@@ -408,7 +399,7 @@ const VaccinationPlanCreate = () => {
                 name="vaccinationDetails.expiryDate"
                 value={formData.vaccinationDetails.expiryDate}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
               />
             </div>
 
@@ -421,7 +412,7 @@ const VaccinationPlanCreate = () => {
                 value={formData.vaccinationDetails.sideEffects}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Mô tả các tác dụng phụ có thể xảy ra..."
               />
             </div>
@@ -435,7 +426,7 @@ const VaccinationPlanCreate = () => {
                 value={formData.vaccinationDetails.contraindications}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Các trường hợp không nên tiêm..."
               />
             </div>
@@ -456,7 +447,7 @@ const VaccinationPlanCreate = () => {
                 name="requireParentConsent"
                 checked={formData.requireParentConsent}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-neutral-300 rounded"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 rounded"
               />
               <label
                 htmlFor="requireParentConsent"
@@ -473,7 +464,7 @@ const VaccinationPlanCreate = () => {
                 name="isVoluntary"
                 checked={formData.isVoluntary}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-neutral-300 rounded"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 rounded"
               />
               <label
                 htmlFor="isVoluntary"
@@ -492,7 +483,7 @@ const VaccinationPlanCreate = () => {
                 value={formData.notes}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
+                className="w-full p-3 border border-neutral-300 dark:border-neutral-600 rounded-md focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                 placeholder="Ghi chú thêm về kế hoạch tiêm chủng..."
               />
             </div>
@@ -512,7 +503,7 @@ const VaccinationPlanCreate = () => {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md disabled:opacity-50 transition-colors"
+            className="px-6 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-md disabled:opacity-50 transition-colors"
           >
             {loading ? (
               <>

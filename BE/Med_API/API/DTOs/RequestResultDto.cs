@@ -51,7 +51,6 @@ public static class RequestResultDto
         public string Status { get; set; } = null!;
         
         // New frequency fields
-        [FrequencyValidation]
         public string? Frequency { get; set; }
         public int? TimesPerDay { get; set; }
         public int? CurrentDayCount { get; set; }
@@ -76,7 +75,6 @@ public static class RequestResultDto
         public string? Status { get; set; }
         
         // New frequency fields
-        [FrequencyValidation]
         public string? Frequency { get; set; }
         public int? TimesPerDay { get; set; }
         public int? CurrentDayCount { get; set; }
@@ -100,7 +98,6 @@ public static class RequestResultDto
 
         [Required]
         [StringLength(20)]
-        [FrequencyValidation]
         public string Frequency { get; set; } = null!; // "sáng", "trưa", "chiều", "tối"
 
         [StringLength(500)]
@@ -120,7 +117,6 @@ public static class RequestResultDto
 
         [Required]
         [StringLength(20)]
-        [FrequencyValidation]
         public string Frequency { get; set; } = null!;
 
         [Required]

@@ -1,0 +1,135 @@
+[33m2929a07[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mhieu-branch[m[33m, [m[1;31morigin/hieu-branch[m[33m)[m Revert "Merge branch 'hieu-branch'"
+[33mc8781bc[m[33m ([m[1;31morigin/xunton[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Merge branch 'hieu-branch'
+[33m19ec55e[m change the look of vaccinations and routine medical checkups
+[33m1b16ebd[m[33m ([m[1;31morigin/Q.AN[m[33m)[m Upddate Json parsing for ResuestResult
+[33m2068c1c[m Revert "Update test guide and remove medicine request docs"
+[33m512000a[m edit nurse role medical service management interface
+[33m02f67a7[m combined UI vaccination and regular medical check-ups
+[33m01ec546[m Merge branch 'main' into hieu-branch
+[33m2f46fd5[m Update test guide and remove medicine request docs
+[33mefbfeee[m rename router
+[33mf264e73[m Merge branch 'main' of https://github.com/19NgoXuanToan11/medical
+[33mac3ab11[m update auth, setup structure folder about route and update medicine request
+[33m3a4a7ab[m Update Frequency format for Meddicine administration
+[33m2239cab[m search pending student,notification for parent
+[33m9d0d3fb[m Merge pull request #6 from 19NgoXuanToan11/hieu-branch
+[33mf89b19a[m Add new feature to process user input
+[33mc8c3ff1[m Update field display cho MedicineRequest and RequestResult + update time constraint on request to mark failed if date change
+[33mff1c672[m refactoring code files and dividing and conquering medical requests
+[33m0c514a5[m medicine request
+[33mc2835f9[m Merge branch 'main' of https://github.com/19NgoXuanToan11/medical
+[33md0ba1d1[m fix health profile
+[33m1846566[m[33m ([m[1;31morigin/Dự-phòng-cho-request[m[33m)[m Merge branch 'Q.AN' into Dự-phòng-cho-request
+[33mf6ec641[m Update  MedicineRequest to handle multiple Frequency and Re-request
+[33m76c8379[m parent noti and confirm,approved student listed
+[33m62d9ee7[m Merge pull request #5 from 19NgoXuanToan11/hieu-branch
+[33mef4a618[m fix nurse check buttons
+[33m1c9d493[m update UI and add dark theme
+[33m3a0a445[m Merge branch 'main' into Dự-phòng-cho-request
+[33m4309209[m update UI, set authentication and authorization
+[33maebe4a2[m update UI parent layout, login function and add excel
+[33ma8e238e[m up new request handdling
+[33m9811fae[m Merge branch 'main' of https://github.com/19NgoXuanToan11/medical
+[33m838a367[m update parent layout and medication request
+[33me8832b6[m Merge branch 'main' of https://github.com/19NgoXuanToan11/medical
+[33m6dde7b9[m Added naviagtion for Student+Parent
+[33m5eb898c[m Merge branch 'main' of https://github.com/19NgoXuanToan11/medical
+[33m7025017[m login for parent
+[33m30552c3[m Merge branch 'main' into Q.AN
+[33me8389e9[m Combine Date for MedicineRequest
+[33m69d46f5[m Merge branch 'xunton'
+[33md86061b[m fix UI manager
+[33m25da58d[m Merge branch 'xunton'
+[33m7937767[m merge api into health profile
+[33mbc85ad3[m Merge branch 'Q.AN'
+[33m56bc357[m Update MedicineRequest
+[33m4bba055[m Update parent
+[33me0a43f8[m Update gitignore
+[33me07d5be[m Update DB, Update HealthEvent, MedicalRequest and HealthProfile
+[33md9f072a[m upgrade medical and vaccination events
+[33m3233f75[m CRUD staff
+[33m1dacb06[m Update DB, Remove Report,  Add Blog, Fix Excel, Add Report excel  for Dashboard
+[33m5855d1e[m Merge branch 'main' of https://github.com/19NgoXuanToan11/medical
+[33mc1d7cec[m add import excel and fix UI health events
+[33mdf2dca6[m Merge branch 'main' into Q.AN
+[33ma425a8e[m update excel
+[33m66f1232[m Update new Authen
+[33mab5bea8[m Update Authen
+[33m34fa789[m Authentication
+[33m99cff73[m test
+[33m18cf8ac[m Testing
+[33mec8aa00[m Merge branch 'Q.AN'
+[33m4e84d8b[m UpdateDB, Handle RelaltionShip between Parent and Student. Add Excel template download and upload excel functiion
+[33mf50a54a[m get student and parent
+[33m11033c0[m Merge branch 'main' of https://github.com/19NgoXuanToan11/medical
+[33m3b3c36a[m Remove Staff for Parent and Student entity
+[33mdb66243[m Merge branch 'xunton'
+[33m3a8c541[m config vercel
+[33m75dd0b0[m Merge branch 'xunton'
+[33meae29a3[m CRUD medicine and medical supplies
+[33m65a633f[m Merge branch 'xunton'
+[33mf8c0339[m Add .gitignore to ignore build files
+[33m801649e[m Merge branch 'xunton'
+[33md81180d[m update homepage
+[33m3dc513a[m Merge branch 'xunton'
+[33m65b5cfb[m update homepage
+[33m0fd8ac3[m Merge branch 'xunton'
+[33meb5377a[m restructured folders, improved overall interface of all roles
+[33m682dda9[m Merge branch 'xunton'
+[33mb1bf939[m Merge branch 'main' of https://github.com/19NgoXuanToan11/medical
+[33m6fad700[m update UI all roles
+[33md0aba65[m Merge branch 'xunton'
+[33ma3942e3[m Merge pull request #4 from 19NgoXuanToan11/xunton
+[33m3ecf6fe[m notifications of parent
+[33mcdf5935[m Merge branch 'main' of https://github.com/19NgoXuanToan11/medical
+[33m3564b86[m UI manager and parent
+[33m52517d7[m Update migration
+[33med976ad[m Added MIgration
+[33mbad90be[m gitignore
+[33m59747a3[m add gitignore
+[33mcbef79d[m Update HealthEvent, Profile and RequestResult
+[33m3a4e0f2[m Add DB+ Note/ Add Base API for all Entites
+[33m8b680a7[m Merge pull request #3 from 19NgoXuanToan11/xunton
+[33m240ba2b[m update navbar, student health profile and form
+[33m8042f29[m Merge pull request #2 from 19NgoXuanToan11/xunton
+[33m4b977bc[m fix UI
+[33md0134d5[m update student health records
+[33m989bc5c[m Merge branch 'xunton'
+[33md38ff22[m fix submit a request for medication
+[33m56d7a9e[m Merge branch 'xunton'
+[33m794bed4[m update student health records declaration
+[33m75ddaa1[m Merge branch 'xunton'
+[33m6187566[m update project
+[33m2fa62fb[m Merge branch 'xunton'
+[33m0ac3fa8[m management of medicine and medical supplies warehouse
+[33m7b71bc2[m Merge branch 'xunton'
+[33mb22d13c[m update admin
+[33ma1fe001[m Merge branch 'xunton'
+[33mf3a1e09[m update UI
+[33m3a290fb[m Merge branch 'xunton'
+[33m076555d[m admin
+[33mfe3a20d[m Merge branch 'xunton'
+[33m4949f55[m managing the school economic exam process
+[33ma03a843[m Merge pull request #1 from 19NgoXuanToan11/xunton
+[33m14f4e1c[m managing the vaccination process at school
+[33m8eae78d[m managing the vaccination process at school
+[33mb40c3df[m Merge branch 'xunton'
+[33m5605265[m management of drugs and medical supplies during medical event handling
+[33mdf8085e[m Merge branch 'xunton'
+[33m9e14f5e[m medical staff record and process medical events
+[33m2c359b6[m Merge branch 'xunton'
+[33mfa6b34b[m Parents send medicine to school for medical staff to give to students
+[33me3e7965[m Merge branch 'xunton'
+[33mf4c69e7[m student health records
+[33mebf1931[m Merge branch 'xunton'
+[33mf6b3067[m health resources
+[33m747c18d[m Merge branch 'xunton'
+[33m48f8871[m setup navigate and login, register
+[33m3e3fa50[m Merge branch 'main' of https://github.com/19NgoXuanToan11/medical into xunton
+[33m7adf034[m Merge branch 'xunton'
+[33m0f9a707[m update homepage
+[33mfcc5136[m Merge branch 'xunton'
+[33m1ff8104[m homepage
+[33md080b47[m create README.md
+[33m328e88d[m add foler BE
+[33m57d598b[m Initial commit

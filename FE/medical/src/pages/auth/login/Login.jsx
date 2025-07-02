@@ -8,7 +8,7 @@ import ThemeToggle from "../../../components/common/ThemeToggle";
 const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { login, user, isAuthenticated } = useAuth();
+  const { login } = useAuth();
 
   // Get role from URL parameter if available
   const getInitialRole = () => {
@@ -37,44 +37,6 @@ const Login = () => {
       setValidationErrors({});
     }
   }, [location.search]);
-
-  // Auto-redirect when user is authenticated (only from login page)
-  useEffect(() => {
-    if (user && isAuthenticated() && location.pathname === "/login") {
-      console.log("User authenticated, redirecting from login page...", user);
-      const redirectMap = {
-        admin: "/admin/dashboard",
-        staff: "/nurse/dashboard",
-        manager: "/manager/dashboard",
-        nurse: "/nurse/dashboard",
-        parent: "/parent/dashboard",
-        student: "/student/dashboard",
-      };
-
-      const redirectPath = redirectMap[user.role] || "/";
-      console.log("Auto-redirecting to:", redirectPath);
-      navigate(redirectPath, { replace: true });
-    }
-  }, [user, isAuthenticated, navigate, location.pathname]);
-
-  // Early redirect if already authenticated (when page loads)
-  useEffect(() => {
-    if (user && isAuthenticated()) {
-      console.log("Already authenticated on page load, redirecting...", user);
-      const redirectMap = {
-        admin: "/admin/dashboard",
-        staff: "/nurse/dashboard",
-        manager: "/manager/dashboard",
-        nurse: "/nurse/dashboard",
-        parent: "/parent/dashboard",
-        student: "/student/dashboard",
-      };
-
-      const redirectPath = redirectMap[user.role] || "/";
-      navigate(redirectPath, { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run on mount
 
   // Validation functions
   const validateUsername = (value, role) => {
@@ -244,7 +206,6 @@ const Login = () => {
 
       // Call API login
       const userData = await login(loginData);
-      console.log("Login successful, userData:", userData);
 
       // Verify that the user's actual role matches the selected role
       if (userData.role !== formData.role) {
@@ -264,8 +225,17 @@ const Login = () => {
         );
       }
 
-      // Navigation will be handled by useEffect when user state is updated
-      console.log("Login completed, waiting for auto-redirect...");
+      // Redirect to the appropriate dashboard based on the verified role
+      const redirectMap = {
+        admin: "/admin/dashboard",
+        staff: "/nurse/dashboard",
+        manager: "/manager/dashboard",
+        nurse: "/nurse/dashboard",
+        parent: "/parent/dashboard",
+        student: "/student/dashboard",
+      };
+
+      navigate(redirectMap[userData.role] || "/");
     } catch (err) {
       setError(err.message);
     } finally {
