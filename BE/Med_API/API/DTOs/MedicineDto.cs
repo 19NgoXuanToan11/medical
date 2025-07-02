@@ -10,6 +10,14 @@ public static class MedicineDto
         public string Name { get; set; } = null!;
         public decimal? StockQuantity { get; set; }
         public bool? IsActive { get; set; }
+
+        // Vaccine-specific fields
+        public string? Type { get; set; } // e.g., "Medicine", "Vaccine"
+        public string? BatchNumber { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        public string? Manufacturer { get; set; }
+        public string? Dose { get; set; } // e.g., "0.5ml"
+        public string? AdministrationMethod { get; set; } // e.g., "IM", "SC"
     }
 
     public class Create
@@ -22,6 +30,19 @@ public static class MedicineDto
         public decimal? StockQuantity { get; set; } = 0;
 
         public bool? IsActive { get; set; } = true;
+
+        // Vaccine-specific fields
+        [StringLength(50)]
+        public string? Type { get; set; }
+        [StringLength(100)]
+        public string? BatchNumber { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        [StringLength(100)]
+        public string? Manufacturer { get; set; }
+        [StringLength(50)]
+        public string? Dose { get; set; }
+        [StringLength(50)]
+        public string? AdministrationMethod { get; set; }
     }
 
     public class Update
@@ -33,5 +54,18 @@ public static class MedicineDto
         public decimal? StockQuantity { get; set; }
 
         public bool? IsActive { get; set; }
+
+        // Vaccine-specific fields
+        [StringLength(50)]
+        public string? Type { get; set; }
+        [StringLength(100)]
+        public string? BatchNumber { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        [StringLength(100)]
+        public string? Manufacturer { get; set; }
+        [StringLength(50)]
+        public string? Dose { get; set; }
+        [StringLength(50)]
+        public string? AdministrationMethod { get; set; }
     }
 } 
