@@ -119,4 +119,18 @@ public static class ParentDto
         public bool? IsMainContact { get; set; }
         public bool? IsActive { get; set; }
     }
+
+    public class MedicineRequestProgress
+    {
+        public int RequestId { get; set; }
+        public string Status { get; set; } = null!;
+        public string StudentCode { get; set; } = null!;
+        public string? ClassName { get; set; }
+        public int ParentId { get; set; }
+        public int? StaffId { get; set; }
+        public System.DateOnly Date { get; set; }
+        public System.DateTime RequestDate { get; set; }
+        public ICollection<MedicineRequestItemDto.ViewModel> MedicineRequestItems { get; set; } = new List<MedicineRequestItemDto.ViewModel>();
+        public List<RequestResultDto.ViewModel> Progress { get; set; } = new();
+    }
 } 

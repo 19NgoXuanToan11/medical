@@ -12,4 +12,5 @@ public interface IParentRepository
    
     Task<Parent?> GetParentByEmailAsync(string email);
     Task<Parent?> GetParentByPhoneAsync(string phone);
+    Task<IEnumerable<DB.MedicineRequest>> GetMedicineRequestProgressAsync(int parentId);
 } 

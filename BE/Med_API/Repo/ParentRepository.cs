@@ -113,4 +113,13 @@ public class ParentRepository : IParentRepository
             .Include(p => p.InjectionForms)
             .FirstOrDefaultAsync(p => p.Phone == phone);
     }
+
+    public async Task<IEnumerable<DB.MedicineRequest>> GetMedicineRequestProgressAsync(int parentId)
+    {
+        return await _context.MedicineRequests
+            .Where(r => r.ParentId == parentId)
+            .Include(r => r.MedicineRequestItems)
+            .Include(r => r.RequestResults)
+            .ToListAsync();
+    }
 } 

@@ -1,5 +1,6 @@
 using DB;
 using Repo;
+using Microsoft.EntityFrameworkCore;
 
 namespace Service;
 
@@ -108,5 +109,10 @@ public class ParentService : IParentService
     public async Task<Parent?> GetParentByPhoneAsync(string phone)
     {
         return await _parentRepository.GetParentByPhoneAsync(phone);
+    }
+
+    public async Task<IEnumerable<DB.MedicineRequest>> GetMedicineRequestProgressAsync(int parentId)
+    {
+        return await _parentRepository.GetMedicineRequestProgressAsync(parentId);
     }
 } 
