@@ -303,6 +303,10 @@ function AppRoutes() {
           path="/nurse/health-services/create"
           element={<HealthServiceCreate />}
         />
+        <Route
+          path="/nurse/health-services/create/:serviceType"
+          element={<HealthServiceCreate />}
+        />
 
         {/* Health Check Routes */}
         <Route path="/nurse/health-check" element={<NurseHealthCheck />} />

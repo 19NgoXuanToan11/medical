@@ -376,7 +376,9 @@ const StudentManagement = () => {
   // Get parent name
   const getParentName = (parentId) => {
     const parent = parents.find((p) => p.parentId === parentId);
-    return parent ? parent.fullName : "Không xác định";
+    return parent
+      ? parent.parentName || `${parent.firstName} ${parent.lastName}`
+      : "Không xác định";
   };
 
   // Get full name
@@ -394,32 +396,6 @@ const StudentManagement = () => {
           <p className="text-neutral-600 dark:text-neutral-300 mt-1">
             Theo dõi và quản lý danh sách học sinh tại trường
           </p>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 mb-4">
-          <button
-            onClick={() => setActiveTab("students")}
-            className={`px-4 py-2 rounded-lg transition-colors duration-300 flex items-center ${
-              activeTab === "students"
-                ? "bg-primary-600 text-white"
-                : "bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600"
-            }`}
-          >
-            <FiUser className="mr-2" />
-            Danh sách học sinh
-          </button>
-          <button
-            onClick={() => setActiveTab("relations")}
-            className={`px-4 py-2 rounded-lg transition-colors duration-300 flex items-center ${
-              activeTab === "relations"
-                ? "bg-primary-600 text-white"
-                : "bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600"
-            }`}
-          >
-            <FiUsers className="mr-2" />
-            Mối quan hệ phụ huynh - học sinh
-          </button>
         </div>
 
         {activeTab === "students" && (
@@ -640,15 +616,31 @@ const StudentManagement = () => {
                     <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100 max-w-xs truncate">
                       {student.address}
                     </td>
-                    <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
-                      {getParentName(student.parentId)}
+                    <td className="py-4 px-6 text-center align-middle text-sm">
+                      {(() => {
+                        const parentName =
+                          student.studentParents?.[0]?.parentName ||
+                          (student.parents?.[0]
+                            ? `${student.parents[0].firstName} ${student.parents[0].lastName}`
+                            : null);
+
+                        return parentName ? (
+                          <span className="text-neutral-900 dark:text-neutral-100">
+                            {parentName}
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 rounded-md text-xs font-medium bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
+                            Không xác định
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className="py-4 px-6 text-center align-middle w-32 min-w-[128px]">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shadow-sm border transition-colors duration-200 ${
                           student.isActive
-                            ? "bg-green-100 dark:bg-green-800 text-white"
-                            : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200"
+                            ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700"
+                            : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700"
                         }`}
                       >
                         {student.isActive ? "Hoạt động" : "Ngừng hoạt động"}

@@ -167,6 +167,30 @@ export const medicationService = {
     }
   },
 
+  // Get medication requests progress by parent ID
+  getMedicationRequestsByParent: async (parentId) => {
+    try {
+      const response = await api.get(
+        `/Parent/${parentId}/medicine-request-progress`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu thuốc của phụ huynh thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching medication requests by parent:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc của phụ huynh",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
   // Get pending medication requests
   getPendingMedicationRequests: async () => {
     try {
@@ -651,11 +675,38 @@ export const medicationService = {
     }
   },
 
+  // Start medication administration with full request result data
+  startMedicationAdministration: async (requestId, staffId) => {
+    try {
+      const response = await api.post(
+        `/MedicineRequest/${requestId}/start-administration/${staffId}`
+      );
+
+      return {
+        success: true,
+        data: response.data,
+        message: "Đã bắt đầu quá trình cho uống thuốc thành công",
+      };
+    } catch (error) {
+      console.error("Error starting medication administration:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message ||
+          "Không thể bắt đầu quá trình cho uống thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
   // Update time-based status for medication requests
   updateTimeBasedStatus: async () => {
     try {
-      const response = await api.post('/MedicineRequest/update-time-based-status');
-      
+      const response = await api.post(
+        "/MedicineRequest/update-time-based-status"
+      );
+
       return {
         success: true,
         data: response.data,
