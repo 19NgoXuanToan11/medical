@@ -209,7 +209,7 @@ const ReportsAnalytics = () => {
                 : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
             }`}
           >
-            Sự kiện y tế
+            Sự cố y tế
           </button>
           <button
             onClick={() => setActiveTab("medication")}
@@ -316,7 +316,7 @@ const ReportsAnalytics = () => {
 
               {renderChart(
                 reportData.health.visitsByType,
-                "Phân loại sự kiện y tế",
+                "Phân loại sự cố y tế",
                 "tròn"
               )}
 

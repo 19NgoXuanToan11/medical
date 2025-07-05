@@ -127,7 +127,7 @@ const HealthEventResultDetail = () => {
             <strong className="font-bold">Lỗi!</strong>
             <span className="block sm:inline">
               {" "}
-              Không tìm thấy thông tin sự kiện y tế.
+              Không tìm thấy thông tin sự cố y tế.
             </span>
           </div>
         </div>

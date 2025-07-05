@@ -446,7 +446,7 @@ const NurseProfile = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-neutral-600 dark:text-neutral-400">
-                    Sự kiện y tế
+                    Sự cố y tế
                   </span>
                   <span className="font-semibold text-neutral-900 dark:text-neutral-100">
                     32

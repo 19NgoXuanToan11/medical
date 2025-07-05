@@ -111,7 +111,7 @@ const Navbar = () => {
         ],
       },
       {
-        label: "Sự kiện y tế",
+        label: "Sự cố y tế",
         children: [
           { label: "Danh sách sự kiện", path: "/parent/health-events" },
         ],
@@ -137,7 +137,7 @@ const Navbar = () => {
         ],
       },
       {
-        label: "Sự kiện y tế",
+        label: "Sự cố y tế",
         children: [
           { label: "Danh sách sự kiện", path: "/nurse/health-events" },
           { label: "Tạo sự kiện mới", path: "/nurse/health-events/new" },
@@ -196,7 +196,7 @@ const Navbar = () => {
         path: "/student/medication",
       },
       {
-        label: "Sự kiện y tế",
+        label: "Sự cố y tế",
         path: "/student/health-events",
       },
       {

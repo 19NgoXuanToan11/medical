@@ -120,7 +120,7 @@ const HealthEventCreate = () => {
           <FiArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-          Tạo sự kiện y tế mới
+          Tạo sự cố y tế mới
         </h1>
       </div>
 

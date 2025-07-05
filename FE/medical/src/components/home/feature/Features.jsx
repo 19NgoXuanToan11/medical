@@ -97,7 +97,7 @@ const Features = () => {
     {
       title: "Thông Báo",
       description:
-        "Gửi thông báo về các sự kiện y tế, tình hình sức khỏe học sinh đến phụ huynh kịp thời qua nhiều kênh liên lạc.",
+        "Gửi thông báo về các sự cố y tế, tình hình sức khỏe học sinh đến phụ huynh kịp thời qua nhiều kênh liên lạc.",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -195,7 +195,7 @@ const Features = () => {
     {
       title: "Y Tế Trường Học",
       description:
-        "Quản lý sức khỏe học sinh, thuốc men và sự kiện y tế tại trường.",
+        "Quản lý sức khỏe học sinh, thuốc men và sự cố y tế tại trường.",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"

@@ -201,7 +201,7 @@ const AdminDashboard = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="text-sm text-neutral-600">
-                        Sự kiện y tế hôm nay
+                        Sự cố y tế hôm nay
                       </div>
                       <div className="text-3xl font-bold text-red-600">
                         {stats.healthEventsToday}

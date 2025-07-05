@@ -10,7 +10,7 @@ const RoleDemo = () => {
       id: "parent",
       title: "Phụ Huynh",
       description:
-        "Quản lý hồ sơ sức khỏe con em, gửi thuốc, xem lịch tiêm chủng, và theo dõi sự kiện y tế",
+        "Quản lý hồ sơ sức khỏe con em, gửi thuốc, xem lịch tiêm chủng, và theo dõi sự cố y tế",
       features: [
         {
           title: "Hồ sơ sức khỏe",
@@ -75,8 +75,8 @@ const RoleDemo = () => {
           ),
         },
         {
-          title: "Sự kiện y tế",
-          description: "Theo dõi các sự kiện y tế tại trường và kết quả xử lý",
+          title: "Sự cố y tế",
+          description: "Theo dõi các sự cố y tế tại trường và kết quả xử lý",
           icon: (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -120,7 +120,7 @@ const RoleDemo = () => {
       id: "nurse",
       title: "Nhân Viên Y Tế",
       description:
-        "Quản lý sự kiện y tế, tiêm chủng, thuốc và kiểm tra y tế định kỳ",
+        "Quản lý sự cố y tế, tiêm chủng, thuốc và kiểm tra y tế định kỳ",
       features: [
         {
           title: "Quản lý thuốc",
@@ -165,8 +165,8 @@ const RoleDemo = () => {
           ),
         },
         {
-          title: "Sự kiện y tế",
-          description: "Ghi nhận và xử lý các sự kiện y tế tại trường",
+          title: "Sự cố y tế",
+          description: "Ghi nhận và xử lý các sự cố y tế tại trường",
           icon: (
             <svg
               xmlns="http://www.w3.org/2000/svg"

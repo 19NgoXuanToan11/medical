@@ -165,7 +165,7 @@ const HealthEventDetail = () => {
             <FiArrowLeft className="h-5 w-5" />
           </Link>
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-            Chi tiết sự kiện y tế
+            Chi tiết sự cố y tế
           </h1>
         </div>
         <div className="flex space-x-3">

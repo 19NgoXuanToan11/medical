@@ -404,7 +404,7 @@ export const getReasonText = (transaction) => {
     }`,
     expired: "Hết hạn",
     damaged: "Hỏng/Vỡ",
-    event: `Sự kiện y tế${
+    event: `Sự cố y tế${
       transaction.eventName ? `: ${transaction.eventName}` : ""
     }`,
   };
