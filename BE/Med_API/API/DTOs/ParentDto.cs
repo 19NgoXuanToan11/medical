@@ -125,6 +125,7 @@ public static class ParentDto
         public int RequestId { get; set; }
         public string Status { get; set; } = null!;
         public string StudentCode { get; set; } = null!;
+        public string? StudentName { get; set; }
         public string? ClassName { get; set; }
         public int ParentId { get; set; }
         public int? StaffId { get; set; }

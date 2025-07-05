@@ -112,6 +112,7 @@ public class ParentController : ControllerBase
             RequestId = req.RequestId,
             Status = req.Status ?? string.Empty,
             StudentCode = req.StudentCode ?? string.Empty,
+            StudentName = req.Student != null ? $"{req.Student.FirstName} {req.Student.LastName}" : null,
             ClassName = req.ClassName,
             ParentId = req.ParentId ?? 0,
             StaffId = req.StaffId,
