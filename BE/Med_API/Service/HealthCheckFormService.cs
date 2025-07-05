@@ -136,7 +136,84 @@ public class HealthCheckFormService : IHealthCheckFormService
         if (string.IsNullOrEmpty(status))
             return false;
 
-        var validStatuses = new[] { "Pending", "Approved", "Rejected", "Cancelled" };
-        return validStatuses.Contains(status);
+        var validStatuses = new[] { "pending", "approved", "rejected", "cancelled" };
+        return validStatuses.Contains(status.ToLower());
+    }
+
+    // New methods for health check scheduling
+    public async Task<IEnumerable<HealthCheckForm>> GetHealthCheckSchedulesAsync()
+    {
+        // Filter forms that have scheduling information (Title, ScheduledDate, etc.)
+        var allForms = await _healthCheckFormRepository.GetAllHealthCheckFormsAsync();
+        return allForms.Where(f => !string.IsNullOrEmpty(f.Title) && f.ScheduledDate.HasValue);
+    }
+
+    public async Task<HealthCheckForm?> GetHealthCheckScheduleByIdAsync(int id)
+    {
+        var schedule = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(id);
+        if (schedule != null && !string.IsNullOrEmpty(schedule.Title) && schedule.ScheduledDate.HasValue)
+        {
+            return schedule;
+        }
+        return null;
+    }
+
+    public async Task<HealthCheckForm?> CreateHealthCheckScheduleAsync(HealthCheckForm schedule)
+    {
+        // Validate required fields for scheduling
+        if (string.IsNullOrEmpty(schedule.Title))
+        {
+            throw new InvalidOperationException("Title is required for health check schedule");
+        }
+
+        if (!schedule.ScheduledDate.HasValue)
+        {
+            throw new InvalidOperationException("Scheduled date is required for health check schedule");
+        }
+
+        if (string.IsNullOrEmpty(schedule.GradeIds))
+        {
+            throw new InvalidOperationException("At least one grade must be selected");
+        }
+
+        // Set default values
+        schedule.CreatedDate = DateTime.UtcNow;
+        schedule.Status = "scheduled";
+        schedule.ConsentStatus = "Pending";
+
+        return await _healthCheckFormRepository.CreateHealthCheckFormAsync(schedule);
+    }
+
+    public async Task<bool> UpdateHealthCheckScheduleAsync(HealthCheckForm schedule)
+    {
+        // Validate that the schedule exists
+        var existingSchedule = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(schedule.FormId);
+        if (existingSchedule == null)
+        {
+            return false;
+        }
+
+        // Validate required fields for scheduling
+        if (string.IsNullOrEmpty(schedule.Title))
+        {
+            throw new InvalidOperationException("Title is required for health check schedule");
+        }
+
+        if (!schedule.ScheduledDate.HasValue)
+        {
+            throw new InvalidOperationException("Scheduled date is required for health check schedule");
+        }
+
+        if (string.IsNullOrEmpty(schedule.GradeIds))
+        {
+            throw new InvalidOperationException("At least one grade must be selected");
+        }
+
+        return await _healthCheckFormRepository.UpdateHealthCheckFormAsync(schedule);
+    }
+
+    public async Task<bool> DeleteHealthCheckScheduleAsync(int id)
+    {
+        return await _healthCheckFormRepository.DeleteHealthCheckFormAsync(id);
     }
 } 

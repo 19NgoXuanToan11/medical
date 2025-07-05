@@ -1,29 +1,29 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\Git\\medical\\BE\\Med_API\\",
+  "WorkspaceRootPath": "D:\\FPT\\SWP391\\BE\\Med_API\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|d:\\git\\medical\\be\\med_api\\api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|d:\\fpt\\swp391\\be\\med_api\\api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|solutionrelative:api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8D0F53DE-1B2A-4556-A96A-AD2CBBC8581D}|Service\\Service.csproj|d:\\git\\medical\\be\\med_api\\service\\parentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8D0F53DE-1B2A-4556-A96A-AD2CBBC8581D}|Service\\Service.csproj|d:\\fpt\\swp391\\be\\med_api\\service\\parentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8D0F53DE-1B2A-4556-A96A-AD2CBBC8581D}|Service\\Service.csproj|solutionrelative:service\\parentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{456789F4-9FEE-4AF1-A5DB-BCE1F2A59ED2}|Repo\\Repo.csproj|d:\\git\\medical\\be\\med_api\\repo\\parentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{456789F4-9FEE-4AF1-A5DB-BCE1F2A59ED2}|Repo\\Repo.csproj|d:\\fpt\\swp391\\be\\med_api\\repo\\parentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{456789F4-9FEE-4AF1-A5DB-BCE1F2A59ED2}|Repo\\Repo.csproj|solutionrelative:repo\\parentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8D0F53DE-1B2A-4556-A96A-AD2CBBC8581D}|Service\\Service.csproj|d:\\git\\medical\\be\\med_api\\service\\iparentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8D0F53DE-1B2A-4556-A96A-AD2CBBC8581D}|Service\\Service.csproj|d:\\fpt\\swp391\\be\\med_api\\service\\iparentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8D0F53DE-1B2A-4556-A96A-AD2CBBC8581D}|Service\\Service.csproj|solutionrelative:service\\iparentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{226E55D0-7482-430B-B08A-AB5EBC977F95}|DB\\DB.csproj|d:\\git\\medical\\be\\med_api\\db\\parent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{226E55D0-7482-430B-B08A-AB5EBC977F95}|DB\\DB.csproj|d:\\fpt\\swp391\\be\\med_api\\db\\parent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{226E55D0-7482-430B-B08A-AB5EBC977F95}|DB\\DB.csproj|solutionrelative:db\\parent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|d:\\git\\medical\\be\\med_api\\api\\attributes\\requirepermissionattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|d:\\fpt\\swp391\\be\\med_api\\api\\attributes\\requirepermissionattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9F21C5A6-C70F-48F1-A33D-82903E38B4CB}|API\\API.csproj|solutionrelative:api\\attributes\\requirepermissionattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -34,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 373,
-          "SelectedChildIndex": 83,
+          "SelectedChildIndex": 78,
           "Children": [
             {
               "$type": "Bookmark",
@@ -246,10 +246,6 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{004be353-6879-467c-9d1e-9ac23cdf6d49}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:2:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
             },
             {
@@ -310,27 +306,11 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             },
             {
               "$type": "Bookmark",
@@ -342,11 +322,11 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:2:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
             },
             {
               "$type": "Bookmark",
@@ -356,9 +336,9 @@
               "$type": "Document",
               "DocumentIndex": 3,
               "Title": "IParentService.cs",
-              "DocumentMoniker": "D:\\Git\\medical\\BE\\Med_API\\Service\\IParentService.cs",
+              "DocumentMoniker": "D:\\FPT\\SWP391\\BE\\Med_API\\Service\\IParentService.cs",
               "RelativeDocumentMoniker": "Service\\IParentService.cs",
-              "ToolTip": "D:\\Git\\medical\\BE\\Med_API\\Service\\IParentService.cs",
+              "ToolTip": "D:\\FPT\\SWP391\\BE\\Med_API\\Service\\IParentService.cs",
               "RelativeToolTip": "Service\\IParentService.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAA2AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -368,9 +348,9 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "ParentService.cs",
-              "DocumentMoniker": "D:\\Git\\medical\\BE\\Med_API\\Service\\ParentService.cs",
+              "DocumentMoniker": "D:\\FPT\\SWP391\\BE\\Med_API\\Service\\ParentService.cs",
               "RelativeDocumentMoniker": "Service\\ParentService.cs",
-              "ToolTip": "D:\\Git\\medical\\BE\\Med_API\\Service\\ParentService.cs",
+              "ToolTip": "D:\\FPT\\SWP391\\BE\\Med_API\\Service\\ParentService.cs",
               "RelativeToolTip": "Service\\ParentService.cs",
               "ViewState": "AQIAAFgAAAAAAAAAAAAqwG8AAAACAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -380,9 +360,9 @@
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "ParentRepository.cs",
-              "DocumentMoniker": "D:\\Git\\medical\\BE\\Med_API\\Repo\\ParentRepository.cs",
+              "DocumentMoniker": "D:\\FPT\\SWP391\\BE\\Med_API\\Repo\\ParentRepository.cs",
               "RelativeDocumentMoniker": "Repo\\ParentRepository.cs",
-              "ToolTip": "D:\\Git\\medical\\BE\\Med_API\\Repo\\ParentRepository.cs",
+              "ToolTip": "D:\\FPT\\SWP391\\BE\\Med_API\\Repo\\ParentRepository.cs",
               "RelativeToolTip": "Repo\\ParentRepository.cs",
               "ViewState": "AQIAAFQAAAAAAAAAAAAqwG4AAAACAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -392,9 +372,9 @@
               "$type": "Document",
               "DocumentIndex": 4,
               "Title": "Parent.cs",
-              "DocumentMoniker": "D:\\Git\\medical\\BE\\Med_API\\DB\\Parent.cs",
+              "DocumentMoniker": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\Parent.cs",
               "RelativeDocumentMoniker": "DB\\Parent.cs",
-              "ToolTip": "D:\\Git\\medical\\BE\\Med_API\\DB\\Parent.cs",
+              "ToolTip": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\Parent.cs",
               "RelativeToolTip": "DB\\Parent.cs",
               "ViewState": "AgIAAAsAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -404,11 +384,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "AuthController.cs",
-              "DocumentMoniker": "D:\\Git\\medical\\BE\\Med_API\\API\\Controllers\\AuthController.cs",
+              "DocumentMoniker": "D:\\FPT\\SWP391\\BE\\Med_API\\API\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "API\\Controllers\\AuthController.cs",
-              "ToolTip": "D:\\Git\\medical\\BE\\Med_API\\API\\Controllers\\AuthController.cs",
+              "ToolTip": "D:\\FPT\\SWP391\\BE\\Med_API\\API\\Controllers\\AuthController.cs",
               "RelativeToolTip": "API\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAYwF8AAABaAAAAAAAAAA==",
+              "ViewState": "AgIAAE0AAAAAAAAAAAAswF8AAABaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-12T06:32:20.473Z",
               "EditorCaption": ""
@@ -417,9 +397,9 @@
               "$type": "Document",
               "DocumentIndex": 5,
               "Title": "RequirePermissionAttribute.cs",
-              "DocumentMoniker": "D:\\Git\\medical\\BE\\Med_API\\API\\Attributes\\RequirePermissionAttribute.cs",
+              "DocumentMoniker": "D:\\FPT\\SWP391\\BE\\Med_API\\API\\Attributes\\RequirePermissionAttribute.cs",
               "RelativeDocumentMoniker": "API\\Attributes\\RequirePermissionAttribute.cs",
-              "ToolTip": "D:\\Git\\medical\\BE\\Med_API\\API\\Attributes\\RequirePermissionAttribute.cs",
+              "ToolTip": "D:\\FPT\\SWP391\\BE\\Med_API\\API\\Attributes\\RequirePermissionAttribute.cs",
               "RelativeToolTip": "API\\Attributes\\RequirePermissionAttribute.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -509,6 +489,10 @@
           "DockedWidth": 561,
           "SelectedChildIndex": -1,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:9:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
