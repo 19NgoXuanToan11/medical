@@ -26,6 +26,7 @@ public class ExcelImportService : IExcelImportService
         var result = new ExcelImportDto.ImportResult();
         var studentRows = new List<ExcelImportDto.StudentRow>();
         var parentRows = new List<ExcelImportDto.ParentRow>();
+        var studentParentRows = new List<ExcelImportDto.StudentParentRow>();
         var healthProfileRows = new List<ExcelImportDto.HealthProfileRow>();
 
         try
@@ -73,7 +74,6 @@ public class ExcelImportService : IExcelImportService
             {
                 var parentRow = new ExcelImportDto.ParentRow
                 {
-                    StudentCode = parentSheet.Cells[row, GetColumnIndex(parentHeaders, "StudentCode*")].Text,
                     FirstName = parentSheet.Cells[row, GetColumnIndex(parentHeaders, "FirstName*")].Text,
                     LastName = parentSheet.Cells[row, GetColumnIndex(parentHeaders, "LastName*")].Text,
                     Relationship = parentSheet.Cells[row, GetColumnIndex(parentHeaders, "Relationship*")].Text,
@@ -86,6 +86,24 @@ public class ExcelImportService : IExcelImportService
                     Password = parentSheet.Cells[row, GetColumnIndex(parentHeaders, "Password*")].Text
                 };
                 parentRows.Add(parentRow);
+            }
+
+            // Read StudentParentRelationships sheet
+            var relationshipSheet = package.Workbook.Worksheets["StudentParentRelationships"];
+            if (relationshipSheet == null)
+            {
+                throw new Exception("StudentParentRelationships sheet not found");
+            }
+            _logger.LogInformation("Reading StudentParentRelationships sheet with {RowCount} rows", relationshipSheet.Dimension.End.Row - 1);
+            var relationshipHeaders = relationshipSheet.Cells[1, 1, 1, relationshipSheet.Dimension.End.Column].Select(c => c.Text).ToList();
+            for (int row = 2; row <= relationshipSheet.Dimension.End.Row; row++)
+            {
+                var relationshipRow = new ExcelImportDto.StudentParentRow
+                {
+                    StudentCode = relationshipSheet.Cells[row, GetColumnIndex(relationshipHeaders, "StudentCode*")].Text,
+                    ParentEmail = relationshipSheet.Cells[row, GetColumnIndex(relationshipHeaders, "ParentEmail*")].Text
+                };
+                studentParentRows.Add(relationshipRow);
             }
 
             // Read HealthProfiles sheet
@@ -130,16 +148,16 @@ public class ExcelImportService : IExcelImportService
             }
 
             result.TotalRows = studentRows.Count;
-            _logger.LogInformation("Found {StudentCount} students, {ParentCount} parents, {HealthProfileCount} health profiles",
-                studentRows.Count, parentRows.Count, healthProfileRows.Count);
+            _logger.LogInformation("Found {StudentCount} students, {ParentCount} parents, {RelationshipCount} relationships, {HealthProfileCount} health profiles",
+                studentRows.Count, parentRows.Count, studentParentRows.Count, healthProfileRows.Count);
 
             // Check for duplicates in database
             _logger.LogInformation("Checking for database duplicates");
-            await CheckDatabaseDuplicatesAsync(studentRows, parentRows, result);
+            await CheckDatabaseDuplicatesAsync(studentRows, parentRows, studentParentRows, result);
 
             // Validate data consistency
             _logger.LogInformation("Validating data consistency");
-            ValidateDataConsistency(studentRows, parentRows, healthProfileRows, result);
+            ValidateDataConsistency(studentRows, parentRows, studentParentRows, healthProfileRows, result);
 
             if (result.Errors.Any())
             {
@@ -152,13 +170,14 @@ public class ExcelImportService : IExcelImportService
             for (int i = 0; i < studentRows.Count; i += 50)
             {
                 var studentBatch = studentRows.Skip(i).Take(50).ToList();
-                var parentBatch = parentRows.Where(p => studentBatch.Select(s => s.StudentCode).Contains(p.StudentCode)).ToList();
+                var parentBatch = parentRows.ToList(); // Process all parents
+                var relationshipBatch = studentParentRows.Where(r => studentBatch.Select(s => s.StudentCode).Contains(r.StudentCode)).ToList();
                 var healthBatch = healthProfileRows.Where(h => studentBatch.Select(s => s.StudentCode).Contains(h.StudentCode)).ToList();
                 
                 _logger.LogInformation("Processing batch {BatchNumber} with {StudentCount} students", 
                     (i / 50) + 1, studentBatch.Count);
                 
-                await ProcessBatchAsync(studentBatch, parentBatch, healthBatch, result);
+                await ProcessBatchAsync(studentBatch, parentBatch, relationshipBatch, healthBatch, result);
             }
 
             _logger.LogInformation("Import completed successfully. Imported {SuccessCount} out of {TotalCount} rows",
@@ -176,6 +195,7 @@ public class ExcelImportService : IExcelImportService
     private async Task CheckDatabaseDuplicatesAsync(
         List<ExcelImportDto.StudentRow> students,
         List<ExcelImportDto.ParentRow> parents,
+        List<ExcelImportDto.StudentParentRow> relationships,
         ExcelImportDto.ImportResult result)
     {
         // Get existing data from database
@@ -184,7 +204,7 @@ public class ExcelImportService : IExcelImportService
         var existingParentPhones = (await _repository.GetExistingParentPhonesAsync()).ToList();
         var existingStudentParentRelations = await _repository.GetExistingStudentParentRelationsAsync();
 
-        // Check for duplicate student codes
+        // Check for duplicate student codes in import file
         var duplicateStudentCodes = students
             .GroupBy(s => s.StudentCode)
             .Where(g => g.Count() > 1)
@@ -197,7 +217,7 @@ public class ExcelImportService : IExcelImportService
             result.FailedRows++;
         }
 
-        // Check for duplicate parent emails
+        // Check for duplicate parent emails in import file
         var duplicateParentEmails = parents
             .GroupBy(p => p.Email)
             .Where(g => g.Count() > 1)
@@ -210,7 +230,7 @@ public class ExcelImportService : IExcelImportService
             result.FailedRows++;
         }
 
-        // Check for duplicate parent phones
+        // Check for duplicate parent phones in import file
         var duplicateParentPhones = parents
             .GroupBy(p => p.Phone)
             .Where(g => g.Count() > 1)
@@ -223,28 +243,24 @@ public class ExcelImportService : IExcelImportService
             result.FailedRows++;
         }
 
-        // Check for duplicate student-parent relationships in import file
-        var studentParentPairs = parents
-            .Select(p => new { StudentCode = p.StudentCode, ParentEmail = p.Email })
-            .ToList();
-
-        var duplicateRelations = studentParentPairs
-            .GroupBy(p => new { p.StudentCode, p.ParentEmail })
+        // Check for duplicate relationships in import file
+        var duplicateRelationships = relationships
+            .GroupBy(r => new { r.StudentCode, r.ParentEmail })
             .Where(g => g.Count() > 1)
             .Select(g => g.Key)
             .ToList();
 
-        foreach (var relation in duplicateRelations)
+        foreach (var relation in duplicateRelationships)
         {
             result.Errors.Add($"Duplicate student-parent relationship found in import file: Student {relation.StudentCode} with Parent {relation.ParentEmail}");
             result.FailedRows++;
         }
 
         // Check for existing student-parent relationships in database
-        foreach (var parent in parents)
+        foreach (var relationship in relationships)
         {
-            var studentCode = parent.StudentCode;
-            var parentEmail = parent.Email;
+            var studentCode = relationship.StudentCode;
+            var parentEmail = relationship.ParentEmail;
 
             if (existingStudentParentRelations.Any(r => 
                 r.StudentCode == studentCode && 
@@ -259,6 +275,7 @@ public class ExcelImportService : IExcelImportService
     private void ValidateDataConsistency(
         List<ExcelImportDto.StudentRow> students,
         List<ExcelImportDto.ParentRow> parents,
+        List<ExcelImportDto.StudentParentRow> relationships,
         List<ExcelImportDto.HealthProfileRow> healthProfiles,
         ExcelImportDto.ImportResult result)
     {
@@ -271,12 +288,12 @@ public class ExcelImportService : IExcelImportService
             result.Errors.Add($"Duplicate StudentCode found in file: {code}");
         }
 
-        // Check for students without parents
-        var studentsWithoutParents = students.Select(s => s.StudentCode)
-            .Except(parents.Select(p => p.StudentCode));
-        foreach (var code in studentsWithoutParents)
+        // Check for students without relationships
+        var studentsWithoutRelationships = students.Select(s => s.StudentCode)
+            .Except(relationships.Select(r => r.StudentCode));
+        foreach (var code in studentsWithoutRelationships)
         {
-            result.Errors.Add($"Student {code} has no parent information");
+            result.Errors.Add($"Student {code} has no parent relationships");
         }
 
         // Check for students without health profiles
@@ -296,13 +313,24 @@ public class ExcelImportService : IExcelImportService
             result.Errors.Add($"Student {code} has multiple health profiles");
         }
 
-        // Check for orphaned parent/health profile records
+        // Check for orphaned relationship records
         var validStudentCodes = students.Select(s => s.StudentCode).ToHashSet();
-        var orphanedParents = parents.Where(p => !validStudentCodes.Contains(p.StudentCode))
-            .Select(p => p.StudentCode);
-        foreach (var code in orphanedParents)
+        var validParentEmails = parents.Select(p => p.Email).ToHashSet();
+
+        var orphanedRelationships = relationships.Where(r => 
+            !validStudentCodes.Contains(r.StudentCode) || 
+            !validParentEmails.Contains(r.ParentEmail));
+
+        foreach (var relationship in orphanedRelationships)
         {
-            result.Errors.Add($"Parent record for non-existent student: {code}");
+            if (!validStudentCodes.Contains(relationship.StudentCode))
+            {
+                result.Errors.Add($"Relationship record for non-existent student: {relationship.StudentCode}");
+            }
+            if (!validParentEmails.Contains(relationship.ParentEmail))
+            {
+                result.Errors.Add($"Relationship record for non-existent parent: {relationship.ParentEmail}");
+            }
         }
 
         var orphanedHealthProfiles = healthProfiles.Where(h => !validStudentCodes.Contains(h.StudentCode))
@@ -335,10 +363,10 @@ public class ExcelImportService : IExcelImportService
 
         // Update failed rows count
         result.FailedRows += duplicateStudentCodes.Count() +
-                           studentsWithoutParents.Count() +
+                           studentsWithoutRelationships.Count() +
                            studentsWithoutHealthProfiles.Count() +
                            duplicateHealthProfiles.Count() +
-                           orphanedParents.Count() +
+                           orphanedRelationships.Count() +
                            orphanedHealthProfiles.Count() +
                            duplicateParentEmails.Count() +
                            duplicateParentPhones.Count();
@@ -347,9 +375,14 @@ public class ExcelImportService : IExcelImportService
     private async Task ProcessBatchAsync(
         List<ExcelImportDto.StudentRow> studentBatch,
         List<ExcelImportDto.ParentRow> parentBatch,
+        List<ExcelImportDto.StudentParentRow> relationshipBatch,
         List<ExcelImportDto.HealthProfileRow> healthBatch,
         ExcelImportDto.ImportResult result)
     {
+        // Create a mapping of parent email to parent data for reuse
+        var parentEmailToParentData = parentBatch.ToDictionary(p => p.Email, p => p);
+
+        // Then process each student
         foreach (var studentRow in studentBatch)
         {
             try
@@ -369,7 +402,7 @@ public class ExcelImportService : IExcelImportService
                     continue;
                 }
 
-                // Create and validate student entity
+                // Create student entity
                 var student = new Student
                 {
                     StudentCode = studentRow.StudentCode,
@@ -384,50 +417,51 @@ public class ExcelImportService : IExcelImportService
                     IsActive = true
                 };
 
-                // Get and validate parents for this student
-                var studentParents = parentBatch
-                    .Where(p => p.StudentCode == studentRow.StudentCode)
+                // Get relationships for this student
+                var studentRelationships = relationshipBatch
+                    .Where(r => r.StudentCode == studentRow.StudentCode)
                     .ToList();
 
-                if (!studentParents.Any())
+                if (!studentRelationships.Any())
                 {
                     result.FailedRows++;
-                    result.Errors.Add($"Student {studentRow.StudentCode} has no parent information");
+                    result.Errors.Add($"Student {studentRow.StudentCode} has no parent relationships");
                     continue;
                 }
 
-                // Validate each parent
-                var validParents = new List<Parent>();
-                foreach (var parentRow in studentParents)
+                // Get parents for this student
+                var studentParents = new List<Parent>();
+                var studentParentRelationships = new List<(Parent Parent, string Relationship)>();
+
+                foreach (var relationship in studentRelationships)
                 {
-                    var parentValidationContext = new ValidationContext(parentRow);
-                    var parentValidationResults = new List<ValidationResult>();
-                    if (!Validator.TryValidateObject(parentRow, parentValidationContext, parentValidationResults, true))
+                    if (!parentEmailToParentData.TryGetValue(relationship.ParentEmail, out var parentData))
                     {
-                        var errors = string.Join(", ", parentValidationResults.Select(r => r.ErrorMessage));
-                        _logger.LogWarning("Validation failed for parent of student {StudentCode}: {Errors}", 
-                            studentRow.StudentCode, errors);
-                        result.Errors.Add($"Parent for student {studentRow.StudentCode}: {errors}");
+                        result.Errors.Add($"Parent with email {relationship.ParentEmail} not found for student {studentRow.StudentCode}");
                         continue;
                     }
 
-                    validParents.Add(new Parent
+                    // Create a new parent record for this relationship (since Parent has Relationship field)
+                    var parent = new Parent
                     {
-                        FirstName = parentRow.FirstName,
-                        LastName = parentRow.LastName,
-                        Relationship = parentRow.Relationship,
-                        Phone = parentRow.Phone,
-                        Email = parentRow.Email,
-                        Address = parentRow.Address,
-                        Occupation = parentRow.Occupation,
-                        IsEmergencyContact = parentRow.IsEmergencyContact,
-                        IsMainContact = parentRow.IsMainContact,
-                        Password = parentRow.Password,
+                        FirstName = parentData.FirstName,
+                        LastName = parentData.LastName,
+                        Phone = parentData.Phone,
+                        Email = parentData.Email,
+                        Address = parentData.Address,
+                        Occupation = parentData.Occupation,
+                        IsEmergencyContact = parentData.IsEmergencyContact,
+                        IsMainContact = parentData.IsMainContact,
+                        Password = parentData.Password,
+                        Relationship = parentData.Relationship, // Set the relationship from the relationship sheet
                         IsActive = true
-                    });
+                    };
+
+                    studentParents.Add(parent);
+                    studentParentRelationships.Add((parent, parentData.Relationship));
                 }
 
-                if (!validParents.Any())
+                if (!studentParents.Any())
                 {
                     result.FailedRows++;
                     result.Errors.Add($"No valid parents found for student {studentRow.StudentCode}");
@@ -488,10 +522,10 @@ public class ExcelImportService : IExcelImportService
                 };
 
                 _logger.LogInformation("Adding student {StudentCode} to database with {ParentCount} parents", 
-                    student.StudentCode, validParents.Count);
+                    student.StudentCode, studentParents.Count);
 
                 // Add to database using repository
-                await _repository.AddStudentWithRelatedDataAsync(student, validParents, healthProfile);
+                await _repository.AddStudentWithRelatedDataAsync(student, studentParents, studentParentRelationships, healthProfile);
                 result.SuccessfullyImported++;
                 
                 _logger.LogInformation("Successfully added student {StudentCode} to database", student.StudentCode);

@@ -4,6 +4,7 @@ using DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(MedicalContext))]
-    partial class MedicalContextModelSnapshot : ModelSnapshot
+    [Migration("20250705094549_AddRefusalReasonToMedicineRequest")]
+    partial class AddRefusalReasonToMedicineRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -297,9 +300,6 @@ namespace DB.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FormId"));
 
-                    b.Property<bool?>("AutoAdvance")
-                        .HasColumnType("bit");
-
                     b.Property<string>("ClassName")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -330,64 +330,16 @@ namespace DB.Migrations
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getdate())");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("EstimatedDuration")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EstimatedEndTime")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("GenerateReport")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("GradeIds")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("GradeLevel")
                         .HasColumnType("int");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("NotifyParents")
-                        .HasColumnType("bit");
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("int")
                         .HasColumnName("ParentID");
 
-                    b.Property<bool?>("RequireParentConfirmation")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("SaveResults")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ScheduledDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SelectedStations")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StaffAssigned")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<TimeSpan?>("StartTime")
-                        .HasColumnType("time");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("StudentId")
                         .HasColumnType("int")
                         .HasColumnName("StudentID");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("TotalStudents")
-                        .HasColumnType("int");
 
                     b.HasKey("FormId")
                         .HasName("PK__Health_C__FB05B7BD3533D90A");

@@ -63,6 +63,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         }
 
         _context.Entry(existingRequest).CurrentValues.SetValues(medicineRequest);
+        existingRequest.RefusalReason = medicineRequest.RefusalReason;
 
         // Handle MedicineRequestItems
         var existingItems = existingRequest.MedicineRequestItems.ToList();
@@ -200,7 +201,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     public async Task<bool> AssignNurseToRequestAsync(int requestId, int staffId)
     {
         var request = await _context.MedicineRequests.FindAsync(requestId);
-        if (request == null || request.Status != "Pending")
+        if (request == null || (request.Status != "Pending" && request.Status != "Verified"))
         {
             return false;
         }

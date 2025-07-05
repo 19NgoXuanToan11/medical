@@ -172,9 +172,65 @@ public class MedicineRequestController : ControllerBase
         var success = await _medicineRequestService.AssignNurseToRequestAsync(id, staffId);
         if (!success)
         {
-            return BadRequest("Failed to assign nurse. The nurse might have reached the maximum limit of 5 pending requests or the request is not in pending status.");
+            return BadRequest("Failed to assign nurse. The nurse might have reached the maximum limit of 5 pending requests or the request is not in pending/verified status.");
         }
         return NoContent();
+    }
+
+    // POST: api/MedicineRequest/{id}/verify
+    [HttpPost("{id}/verify")]
+    public async Task<IActionResult> VerifyRequest(int id, [FromBody] int staffId)
+    {
+        var success = await _medicineRequestService.VerifyRequestAsync(id, staffId);
+        if (!success)
+        {
+            return BadRequest("Failed to verify request. The request might not exist or is not in pending status.");
+        }
+        return NoContent();
+    }
+
+    // POST: api/MedicineRequest/{id}/refuse
+    [HttpPost("{id}/refuse")]
+    public async Task<IActionResult> RefuseRequest(int id, [FromBody] RefuseRequestDto request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var success = await _medicineRequestService.RefuseRequestAsync(id, request.StaffId, request.RefusalReason);
+        if (!success)
+        {
+            return BadRequest("Failed to refuse request. The request might not exist or is not in pending status.");
+        }
+        return NoContent();
+    }
+
+    // GET: api/MedicineRequest/refused
+    [HttpGet("refused")]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetRefusedRequests()
+    {
+        var refusedRequests = await _medicineRequestService.GetRefusedRequestsAsync();
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(refusedRequests);
+        return Ok(viewModels);
+    }
+
+    // GET: api/MedicineRequest/verified
+    [HttpGet("verified")]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetVerifiedRequests()
+    {
+        var verifiedRequests = await _medicineRequestService.GetMedicineRequestsByStatusAsync("Verified");
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(verifiedRequests);
+        return Ok(viewModels);
+    }
+
+    // GET: api/MedicineRequest/assigned
+    [HttpGet("assigned")]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetAssignedRequests()
+    {
+        var assignedRequests = await _medicineRequestService.GetMedicineRequestsByStatusAsync("Assigned");
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(assignedRequests);
+        return Ok(viewModels);
     }
 
     // POST: api/MedicineRequest/{id}/complete/{staffId}

@@ -18,6 +18,11 @@ public interface IMedicineRequestService
     Task<bool> AssignNurseToRequestAsync(int requestId, int staffId);
     Task<bool> CompleteRequestAsync(int requestId, int staffId);
     
+    // Status update methods
+    Task<bool> VerifyRequestAsync(int requestId, int staffId);
+    Task<bool> RefuseRequestAsync(int requestId, int staffId, string refusalReason);
+    Task<IEnumerable<MedicineRequest>> GetRefusedRequestsAsync();
+    
     // New frequency-based methods
     Task<RequestResult?> StartMedicineRequestAsync(int requestId, int staffId);
     Task<bool> AdministerMedicineByFrequencyAsync(int requestResultId, int medicineRequestItemId, string frequency, int staffId, string? notes = null);
