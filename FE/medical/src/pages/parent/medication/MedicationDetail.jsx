@@ -3,6 +3,10 @@ import { Link, useParams } from "react-router-dom";
 import { medicationService } from "../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import { transformParentMedicationData } from "../../../utils/api/medication/parentMedicationUtils";
+import {
+  calculateDosagePerAdministration,
+  formatFrequency,
+} from "../../../utils/api/medication/medicationUtils";
 import { toast } from "react-toastify";
 
 const MedicationDetail = () => {
@@ -209,13 +213,13 @@ const MedicationDetail = () => {
   const getTimeOfDayText = (timeCode) => {
     switch (timeCode) {
       case "morning":
-        return "Buổi sáng";
+        return "Buổi sáng (6:00 - 11:00)";
       case "noon":
-        return "Buổi trưa";
+        return "Buổi trưa (11:00 - 14:00)";
       case "afternoon":
-        return "Buổi chiều";
+        return "Buổi chiều (14:00 - 18:00)";
       case "as_needed":
-        return "Khi cần";
+        return "Khi cần thiết";
       default:
         return timeCode;
     }
@@ -225,16 +229,17 @@ const MedicationDetail = () => {
     (log) => log.status === "completed"
   ).length;
   const totalDoses = medication.administrationLog.length;
-  const progressPercentage = Math.min(100, (completedDoses / totalDoses) * 100);
+  const progressPercentage =
+    totalDoses > 0 ? Math.min(100, (completedDoses / totalDoses) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      <div className="container mx-auto px-4 sm:px-6 max-w-6xl pt-20">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl pt-16">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-1">
                   <Link
                     to="/parent/medication/history"
                     className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
@@ -252,7 +257,7 @@ const MedicationDetail = () => {
                       />
                     </svg>
                   </Link>
-                  <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
                     Chi tiết yêu cầu thuốc
                   </h1>
                   {getStatusBadge(medication.status)}
@@ -296,116 +301,47 @@ const MedicationDetail = () => {
             </div>
           </div>
 
-          <div className="p-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden mb-6">
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-4 border-b border-blue-200 dark:border-blue-800">
-                <h2 className="text-lg font-medium text-blue-800 dark:text-blue-300">
-                  Thông tin học sinh
-                </h2>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+          <div className="p-4">
+            {/* Combined Student and Medication Information */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              {/* Student Information */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+                <div className="bg-blue-50 dark:bg-blue-900/30 p-3 border-b border-blue-200 dark:border-blue-800">
+                  <h2 className="text-base font-medium text-blue-800 dark:text-blue-300">
+                    Thông tin học sinh
+                  </h2>
+                </div>
+                <div className="p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                         Họ và tên học sinh
                       </h3>
-                      <p className="text-base text-gray-900 dark:text-gray-100">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {medication.studentName}
                       </p>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Mã học sinh
-                      </h3>
-                      <p className="text-base text-gray-900 dark:text-gray-100">
-                        {medication.studentId}
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                         Lớp
                       </h3>
-                      <p className="text-base text-gray-900 dark:text-gray-100">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {medication.class}
                       </p>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden mb-6">
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-4 border-b border-blue-200 dark:border-blue-800">
-                <h2 className="text-lg font-medium text-blue-800 dark:text-blue-300">
-                  Thông tin thuốc
-                </h2>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Tên thuốc
+                    <div>
+                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        Mã học sinh
                       </h3>
-                      <p className="text-base text-gray-900 dark:text-gray-100">
-                        {medication.medicationName}
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {medication.studentId}
                       </p>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Liều lượng
-                      </h3>
-                      <p className="text-base text-gray-900 dark:text-gray-100">
-                        {medication.dosage}
-                      </p>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Tần suất
-                      </h3>
-                      <p className="text-base text-gray-900 dark:text-gray-100">
-                        {medication.frequency === "once"
-                          ? "Một lần mỗi ngày"
-                          : medication.frequency === "twice"
-                          ? "Hai lần mỗi ngày"
-                          : medication.frequency === "thrice"
-                          ? "Ba lần mỗi ngày"
-                          : "Khi cần thiết"}
-                      </p>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Thời điểm uống thuốc
-                      </h3>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        {medication.timeOfDay.map((time) => (
-                          <span
-                            key={time}
-                            className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-xs font-medium"
-                          >
-                            {getTimeOfDayText(time)}
-                          </span>
-                        ))}
-                      </div>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Hướng dẫn đặc biệt
-                      </h3>
-                      <p className="text-base text-gray-900 dark:text-gray-100">
-                        {medication.specialInstructions || "Không có"}
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                         Thời gian sử dụng
                       </h3>
-                      <p className="text-base text-gray-900 dark:text-gray-100">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {new Date(medication.startDate).toLocaleDateString(
                           "vi-VN"
                         )}{" "}
@@ -415,19 +351,65 @@ const MedicationDetail = () => {
                         )}
                       </p>
                     </div>
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Tiến độ sử dụng
+                  </div>
+                </div>
+              </div>
+
+              {/* Basic Medication Information */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+                <div className="bg-green-50 dark:bg-green-900/30 p-3 border-b border-green-200 dark:border-green-800">
+                  <h2 className="text-base font-medium text-green-800 dark:text-green-300">
+                    Thông tin thuốc
+                  </h2>
+                </div>
+                <div className="p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        Tên thuốc
                       </h3>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-2">
-                        <div
-                          className="bg-blue-600 dark:bg-blue-400 h-2.5 rounded-full"
-                          style={{ width: `${progressPercentage}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {completedDoses}/{totalDoses} liều (
-                        {Math.round(progressPercentage)}%)
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {medication.medicationName}
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        Tổng liều lượng
+                      </h3>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {medication.dosage && medication.dosage !== "N/A"
+                          ? `${medication.dosage} ${
+                              medication.dosageUnit || "viên"
+                            }`
+                          : "Chưa xác định"}
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        Tần suất uống thuốc
+                      </h3>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {medication.frequency && medication.frequency !== "N/A"
+                          ? formatFrequency(medication.frequency)
+                          : "Chưa xác định"}
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        Liều lượng mỗi lần
+                      </h3>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {medication.dosage &&
+                        medication.frequency &&
+                        medication.dosage !== "N/A" &&
+                        medication.frequency !== "N/A"
+                          ? calculateDosagePerAdministration(
+                              `${medication.dosage} ${
+                                medication.dosageUnit || "viên"
+                              }`,
+                              medication.frequency
+                            )
+                          : "Chưa xác định"}
                       </p>
                     </div>
                   </div>
@@ -435,92 +417,94 @@ const MedicationDetail = () => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden mb-6">
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-4 border-b border-blue-200 dark:border-blue-800">
-                <h2 className="text-lg font-medium text-blue-800 dark:text-blue-300">
-                  Lịch sử sử dụng thuốc
-                </h2>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                      <th className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider py-3 px-6 text-center">
-                        Ngày & Thời gian
-                      </th>
-                      <th className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider py-3 px-6 text-center">
-                        Trạng thái
-                      </th>
-                      <th className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider py-3 px-6 text-center">
-                        Người thực hiện
-                      </th>
-                      <th className="text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider py-3 px-6 text-center">
-                        Ghi chú
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {medication.administrationLog.map((log, index) => (
-                      <tr
-                        key={index}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">
-                          {new Date(log.date).toLocaleString("vi-VN")}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          {getAdministrationStatusBadge(log.status)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">
-                          {log.administrator || "-"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600 dark:text-gray-400">
-                          {log.notes || "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {/* Special Instructions */}
+            {medication.specialInstructions &&
+              medication.specialInstructions !== "N/A" && (
+                <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
+                  <div className="flex items-start gap-2">
+                    <svg
+                      className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <div>
+                      <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-1">
+                        Hướng dẫn đặc biệt
+                      </h3>
+                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                        {medication.specialInstructions}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
+            {/* Medication Schedule */}
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-4 border-b border-blue-200 dark:border-blue-800">
-                <h2 className="text-lg font-medium text-blue-800 dark:text-blue-300">
-                  Ghi chú của nhân viên y tế
+              <div className="bg-purple-50 dark:bg-purple-900/30 p-3 border-b border-purple-200 dark:border-purple-800">
+                <h2 className="text-base font-medium text-purple-800 dark:text-purple-300">
+                  Lịch trình uống thuốc dự kiến
                 </h2>
               </div>
-              <div className="p-6">
-                {medication.notes.length === 0 ? (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                    Chưa có ghi chú nào từ nhân viên y tế
-                  </p>
-                ) : (
-                  <div className="space-y-4">
-                    {medication.notes.map((note, index) => (
+              <div className="p-4">
+                {medication.timeOfDay && medication.timeOfDay !== "N/A" ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {(Array.isArray(medication.timeOfDay)
+                      ? medication.timeOfDay
+                      : medication.timeOfDay.split(", ")
+                    ).map((time, index) => (
                       <div
                         key={index}
-                        className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600"
+                        className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-3"
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                              {note.author}
-                            </span>
-                            <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                              ({note.role})
-                            </span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
+                            <svg
+                              className="w-3 h-3 text-green-600 dark:text-green-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
                           </div>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {new Date(note.date).toLocaleString("vi-VN")}
-                          </span>
+                          <div>
+                            <h4 className="font-medium text-green-800 dark:text-green-200 text-sm">
+                              {getTimeOfDayText(time.trim())}
+                            </h4>
+                            <p className="text-xs text-green-600 dark:text-green-400">
+                              {medication.dosage &&
+                              medication.frequency &&
+                              medication.dosage !== "N/A" &&
+                              medication.frequency !== "N/A"
+                                ? calculateDosagePerAdministration(
+                                    `${medication.dosage} ${
+                                      medication.dosageUnit || "viên"
+                                    }`,
+                                    medication.frequency
+                                  )
+                                : "Chưa xác định"}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
-                          {note.content}
-                        </p>
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <p className="text-gray-500 dark:text-gray-400 italic text-sm text-center py-4">
+                    Chưa có lịch trình uống thuốc được xác định
+                  </p>
                 )}
               </div>
             </div>

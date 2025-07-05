@@ -352,6 +352,31 @@ const MedicationRequest = () => {
     );
   };
 
+  // Kiểm tra xem tất cả thuốc có hợp lệ không (bao gồm validation frequency và time slots)
+  const isStep2Valid = () => {
+    return medications.every((medication) => {
+      // Kiểm tra thông tin cơ bản
+      if (
+        !medication.medicineName.trim() ||
+        !medication.dosage ||
+        !medication.frequency ||
+        medication.timeOfDay.length === 0
+      ) {
+        return false;
+      }
+
+      // Kiểm tra validation frequency và time slots
+      if (medication.frequency !== "as_needed") {
+        const requiredTimeSlots = getMaxTimeSlots(medication.frequency);
+        if (medication.timeOfDay.length !== requiredTimeSlots) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  };
+
   // Kiểm tra ngày có hợp lệ không - định dạng y/m/d
   const isValidDate = (dateString) => {
     if (!dateString || !dateString.includes("/")) return false;
@@ -765,11 +790,34 @@ const MedicationRequest = () => {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Tổng liều/lần
+                          Liều lượng/lần uống
                         </label>
                         <div className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300">
-                          {medication.dosage && medication.dosageUnit
-                            ? `${medication.dosage} ${medication.dosageUnit}`
+                          {medication.dosage &&
+                          medication.dosageUnit &&
+                          medication.frequency
+                            ? (() => {
+                                const totalDosage = parseFloat(
+                                  medication.dosage
+                                );
+
+                                if (medication.frequency === "as_needed") {
+                                  return `${totalDosage} ${medication.dosageUnit}/lần (khi cần)`;
+                                }
+
+                                const frequency = parseInt(
+                                  medication.frequency
+                                );
+                                const dosagePerTime = totalDosage / frequency;
+
+                                // Làm tròn đến 1 chữ số thập phân nếu cần
+                                const roundedDosage =
+                                  dosagePerTime % 1 === 0
+                                    ? dosagePerTime.toString()
+                                    : dosagePerTime.toFixed(1);
+
+                                return `${roundedDosage} ${medication.dosageUnit}/lần`;
+                              })()
                             : "Nhập liều lượng"}
                         </div>
                       </div>
@@ -869,8 +917,41 @@ const MedicationRequest = () => {
                         </p>
                       )}
 
+                      {/* Validation for frequency and time slots mismatch */}
                       {medication.frequency !== "as_needed" &&
-                        medication.timeOfDay.length > 0 && (
+                        medication.timeOfDay.length > 0 &&
+                        medication.timeOfDay.length !==
+                          getMaxTimeSlots(medication.frequency) && (
+                          <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-md">
+                            <p className="text-red-700 dark:text-red-300 text-sm">
+                              <span className="font-medium">
+                                ⚠️ Lỗi: Tần suất {medication.frequency} lần/ngày
+                                cần chọn đúng{" "}
+                                {getMaxTimeSlots(medication.frequency)} thời
+                                điểm
+                              </span>
+                              <br />
+                              Hiện tại đã chọn {medication.timeOfDay.length}/
+                              {getMaxTimeSlots(medication.frequency)} thời điểm.
+                              Vui lòng chọn{" "}
+                              {getMaxTimeSlots(medication.frequency) -
+                                medication.timeOfDay.length >
+                              0
+                                ? "thêm"
+                                : "bớt"}{" "}
+                              {Math.abs(
+                                getMaxTimeSlots(medication.frequency) -
+                                  medication.timeOfDay.length
+                              )}{" "}
+                              thời điểm.
+                            </p>
+                          </div>
+                        )}
+
+                      {medication.frequency !== "as_needed" &&
+                        medication.timeOfDay.length > 0 &&
+                        medication.timeOfDay.length ===
+                          getMaxTimeSlots(medication.frequency) && (
                           <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
                             <p className="text-blue-700 dark:text-blue-300 text-sm">
                               <span className="font-medium">
@@ -885,10 +966,27 @@ const MedicationRequest = () => {
                               </span>{" "}
                               Đã chọn {medication.timeOfDay.length}/
                               {getMaxTimeSlots(medication.frequency)} thời điểm
-                              {medication.timeOfDay.length >=
-                                getMaxTimeSlots(medication.frequency) &&
-                                " (đã đủ)"}
+                              (đã đủ) ✓
                             </p>
+                            {medication.dosage && medication.dosageUnit && (
+                              <p className="text-blue-600 dark:text-blue-400 text-xs mt-1">
+                                {(() => {
+                                  const totalDosage = parseFloat(
+                                    medication.dosage
+                                  );
+                                  const frequency = parseInt(
+                                    medication.frequency
+                                  );
+                                  const dosagePerTime = totalDosage / frequency;
+                                  const roundedDosage =
+                                    dosagePerTime % 1 === 0
+                                      ? dosagePerTime.toString()
+                                      : dosagePerTime.toFixed(1);
+
+                                  return `Mỗi lần uống: ${roundedDosage} ${medication.dosageUnit} (Tổng: ${totalDosage} ${medication.dosageUnit}/${frequency} lần)`;
+                                })()}
+                              </p>
+                            )}
                           </div>
                         )}
                     </div>
@@ -952,35 +1050,47 @@ const MedicationRequest = () => {
                 )}
               </div>
             ) : (
-              <button
-                type="submit"
-                className="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 flex items-center transition-colors"
-                disabled={isLoading}
-              >
-                {isLoading && (
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
+              <div className="flex flex-col items-end">
+                <button
+                  type="submit"
+                  className={`px-6 py-2 rounded-md transition-colors flex items-center ${
+                    isStep2Valid()
+                      ? "bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600"
+                      : "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                  }`}
+                  disabled={isLoading || !isStep2Valid()}
+                >
+                  {isLoading && (
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  )}
+                  {isLoading ? "Đang gửi..." : "Gửi yêu cầu"}
+                </button>
+                {!isStep2Valid() && (
+                  <p className="text-red-500 dark:text-red-400 text-sm mt-2 text-right">
+                    Vui lòng điền đầy đủ thông tin thuốc và chọn đúng số thời
+                    điểm theo tần suất
+                  </p>
                 )}
-                {isLoading ? "Đang gửi..." : "Gửi yêu cầu"}
-              </button>
+              </div>
             )}
           </div>
         </form>

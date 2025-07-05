@@ -14,6 +14,7 @@ import {
   FiX,
   FiClipboard,
 } from "react-icons/fi";
+import { calculateDosagePerAdministration } from "../../../utils/api/medication/medicationUtils";
 
 const MedicationManagement = () => {
   const [activeTab, setActiveTab] = useState("pending");
@@ -550,8 +551,16 @@ const MedicationManagement = () => {
                             {med.medicationName}
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {med.dosage}, {med.frequency}
+                            Tổng: {med.dosage}, {med.frequency}
                           </div>
+                          {med.dosage && med.frequency && (
+                            <div className="text-xs text-blue-600 dark:text-blue-400">
+                              {calculateDosagePerAdministration(
+                                med.dosage,
+                                med.frequency
+                              )}
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">

@@ -56,6 +56,7 @@ export const transformParentMedicationData = (requests) => {
       endDate: req.date || new Date().toISOString().split("T")[0], // Using same date as start for now
       status: getUIStatus(req.status),
       dosage: firstMedicine.dosage || "N/A",
+      dosageUnit: firstMedicine.dosageUnit || "viên",
       frequency: firstMedicine.frequency || "N/A",
       timeOfDay: firstMedicine.timeOfDay || "N/A",
       instructions: firstMedicine.instructions || "N/A",

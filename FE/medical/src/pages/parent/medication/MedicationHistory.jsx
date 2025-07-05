@@ -357,11 +357,6 @@ const MedicationHistory = () => {
           <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-1">
             Không tìm thấy yêu cầu nào
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {filterStatus === "all"
-              ? "Chưa có yêu cầu thuốc nào được tạo."
-              : `Không có yêu cầu thuốc nào với trạng thái "${filterStatus}".`}
-          </p>
           <Link
             to="/parent/medication/request"
             className="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-md transition-colors"
@@ -405,19 +400,13 @@ const MedicationHistory = () => {
                       scope="col"
                       className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                     >
-                      Thuốc & Liều lượng
+                      Thuốc
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                     >
-                      Ngày bắt đầu - kết thúc
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Tiến độ
+                      Ngày uống
                     </th>
                     <th
                       scope="col"
@@ -447,23 +436,12 @@ const MedicationHistory = () => {
                           {medication.studentName}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          Lớp {medication.class}
+                          {medication.class}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {medication.medicationName}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {medication.dosage} (
-                          {medication.frequency === "once"
-                            ? "1 lần/ngày"
-                            : medication.frequency === "twice"
-                            ? "2 lần/ngày"
-                            : medication.frequency === "thrice"
-                            ? "3 lần/ngày"
-                            : "Khi cần"}
-                          )
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -471,30 +449,6 @@ const MedicationHistory = () => {
                           {new Date(medication.startDate).toLocaleDateString(
                             "vi-VN"
                           )}
-                          {" - "}
-                          {new Date(medication.endDate).toLocaleDateString(
-                            "vi-VN"
-                          )}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          Yêu cầu:{" "}
-                          {new Date(medication.requestDate).toLocaleDateString(
-                            "vi-VN"
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-2">
-                          <div
-                            className="bg-blue-600 dark:bg-blue-400 h-2.5 rounded-full"
-                            style={{
-                              width: `${medication.progressPercentage}%`,
-                            }}
-                          ></div>
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {medication.completedDoses}/{medication.totalDoses}{" "}
-                          liều ({medication.progressPercentage}%)
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">

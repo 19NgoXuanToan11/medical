@@ -18,6 +18,7 @@ import {
   formatAdministrationSchedule,
   shouldShowReRequestOption,
 } from "../utils/requestResultUtils";
+import { calculateDosagePerAdministration } from "../../../../utils/api/medication/medicationUtils";
 
 const RequestResultTable = ({
   results,
@@ -184,10 +185,18 @@ const RequestResultTable = ({
                 {/* Dosage & Frequency */}
                 <td className="px-6 py-4 text-center">
                   <div className="text-sm text-gray-900 dark:text-gray-100">
-                    <div className="font-medium">{result.dosage}</div>
+                    <div className="font-medium">Tổng: {result.dosage}</div>
                     <div className="text-gray-500 dark:text-gray-400">
                       {result.frequency}
                     </div>
+                    {result.dosage && result.frequency && (
+                      <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                        {calculateDosagePerAdministration(
+                          result.dosage,
+                          result.frequency
+                        )}
+                      </div>
+                    )}
                     {result.timeOfDay && (
                       <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {result.timeOfDay}
