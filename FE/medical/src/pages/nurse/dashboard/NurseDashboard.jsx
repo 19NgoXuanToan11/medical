@@ -367,7 +367,7 @@ const NurseDashboard = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="text-sm text-neutral-600 dark:text-neutral-300">
-                        Sự kiện y tế hôm nay
+                        Sự cố y tế hôm nay
                       </div>
                       <div className="text-3xl font-bold text-red-600 dark:text-red-400">
                         {stats.healthEventsToday}

@@ -184,10 +184,10 @@ const HealthEventList = () => {
     <div className="container mx-auto px-6 max-w-7xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
-          Quản lý sự kiện y tế
+          Quản lý sự cố y tế
         </h1>
         <p className="text-lg text-neutral-600 dark:text-neutral-400 mt-2">
-          Theo dõi và xử lý các sự kiện y tế trong trường học
+          Theo dõi và xử lý các sự cố y tế trong trường học
         </p>
       </div>
 

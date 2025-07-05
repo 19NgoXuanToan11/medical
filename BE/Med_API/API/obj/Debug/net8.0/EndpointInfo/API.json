@@ -1250,6 +1250,287 @@
         }
       }
     },
+    "/api/HealthCheckForm/schedules": {
+      "get": {
+        "tags": [
+          "HealthCheckForm"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "HealthCheckForm"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/HealthCheckForm/schedules/{id}": {
+      "get": {
+        "tags": [
+          "HealthCheckForm"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "HealthCheckForm"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.ViewModels.HealthCheckFormDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "HealthCheckForm"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/HealthCheckForm/grades": {
+      "get": {
+        "tags": [
+          "HealthCheckForm"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/HealthCheckForm/stations": {
+      "get": {
+        "tags": [
+          "HealthCheckForm"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/HealthCheckForm/staff": {
+      "get": {
+        "tags": [
+          "HealthCheckForm"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/HealthCheckResult": {
       "get": {
         "tags": [
@@ -4233,6 +4514,91 @@
         }
       }
     },
+    "/api/MedicineRequest/frequency/more-than-one": {
+      "get": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.MedicineRequestDto_ViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.MedicineRequestDto_ViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.MedicineRequestDto_ViewModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MedicineRequest/frequency/need-time-of-day": {
+      "get": {
+        "tags": [
+          "MedicineRequest"
+        ],
+        "parameters": [
+          {
+            "name": "time",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.MedicineRequestDto_ViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.MedicineRequestDto_ViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.MedicineRequestDto_ViewModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Parent": {
       "get": {
         "tags": [
@@ -4414,6 +4780,55 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Parent/{parentId}/medicine-request-progress": {
+      "get": {
+        "tags": [
+          "Parent"
+        ],
+        "parameters": [
+          {
+            "name": "parentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.ParentDto_MedicineRequestProgress"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.ParentDto_MedicineRequestProgress"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.ParentDto_MedicineRequestProgress"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -5158,6 +5573,289 @@
         }
       }
     },
+    "/api/Staff/grade-nurse": {
+      "post": {
+        "tags": [
+          "Staff"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseCreate"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseCreate"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Staff/grade-nurse/{id}": {
+      "delete": {
+        "tags": [
+          "Staff"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Staff/grade-nurse/by-grade/{grade}": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "parameters": [
+          {
+            "name": "grade",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Staff/grade-nurse/by-staff/{staffId}": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "parameters": [
+          {
+            "name": "staffId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StaffDto_GradeNurseViewModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Staff/grade/{grade}/students-parents": {
+      "get": {
+        "tags": [
+          "Staff"
+        ],
+        "parameters": [
+          {
+            "name": "grade",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.Controllers.StaffController_GradeStudentParentResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.Controllers.StaffController_GradeStudentParentResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.Controllers.StaffController_GradeStudentParentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Student": {
       "get": {
         "tags": [
@@ -5339,6 +6037,55 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Student/by-grade/{grade}": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "parameters": [
+          {
+            "name": "grade",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -5625,6 +6372,55 @@
         }
       }
     },
+    "/api/StudentParent/by-grade/{grade}": {
+      "get": {
+        "tags": [
+          "StudentParent"
+        ],
+        "parameters": [
+          {
+            "name": "grade",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentParentDto_ViewModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentParentDto_ViewModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentParentDto_ViewModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/WeatherForecast": {
       "get": {
         "tags": [
@@ -5680,6 +6476,26 @@
           },
           "role": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.Controllers.StaffController_GradeStudentParentResponse": {
+        "type": "object",
+        "properties": {
+          "students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
+            },
+            "nullable": true
+          },
+          "studentParents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.StudentParentDto_ViewModel"
+            },
             "nullable": true
           }
         },
@@ -6766,6 +7582,41 @@
           "isActive": {
             "type": "boolean",
             "nullable": true
+          },
+          "type": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "batchNumber": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "manufacturer": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "dose": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "administrationMethod": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6787,6 +7638,41 @@
           },
           "isActive": {
             "type": "boolean",
+            "nullable": true
+          },
+          "type": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "batchNumber": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "manufacturer": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "dose": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "administrationMethod": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
             "nullable": true
           }
         },
@@ -6810,6 +7696,31 @@
           },
           "isActive": {
             "type": "boolean",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "batchNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "manufacturer": {
+            "type": "string",
+            "nullable": true
+          },
+          "dose": {
+            "type": "string",
+            "nullable": true
+          },
+          "administrationMethod": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -7127,6 +8038,60 @@
           },
           "isActive": {
             "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ParentDto_MedicineRequestProgress": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "className": {
+            "type": "string",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-01-01"
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "medicineRequestItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.MedicineRequestItemDto_ViewModel"
+            },
+            "nullable": true
+          },
+          "progress": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.RequestResultDto_ViewModel"
+            },
             "nullable": true
           }
         },
@@ -7584,15 +8549,24 @@
             "nullable": true
           },
           "administeredFrequencies": {
-            "type": "string",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
             "nullable": true
           },
           "failedFrequencies": {
-            "type": "string",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
             "nullable": true
           },
           "failureReasons": {
-            "type": "string",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
             "nullable": true
           },
           "isReRequest": {
@@ -7736,6 +8710,41 @@
           "roleId": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.StaffDto_GradeNurseCreate": {
+        "type": "object",
+        "properties": {
+          "staffId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "grade": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.StaffDto_GradeNurseViewModel": {
+        "type": "object",
+        "properties": {
+          "gradeNurseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "staffId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "grade": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nurse": {
+            "$ref": "#/components/schemas/API.DTOs.StaffDto_ViewModel"
           }
         },
         "additionalProperties": false
@@ -8409,18 +9418,49 @@
         "additionalProperties": false
       },
       "API.ViewModels.HealthCheckFormDTO": {
-        "required": [
-          "studentId"
-        ],
         "type": "object",
         "properties": {
           "formId": {
             "type": "integer",
             "format": "int32"
           },
+          "title": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "scheduledDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-span",
+            "nullable": true
+          },
+          "estimatedDuration": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
           "studentId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "parentId": {
             "type": "integer",
@@ -8443,12 +9483,6 @@
             "format": "date-time",
             "nullable": true
           },
-          "className": {
-            "maxLength": 50,
-            "minLength": 0,
-            "type": "string",
-            "nullable": true
-          },
           "confirmStatus": {
             "maxLength": 20,
             "minLength": 0,
@@ -8465,6 +9499,57 @@
             "format": "date-time",
             "nullable": true
           },
+          "className": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "gradeIds": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalStudents": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "notifyParents": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "autoAdvance": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "saveResults": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "generateReport": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "requireParentConfirmation": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "selectedStations": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffAssigned": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "estimatedEndTime": {
+            "type": "string",
+            "nullable": true
+          },
           "student": {
             "$ref": "#/components/schemas/API.DTOs.StudentDto_ViewModel"
           },
@@ -8478,6 +9563,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/API.ViewModels.HealthCheckResultDTO"
+            },
+            "nullable": true
+          },
+          "grades": {
+            "type": "array",
+            "items": {
+              "type": "string"
             },
             "nullable": true
           }

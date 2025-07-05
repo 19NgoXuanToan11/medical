@@ -61,15 +61,42 @@ const MedicineAdministration = () => {
   };
 
   // Handle start administration
-  const handleStartAdministration = (request) => {
-    setSelectedRequest(request);
-    setAdministrationData({
-      ...administrationData,
-      administeredTime: new Date().toISOString(),
-      frequency: request.medicineRequestItems?.[0]?.frequency || "",
-      timesPerDay: getTimesPerDay(request.medicineRequestItems?.[0]?.frequency),
-    });
-    setShowAdministrationModal(true);
+  const handleStartAdministration = async (request) => {
+    try {
+      // Call the new API endpoint to start medication administration
+      const response = await medicationService.startMedicationAdministration(
+        request.requestId || request.id,
+        request.staffId || request.staff?.staffId
+      );
+
+      if (response.success) {
+        alert("Đã bắt đầu quá trình cho uống thuốc thành công!");
+
+        // After starting administration, open the modal for recording the actual administration
+        setSelectedRequest(request);
+        setAdministrationData({
+          ...administrationData,
+          administeredTime: new Date().toISOString(),
+          frequency: request.medicineRequestItems?.[0]?.frequency || "",
+          timesPerDay: getTimesPerDay(
+            request.medicineRequestItems?.[0]?.frequency
+          ),
+        });
+        setShowAdministrationModal(true);
+
+        // Refresh the data
+        loadAdministrationRequests();
+        loadAllStats();
+      } else {
+        alert(
+          "Có lỗi xảy ra: " +
+            (response.message || "Không thể bắt đầu quá trình")
+        );
+      }
+    } catch (error) {
+      console.error("Error starting administration:", error);
+      alert("Có lỗi xảy ra khi bắt đầu quá trình cho uống thuốc!");
+    }
   };
 
   // Get times per day from frequency
@@ -181,10 +208,10 @@ const MedicineAdministration = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-            Cho uống thuốc
+            Quản lý cho uống thuốc
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Thực hiện và ghi nhận quá trình cho học sinh uống thuốc
+            Bắt đầu và ghi nhận quá trình cho học sinh uống thuốc
           </p>
         </div>
         <button
@@ -266,7 +293,7 @@ const MedicineAdministration = () => {
                   className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 transition-colors"
                 >
                   <FiActivity className="h-4 w-4" />
-                  Cho uống thuốc
+                  Bắt đầu cho uống thuốc
                 </button>
               </div>
 
@@ -390,7 +417,7 @@ const MedicineAdministration = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                  Ghi nhận việc cho uống thuốc
+                  Ghi nhận kết quả cho uống thuốc
                 </h3>
                 <button
                   onClick={() => setShowAdministrationModal(false)}

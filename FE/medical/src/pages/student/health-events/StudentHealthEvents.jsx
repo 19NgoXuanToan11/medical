@@ -208,7 +208,7 @@ const StudentHealthEvents = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-neutral-800 mb-2">
-          Sự kiện y tế
+          Sự cố y tế
         </h1>
         <p className="text-neutral-600">
           Lịch khám sức khỏe, tiêm chủng và các hoạt động y tế khác
@@ -416,7 +416,7 @@ const StudentHealthEvents = () => {
               Lưu ý quan trọng
             </h3>
             <ul className="text-neutral-600 text-sm space-y-2">
-              <li>• Luôn đến đúng giờ cho các sự kiện y tế</li>
+              <li>• Luôn đến đúng giờ cho các sự cố y tế</li>
               <li>• Mang theo sổ khám sức khỏe cá nhân (nếu có)</li>
               <li>
                 • Thông báo cho y tá trường học nếu bạn không thể tham gia

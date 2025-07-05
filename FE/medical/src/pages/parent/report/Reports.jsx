@@ -320,7 +320,7 @@ const Reports = () => {
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
               <FaCalendarAlt className="mr-2 text-blue-500" />
-              Sự kiện y tế trong kỳ báo cáo
+              Sự cố y tế trong kỳ báo cáo
             </h3>
             <div className="space-y-4">
               {healthReport.events.map((event, index) => (

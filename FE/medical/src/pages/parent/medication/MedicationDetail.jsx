@@ -1,90 +1,98 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import { medicationService } from "../../../utils/api/medication/medicationService";
+import { useAuth } from "../../../utils/auth/AuthContext";
+import { transformParentMedicationData } from "../../../utils/api/medication/parentMedicationUtils";
+import { toast } from "react-toastify";
 
 const MedicationDetail = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [medication, setMedication] = useState(null);
+  const [error, setError] = useState(null);
 
-  // Sample medication data - in a real application, this would be fetched from an API
-  useEffect(() => {
-    // Simulating API call
-    setTimeout(() => {
-      setMedication({
-        id: "MED781234",
-        studentName: "Nguyễn Văn An",
-        studentId: "ST123456",
-        class: "3A",
-        medicationName: "Paracetamol",
-        requestDate: "2023-10-15T09:30:00",
-        startDate: "2023-10-16",
-        endDate: "2023-10-20",
-        status: "active",
-        dosage: "1 viên",
-        frequency: "twice",
-        timeOfDay: ["morning", "afternoon"],
-        specialInstructions: "Uống sau bữa ăn 30 phút. Không uống khi đói.",
-        medicationImageUrl:
-          "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        prescriptionImageUrl:
-          "https://images.unsplash.com/photo-1583912267670-5c72c3466b73?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        administrationLog: [
-          {
-            date: "2023-10-16T08:30:00",
-            status: "completed",
-            administrator: "Nguyễn Thị Tâm",
-            notes: "Uống thuốc đầy đủ",
-          },
-          {
-            date: "2023-10-16T14:30:00",
-            status: "completed",
-            administrator: "Trần Văn Minh",
-            notes: "Uống thuốc đầy đủ",
-          },
-          {
-            date: "2023-10-17T08:45:00",
-            status: "completed",
-            administrator: "Nguyễn Thị Tâm",
-            notes: "Uống thuốc đầy đủ",
-          },
-          {
-            date: "2023-10-17T14:30:00",
-            status: "missed",
-            administrator: null,
-            notes: "Học sinh vắng mặt",
-          },
-          {
-            date: "2023-10-18T08:30:00",
-            status: "upcoming",
-            administrator: null,
-            notes: "",
-          },
-          {
-            date: "2023-10-18T14:30:00",
-            status: "upcoming",
-            administrator: null,
-            notes: "",
-          },
-        ],
-        notes: [
-          {
-            date: "2023-10-15T10:15:00",
-            author: "Trần Thị Hoa",
-            role: "Y tá trường",
-            content: "Đã kiểm tra thuốc, phù hợp với yêu cầu của phụ huynh",
-          },
-          {
-            date: "2023-10-17T09:00:00",
-            author: "Nguyễn Thị Tâm",
-            role: "Y tá trường",
-            content:
-              "Học sinh đã quen với việc uống thuốc, không có phản ứng phụ",
-          },
-        ],
-      });
+  // Fetch medication data from API
+  const fetchMedicationDetail = async () => {
+    if (!user?.id) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // First get all parent medication requests
+      const result = await medicationService.getMedicationRequestsByParent(
+        user.id
+      );
+
+      if (result.success) {
+        const transformedData = transformParentMedicationData(result.data);
+
+        // Find the specific medication by ID
+        const medicationId = id.replace("MED", ""); // Remove MED prefix
+        const foundMedication = transformedData.find(
+          (med) => med.requestId.toString() === medicationId || med.id === id
+        );
+
+        if (foundMedication) {
+          // Enhance with additional detail data
+          const enhancedMedication = {
+            ...foundMedication,
+            studentId: foundMedication.studentCode,
+            specialInstructions: foundMedication.instructions,
+            timeOfDay: foundMedication.timeOfDay.split(", ").map((time) => {
+              switch (time.toLowerCase()) {
+                case "morning":
+                case "sáng":
+                  return "morning";
+                case "afternoon":
+                case "chiều":
+                  return "afternoon";
+                case "noon":
+                case "trưa":
+                  return "noon";
+                default:
+                  return "as_needed";
+              }
+            }),
+            administrationLog: foundMedication.progress.map((p) => ({
+              date: p.administeredTime,
+              status:
+                p.status === "Completed"
+                  ? "completed"
+                  : p.status === "Failed"
+                  ? "missed"
+                  : "upcoming",
+              administrator:
+                p.administeredByStaff?.firstName &&
+                p.administeredByStaff?.lastName
+                  ? `${p.administeredByStaff.firstName} ${p.administeredByStaff.lastName}`
+                  : "N/A",
+              notes: p.reRequestReason || "Không có ghi chú",
+            })),
+            notes: [], // API doesn't provide notes, so empty array
+          };
+
+          setMedication(enhancedMedication);
+        } else {
+          setError("Không tìm thấy yêu cầu thuốc");
+        }
+      } else {
+        setError(result.message);
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching medication detail:", error);
+      setError("Có lỗi xảy ra khi tải dữ liệu");
+      toast.error("Có lỗi xảy ra khi tải dữ liệu");
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, [id]);
+    }
+  };
+
+  useEffect(() => {
+    fetchMedicationDetail();
+  }, [id, user?.id]);
 
   if (loading) {
     return (
@@ -96,7 +104,7 @@ const MedicationDetail = () => {
     );
   }
 
-  if (!medication) {
+  if (error || (!loading && !medication)) {
     return (
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
@@ -117,17 +125,26 @@ const MedicationDetail = () => {
             </svg>
           </div>
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
-            Không tìm thấy yêu cầu thuốc
+            {error || "Không tìm thấy yêu cầu thuốc"}
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Yêu cầu thuốc với mã #{id} không tồn tại hoặc đã bị xóa
+            {error ||
+              `Yêu cầu thuốc với mã #${id} không tồn tại hoặc đã bị xóa`}
           </p>
-          <Link
-            to="/parent/medication/history"
-            className="px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-md transition-colors"
-          >
-            Quay lại danh sách
-          </Link>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={fetchMedicationDetail}
+              className="px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-md transition-colors"
+            >
+              Thử lại
+            </button>
+            <Link
+              to="/parent/medication/history"
+              className="px-4 py-2 bg-gray-600 dark:bg-gray-500 hover:bg-gray-700 dark:hover:bg-gray-600 text-white rounded-md transition-colors"
+            >
+              Quay lại danh sách
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -412,28 +429,6 @@ const MedicationDetail = () => {
                         {completedDoses}/{totalDoses} liều (
                         {Math.round(progressPercentage)}%)
                       </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                          Hình ảnh thuốc
-                        </h3>
-                        <img
-                          src={medication.medicationImageUrl}
-                          alt="Prescription"
-                          className="w-full h-24 object-cover rounded-md border border-gray-200 dark:border-gray-600"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                          Hình ảnh đơn thuốc
-                        </h3>
-                        <img
-                          src={medication.prescriptionImageUrl}
-                          alt="Prescription"
-                          className="w-full h-24 object-cover rounded-md border border-gray-200 dark:border-gray-600"
-                        />
-                      </div>
                     </div>
                   </div>
                 </div>

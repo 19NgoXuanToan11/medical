@@ -349,7 +349,7 @@ const Notifications = () => {
               : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
           }`}
         >
-          Sự kiện y tế
+          Sự cố y tế
         </button>
         <button
           onClick={() => setFilter("vaccination")}
@@ -394,7 +394,7 @@ const Notifications = () => {
                       : filter === "medication"
                       ? "thuốc"
                       : filter === "health_event"
-                      ? "sự kiện y tế"
+                      ? "sự cố y tế"
                       : "tiêm chủng"
                   }".`}
             </p>

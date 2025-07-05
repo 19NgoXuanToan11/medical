@@ -561,10 +561,10 @@ const SupplyInventory = () => {
                   </td>
                   <td className="py-4 px-6 text-center align-middle">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shadow-sm border ${
                         item.isActive
-                          ? "bg-green-100 dark:bg-green-800 text-white"
-                          : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200"
+                          ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700"
+                          : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700"
                       }`}
                     >
                       {item.isActive ? "Đang sử dụng" : "Ngừng sử dụng"}

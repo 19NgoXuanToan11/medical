@@ -289,7 +289,7 @@ const HealthEventEdit = () => {
             <FiArrowLeft className="h-5 w-5" />
           </Link>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-            Chỉnh sửa sự kiện y tế
+            Chỉnh sửa sự cố y tế
           </h1>
         </div>
       </div>

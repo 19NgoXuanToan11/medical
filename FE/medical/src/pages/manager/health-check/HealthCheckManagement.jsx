@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiHeart,
   FiCalendar,
@@ -16,6 +17,7 @@ import {
 } from "react-icons/fi";
 
 const HealthCheckManagement = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -314,7 +316,9 @@ const HealthCheckManagement = () => {
 
                 <div className="flex justify-end gap-3">
                   <button
-                    onClick={() => handleViewDetail(request)}
+                    onClick={() =>
+                      navigate(`/manager/health-check/${request.id}`)
+                    }
                     className="px-3 py-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 border border-blue-200 dark:border-blue-600 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-1"
                   >
                     <FiEye className="h-4 w-4" />
@@ -528,7 +532,12 @@ const HealthCheckManagement = () => {
                       </span>
                     </td>
                     <td className="py-4 px-6 align-middle text-center">
-                      <button className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 px-3 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                      <button
+                        onClick={() =>
+                          navigate(`/manager/health-check/${program.id}`)
+                        }
+                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 px-3 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      >
                         Xem chi tiết
                       </button>
                     </td>

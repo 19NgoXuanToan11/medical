@@ -441,7 +441,7 @@ const StudentDashboard = () => {
                 </div>
               ) : (
                 <div className="text-center py-6 text-neutral-500">
-                  Không có sự kiện y tế gần đây
+                  Không có sự cố y tế gần đây
                 </div>
               )}
             </div>

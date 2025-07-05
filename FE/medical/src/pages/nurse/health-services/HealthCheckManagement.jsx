@@ -18,6 +18,7 @@ import {
   FiInfo,
   FiAlertCircle,
 } from "react-icons/fi";
+import { getHealthCheckSchedules } from '../../../utils/api/healthCheck/healthCheckService';
 
 const HealthCheckManagement = () => {
   const [activeSubTab, setActiveSubTab] = useState("scheduled");
@@ -29,82 +30,14 @@ const HealthCheckManagement = () => {
   useEffect(() => {
     const loadHealthChecks = async () => {
       setLoading(true);
-
-      // Simulate API call
-      setTimeout(() => {
-        setHealthChecks([
-          // Scheduled Health Checks
-          {
-            id: 2,
-            type: "health_check",
-            title: "Khám sức khỏe định kỳ học kỳ 1",
-            scheduledDate: "2023-07-15",
-            scheduledTime: "08:00",
-            status: "scheduled",
-            grades: ["2A", "2B"],
-            totalStudents: 60,
-            confirmedParents: 55,
-            location: "Phòng y tế trường",
-            description: "Khám sức khỏe định kỳ học kỳ 1 năm học 2023-2024",
-            checkItems: [
-              "Chiều cao",
-              "Cân nặng",
-              "Thị lực",
-              "Răng miệng",
-              "Tim mạch",
-            ],
-            requiresConsent: true,
-            estimatedDuration: 180,
-          },
-
-          // Active Health Checks
-          {
-            id: 4,
-            type: "health_check",
-            title: "Khám sức khỏe khối lớp 3",
-            scheduledDate: "2023-07-10",
-            scheduledTime: "08:00",
-            status: "active",
-            grades: ["3A", "3B", "3C"],
-            totalStudents: 80,
-            completedStudents: 35,
-            location: "Phòng y tế trường",
-            description: "Khám sức khỏe định kỳ cho học sinh khối lớp 3",
-            checkItems: [
-              "Chiều cao",
-              "Cân nặng",
-              "Thị lực",
-              "Răng miệng",
-              "Tim mạch",
-              "Phổi",
-            ],
-            startTime: "08:00",
-            estimatedDuration: 240,
-          },
-
-          // Completed Health Checks
-          {
-            id: 6,
-            type: "health_check",
-            title: "Khám sức khỏe học kỳ 2",
-            scheduledDate: "2023-05-15",
-            status: "completed",
-            grades: ["1A", "1B"],
-            totalStudents: 65,
-            completedStudents: 65,
-            location: "Phòng y tế trường",
-            description: "Khám sức khỏe định kỳ học kỳ 2 năm học 2022-2023",
-            checkItems: ["Chiều cao", "Cân nặng", "Thị lực", "Răng miệng"],
-            completedDate: "2023-05-15",
-            abnormalCases: 8,
-            notes: "Phát hiện 8 trường hợp cần theo dõi",
-          },
-        ]);
-
-        setLoading(false);
-      }, 1000);
+      try {
+        const data = await getHealthCheckSchedules();
+        setHealthChecks(data);
+      } catch (error) {
+        setHealthChecks([]);
+      }
+      setLoading(false);
     };
-
     loadHealthChecks();
   }, []);
 
@@ -143,20 +76,22 @@ const HealthCheckManagement = () => {
 
   const filteredHealthChecks = healthChecks.filter((healthCheck) => {
     // Filter by status (sub tab)
-    if (activeSubTab === "scheduled" && healthCheck.status !== "scheduled")
+    const status = healthCheck.status?.toLowerCase();
+    if (activeSubTab === "scheduled" && status !== "scheduled")
       return false;
-    if (activeSubTab === "active" && healthCheck.status !== "active")
+    if (activeSubTab === "active" && status !== "active")
       return false;
-    if (activeSubTab === "completed" && healthCheck.status !== "completed")
+    if (activeSubTab === "completed" && status !== "completed")
       return false;
 
     // Filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
+      const gradesArr = healthCheck.grades || (healthCheck.gradeIds ? JSON.parse(healthCheck.gradeIds) : []);
       return (
         healthCheck.title.toLowerCase().includes(term) ||
         healthCheck.description.toLowerCase().includes(term) ||
-        healthCheck.grades.some((grade) => grade.toLowerCase().includes(term))
+        gradesArr.some((grade) => grade.toLowerCase().includes(term))
       );
     }
 
@@ -448,7 +383,7 @@ const HealthCheckManagement = () => {
       </p>
       {activeSubTab === "scheduled" && (
         <Link
-          to="/nurse/health-services/create"
+          to="/nurse/health-services/create/health_check"
           className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200"
         >
           <FiPlus className="w-4 h-4 mr-2" />
@@ -473,7 +408,7 @@ const HealthCheckManagement = () => {
             </p>
           </div>
           <Link
-            to="/nurse/health-services/create"
+            to="/nurse/health-services/create/health_check"
             className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200"
           >
             <FiPlus className="w-4 h-4 mr-2" />

@@ -95,7 +95,7 @@ const ParentLayout = () => {
     },
     {
       path: "/parent/health-events",
-      label: "Sự kiện y tế",
+      label: "Sự cố y tế",
       icon: <MdHealthAndSafety className="w-5 h-5" />,
     },
     {

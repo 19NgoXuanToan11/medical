@@ -11,10 +11,11 @@ const MedicationManagement = () => {
       {/* Main Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-          Cho uống thuốc
+          Quản lý cho uống thuốc
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Quản lý việc cho học sinh uống thuốc theo đơn đã được phê duyệt
+          Bắt đầu và quản lý việc cho học sinh uống thuốc theo đơn đã được phê
+          duyệt
         </p>
       </div>
 
@@ -24,7 +25,7 @@ const MedicationManagement = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Cần cho uống thuốc
+                Cần bắt đầu cho uống thuốc
               </p>
               <p className="text-2xl font-bold mt-1 text-orange-600 dark:text-orange-400">
                 {stats.administration || stats.assigned}

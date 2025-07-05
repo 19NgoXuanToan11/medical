@@ -36,7 +36,7 @@ const StudentLayout = () => {
     },
     {
       path: "/student/health-events",
-      name: "Sự kiện y tế",
+      name: "Sự cố y tế",
       icon: <FiActivity className="w-5 h-5" />,
     },
     {
