@@ -42,6 +42,8 @@ import ExcelManagement from "./pages/manager/excel/ExcelManagement";
 import MedicationManagement from "./pages/manager/medication/MedicationManagement";
 import HealthCheckManagement from "./pages/manager/health-check/HealthCheckManagement";
 import VaccinationManagement from "./pages/manager/vaccination/VaccinationManagement";
+import HealthEventManagement from "./pages/manager/health-events/HealthEventManagement";
+import HealthEventDetail from "./pages/manager/health-events/HealthEventDetail";
 
 // nurse
 import NurseDashboard from "./pages/nurse/dashboard/NurseDashboard";
@@ -50,10 +52,9 @@ import NurseHealthCheck from "./pages/nurse/health-check/NurseHealthCheck";
 import NurseHealthCheckCreate from "./pages/nurse/health-check/NurseHealthCheckCreate";
 import NurseHealthCheckDetail from "./pages/nurse/health-check/NurseHealthCheckDetail";
 import StudentHealthHistory from "./pages/nurse/health-check/StudentHealthHistory";
-import HealthEventList from "./pages/nurse/health-events/HealthEventList";
-import HealthEventDetail from "./pages/nurse/health-events/HealthEventDetail";
-import HealthEventCreate from "./pages/nurse/health-events/HealthEventCreate";
-import HealthEventEdit from "./pages/nurse/health-events/HealthEventEdit";
+import HealthEventMonitoring from "./pages/nurse/health-events/HealthEventMonitoring";
+import NurseHealthEventDetail from "./pages/nurse/health-events/NurseHealthEventDetail";
+import HealthEventReport from "./pages/nurse/health-events/HealthEventReport";
 import VaccinationDetail from "./pages/nurse/vaccination/VaccinationDetail";
 import VaccinationEdit from "./pages/nurse/vaccination/VaccinationEdit";
 import VaccinationPlanCreate from "./pages/nurse/vaccination/VaccinationPlanCreate";
@@ -160,6 +161,14 @@ function AppRoutes() {
         <Route path="/manager/supply-inventory" element={<SupplyInventory />} />
         <Route path="/manager/upload" element={<ExcelImport />} />
         <Route path="/manager/excel" element={<ExcelManagement />} />
+        <Route
+          path="/manager/health-events"
+          element={<HealthEventManagement />}
+        />
+        <Route
+          path="/manager/health-events/:id"
+          element={<HealthEventDetail />}
+        />
       </Route>
 
       {/* Parent Routes - Only Parent can access */}
@@ -315,18 +324,17 @@ function AppRoutes() {
         />
 
         {/* Health Events Routes */}
-        <Route path="/nurse/health-events" element={<HealthEventList />} />
         <Route
-          path="/nurse/health-events/new"
-          element={<HealthEventCreate />}
+          path="/nurse/health-events"
+          element={<HealthEventMonitoring />}
+        />
+        <Route
+          path="/nurse/health-events/report"
+          element={<HealthEventReport />}
         />
         <Route
           path="/nurse/health-events/:id"
-          element={<HealthEventDetail />}
-        />
-        <Route
-          path="/nurse/health-events/:id/edit"
-          element={<HealthEventEdit />}
+          element={<NurseHealthEventDetail />}
         />
 
         {/* Vaccination Routes */}

@@ -383,7 +383,7 @@ const HealthCheckManagement = () => {
       </p>
       {activeSubTab === "scheduled" && (
         <Link
-          to="/nurse/health-services/create"
+          to="/nurse/health-check/new"
           className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200"
         >
           <FiPlus className="w-4 h-4 mr-2" />
@@ -408,7 +408,7 @@ const HealthCheckManagement = () => {
             </p>
           </div>
           <Link
-            to="/nurse/health-services/create"
+            to="/nurse/health-check/new"
             className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200"
           >
             <FiPlus className="w-4 h-4 mr-2" />

@@ -13,6 +13,8 @@ import {
   FiX,
   FiUser,
   FiAlertTriangle,
+  FiUsers,
+  FiLink,
 } from "react-icons/fi";
 
 const StudentManagement = () => {
@@ -24,6 +26,7 @@ const StudentManagement = () => {
   // State for student accounts
   const [students, setStudents] = useState([]);
   const [parents, setParents] = useState([]);
+  const [studentParentRelations, setStudentParentRelations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState(initialFilter);
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,6 +36,9 @@ const StudentManagement = () => {
     total: 0,
     inactive: 0,
   });
+
+  // State for active tab
+  const [activeTab, setActiveTab] = useState("students"); // "students" or "relations"
 
   // State for student creation/editing
   const [showStudentModal, setShowStudentModal] = useState(false);
@@ -56,7 +62,11 @@ const StudentManagement = () => {
 
   // Fetch student accounts and parent list for dropdown
   useEffect(() => {
-    Promise.all([fetchStudents(), fetchParents()])
+    Promise.all([
+      fetchStudents(),
+      fetchParents(),
+      fetchStudentParentRelations(),
+    ])
       .then(() => setLoading(false))
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -89,6 +99,16 @@ const StudentManagement = () => {
       setParents(response.data.filter((parent) => parent.isActive));
     } catch (error) {
       console.error("Error fetching parents:", error);
+    }
+  };
+
+  // Fetch student-parent relations using the StudentParent API
+  const fetchStudentParentRelations = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/StudentParent`);
+      setStudentParentRelations(response.data);
+    } catch (error) {
+      console.error("Error fetching student-parent relations:", error);
     }
   };
 
@@ -375,308 +395,542 @@ const StudentManagement = () => {
             Theo dõi và quản lý danh sách học sinh tại trường
           </p>
         </div>
-        <div className="flex justify-end">
+
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 mb-4">
           <button
-            onClick={() => handleAddEditStudent()}
-            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
+            onClick={() => setActiveTab("students")}
+            className={`px-4 py-2 rounded-lg transition-colors duration-300 flex items-center ${
+              activeTab === "students"
+                ? "bg-primary-600 text-white"
+                : "bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600"
+            }`}
           >
-            <FiPlus className="mr-2" />
-            Thêm học sinh mới
+            <FiUser className="mr-2" />
+            Danh sách học sinh
+          </button>
+          <button
+            onClick={() => setActiveTab("relations")}
+            className={`px-4 py-2 rounded-lg transition-colors duration-300 flex items-center ${
+              activeTab === "relations"
+                ? "bg-primary-600 text-white"
+                : "bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600"
+            }`}
+          >
+            <FiUsers className="mr-2" />
+            Mối quan hệ phụ huynh - học sinh
           </button>
         </div>
+
+        {activeTab === "students" && (
+          <div className="flex justify-end">
+            <button
+              onClick={() => handleAddEditStudent()}
+              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
+            >
+              <FiPlus className="mr-2" />
+              Thêm học sinh mới
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="bg-primary-50 dark:bg-primary-900/30 p-4 rounded-lg border border-primary-100 dark:border-primary-800 flex justify-between">
-          <div>
-            <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
-              Tổng số học sinh
-            </p>
-            <p className="text-3xl font-bold text-primary-700 dark:text-primary-400">
-              {stats.total}
-            </p>
-          </div>
-          <div className="bg-primary-100 dark:bg-primary-800 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiUser className="h-6 w-6 text-primary-600 dark:text-primary-400" />
-          </div>
-        </div>
-
-        <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg border border-neutral-200 flex justify-between">
-          <div>
-            <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
-              Ngừng hoạt động
-            </p>
-            <p className="text-3xl font-bold text-neutral-700 dark:text-neutral-200">
-              {stats.inactive}
-            </p>
-          </div>
-          <div className="bg-neutral-200 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiX className="h-6 w-6 text-neutral-600 dark:text-neutral-300" />
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg mb-6 border border-neutral-200">
-        <div className="flex flex-col md:flex-row gap-4 md:items-center">
-          <div className="flex-1">
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <FiSearch className="h-5 w-5 text-neutral-400" />
-              </span>
-              <input
-                type="text"
-                placeholder="Tìm kiếm theo tên hoặc mã học sinh..."
-                className="pl-10 pr-4 py-2 border rounded-lg w-full bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-600"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+      {/* Stats - Only show for students tab */}
+      {activeTab === "students" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-primary-50 dark:bg-primary-900/30 p-4 rounded-lg border border-primary-100 dark:border-primary-800 flex justify-between">
+            <div>
+              <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
+                Tổng số học sinh
+              </p>
+              <p className="text-3xl font-bold text-primary-700 dark:text-primary-400">
+                {stats.total}
+              </p>
+            </div>
+            <div className="bg-primary-100 dark:bg-primary-800 h-12 w-12 rounded-full flex items-center justify-center">
+              <FiUser className="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </div>
           </div>
 
-          <div>
-            <select
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white dark:bg-neutral-700"
-              value={filterStatus}
-              onChange={(e) => handleFilterChange(e.target.value)}
-            >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="active">Đang hoạt động</option>
-              <option value="inactive">Ngừng hoạt động</option>
-            </select>
+          <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg border border-neutral-200 flex justify-between">
+            <div>
+              <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
+                Ngừng hoạt động
+              </p>
+              <p className="text-3xl font-bold text-neutral-700 dark:text-neutral-200">
+                {stats.inactive}
+              </p>
+            </div>
+            <div className="bg-neutral-200 h-12 w-12 rounded-full flex items-center justify-center">
+              <FiX className="h-6 w-6 text-neutral-600 dark:text-neutral-300" />
+            </div>
           </div>
-
-          <button
-            onClick={resetFilters}
-            className="md:ml-auto flex items-center text-primary-600 hover:text-primary-800 transition-colors duration-300"
-          >
-            <FiRefreshCw className="mr-1" />
-            Đặt lại
-          </button>
         </div>
-      </div>
+      )}
 
-      {/* Student Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white dark:bg-neutral-800 border-collapse">
-          <thead>
-            <tr className="bg-neutral-50 dark:bg-neutral-800 border-y border-neutral-200 dark:border-neutral-600">
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14">
-                <div className="flex items-center justify-center">
-                  MÃ HỌC SINH
-                </div>
-              </th>
-              <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
-                onClick={() => handleSortChange("name")}
+      {/* Filters - Only show for students tab */}
+      {activeTab === "students" && (
+        <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg mb-6 border border-neutral-200">
+          <div className="flex flex-col md:flex-row gap-4 md:items-center">
+            <div className="flex-1">
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <FiSearch className="h-5 w-5 text-neutral-400" />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm theo tên hoặc mã học sinh..."
+                  className="pl-10 pr-4 py-2 border rounded-lg w-full bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-600"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div>
+              <select
+                className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white dark:bg-neutral-700"
+                value={filterStatus}
+                onChange={(e) => handleFilterChange(e.target.value)}
               >
-                <div className="flex items-center justify-center">
-                  HỌ TÊN
-                  {sortBy === "name" && (
-                    <span className="ml-1">
-                      {sortOrder === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </th>
-              <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
-                onClick={() => handleSortChange("dob")}
-              >
-                <div className="flex items-center justify-center">
-                  NGÀY SINH
-                  {sortBy === "dob" && (
-                    <span className="ml-1">
-                      {sortOrder === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
-                GIỚI TÍNH
-              </th>
-              <th
-                className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
-                onClick={() => handleSortChange("gradeLevel")}
-              >
-                <div className="flex items-center justify-center">
-                  LỚP
-                  {sortBy === "gradeLevel" && (
-                    <span className="ml-1">
-                      {sortOrder === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
-                KHỐI
-              </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
-                ĐỊA CHỈ
-              </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
-                PHỤ HUYNH
-              </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14 w-32 min-w-[128px]">
-                TRẠNG THÁI
-              </th>
-              <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
-                THAO TÁC
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-            {loading ? (
-              <tr>
-                <td colSpan="10" className="text-center py-4">
-                  <div className="flex justify-center items-center">
-                    <svg
-                      className="animate-spin h-5 w-5 text-primary-600 mr-3"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Đang tải...
+                <option value="all">Tất cả trạng thái</option>
+                <option value="active">Đang hoạt động</option>
+                <option value="inactive">Ngừng hoạt động</option>
+              </select>
+            </div>
+
+            <button
+              onClick={resetFilters}
+              className="md:ml-auto flex items-center text-primary-600 hover:text-primary-800 transition-colors duration-300"
+            >
+              <FiRefreshCw className="mr-1" />
+              Đặt lại
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Student Table - Only show for students tab */}
+      {activeTab === "students" && (
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white dark:bg-neutral-800 border-collapse">
+            <thead>
+              <tr className="bg-neutral-50 dark:bg-neutral-800 border-y border-neutral-200 dark:border-neutral-600">
+                <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14">
+                  <div className="flex items-center justify-center">
+                    MÃ HỌC SINH
                   </div>
-                </td>
-              </tr>
-            ) : sortedStudents.length > 0 ? (
-              sortedStudents.map((student) => (
-                <tr
-                  key={student.studentId}
-                  className="hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors duration-200 h-16"
+                </th>
+                <th
+                  className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
+                  onClick={() => handleSortChange("name")}
                 >
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
-                    {student.studentCode}
-                  </td>
-                  <td className="py-4 px-6 align-middle">
-                    <div className="flex items-center justify-center">
-                      <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                        {getFullName(student)}
+                  <div className="flex items-center justify-center">
+                    HỌ TÊN
+                    {sortBy === "name" && (
+                      <span className="ml-1">
+                        {sortOrder === "asc" ? "↑" : "↓"}
                       </span>
+                    )}
+                  </div>
+                </th>
+                <th
+                  className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
+                  onClick={() => handleSortChange("dob")}
+                >
+                  <div className="flex items-center justify-center">
+                    NGÀY SINH
+                    {sortBy === "dob" && (
+                      <span className="ml-1">
+                        {sortOrder === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </div>
+                </th>
+                <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                  GIỚI TÍNH
+                </th>
+                <th
+                  className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-200 h-14"
+                  onClick={() => handleSortChange("gradeLevel")}
+                >
+                  <div className="flex items-center justify-center">
+                    LỚP
+                    {sortBy === "gradeLevel" && (
+                      <span className="ml-1">
+                        {sortOrder === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </div>
+                </th>
+                <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                  KHỐI
+                </th>
+                <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                  ĐỊA CHỈ
+                </th>
+                <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                  PHỤ HUYNH
+                </th>
+                <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14 w-32 min-w-[128px]">
+                  TRẠNG THÁI
+                </th>
+                <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                  THAO TÁC
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+              {loading ? (
+                <tr>
+                  <td colSpan="10" className="text-center py-4">
+                    <div className="flex justify-center items-center">
+                      <svg
+                        className="animate-spin h-5 w-5 text-primary-600 mr-3"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Đang tải...
                     </div>
                   </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
-                    {formatDate(student.dateOfBirth)}
-                  </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
-                    {student.gender}
-                  </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
-                    {student.className}
-                  </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
-                    {student.gradeLevel}
-                  </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100 max-w-xs truncate">
-                    {student.address}
-                  </td>
-                  <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
-                    {getParentName(student.parentId)}
-                  </td>
-                  <td className="py-4 px-6 text-center align-middle w-32 min-w-[128px]">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                        student.isActive
-                          ? "bg-green-100 dark:bg-green-800 text-white"
-                          : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200"
-                      }`}
-                    >
-                      {student.isActive ? "Hoạt động" : "Ngừng hoạt động"}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-center align-middle">
-                    <div className="flex space-x-2 justify-center">
-                      <button
-                        onClick={() => handleAddEditStudent(student)}
-                        className="text-blue-600 hover:text-blue-800"
-                        title="Chỉnh sửa"
-                      >
-                        <FiEdit className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => toggleStudentStatus(student)}
-                        className={`${
+                </tr>
+              ) : sortedStudents.length > 0 ? (
+                sortedStudents.map((student) => (
+                  <tr
+                    key={student.studentId}
+                    className="hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors duration-200 h-16"
+                  >
+                    <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                      {student.studentCode}
+                    </td>
+                    <td className="py-4 px-6 align-middle">
+                      <div className="flex items-center justify-center">
+                        <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                          {getFullName(student)}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                      {formatDate(student.dateOfBirth)}
+                    </td>
+                    <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                      {student.gender}
+                    </td>
+                    <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                      {student.className}
+                    </td>
+                    <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                      {student.gradeLevel}
+                    </td>
+                    <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100 max-w-xs truncate">
+                      {student.address}
+                    </td>
+                    <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                      {getParentName(student.parentId)}
+                    </td>
+                    <td className="py-4 px-6 text-center align-middle w-32 min-w-[128px]">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                           student.isActive
-                            ? "text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:text-neutral-100"
-                            : "text-green-600 hover:text-green-800"
+                            ? "bg-green-100 dark:bg-green-800 text-white"
+                            : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200"
                         }`}
-                        title={
-                          student.isActive
-                            ? "Đánh dấu ngừng hoạt động"
-                            : "Đánh dấu đang hoạt động"
-                        }
                       >
-                        {student.isActive ? (
-                          <FiX className="h-5 w-5" />
-                        ) : (
-                          <FiCheck className="h-5 w-5" />
-                        )}
-                      </button>
+                        {student.isActive ? "Hoạt động" : "Ngừng hoạt động"}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-center align-middle">
+                      <div className="flex space-x-2 justify-center">
+                        <button
+                          onClick={() => handleAddEditStudent(student)}
+                          className="text-blue-600 hover:text-blue-800"
+                          title="Chỉnh sửa"
+                        >
+                          <FiEdit className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => toggleStudentStatus(student)}
+                          className={`${
+                            student.isActive
+                              ? "text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:text-neutral-100"
+                              : "text-green-600 hover:text-green-800"
+                          }`}
+                          title={
+                            student.isActive
+                              ? "Đánh dấu ngừng hoạt động"
+                              : "Đánh dấu đang hoạt động"
+                          }
+                        >
+                          {student.isActive ? (
+                            <FiX className="h-5 w-5" />
+                          ) : (
+                            <FiCheck className="h-5 w-5" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => deleteStudent(student.studentId)}
+                          className="text-red-600 hover:text-red-800"
+                          title="Xóa"
+                        >
+                          <FiTrash2 className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="10" className="text-center py-6">
+                    <div className="flex flex-col items-center justify-center">
+                      <svg
+                        className="w-12 h-12 text-neutral-400 mb-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
+                      </svg>
+                      <p className="text-neutral-600 dark:text-neutral-300 text-lg">
+                        Không tìm thấy học sinh nào phù hợp
+                      </p>
+                      <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">
+                        Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác
+                      </p>
                       <button
-                        onClick={() => deleteStudent(student.studentId)}
-                        className="text-red-600 hover:text-red-800"
-                        title="Xóa"
+                        onClick={resetFilters}
+                        className="mt-3 bg-primary-100 text-primary-700 hover:bg-primary-200 px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
                       >
-                        <FiTrash2 className="h-5 w-5" />
+                        <FiRefreshCw className="mr-2" />
+                        Đặt lại bộ lọc
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="10" className="text-center py-6">
-                  <div className="flex flex-col items-center justify-center">
-                    <svg
-                      className="w-12 h-12 text-neutral-400 mb-3"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      ></path>
-                    </svg>
-                    <p className="text-neutral-600 dark:text-neutral-300 text-lg">
-                      Không tìm thấy học sinh nào phù hợp
-                    </p>
-                    <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">
-                      Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác
-                    </p>
-                    <button
-                      onClick={resetFilters}
-                      className="mt-3 bg-primary-100 text-primary-700 hover:bg-primary-200 px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
-                    >
-                      <FiRefreshCw className="mr-2" />
-                      Đặt lại bộ lọc
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Student-Parent Relations Tab */}
+      {activeTab === "relations" && (
+        <div className="space-y-6">
+          {/* Relations Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border border-blue-100 dark:border-blue-800 flex justify-between">
+              <div>
+                <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
+                  Tổng số mối quan hệ
+                </p>
+                <p className="text-3xl font-bold text-blue-700 dark:text-blue-400">
+                  {studentParentRelations.length}
+                </p>
+              </div>
+              <div className="bg-blue-100 dark:bg-blue-800 h-12 w-12 rounded-full flex items-center justify-center">
+                <FiLink className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+
+            <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg border border-green-100 dark:border-green-800 flex justify-between">
+              <div>
+                <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
+                  Phụ huynh có con
+                </p>
+                <p className="text-3xl font-bold text-green-700 dark:text-green-400">
+                  {
+                    new Set(
+                      studentParentRelations.map(
+                        (relation) => relation.parentId
+                      )
+                    ).size
+                  }
+                </p>
+              </div>
+              <div className="bg-green-100 dark:bg-green-800 h-12 w-12 rounded-full flex items-center justify-center">
+                <FiUsers className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+
+            <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-lg border border-purple-100 dark:border-purple-800 flex justify-between">
+              <div>
+                <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
+                  Học sinh có phụ huynh
+                </p>
+                <p className="text-3xl font-bold text-purple-700 dark:text-purple-400">
+                  {
+                    new Set(
+                      studentParentRelations.map(
+                        (relation) => relation.studentId
+                      )
+                    ).size
+                  }
+                </p>
+              </div>
+              <div className="bg-purple-100 dark:bg-purple-800 h-12 w-12 rounded-full flex items-center justify-center">
+                <FiUser className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* Relations Table */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white dark:bg-neutral-800 border-collapse">
+              <thead>
+                <tr className="bg-neutral-50 dark:bg-neutral-800 border-y border-neutral-200 dark:border-neutral-600">
+                  <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                    MÃ HỌC SINH
+                  </th>
+                  <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                    TÊN HỌC SINH
+                  </th>
+                  <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                    LỚP
+                  </th>
+                  <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                    TÊN PHỤ HUYNH
+                  </th>
+                  <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                    QUAN HỆ
+                  </th>
+                  <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                    LIÊN HỆ
+                  </th>
+                  <th className="py-4 px-6 text-center align-middle text-sm font-medium text-neutral-600 dark:text-neutral-300 uppercase tracking-wider h-14">
+                    TRẠNG THÁI
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+                {loading ? (
+                  <tr>
+                    <td colSpan="7" className="text-center py-4">
+                      <div className="flex justify-center items-center">
+                        <svg
+                          className="animate-spin h-5 w-5 text-primary-600 mr-3"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Đang tải...
+                      </div>
+                    </td>
+                  </tr>
+                ) : studentParentRelations.length > 0 ? (
+                  studentParentRelations.map((relation) => {
+                    const student = students.find(
+                      (s) => s.studentId === relation.studentId
+                    );
+                    const parent = parents.find(
+                      (p) => p.parentId === relation.parentId
+                    );
+
+                    return (
+                      <tr
+                        key={`${relation.studentId}-${relation.parentId}`}
+                        className="hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors duration-200 h-16"
+                      >
+                        <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                          {student?.studentCode || "N/A"}
+                        </td>
+                        <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                          {student ? getFullName(student) : "N/A"}
+                        </td>
+                        <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                          {student?.className || "N/A"}
+                        </td>
+                        <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                          {parent
+                            ? `${parent.firstName} ${parent.lastName}`
+                            : "N/A"}
+                        </td>
+                        <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                          {parent?.relationship || "N/A"}
+                        </td>
+                        <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
+                          <div className="flex flex-col space-y-1">
+                            {parent?.phone && (
+                              <span className="text-xs">{parent.phone}</span>
+                            )}
+                            {parent?.email && (
+                              <span className="text-xs text-neutral-500">
+                                {parent.email}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-center align-middle">
+                          <div className="flex space-x-2">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                student?.isActive && parent?.isActive
+                                  ? "bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100"
+                                  : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200"
+                              }`}
+                            >
+                              {student?.isActive && parent?.isActive
+                                ? "Hoạt động"
+                                : "Không hoạt động"}
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center py-6">
+                      <div className="flex flex-col items-center justify-center">
+                        <FiUsers className="w-12 h-12 text-neutral-400 mb-3" />
+                        <p className="text-neutral-600 dark:text-neutral-300 text-lg">
+                          Chưa có mối quan hệ phụ huynh - học sinh nào
+                        </p>
+                        <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">
+                          Hãy thêm học sinh và gán phụ huynh để tạo mối quan hệ
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Add/Edit Student Modal */}
       {showStudentModal && (

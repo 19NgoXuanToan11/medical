@@ -72,7 +72,7 @@ const NurseLayout = () => {
     },
     {
       path: "/nurse/health-events",
-      name: "Sự kiện y tế",
+      name: "Theo dõi sự kiện y tế",
       icon: <FiActivity className="w-5 h-5" />,
     },
     {

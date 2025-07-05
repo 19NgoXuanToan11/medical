@@ -58,6 +58,11 @@ const ManagerLayout = () => {
       icon: <FiHeart className="w-5 h-5" />,
     },
     {
+      path: "/manager/health-events",
+      name: "Quản lý sự kiện y tế",
+      icon: <FiFileText className="w-5 h-5" />,
+    },
+    {
       path: "/manager/medicine-inventory",
       name: "Kho thuốc",
       icon: <FiPackage className="w-5 h-5" />,
