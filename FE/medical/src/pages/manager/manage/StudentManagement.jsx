@@ -13,6 +13,8 @@ import {
   FiX,
   FiUser,
   FiAlertTriangle,
+  FiUsers,
+  FiLink,
 } from "react-icons/fi";
 
 const StudentManagement = () => {
@@ -24,6 +26,7 @@ const StudentManagement = () => {
   // State for student accounts
   const [students, setStudents] = useState([]);
   const [parents, setParents] = useState([]);
+  const [studentParentRelations, setStudentParentRelations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState(initialFilter);
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,6 +36,9 @@ const StudentManagement = () => {
     total: 0,
     inactive: 0,
   });
+
+  // State for active tab
+  const [activeTab, setActiveTab] = useState("students"); // "students" or "relations"
 
   // State for student creation/editing
   const [showStudentModal, setShowStudentModal] = useState(false);
@@ -56,7 +62,11 @@ const StudentManagement = () => {
 
   // Fetch student accounts and parent list for dropdown
   useEffect(() => {
-    Promise.all([fetchStudents(), fetchParents()])
+    Promise.all([
+      fetchStudents(),
+      fetchParents(),
+      fetchStudentParentRelations(),
+    ])
       .then(() => setLoading(false))
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -89,6 +99,16 @@ const StudentManagement = () => {
       setParents(response.data.filter((parent) => parent.isActive));
     } catch (error) {
       console.error("Error fetching parents:", error);
+    }
+  };
+
+  // Fetch student-parent relations using the StudentParent API
+  const fetchStudentParentRelations = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/StudentParent`);
+      setStudentParentRelations(response.data);
+    } catch (error) {
+      console.error("Error fetching student-parent relations:", error);
     }
   };
 
@@ -378,32 +398,6 @@ const StudentManagement = () => {
           </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 mb-4">
-          <button
-            onClick={() => setActiveTab("students")}
-            className={`px-4 py-2 rounded-lg transition-colors duration-300 flex items-center ${
-              activeTab === "students"
-                ? "bg-primary-600 text-white"
-                : "bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600"
-            }`}
-          >
-            <FiUser className="mr-2" />
-            Danh sách học sinh
-          </button>
-          <button
-            onClick={() => setActiveTab("relations")}
-            className={`px-4 py-2 rounded-lg transition-colors duration-300 flex items-center ${
-              activeTab === "relations"
-                ? "bg-primary-600 text-white"
-                : "bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600"
-            }`}
-          >
-            <FiUsers className="mr-2" />
-            Mối quan hệ phụ huynh - học sinh
-          </button>
-        </div>
-
         {activeTab === "students" && (
           <div className="flex justify-end">
             <button
@@ -417,76 +411,80 @@ const StudentManagement = () => {
         )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="bg-primary-50 dark:bg-primary-900/30 p-4 rounded-lg border border-primary-100 dark:border-primary-800 flex justify-between">
-          <div>
-            <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
-              Tổng số học sinh
-            </p>
-            <p className="text-3xl font-bold text-primary-700 dark:text-primary-400">
-              {stats.total}
-            </p>
-          </div>
-          <div className="bg-primary-100 dark:bg-primary-800 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiUser className="h-6 w-6 text-primary-600 dark:text-primary-400" />
-          </div>
-        </div>
-
-        <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg border border-neutral-200 flex justify-between">
-          <div>
-            <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
-              Ngừng hoạt động
-            </p>
-            <p className="text-3xl font-bold text-neutral-700 dark:text-neutral-200">
-              {stats.inactive}
-            </p>
-          </div>
-          <div className="bg-neutral-200 h-12 w-12 rounded-full flex items-center justify-center">
-            <FiX className="h-6 w-6 text-neutral-600 dark:text-neutral-300" />
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg mb-6 border border-neutral-200">
-        <div className="flex flex-col md:flex-row gap-4 md:items-center">
-          <div className="flex-1">
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <FiSearch className="h-5 w-5 text-neutral-400" />
-              </span>
-              <input
-                type="text"
-                placeholder="Tìm kiếm theo tên hoặc mã học sinh..."
-                className="pl-10 pr-4 py-2 border rounded-lg w-full bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-600"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+      {/* Stats - Only show for students tab */}
+      {activeTab === "students" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-primary-50 dark:bg-primary-900/30 p-4 rounded-lg border border-primary-100 dark:border-primary-800 flex justify-between">
+            <div>
+              <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
+                Tổng số học sinh
+              </p>
+              <p className="text-3xl font-bold text-primary-700 dark:text-primary-400">
+                {stats.total}
+              </p>
+            </div>
+            <div className="bg-primary-100 dark:bg-primary-800 h-12 w-12 rounded-full flex items-center justify-center">
+              <FiUser className="h-6 w-6 text-primary-600 dark:text-primary-400" />
             </div>
           </div>
 
-          <div>
-            <select
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white dark:bg-neutral-700"
-              value={filterStatus}
-              onChange={(e) => handleFilterChange(e.target.value)}
-            >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="active">Đang hoạt động</option>
-              <option value="inactive">Ngừng hoạt động</option>
-            </select>
+          <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg border border-neutral-200 flex justify-between">
+            <div>
+              <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
+                Ngừng hoạt động
+              </p>
+              <p className="text-3xl font-bold text-neutral-700 dark:text-neutral-200">
+                {stats.inactive}
+              </p>
+            </div>
+            <div className="bg-neutral-200 h-12 w-12 rounded-full flex items-center justify-center">
+              <FiX className="h-6 w-6 text-neutral-600 dark:text-neutral-300" />
+            </div>
           </div>
-
-          <button
-            onClick={resetFilters}
-            className="md:ml-auto flex items-center text-primary-600 hover:text-primary-800 transition-colors duration-300"
-          >
-            <FiRefreshCw className="mr-1" />
-            Đặt lại
-          </button>
         </div>
-      </div>
+      )}
+
+      {/* Filters - Only show for students tab */}
+      {activeTab === "students" && (
+        <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg mb-6 border border-neutral-200">
+          <div className="flex flex-col md:flex-row gap-4 md:items-center">
+            <div className="flex-1">
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <FiSearch className="h-5 w-5 text-neutral-400" />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm theo tên hoặc mã học sinh..."
+                  className="pl-10 pr-4 py-2 border rounded-lg w-full bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-600"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div>
+              <select
+                className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white dark:bg-neutral-700"
+                value={filterStatus}
+                onChange={(e) => handleFilterChange(e.target.value)}
+              >
+                <option value="all">Tất cả trạng thái</option>
+                <option value="active">Đang hoạt động</option>
+                <option value="inactive">Ngừng hoạt động</option>
+              </select>
+            </div>
+
+            <button
+              onClick={resetFilters}
+              className="md:ml-auto flex items-center text-primary-600 hover:text-primary-800 transition-colors duration-300"
+            >
+              <FiRefreshCw className="mr-1" />
+              Đặt lại
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Student Table - Only show for students tab */}
       {activeTab === "students" && (
@@ -619,14 +617,17 @@ const StudentManagement = () => {
                       {student.address}
                     </td>
                     <td className="py-4 px-6 text-center align-middle text-sm text-neutral-900 dark:text-neutral-100">
-                      {getParentName(student.parentId)}
+                      {student.studentParents?.[0]?.parentName ||
+                        (student.parents?.[0]
+                          ? `${student.parents[0].firstName} ${student.parents[0].lastName}`
+                          : "Không xác định")}
                     </td>
                     <td className="py-4 px-6 text-center align-middle w-32 min-w-[128px]">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shadow-sm border ${
                           student.isActive
-                            ? "bg-green-100 dark:bg-green-800 text-white"
-                            : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200"
+                            ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700"
+                            : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700"
                         }`}
                       >
                         {student.isActive ? "Hoạt động" : "Ngừng hoạt động"}
@@ -874,10 +875,10 @@ const StudentManagement = () => {
                         <td className="py-4 px-6 text-center align-middle">
                           <div className="flex space-x-2">
                             <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shadow-sm border ${
                                 student?.isActive && parent?.isActive
-                                  ? "bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100"
-                                  : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200"
+                                  ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700"
+                                  : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700"
                               }`}
                             >
                               {student?.isActive && parent?.isActive

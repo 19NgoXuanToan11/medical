@@ -401,13 +401,13 @@ const MedicationRequest = () => {
   if (isSubmitted) {
     return (
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
-        <div className="bg-gray-800 rounded-lg shadow-sm border border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="p-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-900/30 mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 mb-6">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-green-400"
+                  className="h-8 w-8 text-green-600 dark:text-green-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -420,48 +420,20 @@ const MedicationRequest = () => {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-2">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
                 Yêu cầu đã được gửi thành công!
               </h2>
-              <p className="text-gray-300 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 Yêu cầu thuốc của bạn đã được gửi đến nhân viên y tế trường học.
                 Bạn sẽ nhận được thông báo khi yêu cầu được xác nhận.
               </p>
-              <div className="bg-primary-900/30 rounded-lg p-4 mb-6">
-                <h3 className="font-medium text-primary-400 mb-2">
+              <div className="bg-primary-50 dark:bg-primary-900/30 rounded-lg p-4 mb-6">
+                <h3 className="font-medium text-primary-700 dark:text-primary-400 mb-2">
                   Mã theo dõi yêu cầu
                 </h3>
-                <p className="text-primary-300 font-bold text-xl">
-                  #MED{Math.floor(Math.random() * 1000000)}
+                <p className="text-primary-600 dark:text-primary-300 font-bold text-xl">
+                  #MED646560
                 </p>
-              </div>
-
-              <div className="bg-blue-900/30 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-center mb-2">
-                  <svg
-                    className="h-5 w-5 text-blue-400 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span className="text-blue-300 font-medium">
-                    Quy trình tiếp theo
-                  </span>
-                </div>
-                <div className="text-sm text-blue-400">
-                  <p>1. Nhân viên y tế sẽ xem xét yêu cầu của bạn</p>
-                  <p>2. Bạn sẽ nhận được thông báo về quyết định phê duyệt</p>
-                  <p>
-                    3. Nếu được phê duyệt, thuốc sẽ được cấp theo lịch trình
-                  </p>
-                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -472,14 +444,8 @@ const MedicationRequest = () => {
                   Xem lịch sử yêu cầu
                 </Link>
                 <Link
-                  to="/parent/notifications"
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-                >
-                  Xem thông báo
-                </Link>
-                <Link
                   to="/parent/dashboard"
-                  className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-md transition-colors"
+                  className="px-6 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md transition-colors"
                 >
                   Quay lại trang chủ
                 </Link>

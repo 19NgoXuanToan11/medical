@@ -39,6 +39,11 @@ import MedicineInventory from "../../pages/manager/inventory/MedicineInventory";
 import SupplyInventory from "../../pages/manager/inventory/SupplyInventory";
 import ExcelImport from "../../pages/manager/inventory/ExcelImport";
 import ExcelManagement from "../../pages/manager/excel/ExcelManagement";
+import MedicationManagement from "../../pages/manager/medication/MedicationManagement";
+import HealthCheckManagement from "../../pages/manager/health-check/HealthCheckManagement";
+import VaccinationManagement from "../../pages/manager/vaccination/VaccinationManagement";
+import VaccinationDetailManager from "../../pages/manager/vaccination/VaccinationDetail";
+import HealthCheckDetailManager from "../../pages/manager/health-check/HealthCheckDetail";
 
 // nurse
 import NurseDashboard from "../../pages/nurse/dashboard/NurseDashboard";
@@ -46,37 +51,26 @@ import NurseProfile from "../../pages/nurse/profile/NurseProfile";
 import NurseHealthCheck from "../../pages/nurse/health-check/NurseHealthCheck";
 import NurseHealthCheckCreate from "../../pages/nurse/health-check/NurseHealthCheckCreate";
 import NurseHealthCheckDetail from "../../pages/nurse/health-check/NurseHealthCheckDetail";
-import HealthCheckLiveMonitoring from "../../pages/nurse/health-check/HealthCheckLiveMonitoring";
-import HealthCheckManagement from "../../pages/nurse/health-check/HealthCheckManagement";
 import StudentHealthHistory from "../../pages/nurse/health-check/StudentHealthHistory";
 import HealthEventList from "../../pages/nurse/health-events/HealthEventList";
 import HealthEventDetail from "../../pages/nurse/health-events/HealthEventDetail";
 import HealthEventCreate from "../../pages/nurse/health-events/HealthEventCreate";
 import HealthEventEdit from "../../pages/nurse/health-events/HealthEventEdit";
-import HealthServicesManagement from "../../pages/nurse/health-services/HealthServicesManagement";
-import HealthServiceCreate from "../../pages/nurse/health-services/HealthServiceCreate";
-// Placeholder imports for remaining components
-const HealthServiceDetail = () => (
-  <div>Health Service Detail - Coming Soon</div>
-);
-const HealthServiceEdit = () => <div>Health Service Edit - Coming Soon</div>;
-import VaccinationManagement from "../../pages/nurse/vaccination/VaccinationManagement";
 import VaccinationDetail from "../../pages/nurse/vaccination/VaccinationDetail";
 import VaccinationEdit from "../../pages/nurse/vaccination/VaccinationEdit";
 import VaccinationPlanCreate from "../../pages/nurse/vaccination/VaccinationPlanCreate";
-import StaffMedicationList from "../../pages/nurse/medication/StaffMedicationList";
-import StaffMedicationDetail from "../../pages/nurse/medication/StaffMedicationDetail";
-import MedicationAdministration from "../../pages/nurse/medication/pages/MedicineAdministration";
+import NurseMedicationManagement from "../../pages/nurse/medication/MedicationManagement";
 import StudentHealthDetail from "../../pages/nurse/health-check/StudentHealthDetail";
 import NurseSchedule from "../../pages/nurse/schedule/NurseSchedule";
 import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealthRecords";
 import StudentHealthRecordDetail from "../../pages/nurse/health-records/StudentHealthRecordDetail";
+import HealthServicesManagement from "../../pages/nurse/health-services/HealthServicesManagement";
+import HealthServiceCreate from "../../pages/nurse/health-services/HealthServiceCreate";
 
 // parent
 import ParentDashboard from "../../pages/parent/dashboard/ParentDashboard";
 import ParentProfile from "../../pages/parent/profile/ParentProfile";
 import StudentHealthProfile from "../../pages/parent/health-profile/StudentHealthProfile";
-import HealthServices from "../../pages/parent/health-services/HealthServices";
 import HealthProfileList from "../../pages/parent/health-profile/HealthProfileList";
 import ComprehensiveHealthTable from "../../pages/parent/health-profile/ComprehensiveHealthTable";
 import MedicationRequest from "../../pages/parent/medication/MedicationRequest";
@@ -91,6 +85,7 @@ import ParentHealthEventDetail from "../../pages/parent/health-events/HealthEven
 import HealthEventResultDetail from "../../pages/parent/health-events/HealthEventResultDetail";
 import Notifications from "../../pages/parent/notification/Notifications";
 import HealthProfileDetailView from "../../pages/parent/health-profile/HealthProfileDetailView";
+import HealthServices from "../../pages/parent/health-services/HealthServices";
 
 // student
 import StudentDashboard from "../../pages/student/dashboard/StudentDashboard";
@@ -148,6 +143,23 @@ function AppRoutes() {
           path="/manager/student-management"
           element={<StudentManagement />}
         />
+        <Route path="/manager/medication" element={<MedicationManagement />} />
+        <Route
+          path="/manager/health-check"
+          element={<HealthCheckManagement />}
+        />
+        <Route
+          path="/manager/vaccination"
+          element={<VaccinationManagement />}
+        />
+        <Route
+          path="/manager/vaccination/:id"
+          element={<VaccinationDetailManager />}
+        />
+        <Route
+          path="/manager/health-check/:id"
+          element={<HealthCheckDetailManager />}
+        />
         <Route
           path="/manager/medicine-inventory"
           element={<MedicineInventory />}
@@ -204,29 +216,29 @@ function AppRoutes() {
           element={<MedicationDetail />}
         />
 
-        {/* Parent Health Services Routes (Unified Vaccination + Health Check) */}
-        <Route path="/parent/health-services" element={<HealthServices />} />
-        <Route
-          path="/parent/health-services/:id/detail"
-          element={<HealthCheckResultDetail />}
-        />
-
-        {/* Legacy routes for backward compatibility */}
+        {/* Parent Vaccination Routes */}
         <Route
           path="/parent/vaccination"
-          element={<Navigate to="/parent/health-services" replace />}
+          element={<Navigate to="/parent/vaccination/upcoming" replace />}
         />
+        <Route path="/parent/vaccination/*" element={<VaccinationIndex />} />
         <Route
-          path="/parent/vaccination/*"
-          element={<Navigate to="/parent/health-services" replace />}
+          path="/parent/vaccination/consent/:id"
+          element={<VaccinationConsent />}
         />
+
+        {/* Parent Health Check Routes */}
         <Route
           path="/parent/health-check"
-          element={<Navigate to="/parent/health-services" replace />}
+          element={<HealthCheckConfirmation />}
         />
         <Route
-          path="/parent/health-check/*"
-          element={<Navigate to="/parent/health-services" replace />}
+          path="/parent/health-check/results"
+          element={<HealthCheckConfirmation initialTab="completed" />}
+        />
+        <Route
+          path="/parent/health-check/:id/results"
+          element={<HealthCheckResultDetail />}
         />
 
         {/* Parent Health Events Routes */}
@@ -242,6 +254,9 @@ function AppRoutes() {
 
         {/* Parent Notifications Routes */}
         <Route path="/parent/notifications" element={<Notifications />} />
+
+        {/* Parent Health Services Routes */}
+        <Route path="/parent/health-services" element={<HealthServices />} />
       </Route>
 
       {/* Nurse Routes - Only Nurse can access */}
@@ -277,7 +292,7 @@ function AppRoutes() {
           element={<NurseMedicationManagement />}
         />
 
-        {/* Health Services Routes (Unified Vaccination + Health Check) */}
+        {/* Health Services Routes */}
         <Route
           path="/nurse/health-services"
           element={<HealthServicesManagement />}
@@ -287,97 +302,27 @@ function AppRoutes() {
           element={<HealthServiceCreate />}
         />
         <Route
-          path="/nurse/health-services/:id"
-          element={<HealthServiceDetail />}
-        />
-        <Route
-          path="/nurse/health-services/:id/edit"
-          element={<HealthServiceEdit />}
-        />
-        <Route
-          path="/nurse/health-services/:id/live"
-          element={<HealthCheckLiveMonitoring />}
-        />
-        <Route
-          path="/nurse/health-services/:id/manage"
-          element={<HealthCheckManagement />}
-        />
-        <Route
-          path="/nurse/health-services/:id/student/:studentId"
-          element={<StudentHealthDetail />}
-        />
-
-        {/* Legacy routes for backward compatibility */}
-        <Route
-          path="/nurse/health-check"
-          element={<Navigate to="/nurse/health-services" replace />}
-        />
-        <Route
-          path="/nurse/health-check/*"
-          element={<Navigate to="/nurse/health-services" replace />}
-        />
-        <Route
-          path="/nurse/vaccination"
-          element={<Navigate to="/nurse/health-services" replace />}
-        />
-        <Route
-          path="/nurse/vaccination/*"
-          element={<Navigate to="/nurse/health-services" replace />}
-        />
-
-        {/* Medication Routes */}
-        <Route path="/nurse/medication" element={<StaffMedicationList />} />
-        <Route
-          path="/nurse/medication/:id"
-          element={<StaffMedicationDetail />}
-        />
-        <Route
-          path="/nurse/medication-administration"
-          element={<MedicationAdministration />}
-        />
-
-        {/* Health Services Routes (Unified Vaccination + Health Check) */}
-        <Route
-          path="/nurse/health-services"
-          element={<HealthServicesManagement />}
-        />
-        <Route
-          path="/nurse/health-services/create"
+          path="/nurse/health-services/create/:serviceType"
           element={<HealthServiceCreate />}
         />
+
+        {/* Health Check Routes */}
+        <Route path="/nurse/health-check" element={<NurseHealthCheck />} />
         <Route
-          path="/nurse/health-services/:id"
-          element={<HealthServiceDetail />}
+          path="/nurse/health-check/new"
+          element={<NurseHealthCheckCreate />}
         />
         <Route
-          path="/nurse/health-services/:id/edit"
-          element={<HealthServiceEdit />}
+          path="/nurse/health-check/:id"
+          element={<NurseHealthCheckDetail />}
         />
         <Route
-          path="/nurse/health-services/:id/live"
-          element={<HealthCheckLiveMonitoring />}
-        />
-        <Route
-          path="/nurse/health-services/:id/manage"
-          element={<HealthCheckManagement />}
-        />
-        <Route
-          path="/nurse/health-services/:id/student/:studentId"
+          path="/nurse/health-check/:id/student/:studentId"
           element={<StudentHealthDetail />}
         />
         <Route
           path="/nurse/student/:id/health-history"
           element={<StudentHealthHistory />}
-        />
-
-        {/* Legacy routes for backward compatibility */}
-        <Route
-          path="/nurse/health-check/*"
-          element={<Navigate to="/nurse/health-services" replace />}
-        />
-        <Route
-          path="/nurse/vaccination"
-          element={<Navigate to="/nurse/health-services" replace />}
         />
 
         {/* Health Events Routes */}
@@ -405,12 +350,6 @@ function AppRoutes() {
         <Route
           path="/nurse/vaccination/:id/edit"
           element={<VaccinationEdit />}
-        />
-
-        {/* Student Health History Route */}
-        <Route
-          path="/nurse/student/:id/health-history"
-          element={<StudentHealthHistory />}
         />
       </Route>
 

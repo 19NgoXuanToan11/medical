@@ -44,6 +44,72 @@ html {
   background-color: #0f172a;
 }
 
+/* Light mode specific improvements */
+.bg-white {
+  background-color: #ffffff;
+}
+
+.text-gray-900 {
+  color: #111827;
+}
+
+.text-gray-800 {
+  color: #1f2937;
+}
+
+.text-gray-700 {
+  color: #374151;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.border-gray-200 {
+  border-color: #e5e7eb;
+}
+
+.border-gray-300 {
+  border-color: #d1d5db;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+.bg-gray-100 {
+  background-color: #f3f4f6;
+}
+
+/* Enhanced light mode button styles */
+.bg-primary-50 {
+  background-color: #eff6ff;
+}
+
+.text-primary-600 {
+  color: #2563eb;
+}
+
+.text-primary-700 {
+  color: #1d4ed8;
+}
+
+.bg-green-100 {
+  background-color: #dcfce7;
+}
+
+.text-green-600 {
+  color: #16a34a;
+}
+
+.text-green-700 {
+  color: #15803d;
+}
+
 /* Ensure proper background for all elements */
 .dark * {
   border-color: initial;
@@ -113,14 +179,6 @@ html {
   color: #fde047 !important;
 }
 
-.dark .bg-green-100 {
-  background-color: rgba(34, 197, 94, 0.2) !important;
-}
-
-.dark .text-green-800 {
-  color: #4ade80 !important;
-}
-
 .dark .bg-red-100 {
   background-color: rgba(239, 68, 68, 0.2) !important;
 }
@@ -142,7 +200,7 @@ html {
 }
 
 .dark .text-primary-800 {
-  color: #60a5fa !important;
+  color: #93c5fd !important;
 }
 
 /* Enhanced link hover states with better contrast */
@@ -274,13 +332,13 @@ input,
 select,
 textarea {
   transition: all 0.2s ease;
-  @apply border border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 rounded text-sm shadow-sm outline-none text-neutral-900 dark:text-neutral-100;
+  @apply border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 rounded text-sm shadow-sm outline-none text-gray-900 dark:text-neutral-100;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  @apply border-primary-500 dark:border-primary-400 ring-2 ring-primary-200 dark:ring-primary-800 ring-opacity-50;
+  @apply border-blue-500 dark:border-primary-400 ring-2 ring-blue-200 dark:ring-primary-800 ring-opacity-50;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -293,12 +351,12 @@ textarea:focus {
 input:disabled,
 select:disabled,
 textarea:disabled {
-  @apply bg-neutral-50 dark:bg-neutral-800 cursor-not-allowed text-neutral-500 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700;
+  @apply bg-gray-50 dark:bg-neutral-800 cursor-not-allowed text-gray-500 dark:text-neutral-400 border-gray-200 dark:border-neutral-700;
 }
 
 input::placeholder,
 textarea::placeholder {
-  @apply text-neutral-400 dark:text-neutral-500;
+  @apply text-gray-400 dark:text-neutral-500;
 }
 
 select {
@@ -451,4 +509,65 @@ button:focus {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Enhanced light mode card styling */
+.bg-white {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dark .bg-white {
+  background-color: #1e293b !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+}
+
+/* Button styling improvements */
+.bg-primary-600 {
+  background-color: #2563eb;
+}
+
+.bg-primary-600:hover {
+  background-color: #1d4ed8;
+}
+
+.dark .bg-primary-600 {
+  background-color: #3b82f6;
+}
+
+.dark .bg-primary-600:hover {
+  background-color: #2563eb;
+}
+
+/* Primary color improvements for light mode */
+.bg-primary-50 {
+  background-color: #eff6ff;
+}
+
+.text-primary-600 {
+  color: #2563eb;
+}
+
+.text-primary-700 {
+  color: #1d4ed8;
+}
+
+/* Enhanced text contrast for light mode */
+.text-gray-900 {
+  color: #111827;
+}
+
+.text-gray-800 {
+  color: #1f2937;
+}
+
+.text-gray-700 {
+  color: #374151;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.text-gray-500 {
+  color: #6b7280;
 }

@@ -199,14 +199,6 @@ const ParentProfile = () => {
               <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
                 {currentData.firstName} {currentData.lastName}
               </h1>
-              <p className="text-lg text-neutral-600 dark:text-neutral-300 flex items-center gap-2">
-                <FiBriefcase className="w-5 h-5" />
-                {currentData.occupation}
-              </p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
-                <FiUsers className="w-4 h-4" />
-                Phụ huynh của {students.length} học sinh
-              </p>
             </div>
           </div>
         </div>
@@ -318,32 +310,6 @@ const ParentProfile = () => {
                   )}
                 </div>
 
-                {/* Date of Birth */}
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                    Ngày sinh
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="date"
-                      value={currentData.dateOfBirth}
-                      onChange={(e) =>
-                        handleInputChange("dateOfBirth", e.target.value)
-                      }
-                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                      <FiCalendar className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
-                      <span className="text-neutral-900 dark:text-neutral-100 font-medium">
-                        {new Date(currentData.dateOfBirth).toLocaleDateString(
-                          "vi-VN"
-                        )}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
                 {/* Occupation */}
                 <div className="space-y-3">
                   <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -419,52 +385,30 @@ const ParentProfile = () => {
                     </div>
                   )}
                 </div>
-              </div>
 
-              {/* Address */}
-              <div className="mt-8 space-y-3">
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                  Địa chỉ
-                </label>
-                {isEditing ? (
-                  <textarea
-                    value={currentData.address}
-                    onChange={(e) =>
-                      handleInputChange("address", e.target.value)
-                    }
-                    rows={3}
-                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
-                  />
-                ) : (
-                  <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                    <FiMapPin className="w-5 h-5 text-neutral-500 dark:text-neutral-400 flex-shrink-0" />
-                    <span className="text-neutral-900 dark:text-neutral-100 font-medium">
-                      {currentData.address}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Bio */}
-              <div className="mt-8 space-y-3">
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                  Giới thiệu
-                </label>
-                {isEditing ? (
-                  <textarea
-                    value={currentData.bio}
-                    onChange={(e) => handleInputChange("bio", e.target.value)}
-                    rows={4}
-                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
-                    placeholder="Viết vài dòng về bản thân..."
-                  />
-                ) : (
-                  <div className="px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                    <p className="text-neutral-900 dark:text-neutral-100 leading-relaxed">
-                      {currentData.bio}
-                    </p>
-                  </div>
-                )}
+                {/* Address */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    Địa chỉ
+                  </label>
+                  {isEditing ? (
+                    <textarea
+                      value={currentData.address}
+                      onChange={(e) =>
+                        handleInputChange("address", e.target.value)
+                      }
+                      rows={3}
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 transition-colors"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                      <FiMapPin className="w-5 h-5 text-neutral-500 dark:text-neutral-400 flex-shrink-0" />
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                        {currentData.address}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -526,18 +470,6 @@ const ParentProfile = () => {
                             {student.studentCode || "N/A"}
                           </span>
                         </div>
-                        {student.dateOfBirth && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                              Ngày sinh:
-                            </span>
-                            <span className="text-sm text-neutral-900 dark:text-neutral-100">
-                              {new Date(student.dateOfBirth).toLocaleDateString(
-                                "vi-VN"
-                              )}
-                            </span>
-                          </div>
-                        )}
                         {student.gender && (
                           <div className="flex justify-between items-center">
                             <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -618,15 +550,6 @@ const ParentProfile = () => {
                   <div className="text-sm text-neutral-500 dark:text-neutral-400">
                     Tiêm chủng
                   </div>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-600">
-                <div className="text-sm text-neutral-500 dark:text-neutral-400 text-center">
-                  Thành viên từ
-                </div>
-                <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100 text-center mt-1">
-                  Tháng 9, 2024
                 </div>
               </div>
             </div>
