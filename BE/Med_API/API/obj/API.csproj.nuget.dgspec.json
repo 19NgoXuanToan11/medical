@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\FPT\\SWP391\\BE\\Med_API\\API\\API.csproj": {}
+    "D:\\medical\\BE\\Med_API\\API\\API.csproj": {}
   },
   "projects": {
-    "D:\\FPT\\SWP391\\BE\\Med_API\\API\\API.csproj": {
+    "D:\\medical\\BE\\Med_API\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\FPT\\SWP391\\BE\\Med_API\\API\\API.csproj",
+        "projectUniqueName": "D:\\medical\\BE\\Med_API\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "D:\\FPT\\SWP391\\BE\\Med_API\\API\\API.csproj",
-        "packagesPath": "C:\\Users\\wukon\\.nuget\\packages\\",
-        "outputPath": "D:\\FPT\\SWP391\\BE\\Med_API\\API\\obj\\",
+        "projectPath": "D:\\medical\\BE\\Med_API\\API\\API.csproj",
+        "packagesPath": "C:\\Users\\lequa\\.nuget\\packages\\",
+        "outputPath": "D:\\medical\\BE\\Med_API\\API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\app\\New folder (2)\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\wukon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lequa\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,18 +26,17 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://your-payos-nuget-source": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj": {
-                "projectPath": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj"
+              "D:\\medical\\BE\\Med_API\\DB\\DB.csproj": {
+                "projectPath": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj"
               },
-              "D:\\FPT\\SWP391\\BE\\Med_API\\Service\\Service.csproj": {
-                "projectPath": "D:\\FPT\\SWP391\\BE\\Med_API\\Service\\Service.csproj"
+              "D:\\medical\\BE\\Med_API\\Service\\Service.csproj": {
+                "projectPath": "D:\\medical\\BE\\Med_API\\Service\\Service.csproj"
               }
             }
           }
@@ -52,7 +51,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -114,24 +113,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj": {
+    "D:\\medical\\BE\\Med_API\\DB\\DB.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj",
+        "projectUniqueName": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj",
         "projectName": "DB",
-        "projectPath": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj",
-        "packagesPath": "C:\\Users\\wukon\\.nuget\\packages\\",
-        "outputPath": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\obj\\",
+        "projectPath": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj",
+        "packagesPath": "C:\\Users\\lequa\\.nuget\\packages\\",
+        "outputPath": "D:\\medical\\BE\\Med_API\\DB\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\app\\New folder (2)\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\wukon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lequa\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -140,8 +139,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://your-payos-nuget-source": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
@@ -159,7 +157,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -196,24 +194,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\FPT\\SWP391\\BE\\Med_API\\Repo\\Repo.csproj": {
+    "D:\\medical\\BE\\Med_API\\Repo\\Repo.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\FPT\\SWP391\\BE\\Med_API\\Repo\\Repo.csproj",
+        "projectUniqueName": "D:\\medical\\BE\\Med_API\\Repo\\Repo.csproj",
         "projectName": "Repo",
-        "projectPath": "D:\\FPT\\SWP391\\BE\\Med_API\\Repo\\Repo.csproj",
-        "packagesPath": "C:\\Users\\wukon\\.nuget\\packages\\",
-        "outputPath": "D:\\FPT\\SWP391\\BE\\Med_API\\Repo\\obj\\",
+        "projectPath": "D:\\medical\\BE\\Med_API\\Repo\\Repo.csproj",
+        "packagesPath": "C:\\Users\\lequa\\.nuget\\packages\\",
+        "outputPath": "D:\\medical\\BE\\Med_API\\Repo\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\app\\New folder (2)\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\wukon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lequa\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -222,15 +220,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://your-payos-nuget-source": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj": {
-                "projectPath": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj"
+              "D:\\medical\\BE\\Med_API\\DB\\DB.csproj": {
+                "projectPath": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj"
               }
             }
           }
@@ -245,7 +242,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -272,24 +269,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\FPT\\SWP391\\BE\\Med_API\\Service\\Service.csproj": {
+    "D:\\medical\\BE\\Med_API\\Service\\Service.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\FPT\\SWP391\\BE\\Med_API\\Service\\Service.csproj",
+        "projectUniqueName": "D:\\medical\\BE\\Med_API\\Service\\Service.csproj",
         "projectName": "Service",
-        "projectPath": "D:\\FPT\\SWP391\\BE\\Med_API\\Service\\Service.csproj",
-        "packagesPath": "C:\\Users\\wukon\\.nuget\\packages\\",
-        "outputPath": "D:\\FPT\\SWP391\\BE\\Med_API\\Service\\obj\\",
+        "projectPath": "D:\\medical\\BE\\Med_API\\Service\\Service.csproj",
+        "packagesPath": "C:\\Users\\lequa\\.nuget\\packages\\",
+        "outputPath": "D:\\medical\\BE\\Med_API\\Service\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\app\\New folder (2)\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\wukon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lequa\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -298,18 +295,17 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://your-payos-nuget-source": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj": {
-                "projectPath": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj"
+              "D:\\medical\\BE\\Med_API\\DB\\DB.csproj": {
+                "projectPath": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj"
               },
-              "D:\\FPT\\SWP391\\BE\\Med_API\\Repo\\Repo.csproj": {
-                "projectPath": "D:\\FPT\\SWP391\\BE\\Med_API\\Repo\\Repo.csproj"
+              "D:\\medical\\BE\\Med_API\\Repo\\Repo.csproj": {
+                "projectPath": "D:\\medical\\BE\\Med_API\\Repo\\Repo.csproj"
               }
             }
           }
@@ -324,7 +320,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -367,7 +363,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

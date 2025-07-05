@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj": {}
+    "D:\\medical\\BE\\Med_API\\DB\\DB.csproj": {}
   },
   "projects": {
-    "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj": {
+    "D:\\medical\\BE\\Med_API\\DB\\DB.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj",
+        "projectUniqueName": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj",
         "projectName": "DB",
-        "projectPath": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\DB.csproj",
-        "packagesPath": "C:\\Users\\wukon\\.nuget\\packages\\",
-        "outputPath": "D:\\FPT\\SWP391\\BE\\Med_API\\DB\\obj\\",
+        "projectPath": "D:\\medical\\BE\\Med_API\\DB\\DB.csproj",
+        "packagesPath": "C:\\Users\\lequa\\.nuget\\packages\\",
+        "outputPath": "D:\\medical\\BE\\Med_API\\DB\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\app\\New folder (2)\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\wukon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lequa\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,8 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://your-payos-nuget-source": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
@@ -45,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -82,7 +81,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

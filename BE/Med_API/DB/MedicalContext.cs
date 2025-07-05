@@ -476,6 +476,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.ClassName)
                 .HasMaxLength(50);
             entity.Property(e => e.Date).HasColumnType("date");
+            entity.Property(e => e.RefusalReason).HasMaxLength(500);
 
             entity.HasOne(d => d.Student)
                 .WithMany(p => p.MedicineRequests)

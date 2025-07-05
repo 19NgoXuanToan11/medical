@@ -18,6 +18,7 @@ public static class MedicineRequestDto
         public ParentDto.ViewModel? Parent { get; set; }
         public StaffDto.ViewModel? Staff { get; set; }
         public ICollection<MedicineRequestItemDto.ViewModel> MedicineRequestItems { get; set; } = new List<MedicineRequestItemDto.ViewModel>();
+        public string? RefusalReason { get; set; }
     }
 
     public class Create
@@ -50,6 +51,16 @@ public static class MedicineRequestDto
 
         public ICollection<MedicineRequestItemDto.Update>? MedicineRequestItems { get; set; }
     }
+}
+
+public class RefuseRequestDto
+{
+    [Required]
+    public int StaffId { get; set; }
+
+    [Required]
+    [StringLength(500)]
+    public string RefusalReason { get; set; } = null!;
 }
 
 public static class MedicineRequestItemDto

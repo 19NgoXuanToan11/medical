@@ -7,10 +7,12 @@ namespace Service;
 public class MedicineRequestService : IMedicineRequestService
 {
     private readonly IMedicineRequestRepository _medicineRequestRepository;
+    private readonly IMedicineRepository _medicineRepository;
 
-    public MedicineRequestService(IMedicineRequestRepository medicineRequestRepository)
+    public MedicineRequestService(IMedicineRequestRepository medicineRequestRepository, IMedicineRepository medicineRepository)
     {
         _medicineRequestRepository = medicineRequestRepository;
+        _medicineRepository = medicineRepository;
     }
 
     public async Task<IEnumerable<MedicineRequest>> GetAllMedicineRequestsAsync()
@@ -218,4 +220,54 @@ public class MedicineRequestService : IMedicineRequestService
     {
         return await _medicineRequestRepository.GetRequestsNeedingTimeOfDayAsync(timeOfDay);
     }
-} 
+
+    // Status update methods
+    public async Task<bool> VerifyRequestAsync(int requestId, int staffId)
+    {
+        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(requestId);
+        if (request == null)
+        {
+            return false;
+        }
+
+        // Check if request is in pending status
+        if (request.Status != "Pending")
+        {
+            return false;
+        }
+
+        // Update request status to verified
+        request.Status = "Verified";
+        await _medicineRequestRepository.UpdateMedicineRequestAsync(request);
+
+        return true;
+    }
+
+    public async Task<bool> RefuseRequestAsync(int requestId, int staffId, string refusalReason)
+    {
+        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(requestId);
+        if (request == null)
+        {
+            return false;
+        }
+
+        // Check if request is in pending status
+        if (request.Status != "Pending")
+        {
+            return false;
+        }
+
+        request.Status = "Refused";
+        request.RefusalReason = refusalReason;
+        await _medicineRequestRepository.UpdateMedicineRequestAsync(request);
+
+        return true;
+    }
+
+    public async Task<IEnumerable<MedicineRequest>> GetRefusedRequestsAsync()
+    {
+        return await _medicineRequestRepository.GetMedicineRequestsByStatusAsync("Refused");
+    }
+}
+
+ 

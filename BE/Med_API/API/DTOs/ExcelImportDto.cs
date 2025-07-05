@@ -63,12 +63,6 @@ public static class ExcelImportDto
     [SwaggerSchema(Description = "Parent data row from Excel import")]
     public class ParentRow
     {
-        [Required(ErrorMessage = "Student code is required")]
-        [StringLength(20, ErrorMessage = "Student code cannot exceed 20 characters")]
-        [RegularExpression(@"^[A-Z0-9]+$", ErrorMessage = "Student code can only contain uppercase letters and numbers")]
-        [SwaggerSchema(Description = "Student code this parent is associated with")]
-        public string StudentCode { get; set; } = null!;
-
         [Required(ErrorMessage = "First name is required")]
         [StringLength(50, ErrorMessage = "First name cannot exceed 50 characters")]
         [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
@@ -115,6 +109,27 @@ public static class ExcelImportDto
         public bool IsMainContact { get; set; }
     }
 
+    [SwaggerSchema(Description = "Student-Parent relationship data row from Excel import")]
+    public class StudentParentRow
+    {
+        [Required(ErrorMessage = "Student code is required")]
+        [StringLength(20, ErrorMessage = "Student code cannot exceed 20 characters")]
+        [RegularExpression(@"^[A-Z0-9]+$", ErrorMessage = "Student code can only contain uppercase letters and numbers")]
+        [SwaggerSchema(Description = "Student code for this relationship")]
+        public string StudentCode { get; set; } = null!;
+
+        [Required(ErrorMessage = "Parent email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        [StringLength(100, ErrorMessage = "Email cannot exceed 100 characters")]
+        [SwaggerSchema(Description = "Parent email for this relationship")]
+        public string ParentEmail { get; set; } = null!;
+
+        [Required(ErrorMessage = "Relationship is required")]
+        [RegularExpression(@"^(Mother|Father|Guardian|Other)$", ErrorMessage = "Relationship must be one of: Mother, Father, Guardian, Other")]
+        [SwaggerSchema(Description = "Parent's relationship to the student")]
+        public string Relationship { get; set; } = null!;
+    }
+
     [SwaggerSchema(Description = "Health profile data row from Excel import")]
     public class HealthProfileRow
     {
@@ -154,13 +169,11 @@ public static class ExcelImportDto
         public string? VisionNotes { get; set; }
 
         [StringLength(20, ErrorMessage = "Left eye measurement cannot exceed 20 characters")]
-        [RegularExpression(@"^(\d+/\d+|[A-Za-z\s]+)$", ErrorMessage = "Invalid vision measurement format")]
-        [SwaggerSchema(Description = "Left eye measurement (e.g., 20/20)")]
+        [SwaggerSchema(Description = "Left eye measurement (any format accepted)")]
         public string? LeftEye { get; set; }
 
         [StringLength(20, ErrorMessage = "Right eye measurement cannot exceed 20 characters")]
-        [RegularExpression(@"^(\d+/\d+|[A-Za-z\s]+)$", ErrorMessage = "Invalid vision measurement format")]
-        [SwaggerSchema(Description = "Right eye measurement (e.g., 20/20)")]
+        [SwaggerSchema(Description = "Right eye measurement (any format accepted)")]
         public string? RightEye { get; set; }
 
         [Required(ErrorMessage = "Hearing issues status is required")]
@@ -217,7 +230,7 @@ public static class ExcelImportDto
         public string? OtherInfo { get; set; }
 
         [StringLength(20, ErrorMessage = "Blood pressure cannot exceed 20 characters")]
-        [SwaggerSchema(Description = "Student's blood pressure (e.g., 120/80)")]
+        [SwaggerSchema(Description = "Student's blood pressure (any format accepted)")]
         public string? BloodPressure { get; set; }
 
         [Range(0, 250, ErrorMessage = "Heart rate must be between 0 and 250 bpm")]
