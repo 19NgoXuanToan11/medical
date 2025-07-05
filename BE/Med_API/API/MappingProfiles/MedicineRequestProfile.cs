@@ -16,7 +16,8 @@ public class MedicineRequestProfile : Profile
             .ForMember(dest => dest.MedicineRequestItems, opt => opt.MapFrom(src => src.MedicineRequestItems))
             .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Student))
             .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.Parent))
-            .ForMember(dest => dest.Staff, opt => opt.MapFrom(src => src.Staff));
+            .ForMember(dest => dest.Staff, opt => opt.MapFrom(src => src.Staff))
+            .ForMember(dest => dest.RefusalReason, opt => opt.MapFrom(src => src.RefusalReason));
 
         // Map from MedicineRequestDto.Create to MedicineRequest
         CreateMap<MedicineRequestDto.Create, MedicineRequest>()

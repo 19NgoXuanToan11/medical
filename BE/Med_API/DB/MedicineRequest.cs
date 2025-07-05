@@ -21,6 +21,8 @@ public partial class MedicineRequest
 
     public int? StaffId { get; set; }
 
+    public string? RefusalReason { get; set; }
+
     // Navigation properties
     public virtual Student? Student { get; set; }
     public virtual Parent? Parent { get; set; }

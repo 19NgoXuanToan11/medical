@@ -49,7 +49,11 @@ public class ExcelImportRepository : IExcelImportRepository
         return phones;
     }
 
-    public async Task AddStudentWithRelatedDataAsync(Student student, IEnumerable<Parent> parents, HealthProfile healthProfile)
+    public async Task AddStudentWithRelatedDataAsync(
+        Student student, 
+        IEnumerable<Parent> parents, 
+        IEnumerable<(Parent Parent, string Relationship)> relationships,
+        HealthProfile healthProfile)
     {
         _logger.LogInformation("Starting database transaction for student {StudentCode}", student.StudentCode);
         using var transaction = await _context.Database.BeginTransactionAsync();
@@ -70,9 +74,11 @@ public class ExcelImportRepository : IExcelImportRepository
             _logger.LogInformation("Student {StudentCode} added successfully with ID {StudentId}", 
                 student.StudentCode, student.StudentId);
 
-            // Add parents one by one to ensure proper identity generation and relationship creation
+            // Process parents and relationships
             var parentList = parents.ToList();
-            foreach (var parent in parentList)
+            var relationshipList = relationships.ToList();
+
+            foreach (var (parent, relationship) in relationshipList)
             {
                 // Verify parent email and phone are unique if provided
                 if (!string.IsNullOrEmpty(parent.Email))
@@ -81,7 +87,31 @@ public class ExcelImportRepository : IExcelImportRepository
                         .FirstOrDefaultAsync(p => p.Email == parent.Email);
                     if (existingEmail != null)
                     {
-                        throw new InvalidOperationException($"Parent with email {parent.Email} already exists.");
+                        // Check if this existing parent has the same relationship to this student
+                        var existingRelationship = await _context.StudentParents
+                            .Include(sp => sp.Parent)
+                            .FirstOrDefaultAsync(sp => 
+                                sp.StudentCode == student.StudentCode && 
+                                sp.Parent.Email == parent.Email);
+                        
+                        if (existingRelationship != null)
+                        {
+                            throw new InvalidOperationException($"Student-parent relationship already exists: Student {student.StudentCode} with Parent {parent.Email}");
+                        }
+                        
+                        // Create new relationship with existing parent
+                        var studentParent = new StudentParent
+                        {
+                            StudentCode = student.StudentCode,
+                            ParentId = existingEmail.ParentId
+                        };
+
+                        _context.StudentParents.Add(studentParent);
+                        await _context.SaveChangesAsync();
+
+                        _logger.LogInformation("Created relationship for existing parent {ParentEmail} with student {StudentCode}", 
+                            parent.Email, student.StudentCode);
+                        continue;
                     }
                 }
 
@@ -95,10 +125,8 @@ public class ExcelImportRepository : IExcelImportRepository
                 // Create new parent entity
                 var newParent = new Parent
                 {
-                    // StudentCode = student.StudentCode, // This links to the student we just created
                     FirstName = parent.FirstName,
                     LastName = parent.LastName,
-                    Relationship = parent.Relationship,
                     Phone = parent.Phone,
                     Email = parent.Email,
                     Address = parent.Address,
@@ -106,23 +134,13 @@ public class ExcelImportRepository : IExcelImportRepository
                     IsEmergencyContact = parent.IsEmergencyContact,
                     IsMainContact = parent.IsMainContact,
                     Password = parent.Password,
+                    Relationship = parent.Relationship, // Set the relationship from the parent entity
                     IsActive = true
                 };
 
-                // Removed direct reference to StudentCode for Parent. Use student.StudentCode for logging student context.
-                _logger.LogInformation("Adding parent {FirstName} {LastName} for student {StudentCode}", 
+                _logger.LogInformation("Adding new parent {FirstName} {LastName} for student {StudentCode}", 
                     newParent.FirstName, newParent.LastName, student.StudentCode);
                 
-                // Detailed logging for Parent properties before adding to context
-                _logger.LogInformation("Parent before Add - ParentId: {ParentId}, FirstName: {FirstName}, LastName: {LastName}, Relationship: {Relationship}, Phone: {Phone}, Email: {Email}, Password: {Password}",
-                    newParent.ParentId,
-                    newParent.FirstName,
-                    newParent.LastName,
-                    newParent.Relationship,
-                    newParent.Phone,
-                    newParent.Email,
-                    newParent.Password);
-
                 // Add parent and save to get the generated ParentId
                 _context.Parents.Add(newParent);
                 await _context.SaveChangesAsync();
@@ -130,13 +148,13 @@ public class ExcelImportRepository : IExcelImportRepository
                 _logger.LogInformation("Parent after SaveChanges - ParentId: {ParentId}", newParent.ParentId);
 
                 // Create StudentParent relationship
-                var studentParent = new StudentParent
+                var newStudentParent = new StudentParent
                 {
-                    StudentCode = student.StudentCode, // StudentCode comes from the student entity
-                    ParentId = newParent.ParentId // This will now have the correct generated ID
+                    StudentCode = student.StudentCode,
+                    ParentId = newParent.ParentId
                 };
 
-                _context.StudentParents.Add(studentParent);
+                _context.StudentParents.Add(newStudentParent);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("Created parent relationship for student {StudentCode} with parent {ParentId}", 
