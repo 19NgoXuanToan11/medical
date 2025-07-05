@@ -139,8 +139,8 @@ const Navbar = () => {
       {
         label: "Sự kiện y tế",
         children: [
-          { label: "Danh sách sự kiện", path: "/nurse/health-events" },
-          { label: "Tạo sự kiện mới", path: "/nurse/health-events/new" },
+          { label: "Theo dõi sự kiện", path: "/nurse/health-events" },
+          { label: "Báo cáo sự kiện", path: "/nurse/health-events/report" },
         ],
       },
       {
@@ -165,6 +165,12 @@ const Navbar = () => {
         children: [
           { label: "Kho thuốc", path: "/manager/medicine-inventory" },
           { label: "Kho vật tư y tế", path: "/manager/supply-inventory" },
+        ],
+      },
+      {
+        label: "Sự kiện y tế",
+        children: [
+          { label: "Quản lý sự kiện", path: "/manager/health-events" },
         ],
       },
     ],
