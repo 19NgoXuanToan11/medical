@@ -1,113 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { medicationService } from "../../../utils/api/medication/medicationService";
+import { useAuth } from "../../../utils/auth/AuthContext";
+import {
+  transformParentMedicationData,
+  getStatusBadge,
+  calculateMedicationStats,
+  filterMedications,
+} from "../../../utils/api/medication/parentMedicationUtils";
+import { toast } from "react-toastify";
 
 const MedicationHistory = () => {
-  // Sample data - in a real application, this would come from an API
-  const [medications, setMedications] = useState([
-    {
-      id: "MED781234",
-      studentName: "Nguyễn Văn An",
-      class: "3A",
-      medicationName: "Paracetamol",
-      requestDate: "2023-10-15",
-      startDate: "2023-10-16",
-      endDate: "2023-10-20",
-      status: "active",
-      dosage: "1 viên",
-      frequency: "twice",
-      lastAdministered: "2023-10-16 12:30",
-      completedDoses: 2,
-      totalDoses: 10,
-    },
-    {
-      id: "MED652198",
-      studentName: "Nguyễn Văn An",
-      class: "3A",
-      medicationName: "Vitamin C",
-      requestDate: "2023-10-10",
-      startDate: "2023-10-12",
-      endDate: "2023-10-25",
-      status: "active",
-      dosage: "5ml",
-      frequency: "once",
-      lastAdministered: "2023-10-16 08:15",
-      completedDoses: 5,
-      totalDoses: 14,
-    },
-    {
-      id: "MED541872",
-      studentName: "Nguyễn Văn An",
-      class: "3A",
-      medicationName: "Siro ho",
-      requestDate: "2023-09-28",
-      startDate: "2023-09-29",
-      endDate: "2023-10-05",
-      status: "completed",
-      dosage: "10ml",
-      frequency: "twice",
-      lastAdministered: "2023-10-05 12:30",
-      completedDoses: 14,
-      totalDoses: 14,
-    },
-    {
-      id: "MED439281",
-      studentName: "Nguyễn Thị Minh",
-      class: "5B",
-      medicationName: "Thuốc chống dị ứng",
-      requestDate: "2023-10-14",
-      startDate: "2023-10-15",
-      endDate: "2023-10-20",
-      status: "pending",
-      dosage: "1 viên",
-      frequency: "once",
-      lastAdministered: null,
-      completedDoses: 0,
-      totalDoses: 6,
-    },
-  ]);
-
+  const { user } = useAuth();
+  const [medications, setMedications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredMedications = medications.filter((med) => {
-    const matchesStatus = filterStatus === "all" || med.status === filterStatus;
-    const matchesSearch =
-      med.medicationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      med.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      med.studentName.toLowerCase().includes(searchTerm.toLowerCase());
+  // Fetch medication data from API
+  const fetchMedicationData = async () => {
+    if (!user?.id) return;
 
-    return matchesStatus && matchesSearch;
-  });
+    setLoading(true);
+    setError(null);
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "active":
-        return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 ring-1 ring-blue-600/20 dark:ring-blue-400/20">
-            Đang thực hiện
-          </span>
-        );
-      case "completed":
-        return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 ring-1 ring-green-600/20 dark:ring-green-400/20">
-            Đã hoàn thành
-          </span>
-        );
-      case "pending":
-        return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 ring-1 ring-yellow-600/20 dark:ring-yellow-400/20">
-            Chờ xác nhận
-          </span>
-        );
-      case "rejected":
-        return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 ring-1 ring-red-600/20 dark:ring-red-400/20">
-            Từ chối
-          </span>
-        );
-      default:
-        return null;
+    try {
+      const result = await medicationService.getMedicationRequestsByParent(
+        user.id
+      );
+
+      if (result.success) {
+        const transformedData = transformParentMedicationData(result.data);
+        setMedications(transformedData);
+      } else {
+        setError(result.message);
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching medication data:", error);
+      setError("Có lỗi xảy ra khi tải dữ liệu");
+      toast.error("Có lỗi xảy ra khi tải dữ liệu");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Load data on component mount and when user changes
+  useEffect(() => {
+    fetchMedicationData();
+  }, [user?.id]);
+
+  const filteredMedications = filterMedications(
+    medications,
+    filterStatus,
+    searchTerm
+  );
+  const stats = calculateMedicationStats(medications);
+
+  const renderStatusBadge = (status) => {
+    const badge = getStatusBadge(status);
+    return <span className={badge.className}>{badge.text}</span>;
   };
 
   return (
@@ -153,7 +106,7 @@ const MedicationHistory = () => {
                 Chờ xác nhận
               </p>
               <p className="text-2xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
-                {medications.filter((m) => m.status === "pending").length}
+                {stats.pending}
               </p>
             </div>
             <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
@@ -181,7 +134,7 @@ const MedicationHistory = () => {
                 Đang thực hiện
               </p>
               <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">
-                {medications.filter((m) => m.status === "active").length}
+                {stats.active}
               </p>
             </div>
             <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
@@ -209,7 +162,7 @@ const MedicationHistory = () => {
                 Đã hoàn thành
               </p>
               <p className="text-2xl font-bold mt-1 text-green-600 dark:text-green-400">
-                {medications.filter((m) => m.status === "completed").length}
+                {stats.completed}
               </p>
             </div>
             <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
@@ -237,7 +190,7 @@ const MedicationHistory = () => {
                 Tổng yêu cầu
               </p>
               <p className="text-2xl font-bold mt-1 text-gray-800 dark:text-gray-200">
-                {medications.length}
+                {stats.total}
               </p>
             </div>
             <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full">
@@ -340,8 +293,50 @@ const MedicationHistory = () => {
         </div>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center border border-gray-200 dark:border-gray-700">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">
+            Đang tải dữ liệu...
+          </p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center border border-gray-200 dark:border-gray-700">
+          <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+            <svg
+              className="h-8 w-8 text-red-400 dark:text-red-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-1">
+            Có lỗi xảy ra
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
+          <button
+            onClick={fetchMedicationData}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-md transition-colors"
+          >
+            Thử lại
+          </button>
+        </div>
+      )}
+
       {/* Data Table */}
-      {filteredMedications.length === 0 ? (
+      {!loading && !error && filteredMedications.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center border border-gray-200 dark:border-gray-700">
           <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
             <svg
@@ -363,7 +358,9 @@ const MedicationHistory = () => {
             Không tìm thấy yêu cầu nào
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Hãy tạo yêu cầu thuốc mới hoặc thay đổi bộ lọc tìm kiếm
+            {filterStatus === "all"
+              ? "Chưa có yêu cầu thuốc nào được tạo."
+              : `Không có yêu cầu thuốc nào với trạng thái "${filterStatus}".`}
           </p>
           <Link
             to="/parent/medication/request"
@@ -385,146 +382,139 @@ const MedicationHistory = () => {
           </Link>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                  >
-                    Mã yêu cầu
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                  >
-                    Học sinh
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                  >
-                    Thuốc & Liều lượng
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                  >
-                    Ngày bắt đầu - kết thúc
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                  >
-                    Tiến độ
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                  >
-                    Trạng thái
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                  >
-                    Hành động
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredMedications.map((medication) => (
-                  <tr
-                    key={medication.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-blue-600 dark:text-blue-400">
-                      #{medication.id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {medication.studentName}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        Lớp {medication.class}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {medication.medicationName}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {medication.dosage} (
-                        {medication.frequency === "once"
-                          ? "1 lần/ngày"
-                          : medication.frequency === "twice"
-                          ? "2 lần/ngày"
-                          : medication.frequency === "thrice"
-                          ? "3 lần/ngày"
-                          : "Khi cần"}
-                        )
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm text-gray-900 dark:text-gray-100">
-                        {new Date(medication.startDate).toLocaleDateString(
-                          "vi-VN"
-                        )}
-                        {" - "}
-                        {new Date(medication.endDate).toLocaleDateString(
-                          "vi-VN"
-                        )}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Yêu cầu:{" "}
-                        {new Date(medication.requestDate).toLocaleDateString(
-                          "vi-VN"
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-2">
-                        <div
-                          className="bg-blue-600 dark:bg-blue-400 h-2.5 rounded-full"
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              (medication.completedDoses /
-                                medication.totalDoses) *
-                                100
-                            )}%`,
-                          }}
-                        ></div>
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {medication.completedDoses}/{medication.totalDoses} liều
-                        (
-                        {Math.round(
-                          (medication.completedDoses / medication.totalDoses) *
-                            100
-                        )}
-                        %)
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      {getStatusBadge(medication.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <Link
-                        to={`/parent/medication/detail/${medication.id}`}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
-                      >
-                        Chi tiết
-                      </Link>
-                    </td>
+        !loading &&
+        !error && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
+                      Mã yêu cầu
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
+                      Học sinh
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
+                      Thuốc & Liều lượng
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
+                      Ngày bắt đầu - kết thúc
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
+                      Tiến độ
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
+                      Trạng thái
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
+                      Hành động
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {filteredMedications.map((medication) => (
+                    <tr
+                      key={medication.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-blue-600 dark:text-blue-400">
+                        #{medication.id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {medication.studentName}
+                        </div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          Lớp {medication.class}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {medication.medicationName}
+                        </div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {medication.dosage} (
+                          {medication.frequency === "once"
+                            ? "1 lần/ngày"
+                            : medication.frequency === "twice"
+                            ? "2 lần/ngày"
+                            : medication.frequency === "thrice"
+                            ? "3 lần/ngày"
+                            : "Khi cần"}
+                          )
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                          {new Date(medication.startDate).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                          {" - "}
+                          {new Date(medication.endDate).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Yêu cầu:{" "}
+                          {new Date(medication.requestDate).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-2">
+                          <div
+                            className="bg-blue-600 dark:bg-blue-400 h-2.5 rounded-full"
+                            style={{
+                              width: `${medication.progressPercentage}%`,
+                            }}
+                          ></div>
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {medication.completedDoses}/{medication.totalDoses}{" "}
+                          liều ({medication.progressPercentage}%)
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        {renderStatusBadge(medication.status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <Link
+                          to={`/parent/medication/detail/${medication.id}`}
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
+                        >
+                          Chi tiết
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )
       )}
     </div>
   );

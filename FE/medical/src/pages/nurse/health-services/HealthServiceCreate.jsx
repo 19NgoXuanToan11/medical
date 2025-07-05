@@ -1,20 +1,44 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { FiActivity, FiShield, FiArrowLeft } from "react-icons/fi";
 import VaccinationCreate from "./VaccinationCreate";
 import HealthCheckCreate from "./HealthCheckCreate";
 
 const HealthServiceCreate = () => {
   const navigate = useNavigate();
-  const [serviceType, setServiceType] = useState(""); // vaccination or health_check
+  const { serviceType: urlServiceType } = useParams();
+  const [serviceType, setServiceType] = useState(urlServiceType || ""); // vaccination or health_check
+
+  // Update serviceType when URL parameter changes
+  useEffect(() => {
+    if (urlServiceType) {
+      setServiceType(urlServiceType);
+    }
+  }, [urlServiceType]);
 
   // Nếu đã chọn loại dịch vụ, hiển thị component tương ứng
   if (serviceType === "vaccination") {
-    return <VaccinationCreate onBack={() => setServiceType("")} />;
+    return (
+      <VaccinationCreate
+        onBack={() =>
+          urlServiceType
+            ? navigate("/nurse/health-services")
+            : setServiceType("")
+        }
+      />
+    );
   }
 
   if (serviceType === "health_check") {
-    return <HealthCheckCreate onBack={() => setServiceType("")} />;
+    return (
+      <HealthCheckCreate
+        onBack={() =>
+          urlServiceType
+            ? navigate("/nurse/health-services")
+            : setServiceType("")
+        }
+      />
+    );
   }
 
   // Hiển thị màn hình chọn loại dịch vụ
