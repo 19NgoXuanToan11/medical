@@ -66,6 +66,12 @@ public class HealthProfileDTO
     [StringLength(1000)]
     public string? HearingNotes { get; set; }
 
+    [StringLength(20)]
+    public string? BloodPressure { get; set; }
+
+    [Range(0, 250)]
+    public int? HeartRate { get; set; }
+
     [StringLength(255)]
     public string? EmergencyContact { get; set; }
 
@@ -76,4 +82,20 @@ public class HealthProfileDTO
 
     // Navigation property
     public StudentDto.ViewModel? Student { get; set; }
+    
+    // Parent information
+    public ICollection<ParentSummary>? Parents { get; set; }
+}
+
+public class ParentSummary
+{
+    public int ParentId { get; set; }
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
+    public string Relationship { get; set; } = null!;
+    public string Phone { get; set; } = null!;
+    public string? Email { get; set; }
+    public bool? IsEmergencyContact { get; set; }
+    public bool? IsMainContact { get; set; }
+    public bool? IsActive { get; set; }
 } 
