@@ -32,9 +32,25 @@ public static class HealthProfileDto
         public int? HeartRate { get; set; }
         public string? EmergencyContact { get; set; }
         public string? OtherInfo { get; set; }
-        public DateTime? LastUpdated { get; set; }
-        public StudentDto.ViewModel? Student { get; set; }
-    }
+            public DateTime? LastUpdated { get; set; }
+    public StudentDto.ViewModel? Student { get; set; }
+    
+    // Parent information
+    public ICollection<ParentSummary>? Parents { get; set; }
+}
+
+public class ParentSummary
+{
+    public int ParentId { get; set; }
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
+    public string Relationship { get; set; } = null!;
+    public string Phone { get; set; } = null!;
+    public string? Email { get; set; }
+    public bool? IsEmergencyContact { get; set; }
+    public bool? IsMainContact { get; set; }
+    public bool? IsActive { get; set; }
+}
 
     public class Create
     {

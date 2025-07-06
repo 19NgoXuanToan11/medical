@@ -51,11 +51,15 @@ public class HealthMappingProfile : Profile
 
         // HealthProfile Mappings
         CreateMap<HealthProfile, HealthProfileDto.ViewModel>()
-            .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Student));
+            .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Student))
+            .ForMember(dest => dest.Parents, opt => opt.MapFrom(src => src.Student != null ? src.Student.StudentParents.Select(sp => sp.Parent) : null));
 
         CreateMap<HealthProfileDto.Create, HealthProfile>();
 
         CreateMap<HealthProfileDto.Update, HealthProfile>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+        // Parent Summary Mapping
+        CreateMap<Parent, HealthProfileDto.ParentSummary>();
     }
 } 
