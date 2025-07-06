@@ -56,7 +56,7 @@ const HealthServiceCreate = () => {
               Quay lại
             </button>
           </div>
-          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
             Tạo Dịch vụ Y tế mới
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mt-2">
@@ -67,7 +67,7 @@ const HealthServiceCreate = () => {
         {/* Service Type Selection */}
         <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-700 p-8">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+            <h2 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
               Chọn loại dịch vụ y tế
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400">

@@ -381,354 +381,360 @@ const UserList = () => {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-        <div className="mb-4 lg:mb-0">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Danh sách người dùng
-          </h2>
-          <p className="text-sm text-gray-600">
-            Quản lý tất cả người dùng trong hệ thống
-          </p>
-        </div>
-        <div>
-          <button
-            onClick={openAddModal}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <FiPlus className="mr-2" />
-            Thêm người dùng mới
-          </button>
-        </div>
-      </div>
-
-      {/* Filter and Search */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div className="w-full md:w-1/3 relative">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-              <FiSearch className="text-gray-400" />
-            </span>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1); // Reset to first page on search
-              }}
-              placeholder="Tìm kiếm theo tên hoặc email..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden mb-8">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-2">
+                Quản lý người dùng
+              </h1>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                Quản lý tài khoản và phân quyền người dùng trong hệ thống
+              </p>
+            </div>
+            <div>
+              <button
+                onClick={openAddModal}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <FiPlus className="mr-2" />
+                Thêm người dùng mới
+              </button>
+            </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
-            <div className="flex items-center">
-              <div className="mr-2 flex items-center">
-                <FiFilter className="text-gray-400 mr-1" />
-                <span className="text-sm text-gray-600">Vai trò:</span>
+          {/* Filter and Search */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+              <div className="w-full md:w-1/3 relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <FiSearch className="text-gray-400" />
+                </span>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1); // Reset to first page on search
+                  }}
+                  placeholder="Tìm kiếm theo tên hoặc email..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
-              <select
-                value={filterRole}
-                onChange={(e) => {
-                  setFilterRole(e.target.value);
-                  setCurrentPage(1); // Reset to first page on filter change
-                }}
-                className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">Tất cả</option>
-                <option value="admin">Quản trị viên</option>
-                <option value="staff">Nhân viên y tế</option>
-                <option value="teacher">Giáo viên</option>
-                <option value="parent">Phụ huynh</option>
-              </select>
-            </div>
 
-            <div className="flex items-center">
-              <div className="mr-2 flex items-center">
-                <FiFilter className="text-gray-400 mr-1" />
-                <span className="text-sm text-gray-600">Trạng thái:</span>
+              <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+                <div className="flex items-center">
+                  <div className="mr-2 flex items-center">
+                    <FiFilter className="text-gray-400 mr-1" />
+                    <span className="text-sm text-gray-600">Vai trò:</span>
+                  </div>
+                  <select
+                    value={filterRole}
+                    onChange={(e) => {
+                      setFilterRole(e.target.value);
+                      setCurrentPage(1); // Reset to first page on filter change
+                    }}
+                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">Tất cả</option>
+                    <option value="admin">Quản trị viên</option>
+                    <option value="staff">Nhân viên y tế</option>
+                    <option value="teacher">Giáo viên</option>
+                    <option value="parent">Phụ huynh</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center">
+                  <div className="mr-2 flex items-center">
+                    <FiFilter className="text-gray-400 mr-1" />
+                    <span className="text-sm text-gray-600">Trạng thái:</span>
+                  </div>
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => {
+                      setFilterStatus(e.target.value);
+                      setCurrentPage(1); // Reset to first page on filter change
+                    }}
+                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">Tất cả</option>
+                    <option value="active">Đang hoạt động</option>
+                    <option value="inactive">Không hoạt động</option>
+                    <option value="pending">Chờ xác nhận</option>
+                  </select>
+                </div>
               </div>
-              <select
-                value={filterStatus}
-                onChange={(e) => {
-                  setFilterStatus(e.target.value);
-                  setCurrentPage(1); // Reset to first page on filter change
-                }}
-                className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">Tất cả</option>
-                <option value="active">Đang hoạt động</option>
-                <option value="inactive">Không hoạt động</option>
-                <option value="pending">Chờ xác nhận</option>
-              </select>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Users Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="p-6 text-center">
-              <p className="text-gray-600">Đang tải dữ liệu...</p>
+          {/* Users Table */}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="overflow-x-auto">
+              {loading ? (
+                <div className="p-6 text-center">
+                  <p className="text-gray-600">Đang tải dữ liệu...</p>
+                </div>
+              ) : (
+                <table className="min-w-full divide-y divide-gray-200 table-fixed">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/4"
+                        onClick={() => handleSort("name")}
+                      >
+                        <div className="flex items-center">
+                          Tên người dùng
+                          {sortColumn === "name" && (
+                            <span className="ml-1">
+                              {sortDirection === "asc" ? "↑" : "↓"}
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
+                        onClick={() => handleSort("role")}
+                      >
+                        <div className="flex items-center justify-center">
+                          Vai trò
+                          {sortColumn === "role" && (
+                            <span className="ml-1">
+                              {sortDirection === "asc" ? "↑" : "↓"}
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
+                        onClick={() => handleSort("status")}
+                      >
+                        <div className="flex items-center justify-center">
+                          Trạng thái
+                          {sortColumn === "status" && (
+                            <span className="ml-1">
+                              {sortDirection === "asc" ? "↑" : "↓"}
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
+                        onClick={() => handleSort("lastLogin")}
+                      >
+                        <div className="flex items-center justify-center">
+                          Đăng nhập cuối
+                          {sortColumn === "lastLogin" && (
+                            <span className="ml-1">
+                              {sortDirection === "asc" ? "↑" : "↓"}
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
+                        onClick={() => handleSort("createdAt")}
+                      >
+                        <div className="flex items-center justify-center">
+                          Ngày tạo
+                          {sortColumn === "createdAt" && (
+                            <span className="ml-1">
+                              {sortDirection === "asc" ? "↑" : "↓"}
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12"
+                      >
+                        Thao tác
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {currentUsers.map((user) => (
+                      <tr key={user.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold">
+                                {user.name.charAt(0)}
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {user.name}
+                              </div>
+                              <div className="text-sm text-gray-500 truncate max-w-xs">
+                                {user.email}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleClass(
+                              user.role
+                            )}`}
+                          >
+                            {getRoleLabel(user.role)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(
+                              user.status
+                            )}`}
+                          >
+                            {getStatusLabel(user.status)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                          {formatDate(user.lastLogin)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                          {formatDate(user.createdAt)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                          <div className="flex justify-center space-x-2">
+                            <Link
+                              to={`/admin/users/${user.id}`}
+                              className="text-blue-600 hover:text-blue-900"
+                              title="Xem chi tiết"
+                            >
+                              <FiEye className="h-5 w-5" />
+                              <span className="sr-only">Xem</span>
+                            </Link>
+                            <Link
+                              to={`/admin/users/${user.id}/edit`}
+                              className="text-indigo-600 hover:text-indigo-900"
+                              title="Chỉnh sửa"
+                            >
+                              <FiEdit className="h-5 w-5" />
+                              <span className="sr-only">Chỉnh sửa</span>
+                            </Link>
+                            <button
+                              onClick={() => handleDeleteClick(user)}
+                              className="text-red-600 hover:text-red-900"
+                              title="Xóa người dùng"
+                            >
+                              <FiTrash2 className="h-5 w-5" />
+                              <span className="sr-only">Xóa</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              {!loading && currentUsers.length === 0 && (
+                <div className="p-6 text-center">
+                  <p className="text-gray-600">Không tìm thấy người dùng nào</p>
+                </div>
+              )}
             </div>
-          ) : (
-            <table className="min-w-full divide-y divide-gray-200 table-fixed">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/4"
-                    onClick={() => handleSort("name")}
-                  >
-                    <div className="flex items-center">
-                      Tên người dùng
-                      {sortColumn === "name" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
-                    onClick={() => handleSort("role")}
-                  >
-                    <div className="flex items-center justify-center">
-                      Vai trò
-                      {sortColumn === "role" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
-                    onClick={() => handleSort("status")}
-                  >
-                    <div className="flex items-center justify-center">
-                      Trạng thái
-                      {sortColumn === "status" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
-                    onClick={() => handleSort("lastLogin")}
-                  >
-                    <div className="flex items-center justify-center">
-                      Đăng nhập cuối
-                      {sortColumn === "lastLogin" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-1/6"
-                    onClick={() => handleSort("createdAt")}
-                  >
-                    <div className="flex items-center justify-center">
-                      Ngày tạo
-                      {sortColumn === "createdAt" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12"
-                  >
-                    Thao tác
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold">
-                            {user.name.charAt(0)}
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.name}
-                          </div>
-                          <div className="text-sm text-gray-500 truncate max-w-xs">
-                            {user.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleClass(
-                          user.role
-                        )}`}
+
+            {/* Pagination */}
+            {!loading && sortedUsers.length > 0 && (
+              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      Hiển thị{" "}
+                      <span className="font-medium">
+                        {indexOfFirstUser + 1}
+                      </span>{" "}
+                      đến{" "}
+                      <span className="font-medium">
+                        {Math.min(indexOfLastUser, sortedUsers.length)}
+                      </span>{" "}
+                      trong tổng số{" "}
+                      <span className="font-medium">{sortedUsers.length}</span>{" "}
+                      người dùng
+                    </p>
+                  </div>
+                  <div>
+                    <nav
+                      className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                      aria-label="Pagination"
+                    >
+                      <button
+                        onClick={() => paginate(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${
+                          currentPage === 1
+                            ? "cursor-not-allowed opacity-50"
+                            : "hover:bg-gray-50"
+                        }`}
                       >
-                        {getRoleLabel(user.role)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(
-                          user.status
-                        )}`}
-                      >
-                        {getStatusLabel(user.status)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                      {formatDate(user.lastLogin)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                      {formatDate(user.createdAt)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                      <div className="flex justify-center space-x-2">
-                        <Link
-                          to={`/admin/users/${user.id}`}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Xem chi tiết"
+                        <span className="sr-only">Previous</span>
+                        <svg
+                          className="h-5 w-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          aria-hidden="true"
                         >
-                          <FiEye className="h-5 w-5" />
-                          <span className="sr-only">Xem</span>
-                        </Link>
-                        <Link
-                          to={`/admin/users/${user.id}/edit`}
-                          className="text-indigo-600 hover:text-indigo-900"
-                          title="Chỉnh sửa"
-                        >
-                          <FiEdit className="h-5 w-5" />
-                          <span className="sr-only">Chỉnh sửa</span>
-                        </Link>
+                          <path
+                            fillRule="evenodd"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+
+                      {[...Array(totalPages).keys()].map((number) => (
                         <button
-                          onClick={() => handleDeleteClick(user)}
-                          className="text-red-600 hover:text-red-900"
-                          title="Xóa người dùng"
+                          key={number + 1}
+                          onClick={() => paginate(number + 1)}
+                          className={`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${
+                            currentPage === number + 1
+                              ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                              : "text-gray-500 hover:bg-gray-50"
+                          }`}
                         >
-                          <FiTrash2 className="h-5 w-5" />
-                          <span className="sr-only">Xóa</span>
+                          {number + 1}
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                      ))}
 
-          {!loading && currentUsers.length === 0 && (
-            <div className="p-6 text-center">
-              <p className="text-gray-600">Không tìm thấy người dùng nào</p>
-            </div>
-          )}
-        </div>
-
-        {/* Pagination */}
-        {!loading && sortedUsers.length > 0 && (
-          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm text-gray-700">
-                  Hiển thị{" "}
-                  <span className="font-medium">{indexOfFirstUser + 1}</span>{" "}
-                  đến{" "}
-                  <span className="font-medium">
-                    {Math.min(indexOfLastUser, sortedUsers.length)}
-                  </span>{" "}
-                  trong tổng số{" "}
-                  <span className="font-medium">{sortedUsers.length}</span>{" "}
-                  người dùng
-                </p>
+                      <button
+                        onClick={() => paginate(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 ${
+                          currentPage === totalPages
+                            ? "cursor-not-allowed opacity-50"
+                            : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <span className="sr-only">Next</span>
+                        <svg
+                          className="h-5 w-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
               </div>
-              <div>
-                <nav
-                  className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                  aria-label="Pagination"
-                >
-                  <button
-                    onClick={() => paginate(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${
-                      currentPage === 1
-                        ? "cursor-not-allowed opacity-50"
-                        : "hover:bg-gray-50"
-                    }`}
-                  >
-                    <span className="sr-only">Previous</span>
-                    <svg
-                      className="h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-
-                  {[...Array(totalPages).keys()].map((number) => (
-                    <button
-                      key={number + 1}
-                      onClick={() => paginate(number + 1)}
-                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${
-                        currentPage === number + 1
-                          ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                          : "text-gray-500 hover:bg-gray-50"
-                      }`}
-                    >
-                      {number + 1}
-                    </button>
-                  ))}
-
-                  <button
-                    onClick={() => paginate(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 ${
-                      currentPage === totalPages
-                        ? "cursor-not-allowed opacity-50"
-                        : "hover:bg-gray-50"
-                    }`}
-                  >
-                    <span className="sr-only">Next</span>
-                    <svg
-                      className="h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                </nav>
-              </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Add User Modal */}

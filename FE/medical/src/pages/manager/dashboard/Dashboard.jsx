@@ -169,7 +169,7 @@ const Dashboard = () => {
         <>
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden mb-8">
             <div className="p-6">
-              <h2 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100 mb-4">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100 mb-4">
                 Quản lý kho thuốc và vật tư y tế
               </h2>
 
@@ -177,10 +177,10 @@ const Dashboard = () => {
                 <div className="bg-primary-50 dark:bg-primary-900/30 p-6 rounded-lg border border-primary-100 dark:border-primary-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-sm text-neutral-600 dark:text-neutral-300">
+                      <div className="text-xs text-neutral-600 dark:text-neutral-300">
                         Tổng số mặt hàng
                       </div>
-                      <div className="text-3xl font-bold text-primary-700 dark:text-primary-400">
+                      <div className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                         {inventoryStats.totalMedicines +
                           inventoryStats.totalSupplies}
                       </div>
@@ -201,7 +201,7 @@ const Dashboard = () => {
                       <div className="text-sm text-neutral-600 dark:text-neutral-300">
                         Sắp hết hàng
                       </div>
-                      <div className="text-3xl font-bold text-red-600 dark:text-red-400">
+                      <div className="text-2xl font-bold text-red-600 dark:text-red-400">
                         {inventoryStats.lowStockMedicines +
                           inventoryStats.lowStockSupplies}
                       </div>
@@ -222,7 +222,7 @@ const Dashboard = () => {
                       <div className="text-sm text-neutral-600 dark:text-neutral-300">
                         Ngừng sử dụng
                       </div>
-                      <div className="text-3xl font-bold text-neutral-700 dark:text-neutral-200">
+                      <div className="text-2xl font-bold text-neutral-700 dark:text-neutral-200">
                         {inventoryStats.inactiveMedicines +
                           inventoryStats.inactiveSupplies}
                       </div>

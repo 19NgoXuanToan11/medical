@@ -38,7 +38,7 @@ const VaccinationWidget = () => {
         <div className="p-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col items-center p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
-              <span className="text-2xl font-bold text-primary-700 dark:text-primary-400">
+              <span className="text-xl font-bold text-primary-700 dark:text-primary-400">
                 {upcomingCount}
               </span>
               <span className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -46,7 +46,7 @@ const VaccinationWidget = () => {
               </span>
             </div>
             <div className="flex flex-col items-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-              <span className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">
+              <span className="text-xl font-bold text-yellow-700 dark:text-yellow-400">
                 {pendingCount}
               </span>
               <span className="text-sm text-neutral-600 dark:text-neutral-400">

@@ -84,7 +84,7 @@ const HealthEventsList = () => {
       >
         <div className="p-5">
           <div className="flex justify-between items-start mb-2">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">
               {event.title}
             </h2>
             {event.status === "needConsent" && (
@@ -196,7 +196,7 @@ const HealthEventsList = () => {
     <div className="min-h-screen bg-white dark:bg-gray-900">
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl pt-20">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
             Sự cố y tế
           </h1>
           <p className="text-gray-600 dark:text-gray-400">

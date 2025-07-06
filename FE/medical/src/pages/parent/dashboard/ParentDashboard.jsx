@@ -22,24 +22,24 @@ const ParentDashboard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden hover:shadow-sm transition-all duration-200">
               <div className="border-b border-neutral-100 dark:border-neutral-700 px-4 py-3 flex justify-between items-center">
-                <h2 className="font-medium text-base text-neutral-800 dark:text-neutral-200">
+                <h2 className="font-medium text-sm text-neutral-800 dark:text-neutral-200">
                   Thuốc đang sử dụng
                 </h2>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 ring-1 ring-primary-600/20 dark:ring-primary-400/20">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 ring-1 ring-primary-600/20 dark:ring-primary-400/20">
                   {activeMedications} yêu cầu
                 </span>
               </div>
               <div className="p-4">
-                <p className="text-base text-neutral-600 dark:text-neutral-400 mb-4">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
                   Các yêu cầu thuốc đang được thực hiện tại trường
                 </p>
                 <Link
                   to="/parent/medication/history"
-                  className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-base font-medium flex items-center"
+                  className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium flex items-center"
                 >
                   Xem chi tiết
                   <svg
-                    className="w-5 h-5 ml-1"
+                    className="w-4 h-4 ml-1"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -57,24 +57,24 @@ const ParentDashboard = () => {
 
             <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden hover:shadow-sm transition-all duration-200">
               <div className="border-b border-neutral-100 dark:border-neutral-700 px-4 py-3 flex justify-between items-center">
-                <h2 className="font-medium text-base text-neutral-800 dark:text-neutral-200">
+                <h2 className="font-medium text-sm text-neutral-800 dark:text-neutral-200">
                   Yêu cầu chờ xác nhận
                 </h2>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 ring-1 ring-yellow-600/20 dark:ring-yellow-400/20">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 ring-1 ring-yellow-600/20 dark:ring-yellow-400/20">
                   {pendingMedications} yêu cầu
                 </span>
               </div>
               <div className="p-4">
-                <p className="text-base text-neutral-600 dark:text-neutral-400 mb-4">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
                   Các yêu cầu thuốc đang chờ xác nhận từ nhân viên y tế
                 </p>
                 <Link
                   to="/parent/medication/history?status=pending"
-                  className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-base font-medium flex items-center"
+                  className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium flex items-center"
                 >
                   Xem chi tiết
                   <svg
-                    className="w-5 h-5 ml-1"
+                    className="w-4 h-4 ml-1"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -92,24 +92,24 @@ const ParentDashboard = () => {
 
             <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden hover:shadow-sm transition-all duration-200">
               <div className="border-b border-neutral-100 dark:border-neutral-700 px-4 py-3 flex justify-between items-center">
-                <h2 className="font-medium text-base text-neutral-800 dark:text-neutral-200">
+                <h2 className="font-medium text-sm text-neutral-800 dark:text-neutral-200">
                   Thông báo mới
                 </h2>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-1 ring-green-600/20 dark:ring-green-400/20">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-1 ring-green-600/20 dark:ring-green-400/20">
                   {notificationCount} thông báo
                 </span>
               </div>
               <div className="p-4">
-                <p className="text-base text-neutral-600 dark:text-neutral-400 mb-4">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
                   Thông báo từ trường học về sức khỏe và thuốc của con bạn
                 </p>
                 <Link
                   to="/parent/notifications"
-                  className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-base font-medium flex items-center"
+                  className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium flex items-center"
                 >
                   Xem tất cả
                   <svg
-                    className="w-5 h-5 ml-1"
+                    className="w-4 h-4 ml-1"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -134,7 +134,7 @@ const ParentDashboard = () => {
                 {/* Medication Management */}
                 <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden hover:shadow-sm transition-all duration-200">
                   <div className="bg-primary-50 dark:bg-primary-900/20 px-4 py-3 border-b border-primary-100 dark:border-primary-800">
-                    <h2 className="text-xl font-medium text-neutral-800 dark:text-neutral-200">
+                    <h2 className="text-base font-medium text-neutral-800 dark:text-neutral-200">
                       Quản lý thuốc
                     </h2>
                   </div>
@@ -161,11 +161,11 @@ const ParentDashboard = () => {
                           <div className="flex-1">
                             <Link
                               to="/parent/medication/request"
-                              className="text-primary-700 dark:text-primary-400 font-medium text-lg group-hover:text-primary-900 dark:group-hover:text-primary-300"
+                              className="text-primary-700 dark:text-primary-400 font-medium text-base group-hover:text-primary-900 dark:group-hover:text-primary-300"
                             >
                               Gửi yêu cầu thuốc mới
                             </Link>
-                            <p className="text-base text-primary-600 dark:text-primary-500 mt-1">
+                            <p className="text-sm text-primary-600 dark:text-primary-500 mt-1">
                               Tạo yêu cầu mới để gửi thuốc đến trường
                             </p>
                           </div>
@@ -193,11 +193,11 @@ const ParentDashboard = () => {
                           <div className="flex-1">
                             <Link
                               to="/parent/medication/history"
-                              className="text-primary-700 dark:text-primary-400 font-medium text-lg group-hover:text-primary-900 dark:group-hover:text-primary-300"
+                              className="text-primary-700 dark:text-primary-400 font-medium text-base group-hover:text-primary-900 dark:group-hover:text-primary-300"
                             >
                               Lịch sử yêu cầu
                             </Link>
-                            <p className="text-base text-primary-600 dark:text-primary-500 mt-1">
+                            <p className="text-sm text-primary-600 dark:text-primary-500 mt-1">
                               Xem tất cả các yêu cầu thuốc trước đây
                             </p>
                           </div>
@@ -210,7 +210,7 @@ const ParentDashboard = () => {
                 {/* Health Profile */}
                 <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden hover:shadow-sm transition-all duration-200">
                   <div className="bg-primary-50 dark:bg-primary-900/20 px-4 py-3 border-b border-primary-100 dark:border-primary-800">
-                    <h2 className="text-xl font-medium text-neutral-800 dark:text-neutral-200">
+                    <h2 className="text-base font-medium text-neutral-800 dark:text-neutral-200">
                       Hồ sơ sức khỏe
                     </h2>
                   </div>
@@ -236,11 +236,11 @@ const ParentDashboard = () => {
                         <div className="flex-1">
                           <Link
                             to="/parent/health-profile"
-                            className="text-primary-700 dark:text-primary-400 font-medium text-lg group-hover:text-primary-900 dark:group-hover:text-primary-300"
+                            className="text-primary-700 dark:text-primary-400 font-medium text-base group-hover:text-primary-900 dark:group-hover:text-primary-300"
                           >
                             Xem hồ sơ sức khỏe
                           </Link>
-                          <p className="text-base text-primary-600 dark:text-primary-500 mt-1">
+                          <p className="text-sm text-primary-600 dark:text-primary-500 mt-1">
                             Thông tin sức khỏe chi tiết của học sinh
                           </p>
                         </div>
@@ -251,7 +251,7 @@ const ParentDashboard = () => {
                     <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg text-center">
-                          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                          <div className="text-xl font-bold text-green-600 dark:text-green-400">
                             5
                           </div>
                           <div className="text-sm text-green-700 dark:text-green-300">
@@ -259,7 +259,7 @@ const ParentDashboard = () => {
                           </div>
                         </div>
                         <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-center">
-                          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                          <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                             8
                           </div>
                           <div className="text-sm text-blue-700 dark:text-blue-300">

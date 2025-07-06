@@ -151,7 +151,7 @@ const HealthCheckCreate = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
                 Lập kế hoạch khám sức khỏe
               </h1>
               <p className="mt-2 text-neutral-600 dark:text-neutral-400">

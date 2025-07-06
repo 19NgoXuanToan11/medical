@@ -141,7 +141,7 @@ const VaccinationPlanCreate = () => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">
+        <h1 className="text-xl font-bold text-neutral-800 dark:text-neutral-100">
           Tạo kế hoạch tiêm chủng mới
         </h1>
         <p className="text-neutral-600 dark:text-neutral-400 mt-1">

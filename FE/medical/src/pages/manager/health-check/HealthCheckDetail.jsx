@@ -255,11 +255,11 @@ const HealthCheckDetail = () => {
                   <FiArrowLeft className="h-5 w-5" />
                 </button>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
                     {healthCheckData.title}
                   </h1>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">
-                    Mã chương trình: HC-{healthCheckData.id}
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                    Chi tiết thông tin khám sức khỏe và tiến độ thực hiện
                   </p>
                 </div>
               </div>

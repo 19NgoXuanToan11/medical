@@ -217,7 +217,7 @@ const NurseSchedule = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
+            <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
               Lịch trình y tá
             </h1>
             <p className="text-neutral-600 dark:text-neutral-400 mt-1">
@@ -395,7 +395,7 @@ const NurseSchedule = () => {
       {selectedDate && (
         <div className="mt-6 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700">
           <div className="p-6 border-b border-neutral-200 dark:border-neutral-700">
-            <h3 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200">
+            <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
               Lịch trình ngày{" "}
               {selectedDate.toLocaleDateString("vi-VN", {
                 weekday: "long",

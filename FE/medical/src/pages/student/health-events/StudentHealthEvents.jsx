@@ -207,7 +207,7 @@ const StudentHealthEvents = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-neutral-800 mb-2">
+        <h1 className="text-xl font-semibold text-neutral-800 mb-2">
           Sự cố y tế
         </h1>
         <p className="text-neutral-600">
@@ -224,7 +224,7 @@ const StudentHealthEvents = () => {
               <FiCalendar className="h-5 w-5 text-primary-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-neutral-800">
+          <p className="text-xl font-bold text-neutral-800">
             {upcomingEvents.length}
           </p>
           <p className="text-sm text-neutral-500 mt-1">sự kiện đã lên lịch</p>
@@ -237,7 +237,7 @@ const StudentHealthEvents = () => {
               <FiActivity className="h-5 w-5 text-neutral-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-neutral-800">
+          <p className="text-xl font-bold text-neutral-800">
             {pastEvents.length}
           </p>
           <p className="text-sm text-neutral-500 mt-1">sự kiện đã tham gia</p>

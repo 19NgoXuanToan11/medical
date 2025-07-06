@@ -399,25 +399,23 @@ const StaffManagement = () => {
   return (
     <div className="container mx-auto px-4 max-w-6xl">
       {/* Header */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden mb-8 transition-colors duration-300">
-        <div className="p-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
-                Quản lý nhân viên
-              </h1>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Quản lý tài khoản và thông tin nhân viên
-              </p>
-            </div>
-            <button
-              onClick={() => openModal("create")}
-              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-            >
-              <FiPlus />
-              Thêm nhân viên
-            </button>
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold text-neutral-800 dark:text-neutral-200">
+              Quản lý nhân viên
+            </h1>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+              Quản lý tài khoản và thông tin nhân viên y tế
+            </p>
           </div>
+          <button
+            onClick={() => openModal("create")}
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <FiPlus />
+            Thêm nhân viên
+          </button>
         </div>
       </div>
 

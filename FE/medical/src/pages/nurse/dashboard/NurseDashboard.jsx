@@ -262,7 +262,7 @@ const NurseDashboard = () => {
 
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden mb-8">
             <div className="p-6">
-              <h2 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100 mb-4">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100 mb-4">
                 Tổng quan y tế học đường
               </h2>
               <p className="text-neutral-600 dark:text-neutral-300 mb-6">
@@ -321,7 +321,7 @@ const NurseDashboard = () => {
                       <div className="text-sm text-neutral-600 dark:text-neutral-300">
                         Yêu cầu thuốc chờ xử lý
                       </div>
-                      <div className="text-3xl font-bold text-primary-700 dark:text-primary-400">
+                      <div className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                         {stats.pendingMedications}
                       </div>
                     </div>
@@ -337,7 +337,7 @@ const NurseDashboard = () => {
                       <div className="text-sm text-neutral-600 dark:text-neutral-300">
                         Kiểm tra sức khỏe sắp tới
                       </div>
-                      <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+                      <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                         {stats.scheduledHealthChecks}
                       </div>
                     </div>
@@ -353,7 +353,7 @@ const NurseDashboard = () => {
                       <div className="text-sm text-neutral-600 dark:text-neutral-300">
                         Tiêm chủng sắp tới
                       </div>
-                      <div className="text-3xl font-bold text-green-600">
+                      <div className="text-2xl font-bold text-green-600">
                         {stats.upcomingVaccinations}
                       </div>
                     </div>
@@ -369,7 +369,7 @@ const NurseDashboard = () => {
                       <div className="text-sm text-neutral-600 dark:text-neutral-300">
                         Sự cố y tế hôm nay
                       </div>
-                      <div className="text-3xl font-bold text-red-600 dark:text-red-400">
+                      <div className="text-2xl font-bold text-red-600 dark:text-red-400">
                         {stats.healthEventsToday}
                       </div>
                     </div>

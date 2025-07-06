@@ -117,7 +117,7 @@ const Reports = () => {
 
     return (
       <div className="mb-6">
-        <h3 className="text-lg font-medium text-gray-800 mb-2">
+        <h3 className="text-base font-medium text-gray-800 mb-2">
           {chart.title}
         </h3>
         <div className="bg-gray-50 p-4 rounded-lg">
@@ -197,7 +197,7 @@ const Reports = () => {
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Báo cáo</h1>
+        <h1 className="text-xl font-bold text-gray-800 mb-2">Báo cáo</h1>
         <p className="text-gray-600">
           Xem các báo cáo sức khỏe chi tiết và lịch sử y tế của con bạn
         </p>
@@ -305,7 +305,7 @@ const Reports = () => {
 
           {/* Charts Section */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center">
               <FaChartLine className="mr-2 text-blue-500" />
               Biểu đồ chỉ số sức khỏe
             </h3>
@@ -318,7 +318,7 @@ const Reports = () => {
 
           {/* Health Events */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center">
               <FaCalendarAlt className="mr-2 text-blue-500" />
               Sự cố y tế trong kỳ báo cáo
             </h3>
@@ -345,7 +345,7 @@ const Reports = () => {
 
           {/* Recommendations */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            <h3 className="text-base font-semibold text-gray-800 mb-4">
               Khuyến nghị từ nhân viên y tế
             </h3>
             <ul className="list-disc pl-5 space-y-2 text-gray-700">

@@ -101,7 +101,7 @@ const MedicationAdministration = () => {
       <div className="mb-6">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+            <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200">
               Quản lý uống thuốc
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
@@ -159,7 +159,7 @@ const MedicationAdministration = () => {
               <p className="text-gray-500 dark:text-gray-400 text-sm">
                 Đang uống thuốc
               </p>
-              <p className="text-2xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
+              <p className="text-xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
                 {stats.pending}
               </p>
             </div>
@@ -176,7 +176,7 @@ const MedicationAdministration = () => {
               <p className="text-gray-500 dark:text-gray-400 text-sm">
                 Tiến độ
               </p>
-              <p className="text-2xl font-bold mt-1 text-green-600 dark:text-green-400">
+              <p className="text-xl font-bold mt-1 text-green-600 dark:text-green-400">
                 {stats.administered}
               </p>
             </div>
@@ -193,7 +193,7 @@ const MedicationAdministration = () => {
               <p className="text-gray-500 dark:text-gray-400 text-sm">
                 Thất bại
               </p>
-              <p className="text-2xl font-bold mt-1 text-red-600 dark:text-red-400">
+              <p className="text-xl font-bold mt-1 text-red-600 dark:text-red-400">
                 {stats.failed}
               </p>
             </div>
@@ -210,7 +210,7 @@ const MedicationAdministration = () => {
               <p className="text-gray-500 dark:text-gray-400 text-sm">
                 Yêu cầu lại
               </p>
-              <p className="text-2xl font-bold mt-1 text-orange-600 dark:text-orange-400">
+              <p className="text-xl font-bold mt-1 text-orange-600 dark:text-orange-400">
                 {stats.reRequests}
               </p>
             </div>

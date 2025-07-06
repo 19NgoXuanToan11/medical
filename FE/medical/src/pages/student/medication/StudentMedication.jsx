@@ -195,7 +195,7 @@ const StudentMedication = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-neutral-800 mb-2">
+        <h1 className="text-xl font-semibold text-neutral-800 mb-2">
           Lịch uống thuốc
         </h1>
         <p className="text-neutral-600">
@@ -212,7 +212,7 @@ const StudentMedication = () => {
               <FiClock className="h-5 w-5 text-primary-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-neutral-800">
+          <p className="text-xl font-bold text-neutral-800">
             {medications.filter((med) => med.status === "active").length}
           </p>
           <p className="text-sm text-neutral-500 mt-1">loại thuốc</p>
@@ -225,7 +225,7 @@ const StudentMedication = () => {
               <FiCalendar className="h-5 w-5 text-neutral-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-neutral-800">
+          <p className="text-xl font-bold text-neutral-800">
             {todayMedications.reduce(
               (total, med) => total + med.schedules.length,
               0
@@ -241,7 +241,7 @@ const StudentMedication = () => {
               <FiInfo className="h-5 w-5 text-neutral-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-neutral-800">
+          <p className="text-xl font-bold text-neutral-800">
             {completedMedications.length}
           </p>
           <p className="text-sm text-neutral-500 mt-1">liệu trình</p>

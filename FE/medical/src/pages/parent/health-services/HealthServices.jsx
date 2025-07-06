@@ -289,7 +289,7 @@ const HealthServices = () => {
 
       return (
         <div className="text-center py-12">
-          <div className="text-neutral-400 dark:text-neutral-500 text-lg mb-2">
+          <div className="text-neutral-400 dark:text-neutral-500 text-sm mb-2">
             {emptyMessage}
           </div>
           <p className="text-neutral-500 dark:text-neutral-400">
@@ -325,7 +325,7 @@ const HealthServices = () => {
                         {getServiceTypeLabel(service.type)}
                       </span>
                     </span>
-                    <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mt-1">
+                    <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 mt-1">
                       {service.title}
                     </h3>
                   </div>
@@ -364,7 +364,7 @@ const HealthServices = () => {
               <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-4 mb-4">
                 <div className="flex items-start">
                   <FiInfo className="w-4 h-4 mr-2 mt-0.5 text-neutral-500 dark:text-neutral-400" />
-                  <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                  <p className="text-xs text-neutral-600 dark:text-neutral-300">
                     {service.description}
                   </p>
                 </div>
@@ -372,7 +372,7 @@ const HealthServices = () => {
 
               {service.type === "health_check" && service.checkItems && (
                 <div className="mb-4">
-                  <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
+                  <h4 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
                     Các hạng mục kiểm tra:
                   </h4>
                   <div className="flex flex-wrap gap-2">
@@ -394,7 +394,7 @@ const HealthServices = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center text-amber-600 dark:text-amber-400">
                         <FiAlertCircle className="w-4 h-4 mr-2" />
-                        <span className="text-sm font-medium">
+                        <span className="text-xs font-medium">
                           Cần xác nhận đồng ý
                         </span>
                       </div>
@@ -418,10 +418,10 @@ const HealthServices = () => {
 
               {service.findings && (
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-3">
-                  <h4 className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                  <h4 className="text-xs font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
                     Phát hiện:
                   </h4>
-                  <ul className="list-disc list-inside text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
+                  <ul className="list-disc list-inside text-xs text-yellow-700 dark:text-yellow-300 space-y-1">
                     {service.findings.map((finding, index) => (
                       <li key={index}>{finding}</li>
                     ))}
@@ -431,10 +431,10 @@ const HealthServices = () => {
 
               {service.recommendations && (
                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                  <h4 className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-2">
                     Khuyến nghị:
                   </h4>
-                  <ul className="list-disc list-inside text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                  <ul className="list-disc list-inside text-xs text-blue-700 dark:text-blue-300 space-y-1">
                     {service.recommendations.map((rec, index) => (
                       <li key={index}>{rec}</li>
                     ))}
@@ -443,7 +443,7 @@ const HealthServices = () => {
               )}
 
               {service.notes && service.status === "completed" && (
-                <div className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+                <div className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
                   <strong>Ghi chú:</strong> {service.notes}
                 </div>
               )}
@@ -470,7 +470,7 @@ const HealthServices = () => {
       return (
         <div className="text-center py-12">
           <FiCheckCircle className="mx-auto h-12 w-12 text-green-400 dark:text-green-500 mb-4" />
-          <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+          <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2">
             {emptyMessage}
           </h3>
           <p className="text-neutral-500 dark:text-neutral-400">
@@ -513,7 +513,7 @@ const HealthServices = () => {
                   <span className={getServiceTypeBadge(consent.type)}>
                     {getServiceTypeLabel(consent.type)}
                   </span>
-                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mt-1">
+                  <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mt-1">
                     {consent.title}
                   </h3>
                 </div>
@@ -568,10 +568,10 @@ const HealthServices = () => {
     <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
           Dịch vụ Y tế
         </h1>
-        <p className="text-neutral-600 dark:text-neutral-400">
+        <p className="text-xs text-neutral-600 dark:text-neutral-400">
           Quản lý và theo dõi các dịch vụ y tế của con bạn bao gồm tiêm chủng và
           khám sức khỏe định kỳ
         </p>
@@ -582,10 +582,10 @@ const HealthServices = () => {
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
+              <p className="text-blue-600 dark:text-blue-400 text-xs font-medium">
                 Tiêm chủng
               </p>
-              <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              <p className="text-xl font-bold text-blue-900 dark:text-blue-100">
                 {upcomingServices.filter((s) => s.type === "vaccination")
                   .length +
                   serviceHistory.filter((s) => s.type === "vaccination").length}
@@ -598,10 +598,10 @@ const HealthServices = () => {
         <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6 border border-green-200 dark:border-green-800">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-green-600 dark:text-green-400 text-sm font-medium">
+              <p className="text-green-600 dark:text-green-400 text-xs font-medium">
                 Y tế định kỳ
               </p>
-              <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+              <p className="text-xl font-bold text-green-900 dark:text-green-100">
                 {upcomingServices.filter((s) => s.type === "health_check")
                   .length +
                   serviceHistory.filter((s) => s.type === "health_check")
@@ -615,10 +615,10 @@ const HealthServices = () => {
         <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 rounded-xl p-6 border border-amber-200 dark:border-amber-800">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-600 dark:text-amber-400 text-sm font-medium">
+              <p className="text-amber-600 dark:text-amber-400 text-xs font-medium">
                 Cần xác nhận
               </p>
-              <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+              <p className="text-xl font-bold text-amber-900 dark:text-amber-100">
                 {pendingConsents.length}
               </p>
             </div>
@@ -647,7 +647,7 @@ const HealthServices = () => {
                   setActiveTab(tab.id);
                   setActiveServiceType("all"); // Reset filter when switching tabs
                 }}
-                className={`relative flex items-center px-6 py-4 text-sm font-medium transition-colors duration-200 ${
+                className={`relative flex items-center px-6 py-4 text-xs font-medium transition-colors duration-200 ${
                   activeTab === tab.id
                     ? "bg-primary-50 border-b-2 border-primary-500 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400"
                     : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"

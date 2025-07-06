@@ -82,10 +82,10 @@ const MedicationHistory = () => {
       <div className="mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
               Lịch sử yêu cầu thuốc
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               Theo dõi tình trạng và lịch sử uống thuốc của học sinh
             </p>
           </div>
@@ -97,10 +97,10 @@ const MedicationHistory = () => {
         <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
+              <p className="text-gray-600 dark:text-gray-400 text-xs">
                 Chờ xác nhận
               </p>
-              <p className="text-2xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
+              <p className="text-xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
                 {stats.pending}
               </p>
             </div>
@@ -125,10 +125,10 @@ const MedicationHistory = () => {
         <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
+              <p className="text-gray-600 dark:text-gray-400 text-xs">
                 Đang thực hiện
               </p>
-              <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">
+              <p className="text-xl font-bold mt-1 text-blue-600 dark:text-blue-400">
                 {stats.active}
               </p>
             </div>
@@ -153,10 +153,10 @@ const MedicationHistory = () => {
         <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
+              <p className="text-gray-600 dark:text-gray-400 text-xs">
                 Đã hoàn thành
               </p>
-              <p className="text-2xl font-bold mt-1 text-green-600 dark:text-green-400">
+              <p className="text-xl font-bold mt-1 text-green-600 dark:text-green-400">
                 {stats.completed}
               </p>
             </div>
@@ -181,10 +181,10 @@ const MedicationHistory = () => {
         <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
+              <p className="text-gray-600 dark:text-gray-400 text-xs">
                 Tổng yêu cầu
               </p>
-              <p className="text-2xl font-bold mt-1 text-gray-800 dark:text-gray-200">
+              <p className="text-xl font-bold mt-1 text-gray-800 dark:text-gray-200">
                 {stats.total}
               </p>
             </div>

@@ -142,7 +142,7 @@ const VaccinationPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-blue-800 mb-6">Tiêm chủng</h1>
+      <h1 className="text-xl font-bold text-blue-800 mb-6">Tiêm chủng</h1>
 
       {/* Child selector */}
       {children.length > 0 && (

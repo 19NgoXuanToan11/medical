@@ -118,7 +118,7 @@ const NurseProfile = () => {
           {/* Profile Info */}
           <div className="pt-16 pb-6 px-6">
             <div className="flex flex-col gap-2">
-              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+              <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
                 {currentData.firstName} {currentData.lastName}
               </h1>
               <p className="text-neutral-600 dark:text-neutral-400">

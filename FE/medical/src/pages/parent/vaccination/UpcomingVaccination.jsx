@@ -46,7 +46,7 @@ const UpcomingVaccination = () => {
         <div className="px-8 py-6 bg-gradient-to-r from-blue-50 to-primary-50 dark:from-neutral-800 dark:to-neutral-800 border-b border-neutral-100 dark:border-neutral-700">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
                 Tiêm chủng sắp tới
               </h1>
               <p className="text-neutral-600 dark:text-neutral-400 text-lg">
@@ -130,7 +130,7 @@ const UpcomingVaccination = () => {
                           {index + 1}
                         </div>
                         <div>
-                          <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-1">
+                          <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-1">
                             {vaccination.vaccineName}
                           </h2>
                           <p className="text-sm text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-700 px-3 py-1 rounded-full inline-flex items-center">
@@ -440,7 +440,7 @@ const UpcomingVaccination = () => {
                   />
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold mb-4 text-neutral-800 dark:text-neutral-200">
+              <h2 className="text-2xl font-bold mb-4 text-neutral-800 dark:text-neutral-200">
                 Không có tiêm chủng sắp tới
               </h2>
               <p className="text-neutral-600 dark:text-neutral-400 text-lg mb-8 leading-relaxed">

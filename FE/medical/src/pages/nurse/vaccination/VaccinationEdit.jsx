@@ -197,7 +197,7 @@ const VaccinationEdit = () => {
           >
             <FiArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">
+          <h1 className="text-xl font-bold text-neutral-800 dark:text-neutral-100">
             Chỉnh sửa tiêm chủng
           </h1>
         </div>

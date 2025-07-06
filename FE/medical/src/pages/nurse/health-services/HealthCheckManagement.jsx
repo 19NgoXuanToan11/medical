@@ -18,7 +18,7 @@ import {
   FiInfo,
   FiAlertCircle,
 } from "react-icons/fi";
-import { getHealthCheckSchedules } from '../../../utils/api/healthCheck/healthCheckService';
+import { getHealthCheckSchedules } from "../../../utils/api/healthCheck/healthCheckService";
 
 const HealthCheckManagement = () => {
   const [activeSubTab, setActiveSubTab] = useState("scheduled");
@@ -77,17 +77,16 @@ const HealthCheckManagement = () => {
   const filteredHealthChecks = healthChecks.filter((healthCheck) => {
     // Filter by status (sub tab)
     const status = healthCheck.status?.toLowerCase();
-    if (activeSubTab === "scheduled" && status !== "scheduled")
-      return false;
-    if (activeSubTab === "active" && status !== "active")
-      return false;
-    if (activeSubTab === "completed" && status !== "completed")
-      return false;
+    if (activeSubTab === "scheduled" && status !== "scheduled") return false;
+    if (activeSubTab === "active" && status !== "active") return false;
+    if (activeSubTab === "completed" && status !== "completed") return false;
 
     // Filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      const gradesArr = healthCheck.grades || (healthCheck.gradeIds ? JSON.parse(healthCheck.gradeIds) : []);
+      const gradesArr =
+        healthCheck.grades ||
+        (healthCheck.gradeIds ? JSON.parse(healthCheck.gradeIds) : []);
       return (
         healthCheck.title.toLowerCase().includes(term) ||
         healthCheck.description.toLowerCase().includes(term) ||
@@ -399,7 +398,7 @@ const HealthCheckManagement = () => {
       <div className="mb-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
+            <h1 className="text-xl font-bold text-neutral-800 dark:text-neutral-200">
               Quản lý Y tế định kỳ
             </h1>
             <p className="text-neutral-600 dark:text-neutral-400 mt-1">
@@ -425,7 +424,7 @@ const HealthCheckManagement = () => {
               <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
                 Đã lên lịch
               </p>
-              <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              <p className="text-xl font-bold text-blue-900 dark:text-blue-100">
                 {stats.scheduled}
               </p>
             </div>
@@ -439,7 +438,7 @@ const HealthCheckManagement = () => {
               <p className="text-amber-600 dark:text-amber-400 text-sm font-medium">
                 Đang thực hiện
               </p>
-              <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+              <p className="text-xl font-bold text-amber-900 dark:text-amber-100">
                 {stats.active}
               </p>
             </div>
@@ -453,7 +452,7 @@ const HealthCheckManagement = () => {
               <p className="text-green-600 dark:text-green-400 text-sm font-medium">
                 Hoàn thành tháng này
               </p>
-              <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+              <p className="text-xl font-bold text-green-900 dark:text-green-100">
                 {stats.completedThisMonth}
               </p>
             </div>
@@ -467,7 +466,7 @@ const HealthCheckManagement = () => {
               <p className="text-purple-600 dark:text-purple-400 text-sm font-medium">
                 Tổng học sinh
               </p>
-              <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+              <p className="text-xl font-bold text-purple-900 dark:text-purple-100">
                 {stats.totalStudents}
               </p>
             </div>

@@ -69,7 +69,7 @@ const ReportsAnalytics = () => {
     // This is a placeholder for real chart rendering
     return (
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
-        <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+        <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
           {title}
         </h3>
         <div className="h-64 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded">
@@ -83,10 +83,10 @@ const ReportsAnalytics = () => {
               key={index}
               className="flex items-center justify-between p-2 border-b border-neutral-100 dark:border-neutral-600"
             >
-              <span className="text-sm text-neutral-600 dark:text-neutral-400">
+              <span className="text-xs text-neutral-600 dark:text-neutral-400">
                 {key}
               </span>
-              <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              <span className="text-xs font-medium text-neutral-900 dark:text-neutral-100">
                 {value}
               </span>
             </div>
@@ -100,10 +100,10 @@ const ReportsAnalytics = () => {
     <div className="container mx-auto px-4 max-w-6xl">
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden mb-8 transition-colors duration-300">
         <div className="p-6">
-          <h1 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+          <h1 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
             Báo cáo và phân tích
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400">
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Dữ liệu thống kê và báo cáo từ hệ thống y tế trường học
           </p>
         </div>
@@ -321,7 +321,7 @@ const ReportsAnalytics = () => {
               )}
 
               <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
-                <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+                <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
                   Lượt khám theo ngày
                 </h3>
                 <div className="h-64 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded">
@@ -405,7 +405,7 @@ const ReportsAnalytics = () => {
               )}
 
               <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
-                <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+                <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
                   Yêu cầu thuốc theo thời gian
                 </h3>
                 <div className="h-64 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded">
@@ -485,7 +485,7 @@ const ReportsAnalytics = () => {
               )}
 
               <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
-                <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+                <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
                   Tiêm chủng theo lớp
                 </h3>
                 <div className="h-64 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded">
@@ -570,7 +570,7 @@ const ReportsAnalytics = () => {
               )}
 
               <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6 mb-6 transition-colors duration-300">
-                <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+                <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
                   So sánh kết quả theo lớp
                 </h3>
                 <div className="h-64 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded">

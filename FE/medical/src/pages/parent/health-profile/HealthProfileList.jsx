@@ -95,21 +95,21 @@ const HealthProfileList = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-200 mb-2">
+            <h1 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-2">
               Hồ sơ sức khỏe học sinh
             </h1>
-            <p className="text-neutral-600 dark:text-neutral-400 text-sm">
+            <p className="text-neutral-600 dark:text-neutral-400 text-xs">
               Quản lý thông tin sức khỏe học sinh và cập nhật khi có thay đổi
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-neutral-500 dark:text-neutral-400">
+            <span className="text-xs text-neutral-500 dark:text-neutral-400">
               Tổng số: {students.length} học sinh
             </span>
             <button
               onClick={fetchAllHealthProfiles}
               disabled={loading}
-              className="flex items-center px-3 py-2 text-sm text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
+              className="flex items-center px-3 py-2 text-xs text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
             >
               <FiRefreshCw
                 className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
@@ -156,10 +156,10 @@ const HealthProfileList = () => {
                       <FiAlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                      <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-200">
                         {student?.name || "Học sinh không xác định"}
                       </h3>
-                      <p className="text-sm text-red-600 dark:text-red-400">
+                      <p className="text-xs text-red-600 dark:text-red-400">
                         {healthProfile.errorMessage}
                       </p>
                     </div>
@@ -186,10 +186,10 @@ const HealthProfileList = () => {
                       <FiUser className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200">
+                      <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-200">
                         Hồ sơ sức khỏe - {studentName}
                       </h3>
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
                         Mã học sinh: {healthProfile.studentCode} | Lớp:{" "}
                         {student?.className || healthProfile.student?.className}
                       </p>

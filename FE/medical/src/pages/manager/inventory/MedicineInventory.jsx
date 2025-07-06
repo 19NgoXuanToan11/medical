@@ -287,14 +287,14 @@ const MedicineInventory = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 p-6">
-      <div className="flex flex-col mb-6">
-        <div className="mb-4">
-          <h2 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-100">
-            Quản lý kho thuốc
-          </h2>
-          <p className="text-neutral-600 dark:text-neutral-300 mt-1">
-            Theo dõi và quản lý danh sách thuốc tại trường
+    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6 mb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-neutral-800 dark:text-neutral-200">
+            Quản lý thuốc
+          </h1>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+            Quản lý kho thuốc và theo dõi tồn kho
           </p>
         </div>
         <div className="flex justify-end">

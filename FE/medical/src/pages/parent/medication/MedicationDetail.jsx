@@ -128,10 +128,10 @@ const MedicationDetail = () => {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
             {error || "Không tìm thấy yêu cầu thuốc"}
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
             {error ||
               `Yêu cầu thuốc với mã #${id} không tồn tại hoặc đã bị xóa`}
           </p>

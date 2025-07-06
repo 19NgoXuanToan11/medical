@@ -9,25 +9,16 @@ import {
   FiEdit,
   FiSave,
   FiX,
-  FiFileText,
-  FiPhone,
-  FiMail,
-  FiMapPin,
-  FiDroplet,
   FiShield,
-  FiClock,
-  FiUsers,
-  FiBookOpen,
-  FiTarget,
-  FiTrendingUp,
-  FiCheckCircle,
-  FiXCircle,
-  FiAlertCircle,
-  FiCalendar,
-  FiInfo,
-  FiHeadphones,
 } from "react-icons/fi";
 import healthProfileService from "../../../utils/api/health-profile/healthProfileService";
+import {
+  OverviewTab,
+  PhysicalTab,
+  MedicalTab,
+  SensoryTab,
+  VaccinationTab,
+} from "./components";
 
 const StudentHealthRecordDetail = () => {
   const { studentId } = useParams();
@@ -192,11 +183,7 @@ const StudentHealthRecordDetail = () => {
   }
 
   const student = healthProfile.student;
-  const bmi = calculateBMI(healthProfile.height, healthProfile.weight);
-  const bmiStatus = getBMIStatus(bmi);
   const healthStatus = getHealthStatusFromProfile(healthProfile);
-  const mainParent =
-    student?.parents?.find((p) => p.isMainContact) || student?.parents?.[0];
 
   const tabs = [
     { id: "overview", label: "Tổng quan", icon: FiUser },
@@ -206,391 +193,53 @@ const StudentHealthRecordDetail = () => {
     { id: "vaccination", label: "Tiêm chủng", icon: FiShield },
   ];
 
-  const InfoCard = ({ title, icon: Icon, children, className = "" }) => (
-    <div
-      className={`bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6 ${className}`}
-    >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-primary-100 dark:bg-primary-900/20 rounded-lg">
-          <Icon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-        </div>
-        <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
-          {title}
-        </h3>
-      </div>
-      {children}
-    </div>
-  );
-
-  const DataRow = ({ label, value, type = "text", status = null }) => (
-    <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-neutral-700 last:border-b-0">
-      <span className="text-neutral-600 dark:text-neutral-400 text-sm">
-        {label}:
-      </span>
-      <div className="flex items-center gap-2">
-        {type === "boolean" ? (
-          <div className="flex items-center gap-1">
-            {value ? (
-              <FiCheckCircle className="w-4 h-4 text-green-500" />
-            ) : (
-              <FiXCircle className="w-4 h-4 text-red-500" />
-            )}
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">
-              {value ? "Có" : "Không"}
-            </span>
-          </div>
-        ) : (
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">
-            {value || "N/A"}
-          </span>
-        )}
-        {status && (
-          <span
-            className={`px-2 py-1 text-xs rounded-full ${status.className}`}
-          >
-            {status.label}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-
-  const EditableField = ({
-    label,
-    field,
-    value,
-    type = "text",
-    placeholder = "",
-  }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-        {label}
-      </label>
-      {type === "textarea" ? (
-        <textarea
-          value={isEditing ? editData[field] : value}
-          onChange={(e) => handleInputChange(field, e.target.value)}
-          disabled={!isEditing}
-          rows={3}
-          className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 disabled:bg-neutral-50 dark:disabled:bg-neutral-700 disabled:text-neutral-500 resize-none"
-          placeholder={placeholder}
-        />
-      ) : (
-        <input
-          type={type}
-          value={isEditing ? editData[field] : value}
-          onChange={(e) => handleInputChange(field, e.target.value)}
-          disabled={!isEditing}
-          className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 disabled:bg-neutral-50 dark:disabled:bg-neutral-700 disabled:text-neutral-500"
-          placeholder={placeholder}
-        />
-      )}
-    </div>
-  );
-
   const renderTabContent = () => {
     switch (activeTab) {
       case "overview":
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Student Information */}
-            <InfoCard title="Thông tin học sinh" icon={FiUser}>
-              <div className="space-y-3">
-                <DataRow label="Mã học sinh" value={student?.studentCode} />
-                <DataRow
-                  label="Họ tên"
-                  value={`${student?.firstName || ""} ${
-                    student?.lastName || ""
-                  }`.trim()}
-                />
-                <DataRow
-                  label="Ngày sinh"
-                  value={formatDate(student?.dateOfBirth)}
-                />
-                <DataRow label="Giới tính" value={student?.gender} />
-                <DataRow label="Lớp" value={student?.className} />
-                <DataRow label="Khối" value={student?.gradeLevel} />
-                <DataRow label="Địa chỉ" value={student?.address} />
-                <DataRow
-                  label="Liên hệ khẩn cấp"
-                  value={healthProfile.emergencyContact}
-                />
-              </div>
-            </InfoCard>
-
-            {/* Parent Information */}
-            <InfoCard title="Thông tin phụ huynh" icon={FiUsers}>
-              {mainParent ? (
-                <div className="space-y-3">
-                  <DataRow
-                    label="Họ tên"
-                    value={`${mainParent.firstName || ""} ${
-                      mainParent.lastName || ""
-                    }`.trim()}
-                  />
-                  <DataRow
-                    label="Mối quan hệ"
-                    value={mainParent.relationship}
-                  />
-                  <DataRow label="Điện thoại" value={mainParent.phone} />
-                  <DataRow label="Email" value={mainParent.email} />
-                  <DataRow
-                    label="Liên hệ khẩn cấp"
-                    value={mainParent.isEmergencyContact}
-                    type="boolean"
-                  />
-                  <DataRow
-                    label="Liên hệ chính"
-                    value={mainParent.isMainContact}
-                    type="boolean"
-                  />
-                </div>
-              ) : (
-                <p className="text-neutral-500 dark:text-neutral-400">
-                  Chưa có thông tin phụ huynh
-                </p>
-              )}
-            </InfoCard>
-          </div>
+          <OverviewTab healthProfile={healthProfile} formatDate={formatDate} />
         );
 
       case "physical":
         return (
-          <div className="grid grid-cols-1 gap-6">
-            <InfoCard title="Chỉ số cơ thể" icon={FiActivity}>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
-                    {healthProfile.height || 0}
-                  </div>
-                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                    cm - Chiều cao
-                  </div>
-                </div>
-                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
-                    {healthProfile.weight || 0}
-                  </div>
-                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                    kg - Cân nặng
-                  </div>
-                </div>
-                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
-                    {bmi}
-                  </div>
-                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                    BMI - {bmiStatus.label}
-                  </div>
-                </div>
-                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
-                    {healthProfile.bloodType || "N/A"}
-                  </div>
-                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                    Nhóm máu
-                  </div>
-                </div>
-                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
-                    {healthProfile.bloodPressure || "N/A"}
-                  </div>
-                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                    Huyết áp
-                  </div>
-                </div>
-                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
-                    {healthProfile.heartRate || 0}
-                  </div>
-                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                    bpm - Nhịp tim
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <EditableField
-                  label="Thông tin liên hệ khẩn cấp"
-                  field="emergencyContact"
-                  value={healthProfile.emergencyContact}
-                  type="textarea"
-                  placeholder="Nhập thông tin liên hệ khẩn cấp..."
-                />
-              </div>
-            </InfoCard>
-          </div>
+          <PhysicalTab
+            healthProfile={healthProfile}
+            calculateBMI={calculateBMI}
+            getBMIStatus={getBMIStatus}
+            isEditing={isEditing}
+            editData={editData}
+            onInputChange={handleInputChange}
+          />
         );
 
       case "medical":
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <InfoCard title="Dị ứng" icon={FiAlertCircle}>
-              <div className="space-y-3">
-                <DataRow
-                  label="Có dị ứng"
-                  value={healthProfile.hasAllergies}
-                  type="boolean"
-                />
-                <EditableField
-                  label="Chi tiết dị ứng"
-                  field="allergyDetails"
-                  value={healthProfile.allergyDetails}
-                  type="textarea"
-                  placeholder="Mô tả chi tiết về dị ứng..."
-                />
-              </div>
-            </InfoCard>
-
-            <InfoCard title="Bệnh mãn tính" icon={FiHeart}>
-              <div className="space-y-3">
-                <DataRow
-                  label="Có bệnh mãn tính"
-                  value={healthProfile.hasChronicDiseases}
-                  type="boolean"
-                />
-                <EditableField
-                  label="Chi tiết bệnh mãn tính"
-                  field="chronicDetails"
-                  value={healthProfile.chronicDetails}
-                  type="textarea"
-                  placeholder="Mô tả chi tiết về bệnh mãn tính..."
-                />
-              </div>
-            </InfoCard>
-
-            <InfoCard
-              title="Điều trị trước đây"
-              icon={FiClock}
-              className="lg:col-span-2"
-            >
-              <div className="space-y-3">
-                <DataRow
-                  label="Đã từng điều trị"
-                  value={healthProfile.hasPreviousTreatment}
-                  type="boolean"
-                />
-                <EditableField
-                  label="Chi tiết điều trị"
-                  field="treatmentDetails"
-                  value={healthProfile.treatmentDetails}
-                  type="textarea"
-                  placeholder="Mô tả chi tiết về điều trị trước đây..."
-                />
-              </div>
-            </InfoCard>
-          </div>
+          <MedicalTab
+            healthProfile={healthProfile}
+            isEditing={isEditing}
+            editData={editData}
+            onInputChange={handleInputChange}
+          />
         );
 
       case "sensory":
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <InfoCard title="Thị lực" icon={FiEye}>
-              <div className="space-y-3">
-                <DataRow
-                  label="Có vấn đề về mắt"
-                  value={healthProfile.hasVisionIssues}
-                  type="boolean"
-                />
-                <DataRow label="Mắt trái" value={healthProfile.leftEye} />
-                <DataRow label="Mắt phải" value={healthProfile.rightEye} />
-                <EditableField
-                  label="Ghi chú thị lực"
-                  field="visionNotes"
-                  value={healthProfile.visionNotes}
-                  type="textarea"
-                  placeholder="Ghi chú về tình trạng thị lực..."
-                />
-              </div>
-            </InfoCard>
-
-            <InfoCard title="Thính lực" icon={FiHeadphones}>
-              <div className="space-y-3">
-                <DataRow
-                  label="Có vấn đề về tai"
-                  value={healthProfile.hasHearingIssues}
-                  type="boolean"
-                />
-                <DataRow label="Tai trái" value={healthProfile.leftEar} />
-                <DataRow label="Tai phải" value={healthProfile.rightEar} />
-                <EditableField
-                  label="Ghi chú thính lực"
-                  field="hearingNotes"
-                  value={healthProfile.hearingNotes}
-                  type="textarea"
-                  placeholder="Ghi chú về tình trạng thính lực..."
-                />
-              </div>
-            </InfoCard>
-          </div>
+          <SensoryTab
+            healthProfile={healthProfile}
+            isEditing={isEditing}
+            editData={editData}
+            onInputChange={handleInputChange}
+          />
         );
 
       case "vaccination":
         return (
-          <div className="grid grid-cols-1 gap-6">
-            <InfoCard title="Tiêm chủng" icon={FiShield}>
-              <div className="space-y-3">
-                <DataRow
-                  label="Tiêm chủng đầy đủ"
-                  value={healthProfile.hasCompleteVaccinations}
-                />
-                <EditableField
-                  label="Chi tiết tiêm chủng"
-                  field="vaccinationDetails"
-                  value={healthProfile.vaccinationDetails}
-                  type="textarea"
-                  placeholder="Mô tả chi tiết về tình trạng tiêm chủng..."
-                />
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                    Danh sách vaccine
-                  </label>
-                  <div className="p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                      {healthProfile.vaccinations ||
-                        "Chưa có thông tin chi tiết"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </InfoCard>
-          </div>
-        );
-
-      case "notes":
-        return (
-          <div className="grid grid-cols-1 gap-6">
-            <InfoCard title="Ghi chú khác" icon={FiFileText}>
-              <EditableField
-                label="Thông tin bổ sung"
-                field="otherInfo"
-                value={healthProfile.otherInfo}
-                type="textarea"
-                placeholder="Nhập thông tin bổ sung về sức khỏe học sinh..."
-              />
-            </InfoCard>
-
-            <InfoCard title="Thông tin hệ thống" icon={FiInfo}>
-              <div className="space-y-3">
-                <DataRow
-                  label="ID hồ sơ"
-                  value={healthProfile.healthProfileId}
-                />
-                <DataRow
-                  label="Ngày tạo"
-                  value={formatDate(healthProfile.lastUpdated)}
-                />
-                <DataRow
-                  label="Số lượng sự kiện sức khỏe"
-                  value={student?.healthEventCount || 0}
-                />
-                <DataRow
-                  label="Số lượng phụ huynh"
-                  value={student?.parentCount || 0}
-                />
-              </div>
-            </InfoCard>
-          </div>
+          <VaccinationTab
+            healthProfile={healthProfile}
+            isEditing={isEditing}
+            editData={editData}
+            onInputChange={handleInputChange}
+          />
         );
 
       default:
@@ -612,7 +261,7 @@ const StudentHealthRecordDetail = () => {
 
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-neutral-800 dark:text-neutral-200">
+            <h1 className="text-xl lg:text-2xl font-bold text-neutral-800 dark:text-neutral-200">
               Hồ sơ sức khỏe - {student?.firstName} {student?.lastName}
             </h1>
             <p className="text-neutral-600 dark:text-neutral-400 mt-1">

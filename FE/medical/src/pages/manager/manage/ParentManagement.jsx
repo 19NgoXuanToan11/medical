@@ -415,7 +415,7 @@ const ParentManagement = () => {
             <p className="text-neutral-700 dark:text-white text-sm font-semibold">
               Tổng số phụ huynh
             </p>
-            <p className="text-3xl font-bold text-primary-700 dark:text-primary-300">
+            <p className="text-2xl font-bold text-primary-700 dark:text-primary-300">
               {stats.total}
             </p>
           </div>
@@ -429,7 +429,7 @@ const ParentManagement = () => {
             <p className="text-neutral-700 dark:text-white text-sm font-semibold">
               Ngừng hoạt động
             </p>
-            <p className="text-3xl font-bold text-neutral-700 dark:text-neutral-200">
+            <p className="text-2xl font-bold text-neutral-700 dark:text-neutral-200">
               {stats.inactive}
             </p>
           </div>

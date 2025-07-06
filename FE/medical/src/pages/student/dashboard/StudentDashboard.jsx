@@ -116,7 +116,7 @@ const StudentDashboard = () => {
           {/* Student Welcome Card */}
           <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden mb-8">
             <div className="p-6">
-              <h1 className="text-2xl font-semibold text-neutral-800 mb-2">
+              <h1 className="text-xl font-semibold text-neutral-800 mb-2">
                 Xin chào, {studentInfo.name}
               </h1>
               <p className="text-neutral-600">

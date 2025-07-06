@@ -419,7 +419,7 @@ const StudentManagement = () => {
               <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
                 Tổng số học sinh
               </p>
-              <p className="text-3xl font-bold text-primary-700 dark:text-primary-400">
+              <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                 {stats.total}
               </p>
             </div>
@@ -433,7 +433,7 @@ const StudentManagement = () => {
               <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
                 Ngừng hoạt động
               </p>
-              <p className="text-3xl font-bold text-neutral-700 dark:text-neutral-200">
+              <p className="text-2xl font-bold text-neutral-700 dark:text-neutral-200">
                 {stats.inactive}
               </p>
             </div>
@@ -722,7 +722,7 @@ const StudentManagement = () => {
                 <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
                   Tổng số mối quan hệ
                 </p>
-                <p className="text-3xl font-bold text-blue-700 dark:text-blue-400">
+                <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">
                   {studentParentRelations.length}
                 </p>
               </div>
@@ -736,7 +736,7 @@ const StudentManagement = () => {
                 <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
                   Phụ huynh có con
                 </p>
-                <p className="text-3xl font-bold text-green-700 dark:text-green-400">
+                <p className="text-2xl font-bold text-green-700 dark:text-green-400">
                   {
                     new Set(
                       studentParentRelations.map(
@@ -756,7 +756,7 @@ const StudentManagement = () => {
                 <p className="text-neutral-600 dark:text-neutral-300 text-sm font-medium">
                   Học sinh có phụ huynh
                 </p>
-                <p className="text-3xl font-bold text-purple-700 dark:text-purple-400">
+                <p className="text-2xl font-bold text-purple-700 dark:text-purple-400">
                   {
                     new Set(
                       studentParentRelations.map(

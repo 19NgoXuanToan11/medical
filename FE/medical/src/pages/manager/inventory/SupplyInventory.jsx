@@ -335,7 +335,7 @@ const SupplyInventory = () => {
             <p className="text-neutral-700 dark:text-white text-sm font-semibold">
               Tổng số vật tư
             </p>
-            <p className="text-3xl font-bold text-primary-700 dark:text-primary-300">
+            <p className="text-2xl font-bold text-primary-700 dark:text-primary-300">
               {stats.total}
             </p>
           </div>
@@ -349,7 +349,7 @@ const SupplyInventory = () => {
             <p className="text-neutral-700 dark:text-white text-sm font-semibold">
               Sắp hết hàng
             </p>
-            <p className="text-3xl font-bold text-red-600 dark:text-red-300">
+            <p className="text-2xl font-bold text-red-600 dark:text-red-300">
               {stats.lowStock}
             </p>
           </div>
@@ -363,7 +363,7 @@ const SupplyInventory = () => {
             <p className="text-neutral-700 dark:text-white text-sm font-semibold">
               Ngừng sử dụng
             </p>
-            <p className="text-3xl font-bold text-neutral-700 dark:text-neutral-200">
+            <p className="text-2xl font-bold text-neutral-700 dark:text-neutral-200">
               {stats.inactive}
             </p>
           </div>
@@ -583,14 +583,10 @@ const SupplyInventory = () => {
                         onClick={() => toggleSupplyStatus(item)}
                         className={`${
                           item.isActive
-                            ? "text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:text-neutral-100"
-                            : "text-green-600 dark:text-green-300 hover:text-green-800"
+                            ? "text-red-600 hover:text-red-800"
+                            : "text-green-600 hover:text-green-800"
                         }`}
-                        title={
-                          item.isActive
-                            ? "Đánh dấu ngừng sử dụng"
-                            : "Đánh dấu đang sử dụng"
-                        }
+                        title={item.isActive ? "Ngừng sử dụng" : "Kích hoạt"}
                       >
                         {item.isActive ? (
                           <FiX className="h-5 w-5" />
@@ -600,7 +596,7 @@ const SupplyInventory = () => {
                       </button>
                       <button
                         onClick={() => deleteSupply(item.supplyId)}
-                        className="text-red-600 dark:text-red-300 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800"
                         title="Xóa"
                       >
                         <FiTrash2 className="h-5 w-5" />
@@ -611,35 +607,9 @@ const SupplyInventory = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-6">
-                  <div className="flex flex-col items-center justify-center">
-                    <svg
-                      className="w-12 h-12 text-neutral-400 mb-3"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      ></path>
-                    </svg>
-                    <p className="text-neutral-600 dark:text-neutral-300 text-lg">
-                      Không có vật tư nào phù hợp
-                    </p>
-                    <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">
-                      Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác
-                    </p>
-                    <button
-                      onClick={resetFilters}
-                      className="mt-3 bg-primary-100 dark:bg-primary-800 text-primary-700 dark:text-primary-300 hover:bg-primary-200 px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
-                    >
-                      <FiRefreshCw className="mr-2" />
-                      Đặt lại bộ lọc
-                    </button>
+                <td colSpan="7" className="text-center py-4">
+                  <div className="text-neutral-500 dark:text-neutral-400">
+                    Không có vật tư nào phù hợp với bộ lọc hiện tại
                   </div>
                 </td>
               </tr>
@@ -648,116 +618,103 @@ const SupplyInventory = () => {
         </table>
       </div>
 
-      {/* Add/Edit Item Modal */}
+      {/* Add/Edit Supply Modal */}
       {showItemModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">
-                {selectedItem ? "Chỉnh sửa vật tư" : "Thêm vật tư mới"}
-              </h3>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label className="block text-neutral-700 dark:text-neutral-200 font-medium mb-2">
-                    Tên vật tư
-                  </label>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4 text-neutral-800 dark:text-neutral-100">
+              {selectedItem ? "Chỉnh sửa vật tư" : "Thêm vật tư mới"}
+            </h3>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                  Tên vật tư *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={itemForm.name}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100"
+                  required
+                />
+                {formErrors.name && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                  Loại vật tư
+                </label>
+                <input
+                  type="text"
+                  name="category"
+                  value={itemForm.category}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                  Mô tả
+                </label>
+                <textarea
+                  name="description"
+                  value={itemForm.description}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                  Số lượng *
+                </label>
+                <input
+                  type="number"
+                  name="stockQuantity"
+                  value={itemForm.stockQuantity}
+                  onChange={handleInputChange}
+                  min="0"
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100"
+                  required
+                />
+                {formErrors.stockQuantity && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {formErrors.stockQuantity}
+                  </p>
+                )}
+              </div>
+              <div className="mb-6">
+                <label className="flex items-center">
                   <input
-                    type="text"
-                    name="name"
-                    value={itemForm.name}
+                    type="checkbox"
+                    name="isActive"
+                    checked={itemForm.isActive}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 ${
-                      formErrors.name ? "border-red-500" : "border-neutral-300"
-                    }`}
+                    className="mr-2"
                   />
-                  {formErrors.name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.name}
-                    </p>
-                  )}
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-neutral-700 dark:text-neutral-200 font-medium mb-2">
-                    Loại vật tư
-                  </label>
-                  <input
-                    type="text"
-                    name="category"
-                    value={itemForm.category}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-neutral-700 dark:text-neutral-200 font-medium mb-2">
-                    Mô tả
-                  </label>
-                  <textarea
-                    name="description"
-                    value={itemForm.description}
-                    onChange={handleInputChange}
-                    rows="3"
-                    className="w-full p-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
-                  ></textarea>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-neutral-700 dark:text-neutral-200 font-medium mb-2">
-                    Số lượng
-                  </label>
-                  <input
-                    type="number"
-                    name="stockQuantity"
-                    value={itemForm.stockQuantity}
-                    onChange={handleInputChange}
-                    min="0"
-                    className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 ${
-                      formErrors.stockQuantity
-                        ? "border-red-500"
-                        : "border-neutral-300"
-                    }`}
-                  />
-                  {formErrors.stockQuantity && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.stockQuantity}
-                    </p>
-                  )}
-                </div>
-
-                <div className="mb-6">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="isActive"
-                      checked={itemForm.isActive}
-                      onChange={handleInputChange}
-                      className="form-checkbox h-5 w-5 text-primary-600 dark:text-primary-300 rounded focus:ring-primary-600 focus:ring-2"
-                    />
-                    <span className="ml-2 text-neutral-700 dark:text-neutral-200">
-                      Đang sử dụng
-                    </span>
-                  </label>
-                </div>
-
-                <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowItemModal(false)}
-                    className="px-4 py-2 border border-neutral-300 rounded-lg text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-300"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-primary-600 rounded-lg text-white hover:bg-primary-700 transition-colors duration-300"
-                  >
-                    {selectedItem ? "Cập nhật" : "Thêm mới"}
-                  </button>
-                </div>
-              </form>
-            </div>
+                  <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                    Đang sử dụng
+                  </span>
+                </label>
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowItemModal(false)}
+                  className="px-4 py-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  {selectedItem ? "Cập nhật" : "Thêm"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

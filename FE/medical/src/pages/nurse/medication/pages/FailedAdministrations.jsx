@@ -110,7 +110,7 @@ const FailedAdministrations = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 flex items-center">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center">
             <FiAlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400 mr-2" />
             Cấp thuốc thất bại
           </h2>
@@ -139,7 +139,7 @@ const FailedAdministrations = () => {
               <p className="text-sm text-red-600 dark:text-red-400">
                 Tổng thất bại
               </p>
-              <p className="text-2xl font-bold text-red-700 dark:text-red-300">
+              <p className="text-xl font-bold text-red-700 dark:text-red-300">
                 {filteredResults.length}
               </p>
             </div>
@@ -153,7 +153,7 @@ const FailedAdministrations = () => {
               <p className="text-sm text-orange-600 dark:text-orange-400">
                 Hôm nay
               </p>
-              <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">
+              <p className="text-xl font-bold text-orange-700 dark:text-orange-300">
                 {todayFailed}
               </p>
             </div>
@@ -167,7 +167,7 @@ const FailedAdministrations = () => {
               <p className="text-sm text-purple-600 dark:text-purple-400">
                 Thất bại nhiều lần
               </p>
-              <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+              <p className="text-xl font-bold text-purple-700 dark:text-purple-300">
                 {multipleFailures}
               </p>
             </div>
@@ -181,7 +181,7 @@ const FailedAdministrations = () => {
               <p className="text-sm text-blue-600 dark:text-blue-400">
                 Có thể thử lại
               </p>
-              <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+              <p className="text-xl font-bold text-blue-700 dark:text-blue-300">
                 {canRetry}
               </p>
             </div>

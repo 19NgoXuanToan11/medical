@@ -159,7 +159,7 @@ const VaccinationDetail = () => {
           >
             <FiArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+          <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
             Chi tiết tiêm chủng
           </h1>
         </div>
@@ -237,7 +237,7 @@ const VaccinationDetail = () => {
                   <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Tổng học sinh
                   </p>
-                  <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                  <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
                     {vaccination.totalStudents}
                   </p>
                 </div>
@@ -251,7 +251,7 @@ const VaccinationDetail = () => {
                   <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Đã xác nhận
                   </p>
-                  <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                  <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
                     {vaccination.confirmedParents}
                   </p>
                 </div>
@@ -265,7 +265,7 @@ const VaccinationDetail = () => {
                   <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                     Chưa xác nhận
                   </p>
-                  <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                  <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
                     {vaccination.totalStudents - vaccination.confirmedParents}
                   </p>
                 </div>

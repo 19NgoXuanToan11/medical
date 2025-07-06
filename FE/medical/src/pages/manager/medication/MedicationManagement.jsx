@@ -36,10 +36,10 @@ const MedicationManagement = () => {
     <div className="container mx-auto px-4 py-6">
       {/* Main Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200">
           Quản lý thuốc
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Xem xét và phê duyệt các yêu cầu cấp thuốc từ phụ huynh
         </p>
       </div>
@@ -49,10 +49,10 @@ const MedicationManagement = () => {
         <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-gray-200 dark:border-neutral-700 transition-colors duration-300">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-xs">
                 Chờ xử lý
               </p>
-              <p className="text-2xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
+              <p className="text-xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
                 {stats.pending}
               </p>
             </div>
@@ -65,10 +65,10 @@ const MedicationManagement = () => {
         <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-gray-200 dark:border-neutral-700 transition-colors duration-300">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-xs">
                 Đã giao
               </p>
-              <p className="text-2xl font-bold mt-1 text-green-600 dark:text-green-400">
+              <p className="text-xl font-bold mt-1 text-green-600 dark:text-green-400">
                 {stats.assigned}
               </p>
             </div>
@@ -81,10 +81,10 @@ const MedicationManagement = () => {
         <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-gray-200 dark:border-neutral-700 transition-colors duration-300">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-xs">
                 Đã hoàn thành
               </p>
-              <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">
+              <p className="text-xl font-bold mt-1 text-blue-600 dark:text-blue-400">
                 {stats.completed}
               </p>
             </div>
@@ -97,8 +97,8 @@ const MedicationManagement = () => {
         <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-gray-200 dark:border-neutral-700 transition-colors duration-300">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Tất cả</p>
-              <p className="text-2xl font-bold mt-1 text-purple-600 dark:text-purple-400">
+              <p className="text-gray-500 dark:text-gray-400 text-xs">Tất cả</p>
+              <p className="text-xl font-bold mt-1 text-purple-600 dark:text-purple-400">
                 {stats.total}
               </p>
             </div>

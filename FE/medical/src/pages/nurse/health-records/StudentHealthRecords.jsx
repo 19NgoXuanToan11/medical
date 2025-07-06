@@ -134,7 +134,7 @@ const StudentHealthRecords = () => {
           <div className="mx-auto h-12 w-12 text-red-500 mb-4">
             <FiActivity className="h-12 w-12" />
           </div>
-          <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
+          <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
             Lỗi tải dữ liệu
           </h2>
           <p className="text-neutral-600 dark:text-neutral-400 mb-4">{error}</p>
@@ -153,7 +153,7 @@ const StudentHealthRecords = () => {
     <div className="container mx-auto px-6 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+        <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
           Hồ sơ sức khỏe học sinh
         </h1>
         <p className="text-base text-neutral-600 dark:text-neutral-400">
@@ -204,7 +204,7 @@ const StudentHealthRecords = () => {
               <div className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
                 Học sinh khỏe mạnh
               </div>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              <div className="text-xl font-bold text-green-600 dark:text-green-400">
                 {healthyCount}
               </div>
             </div>
@@ -220,7 +220,7 @@ const StudentHealthRecords = () => {
               <div className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
                 Cần theo dõi
               </div>
-              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+              <div className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
                 {needMonitoringCount}
               </div>
             </div>
@@ -236,7 +236,7 @@ const StudentHealthRecords = () => {
               <div className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
                 Tổng học sinh
               </div>
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                 {totalCount}
               </div>
             </div>

@@ -149,7 +149,7 @@ const HealthEventResultDetail = () => {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
           <div className="p-6">
             <div className="flex justify-between items-start mb-4">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                 Kết quả: {event.title}
               </h1>
               <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs font-medium px-2.5 py-0.5 rounded-full">
@@ -173,7 +173,7 @@ const HealthEventResultDetail = () => {
             </div>
 
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
                 Thông tin học sinh
               </h2>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
@@ -199,7 +199,7 @@ const HealthEventResultDetail = () => {
             </div>
 
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
                 Nhân viên y tế phụ trách
               </h2>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
@@ -222,7 +222,7 @@ const HealthEventResultDetail = () => {
             </div>
 
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
                 Kết quả chi tiết
               </h2>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
@@ -330,7 +330,7 @@ const HealthEventResultDetail = () => {
               <div className="mb-6">
                 <div className="flex items-center mb-3">
                   <FaExclamationCircle className="text-yellow-500 dark:text-yellow-400 mr-2" />
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                     Phát hiện bất thường
                   </h2>
                 </div>
@@ -345,7 +345,7 @@ const HealthEventResultDetail = () => {
             <div className="mb-6">
               <div className="flex items-center mb-3">
                 <FaNotesMedical className="text-blue-500 dark:text-blue-400 mr-2" />
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                   Ghi chú
                 </h2>
               </div>
@@ -359,7 +359,7 @@ const HealthEventResultDetail = () => {
             <div className="mb-6">
               <div className="flex items-center mb-3">
                 <FaCheckCircle className="text-blue-500 dark:text-blue-400 mr-2" />
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                   Khuyến nghị
                 </h2>
               </div>
@@ -381,7 +381,7 @@ const HealthEventResultDetail = () => {
               <div className="mb-6">
                 <div className="flex items-center mb-3">
                   <FaFileMedical className="text-blue-500 dark:text-blue-400 mr-2" />
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                     Tài liệu đính kèm
                   </h2>
                 </div>

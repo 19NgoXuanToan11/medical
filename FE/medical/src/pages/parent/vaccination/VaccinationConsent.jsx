@@ -37,7 +37,7 @@ const VaccinationConsent = () => {
       {!submitted ? (
         <div className="bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
           <div className="p-6">
-            <h1 className="text-2xl font-semibold text-black dark:text-white mb-2">
+            <h1 className="text-xl font-semibold text-black dark:text-white mb-2">
               Phiếu đồng ý tiêm chủng
             </h1>
             <p className="text-black dark:text-gray-400 text-sm">
@@ -47,7 +47,7 @@ const VaccinationConsent = () => {
 
           <div className="p-6">
             <div className="bg-white rounded-lg border border-neutral-200 p-6 mb-6">
-              <h2 className="text-lg font-semibold mb-4">Thông tin học sinh</h2>
+              <h2 className="text-xl font-semibold mb-4">Thông tin học sinh</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-neutral-500">Họ và tên học sinh</p>
@@ -71,7 +71,7 @@ const VaccinationConsent = () => {
             </div>
 
             <div className="bg-white rounded-lg border border-neutral-200 p-6 mb-6">
-              <h2 className="text-lg font-semibold mb-4">
+              <h2 className="text-xl font-semibold mb-4">
                 Thông tin tiêm chủng
               </h2>
               <div className="space-y-4">
@@ -101,7 +101,7 @@ const VaccinationConsent = () => {
             </div>
 
             <div className="bg-white rounded-lg border border-neutral-200 p-6 mb-6">
-              <h2 className="text-lg font-semibold mb-4">Xác nhận đồng ý</h2>
+              <h2 className="text-xl font-semibold mb-4">Xác nhận đồng ý</h2>
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div>
@@ -208,7 +208,7 @@ const VaccinationConsent = () => {
                 />
               </svg>
             </div>
-            <h2 className="text-2xl font-semibold text-neutral-800 mb-2">
+            <h2 className="text-xl font-semibold text-neutral-800 mb-2">
               Cảm ơn bạn!
             </h2>
             <p className="text-neutral-600 mb-6">

@@ -129,10 +129,10 @@ const HealthProfileDetail = () => {
               Quay lại danh sách
             </Link>
             <div>
-              <h1 className="text-2xl font-semibold text-black">
+              <h1 className="text-xl font-semibold text-black">
                 Hồ sơ sức khỏe - {student.firstName} {student.lastName}
               </h1>
-              <p className="text-sm text-neutral-600">
+              <p className="text-xs text-neutral-600">
                 Xem chi tiết đầy đủ thông tin sức khỏe học sinh
               </p>
             </div>
@@ -161,7 +161,7 @@ const HealthProfileDetail = () => {
         <div className="p-6 space-y-8">
           {/* Student Information */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+            <h2 className="text-base font-semibold text-neutral-800 mb-4 flex items-center">
               <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
                 <svg
                   className="h-5 w-5"
@@ -243,7 +243,7 @@ const HealthProfileDetail = () => {
 
           {/* Physical Information */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+            <h2 className="text-base font-semibold text-neutral-800 mb-4 flex items-center">
               <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
                 <svg
                   className="h-5 w-5"
@@ -293,7 +293,7 @@ const HealthProfileDetail = () => {
 
           {/* Vital Signs */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+            <h2 className="text-base font-semibold text-neutral-800 mb-4 flex items-center">
               <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
                 <svg
                   className="h-5 w-5"
@@ -337,7 +337,7 @@ const HealthProfileDetail = () => {
 
           {/* Medical History */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+            <h2 className="text-base font-semibold text-neutral-800 mb-4 flex items-center">
               <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
                 <svg
                   className="h-5 w-5"
@@ -381,7 +381,7 @@ const HealthProfileDetail = () => {
 
           {/* Vaccination History */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+            <h2 className="text-base font-semibold text-neutral-800 mb-4 flex items-center">
               <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
                 <svg
                   className="h-5 w-5"
@@ -446,7 +446,7 @@ const HealthProfileDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Vision */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+              <h2 className="text-base font-semibold text-neutral-800 mb-4 flex items-center">
                 <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
                   <svg
                     className="h-5 w-5"
@@ -516,7 +516,7 @@ const HealthProfileDetail = () => {
 
             {/* Hearing */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+              <h2 className="text-base font-semibold text-neutral-800 mb-4 flex items-center">
                 <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
                   <svg
                     className="h-5 w-5"
@@ -583,7 +583,7 @@ const HealthProfileDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Allergies */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+              <h2 className="text-base font-semibold text-neutral-800 mb-4 flex items-center">
                 <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
                   <svg
                     className="h-5 w-5"
@@ -627,7 +627,7 @@ const HealthProfileDetail = () => {
 
             {/* Chronic Diseases */}
             <div>
-              <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+              <h2 className="text-base font-semibold text-neutral-800 mb-4 flex items-center">
                 <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
                   <svg
                     className="h-5 w-5"
@@ -672,7 +672,7 @@ const HealthProfileDetail = () => {
 
           {/* Emergency Contact & Additional Info */}
           <div>
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4 flex items-center">
+            <h2 className="text-base font-semibold text-neutral-800 mb-4 flex items-center">
               <span className="flex items-center justify-center bg-primary-100 rounded-full w-10 h-10 mr-3 text-primary-600">
                 <svg
                   className="h-5 w-5"

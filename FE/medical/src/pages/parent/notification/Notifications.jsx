@@ -279,11 +279,11 @@ const Notifications = () => {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">
             Thông báo
           </h1>
           {unreadCount > 0 && (
-            <p className="text-sm text-neutral-600 dark:text-neutral-300 mt-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               Bạn có {unreadCount} thông báo chưa đọc
             </p>
           )}

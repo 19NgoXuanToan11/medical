@@ -83,10 +83,10 @@ const AdminDashboard = () => {
         <>
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden mb-8 transition-colors duration-300">
             <div className="p-6">
-              <h2 className="text-2xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
+              <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
                 Tổng quan hệ thống
               </h2>
-              <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+              <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
                 Phân tích tổng hợp dữ liệu y tế trường học
               </p>
 
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
               <div className="mb-6 flex flex-wrap gap-2">
                 <button
                   onClick={() => handleDateRangeChange("today")}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  className={`px-4 py-2 text-xs font-medium rounded-lg ${
                     dateRange === "today"
                       ? "bg-primary-600 text-white"
                       : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-600"
@@ -104,7 +104,7 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={() => handleDateRangeChange("week")}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  className={`px-4 py-2 text-xs font-medium rounded-lg ${
                     dateRange === "week"
                       ? "bg-primary-600 text-white"
                       : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-600"
@@ -114,7 +114,7 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={() => handleDateRangeChange("month")}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  className={`px-4 py-2 text-xs font-medium rounded-lg ${
                     dateRange === "month"
                       ? "bg-primary-600 text-white"
                       : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-600"
@@ -124,7 +124,7 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={() => handleDateRangeChange("semester")}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  className={`px-4 py-2 text-xs font-medium rounded-lg ${
                     dateRange === "semester"
                       ? "bg-primary-600 text-white"
                       : "bg-neutral-100 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-600"
@@ -139,10 +139,10 @@ const AdminDashboard = () => {
                 <div className="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-lg border border-primary-100 dark:border-primary-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                      <div className="text-xs text-neutral-600 dark:text-neutral-400">
                         Tổng học sinh
                       </div>
-                      <div className="text-3xl font-bold text-primary-700 dark:text-primary-400">
+                      <div className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                         {stats.activeStudents}
                       </div>
                       <div className="text-xs text-green-600 dark:text-green-400 mt-1">
@@ -158,10 +158,10 @@ const AdminDashboard = () => {
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-100 dark:border-yellow-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                      <div className="text-xs text-neutral-600 dark:text-neutral-400">
                         Yêu cầu thuốc chờ xử lý
                       </div>
-                      <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+                      <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                         {stats.pendingMedications}
                       </div>
                       <div className="text-xs text-red-600 dark:text-red-400 mt-1 flex items-center">
@@ -178,10 +178,10 @@ const AdminDashboard = () => {
                 <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-100 dark:border-green-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                      <div className="text-xs text-neutral-600 dark:text-neutral-400">
                         Kiểm tra sức khỏe sắp tới
                       </div>
-                      <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                         {stats.scheduledHealthChecks}
                       </div>
                       <div className="text-xs text-primary-600 dark:text-primary-400 mt-1">
@@ -197,10 +197,10 @@ const AdminDashboard = () => {
                 <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-100 dark:border-red-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                      <div className="text-xs text-neutral-600 dark:text-neutral-400">
                         Sự cố y tế hôm nay
                       </div>
-                      <div className="text-3xl font-bold text-red-600 dark:text-red-400">
+                      <div className="text-2xl font-bold text-red-600 dark:text-red-400">
                         {stats.healthEventsToday}
                       </div>
                     </div>

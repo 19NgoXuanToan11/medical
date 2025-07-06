@@ -149,7 +149,7 @@ const ParentProfile = () => {
             <div className="absolute -bottom-16 left-8">
               <div className="relative">
                 <div className="w-32 h-32 bg-white dark:bg-neutral-800 rounded-full p-1 shadow-xl">
-                  <div className="w-full h-full bg-primary-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                  <div className="w-full h-full bg-primary-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                     {currentData.firstName.charAt(0)}
                     {currentData.lastName.charAt(0)}
                   </div>
@@ -196,7 +196,7 @@ const ParentProfile = () => {
           {/* Profile Info */}
           <div className="pt-20 pb-8 px-8">
             <div className="flex flex-col gap-3">
-              <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+              <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
                 {currentData.firstName} {currentData.lastName}
               </h1>
             </div>
@@ -208,7 +208,7 @@ const ParentProfile = () => {
           <div className="xl:col-span-3 space-y-8">
             {/* Basic Info */}
             <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-8">
-              <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-8 flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-8 flex items-center gap-3">
                 <FiUser className="w-6 h-6 text-primary-600" />
                 Thông tin cá nhân
               </h2>
@@ -415,7 +415,7 @@ const ParentProfile = () => {
             {/* Children Information */}
             <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-8">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-3">
+                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-3">
                   <FiUsers className="w-6 h-6 text-primary-600" />
                   Thông tin con em
                 </h2>
@@ -517,7 +517,7 @@ const ParentProfile = () => {
 
               <div className="space-y-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
+                  <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                     {students.length}
                   </div>
                   <div className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -526,7 +526,7 @@ const ParentProfile = () => {
                 </div>
 
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                     3
                   </div>
                   <div className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -535,7 +535,7 @@ const ParentProfile = () => {
                 </div>
 
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                     12
                   </div>
                   <div className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -544,7 +544,7 @@ const ParentProfile = () => {
                 </div>
 
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                     8
                   </div>
                   <div className="text-sm text-neutral-500 dark:text-neutral-400">

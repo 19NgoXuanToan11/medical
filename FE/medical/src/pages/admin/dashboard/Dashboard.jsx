@@ -145,7 +145,7 @@ const AdminDashboard = () => {
                       <div className="text-sm text-neutral-600">
                         Tổng học sinh
                       </div>
-                      <div className="text-3xl font-bold text-primary-700">
+                      <div className="text-2xl font-bold text-primary-700">
                         {stats.activeStudents}
                       </div>
                       <div className="text-xs text-green-600 mt-1">
@@ -164,7 +164,7 @@ const AdminDashboard = () => {
                       <div className="text-sm text-neutral-600">
                         Yêu cầu thuốc chờ xử lý
                       </div>
-                      <div className="text-3xl font-bold text-yellow-600">
+                      <div className="text-2xl font-bold text-yellow-600">
                         {stats.pendingMedications}
                       </div>
                       <div className="text-xs text-red-600 mt-1 flex items-center">
@@ -184,7 +184,7 @@ const AdminDashboard = () => {
                       <div className="text-sm text-neutral-600">
                         Kiểm tra sức khỏe sắp tới
                       </div>
-                      <div className="text-3xl font-bold text-green-600">
+                      <div className="text-2xl font-bold text-green-600">
                         {stats.scheduledHealthChecks}
                       </div>
                       <div className="text-xs text-primary-600 mt-1">
@@ -203,7 +203,7 @@ const AdminDashboard = () => {
                       <div className="text-sm text-neutral-600">
                         Sự cố y tế hôm nay
                       </div>
-                      <div className="text-3xl font-bold text-red-600">
+                      <div className="text-2xl font-bold text-red-600">
                         {stats.healthEventsToday}
                       </div>
                     </div>

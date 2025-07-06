@@ -145,10 +145,10 @@ const VaccinationHistory = () => {
       <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden transition-all duration-300">
         {/* Header Section */}
         <div className="px-8 py-6 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-800 border-b border-neutral-100 dark:border-neutral-700">
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+          <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
             Tiêm chủng
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400">
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Quản lý và theo dõi lịch sử tiêm chủng của con bạn
           </p>
         </div>
@@ -156,7 +156,7 @@ const VaccinationHistory = () => {
         {/* Child selector */}
         {children.length > 0 && (
           <div className="px-8 py-6 bg-neutral-50 dark:bg-neutral-800/50 border-b border-neutral-100 dark:border-neutral-700">
-            <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-4">
+            <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-4">
               Chọn con của bạn:
             </label>
             <div className="flex flex-wrap gap-3">
@@ -203,7 +203,7 @@ const VaccinationHistory = () => {
                     {selectedChild.name.charAt(0)}
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-200">
+                    <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
                       Thông tin học sinh
                     </h2>
                     <p className="text-neutral-600 dark:text-neutral-400 text-sm">
@@ -314,7 +314,7 @@ const VaccinationHistory = () => {
                   {selectedChild.upcomingVaccinations.length > 0 ? (
                     <>
                       <div className="text-center py-2">
-                        <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
+                        <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
                           Tiêm chủng sắp tới
                         </h2>
                         <p className="text-neutral-600 dark:text-neutral-400">
@@ -542,7 +542,7 @@ const VaccinationHistory = () => {
                           />
                         </svg>
                       </div>
-                      <h2 className="text-2xl font-bold mb-3 text-neutral-800 dark:text-neutral-200">
+                      <h2 className="text-xl font-bold mb-3 text-neutral-800 dark:text-neutral-200">
                         Không có tiêm chủng sắp tới
                       </h2>
                       <p className="text-neutral-600 dark:text-neutral-400 text-lg">
@@ -558,7 +558,7 @@ const VaccinationHistory = () => {
               {activeTab === "history" && (
                 <div className="space-y-6">
                   <div className="text-center py-2">
-                    <h2 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
+                    <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-2">
                       Lịch sử tiêm chủng
                     </h2>
                     <p className="text-neutral-600 dark:text-neutral-400">
@@ -786,7 +786,7 @@ const VaccinationHistory = () => {
                           />
                         </svg>
                       </div>
-                      <h2 className="text-2xl font-bold mb-3 text-neutral-800 dark:text-neutral-200">
+                      <h2 className="text-xl font-bold mb-3 text-neutral-800 dark:text-neutral-200">
                         📝 Chưa có lịch sử tiêm chủng
                       </h2>
                       <p className="text-neutral-600 dark:text-neutral-400 text-lg">
