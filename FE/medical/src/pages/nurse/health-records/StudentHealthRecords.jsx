@@ -153,10 +153,10 @@ const StudentHealthRecords = () => {
     <div className="container mx-auto px-6 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200 mb-3">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
           Hồ sơ sức khỏe học sinh
         </h1>
-        <p className="text-lg text-neutral-600 dark:text-neutral-400">
+        <p className="text-base text-neutral-600 dark:text-neutral-400">
           Quản lý và theo dõi tình trạng sức khỏe của học sinh
         </p>
       </div>
@@ -173,7 +173,7 @@ const StudentHealthRecords = () => {
                 placeholder="Tìm kiếm theo tên hoặc mã học sinh..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 text-base border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full pl-12 pr-4 py-3 text-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>
@@ -183,7 +183,7 @@ const StudentHealthRecords = () => {
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
-              className="w-full px-4 py-3 text-base border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-4 py-3 text-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
               <option value="all">Tất cả lớp</option>
               {classes.slice(1).map((className) => (
@@ -201,10 +201,10 @@ const StudentHealthRecords = () => {
         <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-800">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-base text-neutral-600 dark:text-neutral-400 mb-2">
+              <div className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
                 Học sinh khỏe mạnh
               </div>
-              <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {healthyCount}
               </div>
             </div>
@@ -217,10 +217,10 @@ const StudentHealthRecords = () => {
         <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-200 dark:border-yellow-800">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-base text-neutral-600 dark:text-neutral-400 mb-2">
+              <div className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
                 Cần theo dõi
               </div>
-              <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                 {needMonitoringCount}
               </div>
             </div>
@@ -233,10 +233,10 @@ const StudentHealthRecords = () => {
         <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-base text-neutral-600 dark:text-neutral-400 mb-2">
+              <div className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
                 Tổng học sinh
               </div>
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {totalCount}
               </div>
             </div>
@@ -250,85 +250,78 @@ const StudentHealthRecords = () => {
       {/* Records Table */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full border-collapse">
+            <colgroup>
+              <col style={{ width: "25%" }} />
+              <col style={{ width: "15%" }} />
+              <col style={{ width: "20%" }} />
+              <col style={{ width: "20%" }} />
+              <col style={{ width: "20%" }} />
+            </colgroup>
             <thead className="bg-neutral-50 dark:bg-neutral-700">
               <tr>
-                <th className="px-8 py-4 text-left text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider border-b border-neutral-200 dark:border-neutral-600">
                   Học sinh
                 </th>
-                <th className="px-8 py-4 text-left text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider border-b border-neutral-200 dark:border-neutral-600">
                   Lớp
                 </th>
-                <th className="px-8 py-4 text-left text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                  Khám gần nhất
-                </th>
-                <th className="px-8 py-4 text-left text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider border-b border-neutral-200 dark:border-neutral-600">
                   Tình trạng
                 </th>
-                <th className="px-8 py-4 text-left text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider border-b border-neutral-200 dark:border-neutral-600">
                   Dị ứng
                 </th>
-                <th className="px-8 py-4 text-center text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                  Thuốc
-                </th>
-                <th className="px-8 py-4 text-left text-sm font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider border-b border-neutral-200 dark:border-neutral-600">
                   Thao tác
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-700">
-              {filteredRecords.map((record) => (
+            <tbody className="bg-white dark:bg-neutral-800">
+              {filteredRecords.map((record, index) => (
                 <tr
                   key={record.id}
-                  className="hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                  className={`hover:bg-neutral-50 dark:hover:bg-neutral-700 ${
+                    index !== filteredRecords.length - 1
+                      ? "border-b border-neutral-200 dark:border-neutral-700"
+                      : ""
+                  }`}
                 >
-                  <td className="px-8 py-6 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-12 w-12">
-                        <div className="h-12 w-12 rounded-full bg-primary-500 flex items-center justify-center">
-                          <FiUser className="text-white w-6 h-6" />
-                        </div>
+                  <td className="px-6 py-4 vertical-align-top">
+                    <div className="flex flex-col">
+                      <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 leading-tight">
+                        {record.studentName}
                       </div>
-                      <div className="ml-4">
-                        <div className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                          {record.studentName}
-                        </div>
-                        <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                          {record.studentId}
-                        </div>
+                      <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                        {record.studentId}
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-6 whitespace-nowrap text-base font-medium text-neutral-900 dark:text-neutral-100">
-                    {record.className}
-                  </td>
-                  <td className="px-8 py-6 whitespace-nowrap text-base text-neutral-900 dark:text-neutral-100">
-                    <div className="flex items-center">
-                      <FiCalendar className="w-5 h-5 mr-2 text-neutral-400" />
-                      {record.lastCheckup}
+                  <td className="px-6 py-4 vertical-align-top">
+                    <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      {record.className}
                     </div>
                   </td>
-                  <td className="px-8 py-6 whitespace-nowrap">
+                  <td className="px-6 py-4 vertical-align-top">
                     <span
-                      className={`inline-flex px-3 py-1.5 text-sm font-semibold rounded-full ${getStatusColor(
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
                         record.healthStatus
                       )}`}
                     >
                       {record.healthStatus}
                     </span>
                   </td>
-                  <td className="px-8 py-6 whitespace-nowrap text-base text-neutral-900 dark:text-neutral-100">
-                    {record.allergies}
+                  <td className="px-6 py-4 vertical-align-top">
+                    <div className="text-sm text-neutral-900 dark:text-neutral-100">
+                      {record.allergies}
+                    </div>
                   </td>
-                  <td className="px-8 py-6 whitespace-nowrap text-base text-neutral-900 dark:text-neutral-100 text-center">
-                    {record.medications}
-                  </td>
-                  <td className="px-8 py-6 whitespace-nowrap text-sm font-medium">
+                  <td className="px-6 py-4 vertical-align-top">
                     <Link
                       to={`/nurse/health-records/${record.studentId}`}
-                      className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 flex items-center text-base font-semibold"
+                      className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 inline-flex items-center text-sm font-semibold"
                     >
-                      <FiEye className="w-5 h-5 mr-2" />
+                      <FiEye className="w-4 h-4 mr-1" />
                       Xem chi tiết
                     </Link>
                   </td>

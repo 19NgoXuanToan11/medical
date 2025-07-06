@@ -10,13 +10,12 @@ import {
   FiX,
   FiInfo,
   FiPlus,
-  FiPrinter,
 } from "react-icons/fi";
 
 const StaffMedicationDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const printRef = useRef();
+
   const [medication, setMedication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processingAction, setProcessingAction] = useState(false);
@@ -280,20 +279,6 @@ const StaffMedicationDetail = () => {
     }, 1000);
   };
 
-  const handlePrint = () => {
-    const printContent = document.getElementById("printable-report");
-    const originalContents = document.body.innerHTML;
-
-    document.body.innerHTML = printContent.innerHTML;
-
-    window.print();
-
-    document.body.innerHTML = originalContents;
-
-    // Rehydrate the React app
-    window.location.reload();
-  };
-
   const getStatusBadge = (status) => {
     switch (status) {
       case "pending":
@@ -396,20 +381,15 @@ const StaffMedicationDetail = () => {
             <FiArrowLeft className="h-5 w-5 text-gray-600" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
               Chi tiết yêu cầu thuốc
             </h1>
-            <p className="text-gray-300">
-              Xem và quản lý thông tin yêu cầu cấp thuốc
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Yêu cầu #{medication.id} - Ngày tạo:{" "}
+              {new Date(medication.requestDate).toLocaleDateString("vi-VN")}
             </p>
           </div>
         </div>
-        <button
-          onClick={handlePrint}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <FiPrinter className="mr-2" /> In báo cáo
-        </button>
       </div>
 
       {/* Status and Actions */}
@@ -923,130 +903,6 @@ const StaffMedicationDetail = () => {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Hidden printable report section */}
-      <div id="printable-report" className="hidden">
-        <div className="p-8">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold">BÁO CÁO THUỐC</h1>
-            <p className="text-gray-600">Mã yêu cầu: {medication?.id}</p>
-          </div>
-
-          <div className="mb-6">
-            <h2 className="text-lg font-bold border-b pb-2 mb-3">
-              Thông tin học sinh
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <div className="font-semibold">Họ và tên:</div>
-                <div>{medication?.studentName}</div>
-              </div>
-              <div>
-                <div className="font-semibold">Lớp:</div>
-                <div>{medication?.class}</div>
-              </div>
-              <div>
-                <div className="font-semibold">Tình trạng y tế:</div>
-                <div>{medication?.medicalCondition}</div>
-              </div>
-              <div>
-                <div className="font-semibold">Tiền sử dị ứng:</div>
-                <div>{medication?.allergyHistory}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <h2 className="text-lg font-bold border-b pb-2 mb-3">
-              Thông tin thuốc
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <div className="font-semibold">Tên thuốc:</div>
-                <div>{medication?.medication}</div>
-              </div>
-              <div>
-                <div className="font-semibold">Liều lượng:</div>
-                <div>{medication?.dosage}</div>
-              </div>
-              <div>
-                <div className="font-semibold">Tần suất:</div>
-                <div>{medication?.frequency}</div>
-              </div>
-              <div>
-                <div className="font-semibold">Ngày yêu cầu:</div>
-                <div>
-                  {medication?.requestDate &&
-                    new Date(medication.requestDate).toLocaleDateString(
-                      "vi-VN"
-                    )}
-                </div>
-              </div>
-              <div className="col-span-2">
-                <div className="font-semibold">Hướng dẫn sử dụng:</div>
-                <div>{medication?.administrationInstructions}</div>
-              </div>
-              <div className="col-span-2">
-                <div className="font-semibold">Tác dụng phụ:</div>
-                <div>{medication?.sideEffects}</div>
-              </div>
-              <div className="col-span-2">
-                <div className="font-semibold">Ghi chú của phụ huynh:</div>
-                <div>{medication?.parentNote}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <h2 className="text-lg font-bold border-b pb-2 mb-3">
-              Nhật ký cấp thuốc
-            </h2>
-            {medication?.administrationLogs &&
-            medication.administrationLogs.length > 0 ? (
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border p-2 text-left">Thời gian</th>
-                    <th className="border p-2 text-left">Trạng thái</th>
-                    <th className="border p-2 text-left">Ghi chú</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {medication.administrationLogs.map((log, index) => (
-                    <tr key={index}>
-                      <td className="border p-2">
-                        {new Date(log.date).toLocaleString("vi-VN")}
-                      </td>
-                      <td className="border p-2">
-                        {log.administered ? "Đã cấp thuốc" : "Chưa cấp thuốc"}
-                      </td>
-                      <td className="border p-2">{log.notes}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>Chưa có nhật ký cấp thuốc nào.</p>
-            )}
-          </div>
-
-          <div className="mt-10 grid grid-cols-2 gap-6">
-            <div>
-              <div className="border-t pt-2 text-center">
-                <p className="font-semibold">Người lập báo cáo</p>
-                <p className="mt-10">(Ký và ghi rõ họ tên)</p>
-              </div>
-            </div>
-            <div>
-              <div className="border-t pt-2 text-center">
-                <p className="font-semibold">
-                  Ngày lập: {new Date().toLocaleDateString("vi-VN")}
-                </p>
-              </div>
             </div>
           </div>
         </div>

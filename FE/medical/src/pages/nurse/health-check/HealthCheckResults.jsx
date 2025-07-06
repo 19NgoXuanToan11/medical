@@ -8,7 +8,7 @@ import {
   FiCheck,
   FiClock,
   FiDownload,
-  FiPrinter,
+
 } from "react-icons/fi";
 
 const HealthCheckResults = () => {
@@ -125,9 +125,7 @@ const HealthCheckResults = () => {
     return { label: "Béo phì", color: "text-red-600 dark:text-red-400" };
   };
 
-  const handlePrintResults = () => {
-    window.print();
-  };
+
 
   const handleExportToExcel = () => {
     alert("Xuất file Excel sẽ được triển khai sau!");
@@ -167,12 +165,7 @@ const HealthCheckResults = () => {
           )}
         </div>
         <div className="flex space-x-2 print:hidden">
-          <button
-            onClick={handlePrintResults}
-            className="px-3 py-1.5 border border-primary-600 dark:border-primary-400 rounded-md text-primary-600 dark:text-primary-400 bg-white dark:bg-neutral-800 hover:bg-primary-50 dark:hover:bg-neutral-700 flex items-center"
-          >
-            <FiPrinter className="mr-1" /> In kết quả
-          </button>
+
           <button
             onClick={handleExportToExcel}
             className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"

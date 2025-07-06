@@ -14,7 +14,6 @@ import {
   FiEdit3,
   FiTrash2,
   FiDownload,
-  FiPrinter,
   FiActivity,
   FiTarget,
   FiPackage,
@@ -292,10 +291,7 @@ const HealthCheckDetail = () => {
                 <FiDownload className="h-4 w-4" />
                 <span>Xuất báo cáo</span>
               </button>
-              <button className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                <FiPrinter className="h-4 w-4" />
-                <span>In</span>
-              </button>
+
               <button className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                 <FiTrash2 className="h-4 w-4" />
                 <span>Xóa</span>

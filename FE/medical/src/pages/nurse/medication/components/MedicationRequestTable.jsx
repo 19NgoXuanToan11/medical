@@ -66,10 +66,10 @@ const MedicationRequestTable = ({
                 <td className="px-6 py-4 align-middle">
                   <div className="flex items-center">
                     <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
                         {request.studentName}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         ID: {request.studentId}
                       </div>
                     </div>
@@ -77,15 +77,15 @@ const MedicationRequestTable = ({
                 </td>
                 <td className="px-6 py-4 align-middle text-center">
                   <div className="flex flex-col justify-center items-center min-h-[60px]">
-                    <div className="text-sm text-gray-900 dark:text-gray-100">
+                    <div className="text-xs text-gray-900 dark:text-gray-100">
                       {request.medicineName}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       {request.frequency}
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 align-middle text-center">
+                <td className="px-6 py-4 text-xs text-gray-900 dark:text-gray-100 align-middle text-center">
                   <div className="flex items-center justify-center min-h-[60px]">
                     {request.dosage}
                   </div>
@@ -96,7 +96,7 @@ const MedicationRequestTable = ({
                   activeTab === "all") && (
                   <td className="px-6 py-4 align-middle text-center">
                     <div className="flex flex-col items-center justify-center min-h-[60px]">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
                         {request.staffName || "N/A"}
                       </div>
                       {request.staff?.email && (
@@ -122,7 +122,7 @@ const MedicationRequestTable = ({
                     </div>
                   </td>
                 )}
-                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 align-middle text-center">
+                <td className="px-6 py-4 text-xs text-gray-900 dark:text-gray-100 align-middle text-center">
                   <div className="flex items-center justify-center min-h-[60px]">
                     {new Date(request.requestDate).toLocaleDateString("vi-VN")}
                   </div>

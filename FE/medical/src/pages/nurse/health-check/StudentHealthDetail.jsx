@@ -6,7 +6,6 @@ import {
   FiCalendar,
   FiActivity,
   FiAlertCircle,
-  FiPrinter,
   FiEdit,
   FiSend,
   FiSave,
@@ -128,10 +127,6 @@ const StudentHealthDetail = () => {
     if (!height || !weight) return 0;
     const heightInMeters = height / 100;
     return (weight / (heightInMeters * heightInMeters)).toFixed(1);
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   const handleNotifyParent = () => {
@@ -334,28 +329,18 @@ const StudentHealthDetail = () => {
             >
               <FiArrowLeft size={20} />
             </button>
-            <h1 className="text-2xl font-bold text-gray-800 print:text-3xl">
-              Kết quả kiểm tra sức khỏe
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              Chi tiết sức khỏe - {student.name}
             </h1>
           </div>
-          <p className="text-gray-600 mt-1">
-            <span className="font-medium">{student.name}</span> -{" "}
-            {healthCheck.grade}
-          </p>
-          <p className="text-gray-600 mt-1">
-            Ngày kiểm tra:{" "}
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {healthCheck.title} | {healthCheck.grade} |{" "}
             {new Date(healthCheck.scheduledDate).toLocaleDateString("vi-VN")}
           </p>
         </div>
         <div className="flex space-x-2 print:hidden">
           {!isEditing && (
             <>
-              <button
-                onClick={handlePrint}
-                className="px-3 py-1.5 border border-primary-600 rounded-md text-primary-600 bg-white hover:bg-primary-50 flex items-center"
-              >
-                <FiPrinter className="mr-1" /> In kết quả
-              </button>
               <button
                 onClick={handleNotifyParent}
                 className="px-3 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 flex items-center"

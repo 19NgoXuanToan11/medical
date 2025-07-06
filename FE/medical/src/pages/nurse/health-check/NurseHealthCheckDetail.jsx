@@ -80,10 +80,6 @@ const NurseHealthCheckDetail = () => {
     return { label: "Béo phì", color: "text-red-600" };
   };
 
-  const handlePrintResults = () => {
-    window.print();
-  };
-
   const handleExportToExcel = () => {
     alert("Xuất file Excel sẽ được triển khai sau!");
   };
@@ -128,12 +124,7 @@ const NurseHealthCheckDetail = () => {
             >
               Quay lại
             </button>
-            <button
-              onClick={handlePrintResults}
-              className="px-3 py-1.5 border border-blue-600 rounded-md text-blue-600 bg-white dark:bg-neutral-800 hover:bg-blue-50 dark:hover:bg-neutral-700"
-            >
-              In kết quả
-            </button>
+
             <button
               onClick={handleExportToExcel}
               className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700"
@@ -271,14 +262,14 @@ const NurseHealthCheckDetail = () => {
                       : "hover:bg-gray-50 dark:hover:bg-neutral-700"
                   }
                 >
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
+                  <td className="px-3 py-4 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400 text-center">
                     {index + 1}
                   </td>
                   <td className="px-3 py-4 whitespace-nowrap text-center">
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
                       {student.name}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       {student.gender}
                     </div>
                     {!student.isConfirmed && (
@@ -287,14 +278,14 @@ const NurseHealthCheckDetail = () => {
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
+                  <td className="px-3 py-4 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400 text-center">
                     {student.height}
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center">
+                  <td className="px-3 py-4 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400 text-center">
                     {student.weight}
                   </td>
                   <td className="px-3 py-4 whitespace-nowrap text-center">
-                    <div className="text-sm text-gray-900 dark:text-gray-100">
+                    <div className="text-xs text-gray-900 dark:text-gray-100">
                       {student.bmi.toFixed(1)}
                     </div>
                     <div
@@ -343,7 +334,7 @@ const NurseHealthCheckDetail = () => {
                       </div>
                     )}
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm font-medium print:hidden text-center">
+                  <td className="px-3 py-4 whitespace-nowrap text-xs font-medium print:hidden text-center">
                     <Link
                       to={`/nurse/student/${student.id}/health-history`}
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
@@ -365,12 +356,12 @@ const NurseHealthCheckDetail = () => {
       </div>
 
       <div className="mt-6 print:hidden">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
+        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-200 mb-3">
           Thống kê tổng quát
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 p-4 rounded-lg shadow-md">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">
               BMI
             </h3>
             <div className="mt-2 space-y-2">
@@ -412,7 +403,7 @@ const NurseHealthCheckDetail = () => {
           </div>
 
           <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 p-4 rounded-lg shadow-md">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">
               Thị lực
             </h3>
             <div className="mt-2 space-y-2">
@@ -436,7 +427,7 @@ const NurseHealthCheckDetail = () => {
           </div>
 
           <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 p-4 rounded-lg shadow-md">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">
               Răng miệng
             </h3>
             <div className="mt-2 space-y-2">

@@ -19,6 +19,7 @@ import { FiLogOut } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import { useParent } from "../../../utils/auth/ParentContext";
 import ThemeToggle from "../../common/ThemeToggle";
+import NotificationDropdown from "../../common/NotificationDropdown";
 
 const ParentLayout = () => {
   const location = useLocation();
@@ -88,7 +89,7 @@ const ParentLayout = () => {
         },
         {
           path: "/parent/medication/history",
-          label: "Quản lý yêu cầu thuốc",
+          label: "Lịch sử yêu cầu thuốc",
           icon: <FaList className="w-4 h-4" />,
         },
       ],
@@ -385,9 +386,7 @@ const ParentLayout = () => {
           </div>
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <button className="p-1 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700">
-              <FaBell className="w-6 h-6" />
-            </button>
+            <NotificationDropdown userRole="parent" />
 
             {/* User Profile Section */}
             <div className="relative" ref={userDropdownRef}>

@@ -152,10 +152,10 @@ const VaccinationManagement = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
+        <h1 className="text-xl font-bold text-neutral-800 dark:text-neutral-200">
           Quản lý tiêm chủng
         </h1>
-        <p className="text-neutral-600 dark:text-neutral-400 mt-1">
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
           Quản lý kế hoạch và lịch tiêm chủng của học sinh
         </p>
       </div>
@@ -165,10 +165,10 @@ const VaccinationManagement = () => {
         <div className="bg-neutral-50 dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-neutral-500 dark:text-neutral-400 text-sm">
+              <p className="text-neutral-500 dark:text-neutral-400 text-xs">
                 Kế hoạch sắp tới
               </p>
-              <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">
+              <p className="text-xl font-bold mt-1 text-blue-600 dark:text-blue-400">
                 {stats.upcoming}
               </p>
             </div>
@@ -181,10 +181,10 @@ const VaccinationManagement = () => {
         <div className="bg-neutral-50 dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-neutral-500 dark:text-neutral-400 text-sm">
+              <p className="text-neutral-500 dark:text-neutral-400 text-xs">
                 Đã hoàn thành
               </p>
-              <p className="text-2xl font-bold mt-1 text-green-600 dark:text-green-400">
+              <p className="text-xl font-bold mt-1 text-green-600 dark:text-green-400">
                 {stats.completed}
               </p>
             </div>
@@ -197,10 +197,10 @@ const VaccinationManagement = () => {
         <div className="bg-neutral-50 dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-neutral-500 dark:text-neutral-400 text-sm">
+              <p className="text-neutral-500 dark:text-neutral-400 text-xs">
                 Tháng này
               </p>
-              <p className="text-2xl font-bold mt-1 text-purple-600 dark:text-purple-400">
+              <p className="text-xl font-bold mt-1 text-purple-600 dark:text-purple-400">
                 {stats.thisMonth}
               </p>
             </div>
@@ -213,10 +213,10 @@ const VaccinationManagement = () => {
         <div className="bg-neutral-50 dark:bg-neutral-800 p-5 rounded-lg shadow border border-neutral-200 dark:border-neutral-700">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-neutral-500 dark:text-neutral-400 text-sm">
+              <p className="text-neutral-500 dark:text-neutral-400 text-xs">
                 Tổng học sinh
               </p>
-              <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">
+              <p className="text-xl font-bold mt-1 text-blue-600 dark:text-blue-400">
                 {stats.totalStudents}
               </p>
             </div>

@@ -3,18 +3,29 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   FiArrowLeft,
   FiUser,
-  FiCalendar,
   FiActivity,
   FiHeart,
   FiEye,
-  FiThermometer,
-  FiPrinter,
   FiEdit,
   FiSave,
   FiX,
   FiFileText,
-  FiAlertTriangle,
+  FiPhone,
+  FiMail,
+  FiMapPin,
+  FiDroplet,
+  FiShield,
+  FiClock,
+  FiUsers,
+  FiBookOpen,
+  FiTarget,
+  FiTrendingUp,
+  FiCheckCircle,
+  FiXCircle,
+  FiAlertCircle,
+  FiCalendar,
   FiInfo,
+  FiHeadphones,
 } from "react-icons/fi";
 import healthProfileService from "../../../utils/api/health-profile/healthProfileService";
 
@@ -22,107 +33,35 @@ const StudentHealthRecordDetail = () => {
   const { studentId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [student, setStudent] = useState(null);
+  const [healthProfile, setHealthProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     const fetchStudentHealthRecord = async () => {
       try {
         setLoading(true);
-
-        // Fetch health profile by student code
         const profileData = await healthProfileService.getByStudentCode(
           studentId
         );
+        setHealthProfile(profileData);
 
-        // Transform API data to component format
-        const studentData = {
-          id: profileData.healthProfileId,
-          studentId: profileData.studentCode,
-          name: profileData.studentCode || "Không có tên", // API might need student name from another endpoint
-          gender: "Chưa xác định", // This info might come from student table
-          dateOfBirth: "Chưa xác định", // This info might come from student table
-          className: "Chưa xác định", // This info might come from student table
-          parentName: "Chưa xác định", // This info might come from student table
-          parentPhone: "Chưa xác định", // This info might come from student table
-          parentEmail: "Chưa xác định", // This info might come from student table
-          address: "Chưa xác định", // This info might come from student table
-          lastCheckup: profileData.createdAt
-            ? new Date(profileData.createdAt).toISOString().split("T")[0]
-            : "N/A",
-          healthStatus: getHealthStatusFromProfile(profileData),
-          physicalMeasurements: {
-            height: profileData.height || 0,
-            weight: profileData.weight || 0,
-            bmi:
-              profileData.height && profileData.weight
-                ? (
-                    profileData.weight / Math.pow(profileData.height / 100, 2)
-                  ).toFixed(1)
-                : 0,
-            bloodPressure: profileData.bloodPressure || "N/A",
-            heartRate: profileData.heartRate || 0,
-            temperature: 36.5, // Default, might need separate measurement data
-            vision: {
-              left: profileData.leftEye || "N/A",
-              right: profileData.rightEye || "N/A",
-              status: profileData.hasVisionIssues ? "Có vấn đề" : "Bình thường",
-            },
-          },
-          allergies: profileData.hasAllergies
-            ? profileData.allergyDetails
-              ? [profileData.allergyDetails]
-              : ["Có dị ứng"]
-            : ["Không có"],
-          medications: profileData.hasPreviousTreatment
-            ? profileData.treatmentDetails
-              ? [profileData.treatmentDetails]
-              : ["Có điều trị"]
-            : ["Không có"],
-          chronicConditions: profileData.hasChronicDiseases
-            ? profileData.chronicDetails
-              ? [profileData.chronicDetails]
-              : ["Có bệnh mãn tính"]
-            : ["Không có"],
-          vaccinationHistory: profileData.hasCompleteVaccinations
-            ? [
-                {
-                  vaccine: "Tiêm chủng đầy đủ",
-                  date: "N/A",
-                  dose: profileData.vaccinationDetails || "Đầy đủ",
-                  status: "Hoàn thành",
-                },
-              ]
-            : [],
-          healthHistory: [
-            {
-              date: profileData.createdAt
-                ? new Date(profileData.createdAt).toISOString().split("T")[0]
-                : "N/A",
-              event: "Hồ sơ sức khỏe được tạo",
-              result: getHealthStatusFromProfile(profileData),
-              notes: profileData.otherInfo || "Không có ghi chú đặc biệt",
-              nurseId: "N/A",
-              nurseName: "Hệ thống",
-            },
-          ],
-          notes: profileData.otherInfo || "Không có ghi chú đặc biệt",
-          recommendations: generateRecommendations(profileData),
-        };
-
-        setStudent(studentData);
         setEditData({
-          notes: studentData.notes,
-          recommendations: [...studentData.recommendations],
-          allergies: [...studentData.allergies],
-          medications: [...studentData.medications],
-          chronicConditions: [...studentData.chronicConditions],
+          allergyDetails: profileData.allergyDetails || "",
+          chronicDetails: profileData.chronicDetails || "",
+          treatmentDetails: profileData.treatmentDetails || "",
+          vaccinationDetails: profileData.vaccinationDetails || "",
+          visionNotes: profileData.visionNotes || "",
+          hearingNotes: profileData.hearingNotes || "",
+          otherInfo: profileData.otherInfo || "",
+          emergencyContact: profileData.emergencyContact || "",
         });
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching student health record:", error);
-        setStudent(null);
+        setHealthProfile(null);
         setLoading(false);
       }
     };
@@ -132,7 +71,6 @@ const StudentHealthRecordDetail = () => {
     }
   }, [studentId]);
 
-  // Helper function to determine health status from profile data
   const getHealthStatusFromProfile = (profile) => {
     if (profile.hasChronicDiseases || profile.hasPreviousTreatment) {
       return "Cần theo dõi";
@@ -147,38 +85,40 @@ const StudentHealthRecordDetail = () => {
     return "Tốt";
   };
 
-  // Helper function to generate recommendations based on profile
-  const generateRecommendations = (profile) => {
-    const recommendations = [];
-
-    if (profile.hasAllergies) {
-      recommendations.push("Tránh tiếp xúc với các chất gây dị ứng đã biết");
-    }
-    if (profile.hasChronicDiseases) {
-      recommendations.push("Theo dõi định kỳ tình trạng bệnh mãn tính");
-    }
-    if (profile.hasVisionIssues) {
-      recommendations.push("Khám mắt định kỳ và đeo kính nếu cần");
-    }
-    if (profile.hasHearingIssues) {
-      recommendations.push("Kiểm tra thính lực định kỳ");
-    }
-
-    // Default recommendations
-    if (recommendations.length === 0) {
-      recommendations.push("Duy trì chế độ ăn uống cân bằng");
-      recommendations.push("Tập thể dục đều đặn");
-    }
-    recommendations.push("Khám sức khỏe định kỳ 6 tháng/lần");
-
-    return recommendations;
+  const calculateBMI = (height, weight) => {
+    if (!height || !weight) return 0;
+    return (weight / Math.pow(height / 100, 2)).toFixed(1);
   };
 
-  const getBmiStatus = (bmi) => {
-    if (bmi < 18.5) return { label: "Thiếu cân", color: "text-yellow-600" };
-    if (bmi < 25) return { label: "Bình thường", color: "text-green-600" };
-    if (bmi < 30) return { label: "Thừa cân", color: "text-orange-600" };
-    return { label: "Béo phì", color: "text-red-600" };
+  const getBMIStatus = (bmi) => {
+    if (bmi < 18.5)
+      return {
+        label: "Thiếu cân",
+        color: "text-yellow-600",
+        bg: "bg-yellow-50 dark:bg-yellow-900/20",
+      };
+    if (bmi < 25)
+      return {
+        label: "Bình thường",
+        color: "text-green-600",
+        bg: "bg-green-50 dark:bg-green-900/20",
+      };
+    if (bmi < 30)
+      return {
+        label: "Thừa cân",
+        color: "text-orange-600",
+        bg: "bg-orange-50 dark:bg-orange-900/20",
+      };
+    return {
+      label: "Béo phì",
+      color: "text-red-600",
+      bg: "bg-red-50 dark:bg-red-900/20",
+    };
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("vi-VN");
   };
 
   const getHealthStatusColor = (status) => {
@@ -196,10 +136,6 @@ const StudentHealthRecordDetail = () => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
@@ -211,46 +147,21 @@ const StudentHealthRecordDetail = () => {
     }));
   };
 
-  const handleArrayChange = (field, index, value) => {
-    setEditData((prev) => ({
-      ...prev,
-      [field]: prev[field].map((item, i) => (i === index ? value : item)),
-    }));
-  };
-
-  const handleAddArrayItem = (field) => {
-    setEditData((prev) => ({
-      ...prev,
-      [field]: [...prev[field], ""],
-    }));
-  };
-
-  const handleRemoveArrayItem = (field, index) => {
-    setEditData((prev) => ({
-      ...prev,
-      [field]: prev[field].filter((_, i) => i !== index),
-    }));
-  };
-
   const handleSave = async () => {
     try {
-      // Prepare data for API update
       const updateData = {
-        ...student, // Keep existing data
-        otherInfo: editData.notes,
-        // Note: API might need different field mapping for other editable data
-        // This is a simplified version focusing on notes
+        ...healthProfile,
+        ...editData,
       };
 
-      await healthProfileService.update(student.id, updateData);
+      await healthProfileService.update(
+        healthProfile.healthProfileId,
+        updateData
+      );
 
-      setStudent((prev) => ({
+      setHealthProfile((prev) => ({
         ...prev,
-        notes: editData.notes,
-        recommendations: editData.recommendations,
-        allergies: editData.allergies,
-        medications: editData.medications,
-        chronicConditions: editData.chronicConditions,
+        ...editData,
       }));
       setIsEditing(false);
       alert("Đã lưu thay đổi thành công!");
@@ -268,7 +179,7 @@ const StudentHealthRecordDetail = () => {
     );
   }
 
-  if (!student) {
+  if (!healthProfile) {
     return (
       <div className="container mx-auto px-6 max-w-7xl">
         <div className="text-center py-12">
@@ -280,12 +191,417 @@ const StudentHealthRecordDetail = () => {
     );
   }
 
-  const bmiStatus = getBmiStatus(student.physicalMeasurements.bmi);
+  const student = healthProfile.student;
+  const bmi = calculateBMI(healthProfile.height, healthProfile.weight);
+  const bmiStatus = getBMIStatus(bmi);
+  const healthStatus = getHealthStatusFromProfile(healthProfile);
+  const mainParent =
+    student?.parents?.find((p) => p.isMainContact) || student?.parents?.[0];
+
+  const tabs = [
+    { id: "overview", label: "Tổng quan", icon: FiUser },
+    { id: "physical", label: "Thể lực", icon: FiActivity },
+    { id: "medical", label: "Y tế", icon: FiHeart },
+    { id: "sensory", label: "Cảm giác", icon: FiEye },
+    { id: "vaccination", label: "Tiêm chủng", icon: FiShield },
+  ];
+
+  const InfoCard = ({ title, icon: Icon, children, className = "" }) => (
+    <div
+      className={`bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6 ${className}`}
+    >
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 bg-primary-100 dark:bg-primary-900/20 rounded-lg">
+          <Icon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+          {title}
+        </h3>
+      </div>
+      {children}
+    </div>
+  );
+
+  const DataRow = ({ label, value, type = "text", status = null }) => (
+    <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-neutral-700 last:border-b-0">
+      <span className="text-neutral-600 dark:text-neutral-400 text-sm">
+        {label}:
+      </span>
+      <div className="flex items-center gap-2">
+        {type === "boolean" ? (
+          <div className="flex items-center gap-1">
+            {value ? (
+              <FiCheckCircle className="w-4 h-4 text-green-500" />
+            ) : (
+              <FiXCircle className="w-4 h-4 text-red-500" />
+            )}
+            <span className="font-medium text-neutral-800 dark:text-neutral-200">
+              {value ? "Có" : "Không"}
+            </span>
+          </div>
+        ) : (
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">
+            {value || "N/A"}
+          </span>
+        )}
+        {status && (
+          <span
+            className={`px-2 py-1 text-xs rounded-full ${status.className}`}
+          >
+            {status.label}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  const EditableField = ({
+    label,
+    field,
+    value,
+    type = "text",
+    placeholder = "",
+  }) => (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+        {label}
+      </label>
+      {type === "textarea" ? (
+        <textarea
+          value={isEditing ? editData[field] : value}
+          onChange={(e) => handleInputChange(field, e.target.value)}
+          disabled={!isEditing}
+          rows={3}
+          className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 disabled:bg-neutral-50 dark:disabled:bg-neutral-700 disabled:text-neutral-500 resize-none"
+          placeholder={placeholder}
+        />
+      ) : (
+        <input
+          type={type}
+          value={isEditing ? editData[field] : value}
+          onChange={(e) => handleInputChange(field, e.target.value)}
+          disabled={!isEditing}
+          className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 disabled:bg-neutral-50 dark:disabled:bg-neutral-700 disabled:text-neutral-500"
+          placeholder={placeholder}
+        />
+      )}
+    </div>
+  );
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "overview":
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Student Information */}
+            <InfoCard title="Thông tin học sinh" icon={FiUser}>
+              <div className="space-y-3">
+                <DataRow label="Mã học sinh" value={student?.studentCode} />
+                <DataRow
+                  label="Họ tên"
+                  value={`${student?.firstName || ""} ${
+                    student?.lastName || ""
+                  }`.trim()}
+                />
+                <DataRow
+                  label="Ngày sinh"
+                  value={formatDate(student?.dateOfBirth)}
+                />
+                <DataRow label="Giới tính" value={student?.gender} />
+                <DataRow label="Lớp" value={student?.className} />
+                <DataRow label="Khối" value={student?.gradeLevel} />
+                <DataRow label="Địa chỉ" value={student?.address} />
+                <DataRow
+                  label="Liên hệ khẩn cấp"
+                  value={healthProfile.emergencyContact}
+                />
+              </div>
+            </InfoCard>
+
+            {/* Parent Information */}
+            <InfoCard title="Thông tin phụ huynh" icon={FiUsers}>
+              {mainParent ? (
+                <div className="space-y-3">
+                  <DataRow
+                    label="Họ tên"
+                    value={`${mainParent.firstName || ""} ${
+                      mainParent.lastName || ""
+                    }`.trim()}
+                  />
+                  <DataRow
+                    label="Mối quan hệ"
+                    value={mainParent.relationship}
+                  />
+                  <DataRow label="Điện thoại" value={mainParent.phone} />
+                  <DataRow label="Email" value={mainParent.email} />
+                  <DataRow
+                    label="Liên hệ khẩn cấp"
+                    value={mainParent.isEmergencyContact}
+                    type="boolean"
+                  />
+                  <DataRow
+                    label="Liên hệ chính"
+                    value={mainParent.isMainContact}
+                    type="boolean"
+                  />
+                </div>
+              ) : (
+                <p className="text-neutral-500 dark:text-neutral-400">
+                  Chưa có thông tin phụ huynh
+                </p>
+              )}
+            </InfoCard>
+          </div>
+        );
+
+      case "physical":
+        return (
+          <div className="grid grid-cols-1 gap-6">
+            <InfoCard title="Chỉ số cơ thể" icon={FiActivity}>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                    {healthProfile.height || 0}
+                  </div>
+                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                    cm - Chiều cao
+                  </div>
+                </div>
+                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                    {healthProfile.weight || 0}
+                  </div>
+                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                    kg - Cân nặng
+                  </div>
+                </div>
+                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                    {bmi}
+                  </div>
+                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                    BMI - {bmiStatus.label}
+                  </div>
+                </div>
+                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                    {healthProfile.bloodType || "N/A"}
+                  </div>
+                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                    Nhóm máu
+                  </div>
+                </div>
+                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                    {healthProfile.bloodPressure || "N/A"}
+                  </div>
+                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                    Huyết áp
+                  </div>
+                </div>
+                <div className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                  <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                    {healthProfile.heartRate || 0}
+                  </div>
+                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                    bpm - Nhịp tim
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <EditableField
+                  label="Thông tin liên hệ khẩn cấp"
+                  field="emergencyContact"
+                  value={healthProfile.emergencyContact}
+                  type="textarea"
+                  placeholder="Nhập thông tin liên hệ khẩn cấp..."
+                />
+              </div>
+            </InfoCard>
+          </div>
+        );
+
+      case "medical":
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <InfoCard title="Dị ứng" icon={FiAlertCircle}>
+              <div className="space-y-3">
+                <DataRow
+                  label="Có dị ứng"
+                  value={healthProfile.hasAllergies}
+                  type="boolean"
+                />
+                <EditableField
+                  label="Chi tiết dị ứng"
+                  field="allergyDetails"
+                  value={healthProfile.allergyDetails}
+                  type="textarea"
+                  placeholder="Mô tả chi tiết về dị ứng..."
+                />
+              </div>
+            </InfoCard>
+
+            <InfoCard title="Bệnh mãn tính" icon={FiHeart}>
+              <div className="space-y-3">
+                <DataRow
+                  label="Có bệnh mãn tính"
+                  value={healthProfile.hasChronicDiseases}
+                  type="boolean"
+                />
+                <EditableField
+                  label="Chi tiết bệnh mãn tính"
+                  field="chronicDetails"
+                  value={healthProfile.chronicDetails}
+                  type="textarea"
+                  placeholder="Mô tả chi tiết về bệnh mãn tính..."
+                />
+              </div>
+            </InfoCard>
+
+            <InfoCard
+              title="Điều trị trước đây"
+              icon={FiClock}
+              className="lg:col-span-2"
+            >
+              <div className="space-y-3">
+                <DataRow
+                  label="Đã từng điều trị"
+                  value={healthProfile.hasPreviousTreatment}
+                  type="boolean"
+                />
+                <EditableField
+                  label="Chi tiết điều trị"
+                  field="treatmentDetails"
+                  value={healthProfile.treatmentDetails}
+                  type="textarea"
+                  placeholder="Mô tả chi tiết về điều trị trước đây..."
+                />
+              </div>
+            </InfoCard>
+          </div>
+        );
+
+      case "sensory":
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <InfoCard title="Thị lực" icon={FiEye}>
+              <div className="space-y-3">
+                <DataRow
+                  label="Có vấn đề về mắt"
+                  value={healthProfile.hasVisionIssues}
+                  type="boolean"
+                />
+                <DataRow label="Mắt trái" value={healthProfile.leftEye} />
+                <DataRow label="Mắt phải" value={healthProfile.rightEye} />
+                <EditableField
+                  label="Ghi chú thị lực"
+                  field="visionNotes"
+                  value={healthProfile.visionNotes}
+                  type="textarea"
+                  placeholder="Ghi chú về tình trạng thị lực..."
+                />
+              </div>
+            </InfoCard>
+
+            <InfoCard title="Thính lực" icon={FiHeadphones}>
+              <div className="space-y-3">
+                <DataRow
+                  label="Có vấn đề về tai"
+                  value={healthProfile.hasHearingIssues}
+                  type="boolean"
+                />
+                <DataRow label="Tai trái" value={healthProfile.leftEar} />
+                <DataRow label="Tai phải" value={healthProfile.rightEar} />
+                <EditableField
+                  label="Ghi chú thính lực"
+                  field="hearingNotes"
+                  value={healthProfile.hearingNotes}
+                  type="textarea"
+                  placeholder="Ghi chú về tình trạng thính lực..."
+                />
+              </div>
+            </InfoCard>
+          </div>
+        );
+
+      case "vaccination":
+        return (
+          <div className="grid grid-cols-1 gap-6">
+            <InfoCard title="Tiêm chủng" icon={FiShield}>
+              <div className="space-y-3">
+                <DataRow
+                  label="Tiêm chủng đầy đủ"
+                  value={healthProfile.hasCompleteVaccinations}
+                />
+                <EditableField
+                  label="Chi tiết tiêm chủng"
+                  field="vaccinationDetails"
+                  value={healthProfile.vaccinationDetails}
+                  type="textarea"
+                  placeholder="Mô tả chi tiết về tình trạng tiêm chủng..."
+                />
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                    Danh sách vaccine
+                  </label>
+                  <div className="p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                      {healthProfile.vaccinations ||
+                        "Chưa có thông tin chi tiết"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </InfoCard>
+          </div>
+        );
+
+      case "notes":
+        return (
+          <div className="grid grid-cols-1 gap-6">
+            <InfoCard title="Ghi chú khác" icon={FiFileText}>
+              <EditableField
+                label="Thông tin bổ sung"
+                field="otherInfo"
+                value={healthProfile.otherInfo}
+                type="textarea"
+                placeholder="Nhập thông tin bổ sung về sức khỏe học sinh..."
+              />
+            </InfoCard>
+
+            <InfoCard title="Thông tin hệ thống" icon={FiInfo}>
+              <div className="space-y-3">
+                <DataRow
+                  label="ID hồ sơ"
+                  value={healthProfile.healthProfileId}
+                />
+                <DataRow
+                  label="Ngày tạo"
+                  value={formatDate(healthProfile.lastUpdated)}
+                />
+                <DataRow
+                  label="Số lượng sự kiện sức khỏe"
+                  value={student?.healthEventCount || 0}
+                />
+                <DataRow
+                  label="Số lượng phụ huynh"
+                  value={student?.parentCount || 0}
+                />
+              </div>
+            </InfoCard>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="container mx-auto px-6 max-w-7xl">
+    <div className="container mx-auto px-4 max-w-7xl">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <button
           onClick={() => navigate("/nurse/health-records")}
           className="flex items-center gap-2 text-primary-600 hover:text-primary-700 mb-4 transition-colors"
@@ -294,23 +610,24 @@ const StudentHealthRecordDetail = () => {
           <span>Quay lại danh sách</span>
         </button>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
-              Hồ sơ sức khỏe - {student.name}
+            <h1 className="text-2xl lg:text-3xl font-bold text-neutral-800 dark:text-neutral-200">
+              Hồ sơ sức khỏe - {student?.firstName} {student?.lastName}
             </h1>
-            <p className="text-lg text-neutral-600 dark:text-neutral-400">
-              Thông tin chi tiết sức khỏe học sinh
+            <p className="text-neutral-600 dark:text-neutral-400 mt-1">
+              Mã học sinh: {student?.studentCode} • Lớp: {student?.className} •
+              Cập nhật: {formatDate(healthProfile.lastUpdated)}
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 bg-neutral-100 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors"
+            <div
+              className={`px-3 py-1 rounded-full text-sm font-medium ${getHealthStatusColor(
+                healthStatus
+              )}`}
             >
-              <FiPrinter className="w-4 h-4" />
-              In hồ sơ
-            </button>
+              {healthStatus}
+            </div>
             {isEditing ? (
               <div className="flex items-center gap-2">
                 <button
@@ -341,513 +658,33 @@ const StudentHealthRecordDetail = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Basic Info */}
-        <div className="lg:col-span-1 space-y-6">
-          {/* Student Info Card */}
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-16 w-16 rounded-full bg-primary-100 dark:bg-primary-900/20 flex items-center justify-center">
-                <FiUser className="h-8 w-8 text-primary-600 dark:text-primary-400" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200">
-                  {student.name}
-                </h3>
-                <p className="text-neutral-600 dark:text-neutral-400">
-                  {student.studentId} - {student.className}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <span className="text-neutral-600 dark:text-neutral-400">
-                  Giới tính:
-                </span>
-                <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                  {student.gender}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-600 dark:text-neutral-400">
-                  Ngày sinh:
-                </span>
-                <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                  {student.dateOfBirth}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-600 dark:text-neutral-400">
-                  Lớp:
-                </span>
-                <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                  {student.className}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-600 dark:text-neutral-400">
-                  Tình trạng:
-                </span>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${getHealthStatusColor(
-                    student.healthStatus
-                  )}`}
+      {/* Tabs */}
+      <div className="mb-6">
+        <div className="border-b border-neutral-200 dark:border-neutral-700">
+          <nav className="flex space-x-8 overflow-x-auto">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                    activeTab === tab.id
+                      ? "border-primary-500 text-primary-600 dark:text-primary-400"
+                      : "border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300"
+                  }`}
                 >
-                  {student.healthStatus}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Info Card */}
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-            <h4 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
-              Thông tin liên hệ
-            </h4>
-            <div className="space-y-3">
-              <div>
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                  Phụ huynh:
-                </span>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">
-                  {student.parentName}
-                </p>
-              </div>
-              <div>
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                  Điện thoại:
-                </span>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">
-                  {student.parentPhone}
-                </p>
-              </div>
-              <div>
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                  Email:
-                </span>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">
-                  {student.parentEmail}
-                </p>
-              </div>
-              <div>
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                  Địa chỉ:
-                </span>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">
-                  {student.address}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Physical Measurements Card */}
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-            <h4 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
-              Chỉ số sinh lý
-            </h4>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    {student.physicalMeasurements.height}
-                  </div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                    cm
-                  </div>
-                  <div className="text-xs text-neutral-500 dark:text-neutral-500">
-                    Chiều cao
-                  </div>
-                </div>
-                <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {student.physicalMeasurements.weight}
-                  </div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400">
-                    kg
-                  </div>
-                  <div className="text-xs text-neutral-500 dark:text-neutral-500">
-                    Cân nặng
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                    BMI:
-                  </span>
-                  <div className="text-right">
-                    <div className="font-bold text-purple-600 dark:text-purple-400">
-                      {student.physicalMeasurements.bmi}
-                    </div>
-                    <div className={`text-xs font-medium ${bmiStatus.color}`}>
-                      {bmiStatus.label}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-neutral-600 dark:text-neutral-400">
-                    Huyết áp:
-                  </span>
-                  <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                    {student.physicalMeasurements.bloodPressure} mmHg
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-neutral-600 dark:text-neutral-400">
-                    Nhịp tim:
-                  </span>
-                  <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                    {student.physicalMeasurements.heartRate} bpm
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-neutral-600 dark:text-neutral-400">
-                    Thị lực:
-                  </span>
-                  <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                    {student.physicalMeasurements.vision.status}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column - Detailed Info */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Medical Information */}
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-            <h4 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-6">
-              Thông tin y tế
-            </h4>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Allergies */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-                  Dị ứng
-                </label>
-                {isEditing ? (
-                  <div className="space-y-2">
-                    {editData.allergies.map((allergy, index) => (
-                      <div key={index} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={allergy}
-                          onChange={(e) =>
-                            handleArrayChange(
-                              "allergies",
-                              index,
-                              e.target.value
-                            )
-                          }
-                          className="flex-1 px-3 py-2 text-sm border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
-                        />
-                        <button
-                          onClick={() =>
-                            handleRemoveArrayItem("allergies", index)
-                          }
-                          className="px-2 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-                        >
-                          <FiX className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      onClick={() => handleAddArrayItem("allergies")}
-                      className="text-sm text-primary-600 hover:text-primary-700"
-                    >
-                      + Thêm dị ứng
-                    </button>
-                  </div>
-                ) : (
-                  <ul className="space-y-1">
-                    {student.allergies.map((allergy, index) => (
-                      <li
-                        key={index}
-                        className="text-sm text-neutral-800 dark:text-neutral-200"
-                      >
-                        • {allergy}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              {/* Medications */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-                  Thuốc đang dùng
-                </label>
-                {isEditing ? (
-                  <div className="space-y-2">
-                    {editData.medications.map((medication, index) => (
-                      <div key={index} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={medication}
-                          onChange={(e) =>
-                            handleArrayChange(
-                              "medications",
-                              index,
-                              e.target.value
-                            )
-                          }
-                          className="flex-1 px-3 py-2 text-sm border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
-                        />
-                        <button
-                          onClick={() =>
-                            handleRemoveArrayItem("medications", index)
-                          }
-                          className="px-2 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-                        >
-                          <FiX className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      onClick={() => handleAddArrayItem("medications")}
-                      className="text-sm text-primary-600 hover:text-primary-700"
-                    >
-                      + Thêm thuốc
-                    </button>
-                  </div>
-                ) : (
-                  <ul className="space-y-1">
-                    {student.medications.map((medication, index) => (
-                      <li
-                        key={index}
-                        className="text-sm text-neutral-800 dark:text-neutral-200"
-                      >
-                        • {medication}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              {/* Chronic Conditions */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-                  Bệnh mãn tính
-                </label>
-                {isEditing ? (
-                  <div className="space-y-2">
-                    {editData.chronicConditions.map((condition, index) => (
-                      <div key={index} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={condition}
-                          onChange={(e) =>
-                            handleArrayChange(
-                              "chronicConditions",
-                              index,
-                              e.target.value
-                            )
-                          }
-                          className="flex-1 px-3 py-2 text-sm border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
-                        />
-                        <button
-                          onClick={() =>
-                            handleRemoveArrayItem("chronicConditions", index)
-                          }
-                          className="px-2 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-                        >
-                          <FiX className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      onClick={() => handleAddArrayItem("chronicConditions")}
-                      className="text-sm text-primary-600 hover:text-primary-700"
-                    >
-                      + Thêm bệnh mãn tính
-                    </button>
-                  </div>
-                ) : (
-                  <ul className="space-y-1">
-                    {student.chronicConditions.map((condition, index) => (
-                      <li
-                        key={index}
-                        className="text-sm text-neutral-800 dark:text-neutral-200"
-                      >
-                        • {condition}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Vaccination History */}
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-            <h4 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-6">
-              Lịch sử tiêm chủng
-            </h4>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-neutral-200 dark:border-neutral-700">
-                    <th className="text-left py-3 text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                      Vaccine
-                    </th>
-                    <th className="text-left py-3 text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                      Ngày tiêm
-                    </th>
-                    <th className="text-left py-3 text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                      Mũi số
-                    </th>
-                    <th className="text-left py-3 text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                      Trạng thái
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {student.vaccinationHistory.map((vaccination, index) => (
-                    <tr
-                      key={index}
-                      className="border-b border-neutral-100 dark:border-neutral-700"
-                    >
-                      <td className="py-3 text-sm text-neutral-800 dark:text-neutral-200">
-                        {vaccination.vaccine}
-                      </td>
-                      <td className="py-3 text-sm text-neutral-600 dark:text-neutral-400">
-                        {vaccination.date}
-                      </td>
-                      <td className="py-3 text-sm text-neutral-600 dark:text-neutral-400">
-                        {vaccination.dose}
-                      </td>
-                      <td className="py-3">
-                        <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-                          {vaccination.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Health History */}
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-            <h4 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-6">
-              Lịch sử khám sức khỏe
-            </h4>
-            <div className="space-y-4">
-              {student.healthHistory.map((history, index) => (
-                <div
-                  key={index}
-                  className="p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h5 className="font-medium text-neutral-800 dark:text-neutral-200">
-                        {history.event}
-                      </h5>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                        {history.date} - Điều dưỡng: {history.nurseName}
-                      </p>
-                    </div>
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full ${getHealthStatusColor(
-                        history.result
-                      )}`}
-                    >
-                      {history.result}
-                    </span>
-                  </div>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {history.notes}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Notes and Recommendations */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Notes */}
-            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-              <h4 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
-                Ghi chú
-              </h4>
-              {isEditing ? (
-                <textarea
-                  value={editData.notes}
-                  onChange={(e) => handleInputChange("notes", e.target.value)}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 resize-none"
-                  placeholder="Nhập ghi chú..."
-                />
-              ) : (
-                <p className="text-neutral-700 dark:text-neutral-300 text-sm leading-relaxed">
-                  {student.notes}
-                </p>
-              )}
-            </div>
-
-            {/* Recommendations */}
-            <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-              <h4 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
-                Khuyến nghị
-              </h4>
-              {isEditing ? (
-                <div className="space-y-2">
-                  {editData.recommendations.map((recommendation, index) => (
-                    <div key={index} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={recommendation}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "recommendations",
-                            index,
-                            e.target.value
-                          )
-                        }
-                        className="flex-1 px-3 py-2 text-sm border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
-                      />
-                      <button
-                        onClick={() =>
-                          handleRemoveArrayItem("recommendations", index)
-                        }
-                        className="px-2 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-                      >
-                        <FiX className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => handleAddArrayItem("recommendations")}
-                    className="text-sm text-primary-600 hover:text-primary-700"
-                  >
-                    + Thêm khuyến nghị
-                  </button>
-                </div>
-              ) : (
-                <ul className="space-y-2">
-                  {student.recommendations.map((recommendation, index) => (
-                    <li
-                      key={index}
-                      className="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300"
-                    >
-                      <FiInfo className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                      {recommendation}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </nav>
         </div>
       </div>
+
+      {/* Tab Content */}
+      <div className="mb-8">{renderTabContent()}</div>
     </div>
   );
 };

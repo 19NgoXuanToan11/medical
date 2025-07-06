@@ -183,10 +183,10 @@ const HealthEventList = () => {
   return (
     <div className="container mx-auto px-6 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
+        <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200">
           Quản lý sự cố y tế
         </h1>
-        <p className="text-lg text-neutral-600 dark:text-neutral-400 mt-2">
+        <p className="text-base text-neutral-600 dark:text-neutral-400 mt-2">
           Theo dõi và xử lý các sự cố y tế trong trường học
         </p>
       </div>
@@ -196,7 +196,7 @@ const HealthEventList = () => {
         <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-base text-neutral-600 dark:text-neutral-300 mb-2">
+              <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-2">
                 Tổng số sự kiện hôm nay
               </p>
               <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">
@@ -212,7 +212,7 @@ const HealthEventList = () => {
         <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-base text-neutral-600 dark:text-neutral-300 mb-2">
+              <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-2">
                 Đang xử lý
               </p>
               <p className="text-4xl font-bold text-yellow-600 dark:text-yellow-400">
@@ -228,7 +228,7 @@ const HealthEventList = () => {
         <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-base text-neutral-600 dark:text-neutral-300 mb-2">
+              <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-2">
                 Đã xử lý
               </p>
               <p className="text-4xl font-bold text-green-600 dark:text-green-400">
@@ -244,7 +244,7 @@ const HealthEventList = () => {
         <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow-md border border-gray-200 dark:border-neutral-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-base text-neutral-600 dark:text-neutral-300 mb-2">
+              <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-2">
                 Bệnh tật/Chấn thương
               </p>
               <p className="text-4xl font-bold text-red-600 dark:text-red-400">

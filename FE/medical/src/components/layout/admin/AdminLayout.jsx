@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import ThemeToggle from "../../common/ThemeToggle";
+import NotificationDropdown from "../../common/NotificationDropdown";
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -150,9 +151,7 @@ const AdminLayout = () => {
           </div>
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <button className="p-1 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700">
-              <FiBell className="w-6 h-6" />
-            </button>
+            <NotificationDropdown userRole="admin" />
             <div className="h-8 w-8 rounded-full bg-primary-600 dark:bg-primary-500 flex items-center justify-center">
               <span className="text-white font-medium text-sm">AD</span>
             </div>

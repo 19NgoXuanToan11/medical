@@ -45,7 +45,7 @@ export const transformParentMedicationData = (requests) => {
     return {
       id: `MED${req.requestId}`,
       requestId: req.requestId,
-      studentName: req.studentCode, // Using studentCode as studentName for now
+      studentName: req.studentName || req.studentCode, // Use actual studentName from API
       studentCode: req.studentCode,
       class: req.className,
       medicationName: firstMedicine.medicineName || "N/A",

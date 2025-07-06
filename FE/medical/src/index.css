@@ -115,6 +115,41 @@ html {
   border-color: initial;
 }
 
+/* Line clamp utility for text truncation */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Table vertical alignment utility */
+.vertical-align-top {
+  vertical-align: top !important;
+}
+
+/* Improved table styling for better column alignment */
+table.border-collapse {
+  border-collapse: collapse;
+}
+
+table.border-collapse th,
+table.border-collapse td {
+  vertical-align: top;
+  border-collapse: collapse;
+}
+
+/* Ensure consistent table cell alignment */
+table th {
+  vertical-align: middle;
+  text-align: left;
+}
+
+table td {
+  vertical-align: top;
+  text-align: left;
+}
+
 /* Improved text contrast in dark mode - WCAG AA compliant */
 .dark .text-neutral-900 {
   color: #f8fafc !important;
@@ -232,12 +267,18 @@ html {
 }
 
 /* Enhanced button contrast with focus states */
-.dark button:not(.bg-primary-600):not(.bg-red-600):not(.bg-green-600):not(.bg-amber-600):not(.bg-blue-600) {
+.dark
+  button:not(.bg-primary-600):not(.bg-red-600):not(.bg-green-600):not(
+    .bg-amber-600
+  ):not(.bg-blue-600) {
   background-color: #374151;
   color: #f3f4f6;
 }
 
-.dark button:not(.bg-primary-600):not(.bg-red-600):not(.bg-green-600):not(.bg-amber-600):not(.bg-blue-600):hover {
+.dark
+  button:not(.bg-primary-600):not(.bg-red-600):not(.bg-green-600):not(
+    .bg-amber-600
+  ):not(.bg-blue-600):hover {
   background-color: #4b5563;
   color: #ffffff;
 }
@@ -500,7 +541,6 @@ button:focus {
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {

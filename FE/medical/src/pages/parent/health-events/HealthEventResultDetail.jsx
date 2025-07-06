@@ -415,16 +415,6 @@ const HealthEventResultDetail = () => {
                 </div>
               </div>
             ) : null}
-
-            <div className="flex justify-center mt-8">
-              <button
-                className="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors"
-                onClick={() => window.print()}
-              >
-                <FaFileDownload className="mr-2" />
-                In kết quả
-              </button>
-            </div>
           </div>
         </div>
       </div>

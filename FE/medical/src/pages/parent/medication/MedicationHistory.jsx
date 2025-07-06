@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { medicationService } from "../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import {
@@ -12,10 +12,15 @@ import { toast } from "react-toastify";
 
 const MedicationHistory = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [medications, setMedications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filterStatus, setFilterStatus] = useState("all");
+  // Initialize filterStatus based on URL parameter
+  const [filterStatus, setFilterStatus] = useState(() => {
+    const statusParam = searchParams.get("status");
+    return statusParam || "all";
+  });
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch medication data from API
@@ -51,6 +56,14 @@ const MedicationHistory = () => {
     fetchMedicationData();
   }, [user?.id]);
 
+  // Update filter status when URL parameter changes
+  useEffect(() => {
+    const statusParam = searchParams.get("status");
+    if (statusParam && statusParam !== filterStatus) {
+      setFilterStatus(statusParam);
+    }
+  }, [searchParams]);
+
   const filteredMedications = filterMedications(
     medications,
     filterStatus,
@@ -70,30 +83,12 @@ const MedicationHistory = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Quản lý yêu cầu thuốc
+              Lịch sử yêu cầu thuốc
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
               Theo dõi tình trạng và lịch sử uống thuốc của học sinh
             </p>
           </div>
-          <Link
-            to="/parent/medication/request"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-md shadow-sm transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Tạo yêu cầu mới
-          </Link>
         </div>
       </div>
 

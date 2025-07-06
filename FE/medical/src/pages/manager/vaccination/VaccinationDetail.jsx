@@ -18,7 +18,6 @@ import {
   FiEdit3,
   FiTrash2,
   FiDownload,
-  FiPrinter,
   FiShare2,
   FiActivity,
   FiTarget,
@@ -198,10 +197,6 @@ const VaccinationDetail = () => {
     alert("Đang xuất báo cáo...");
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const getStatusColor = (status) => {
     switch (status) {
       case "Hoàn thành":
@@ -308,13 +303,7 @@ const VaccinationDetail = () => {
                 <FiDownload className="h-4 w-4" />
                 <span>Xuất báo cáo</span>
               </button>
-              <button
-                onClick={handlePrint}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                <FiPrinter className="h-4 w-4" />
-                <span>In</span>
-              </button>
+
               <button
                 onClick={handleDelete}
                 className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"

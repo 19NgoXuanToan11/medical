@@ -12,7 +12,6 @@ import {
   FiRefreshCcw,
   FiEdit,
   FiEye,
-  FiPrinter,
   FiAlertCircle,
   FiUserCheck,
   FiUserX,
@@ -341,7 +340,7 @@ const HealthCheckLiveMonitoring = () => {
       {/* Stations Status */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow border mb-8">
         <div className="p-6 border-b">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
             Trạng thái các trạm kiểm tra
           </h3>
         </div>
@@ -379,7 +378,7 @@ const HealthCheckLiveMonitoring = () => {
       {/* Students List */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow border">
         <div className="p-6 border-b">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
             Danh sách học sinh
           </h3>
         </div>
@@ -501,13 +500,6 @@ const HealthCheckLiveMonitoring = () => {
           <FiEdit className="inline mr-1" />
           Quản lý chi tiết
         </Link>
-        <button
-          onClick={() => window.print()}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-        >
-          <FiPrinter className="inline mr-1" />
-          In báo cáo
-        </button>
       </div>
     </div>
   );
