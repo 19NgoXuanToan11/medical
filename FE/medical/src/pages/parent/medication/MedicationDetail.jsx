@@ -330,10 +330,6 @@ const MedicationDetail = () => {
                         {new Date(medication.startDate).toLocaleDateString(
                           "vi-VN"
                         )}{" "}
-                        -{" "}
-                        {new Date(medication.endDate).toLocaleDateString(
-                          "vi-VN"
-                        )}
                       </p>
                     </div>
                   </div>
