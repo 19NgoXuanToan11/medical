@@ -14,6 +14,7 @@ import {
   healthCheckItemsData,
   initialFormData,
 } from "../data/healthCheckData";
+import { createHealthCheck } from "../../../../utils/api/healthCheck/healthCheckService";
 
 export const useHealthCheckForm = () => {
   // State management
@@ -285,38 +286,57 @@ export const useHealthCheckForm = () => {
 
     setLoading(true);
     try {
-      // Mock API call - in real app, submit to backend
+      // Map form data to complete API schema
       const submissionData = {
-        ...formData,
-        type: "health_check",
-        totalStudents,
-        resourceRequirements: resourceReqs,
-        status: formData.requiresApproval ? "pending_approval" : "scheduled",
-        createdBy: "current_nurse_id",
-        createdAt: new Date().toISOString(),
-        workflow: {
-          requiresApproval: formData.requiresApproval,
-          approvalLevel: formData.approvalLevel,
-          urgencyLevel: formData.urgencyLevel,
-          estimatedCost: totalStudents * (formData.costPerStudent || 0),
-        },
+        formId: formData.formId || 0,
+        title: formData.title,
+        scheduledDate: formData.scheduledDate,
+        startTime: formData.scheduledTime,
+        estimatedDuration: formData.estimatedDuration,
+        description: formData.description,
+        location: formData.location,
+        studentId: formData.studentId || 0,
+        parentId: formData.parentId || 0,
+        createdDate: new Date().toISOString(),
+        consentStatus: formData.consentStatus || "pending",
+        consentDate: formData.consentDate || null,
+        confirmStatus: formData.confirmStatus || "pending",
+        confirmedBy: formData.confirmedBy || 0,
+        confirmedDate: formData.confirmedDate || null,
+        className: formData.className || "",
+        gradeIds: JSON.stringify(formData.targetGrades),
+        totalStudents: totalStudents,
+        notifyParents: formData.notifyParents,
+        autoAdvance: formData.autoAdvance,
+        saveResults: formData.saveResults,
+        generateReport: formData.generateReport,
+        requireParentConfirmation: formData.requireParentConfirmation,
+        selectedStations: JSON.stringify(formData.checkItems),
+        staffAssigned: formData.staffAssigned || "",
+        status: "Scheduled",
+        estimatedEndTime: formData.endTime || "",
+        student: formData.student || null,
+        parent: formData.parent || null,
+        confirmedByStaff: formData.confirmedByStaff || null,
+        results: formData.results || [],
+        grades: formData.targetGrades || [],
       };
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
+      console.log("Submitting health check data:", submissionData);
+      const response = await createHealthCheck(submissionData);
+      console.log("API response:", response);
       // Clear draft after successful submission
       localStorage.removeItem("healthcheck_draft");
-
       return {
         success: true,
         message: "Kế hoạch khám sức khỏe đã được gửi thành công!",
-        data: submissionData,
+        data: response,
       };
     } catch (error) {
+      console.error("Error creating health check schedule:", error);
       return {
         success: false,
-        message: "Có lỗi xảy ra khi gửi kế hoạch. Vui lòng thử lại.",
+        message:
+          error.message || "Có lỗi xảy ra khi gửi kế hoạch. Vui lòng thử lại.",
       };
     } finally {
       setLoading(false);

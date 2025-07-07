@@ -136,14 +136,6 @@ const UserPermissions = () => {
         },
         {
           id: 15,
-          module: "reports",
-          name: "Xuất báo cáo",
-          code: "reports.export",
-          description: "Quyền xuất báo cáo ra các định dạng khác nhau",
-          roles: ["Admin"],
-        },
-        {
-          id: 16,
           module: "settings",
           name: "Xem cài đặt",
           code: "settings.view",
@@ -151,7 +143,7 @@ const UserPermissions = () => {
           roles: ["Admin"],
         },
         {
-          id: 17,
+          id: 16,
           module: "settings",
           name: "Chỉnh sửa cài đặt",
           code: "settings.edit",

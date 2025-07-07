@@ -122,46 +122,6 @@ const PreviewHealthStep = ({
                 {formData.location}
               </p>
             </div>
-            <div>
-              <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                Mức độ ưu tiên
-              </h4>
-              <span
-                className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                  formData.priority === "high"
-                    ? "bg-error-100 dark:bg-error-900/20 text-error-800 dark:text-error-300"
-                    : formData.priority === "medium"
-                    ? "bg-warning-100 dark:bg-warning-900/20 text-warning-800 dark:text-warning-300"
-                    : "bg-success-100 dark:bg-success-900/20 text-success-800 dark:text-success-300"
-                }`}
-              >
-                {formData.priority === "high"
-                  ? "Cao"
-                  : formData.priority === "medium"
-                  ? "Trung bình"
-                  : "Thấp"}
-              </span>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                Mức độ cấp bách
-              </h4>
-              <span
-                className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                  formData.urgency === "emergency"
-                    ? "bg-error-100 dark:bg-error-900/20 text-error-800 dark:text-error-300"
-                    : formData.urgency === "urgent"
-                    ? "bg-warning-100 dark:bg-warning-900/20 text-warning-800 dark:text-warning-300"
-                    : "bg-info-100 dark:bg-info-900/20 text-info-800 dark:text-info-300"
-                }`}
-              >
-                {formData.urgency === "emergency"
-                  ? "Khẩn cấp"
-                  : formData.urgency === "urgent"
-                  ? "Gấp"
-                  : "Bình thường"}
-              </span>
-            </div>
           </div>
           {formData.description && (
             <div className="mt-6">

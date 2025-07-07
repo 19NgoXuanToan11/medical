@@ -85,7 +85,10 @@ const TargetLogisticsHealthStep = ({
                 Thời gian dự kiến
               </p>
               <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {resourceReqs?.totalTime ? Math.ceil(resourceReqs.totalTime / 60) : 0}h
+                {resourceReqs?.totalTime
+                  ? Math.ceil(resourceReqs.totalTime / 60)
+                  : 0}
+                h
               </p>
             </div>
           </div>

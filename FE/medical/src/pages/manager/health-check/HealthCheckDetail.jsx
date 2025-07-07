@@ -287,10 +287,6 @@ const HealthCheckDetail = () => {
                 <FiEdit3 className="h-4 w-4" />
                 <span>Chỉnh sửa</span>
               </button>
-              <button className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                <FiDownload className="h-4 w-4" />
-                <span>Xuất báo cáo</span>
-              </button>
 
               <button className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                 <FiTrash2 className="h-4 w-4" />

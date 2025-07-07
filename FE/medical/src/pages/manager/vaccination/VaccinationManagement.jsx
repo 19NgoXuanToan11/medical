@@ -384,7 +384,7 @@ const VaccinationManagement = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Đã lên lịch
+                Đang chờ duyệt
               </p>
               <p className="text-2xl font-bold mt-1 text-orange-600 dark:text-orange-400">
                 {stats.scheduled}

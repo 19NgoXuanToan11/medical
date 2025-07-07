@@ -203,7 +203,7 @@ const HealthServices = () => {
       if (consentStatus === "pending") return "Chờ xác nhận";
       if (consentStatus === "confirmed") return "Đã xác nhận";
     }
-    return "Đã lên lịch";
+    return "Đang chờ duyệt";
   };
 
   const handleConsent = (serviceId, action) => {

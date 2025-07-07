@@ -136,35 +136,64 @@ export const healthCheckItemsData = [
 ];
 
 export const initialFormData = {
-  // Basic Information
+  // Core Form Fields (mapped to API)
+  formId: 0,
   title: "",
-  description: "",
   scheduledDate: "",
-  scheduledTime: "",
-  endTime: "",
+  startTime: "",
+  estimatedDuration: 60,
+  description: "",
   location: "Phòng y tế trường",
-  targetGrades: [],
+  studentId: 0,
+  parentId: 0,
+  createdDate: "",
+  consentStatus: "pending",
+  consentDate: "",
+  confirmStatus: "pending",
+  confirmedBy: 0,
+  confirmedDate: "",
+  className: "",
+  gradeIds: "",
+  totalStudents: 0,
+  notifyParents: true,
+  autoAdvance: true,
+  saveResults: true,
+  generateReport: true,
+  requireParentConfirmation: true,
+  selectedStations: "",
+  staffAssigned: "",
+  status: "draft",
+  estimatedEndTime: "",
 
-  // Workflow & Approval
+  // UI-specific fields (will be mapped to API fields)
+  targetGrades: [], // Maps to gradeIds (JSON string)
+  checkItems: [], // Maps to selectedStations (JSON string)
+  scheduledTime: "", // Maps to startTime
+  endTime: "", // Maps to estimatedEndTime
+
+  // Student Selection (for single student forms)
+  selectedStudent: null,
+  selectedParent: null,
+
+  // Additional fields for form management
   requiresConsent: true,
   requiresApproval: false,
   approvalLevel: "nurse_supervisor",
   urgencyLevel: "normal",
-
-  // Logistics
   maxStudentsPerSession: 50,
-  estimatedDuration: 60,
   reminderDaysBefore: 7,
   costPerStudent: 0,
-
-  // Communication
   parentNotificationMessage: "",
   notes: "",
-
-  // Health check specific fields
-  checkItems: [],
   checkDetails: {},
   followUpRequired: false,
   referralCriteria: "",
   equipmentNeeded: [],
+
+  // Nested objects support (will be populated from API responses)
+  student: null,
+  parent: null,
+  confirmedByStaff: null,
+  results: [],
+  grades: [],
 };
