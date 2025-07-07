@@ -234,7 +234,7 @@ const VaccinationPage = () => {
                       Tiêm chủng sắp tới
                     </h2>
                     <p className="text-gray-600">
-                      Các mũi tiêm đã lên lịch cho con bạn tại trường
+                      Các mũi tiêm đang chờ duyệt cho con bạn tại trường
                     </p>
                   </div>
                   <div className="space-y-4">

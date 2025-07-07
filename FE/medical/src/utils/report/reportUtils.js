@@ -74,7 +74,7 @@ export const generatePdfReport = (
   // Add date and filters information
   doc.setFontSize(10);
   doc.text(
-    `Ngày xuất báo cáo: ${new Date().toLocaleDateString("vi-VN")}`,
+    `Ngày tạo báo cáo: ${new Date().toLocaleDateString("vi-VN")}`,
     14,
     30
   );
@@ -191,11 +191,6 @@ export const generateTransactionReport = (
 
   // Add date and filters information
   doc.setFontSize(10);
-  doc.text(
-    `Ngày xuất báo cáo: ${new Date().toLocaleDateString("vi-VN")}`,
-    14,
-    30
-  );
 
   // Add filters info if any
   let filterText = "";

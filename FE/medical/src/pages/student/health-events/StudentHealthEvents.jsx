@@ -227,7 +227,9 @@ const StudentHealthEvents = () => {
           <p className="text-xl font-bold text-neutral-800">
             {upcomingEvents.length}
           </p>
-          <p className="text-sm text-neutral-500 mt-1">sự kiện đã lên lịch</p>
+          <p className="text-sm text-neutral-500 mt-1">
+            sự kiện đang chờ duyệt
+          </p>
         </div>
 
         <div className="bg-neutral-50 border border-neutral-100 rounded-lg p-4">

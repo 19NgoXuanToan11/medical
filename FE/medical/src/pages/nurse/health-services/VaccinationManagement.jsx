@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  FiPlus,
-  FiSearch,
-  FiFilter,
   FiCalendar,
   FiUsers,
   FiCheckCircle,
@@ -12,18 +9,14 @@ import {
   FiEye,
   FiEdit,
   FiPlay,
-  FiPause,
-  FiUser,
   FiMapPin,
   FiInfo,
-  FiAlertCircle,
 } from "react-icons/fi";
 
-const VaccinationManagement = () => {
-  const [activeSubTab, setActiveSubTab] = useState("scheduled");
+const VaccinationManagement = ({ searchTerm: parentSearchTerm = "" }) => {
+  const [activeTab, setActiveTab] = useState("scheduled");
   const [vaccinations, setVaccinations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
 
   // Load vaccination data
   useEffect(() => {
@@ -93,50 +86,37 @@ const VaccinationManagement = () => {
   }, []);
 
   const getStatusBadge = (status) => {
-    const baseClasses =
-      "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium";
-
-    switch (status) {
-      case "scheduled":
-        return `${baseClasses} bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300`;
-      case "active":
-        return `${baseClasses} bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300`;
-      case "completed":
-        return `${baseClasses} bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300`;
-      case "cancelled":
-        return `${baseClasses} bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300`;
-      default:
-        return `${baseClasses} bg-neutral-100 text-neutral-800 dark:bg-neutral-700 dark:text-neutral-300`;
-    }
+    const badges = {
+      scheduled:
+        "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+      active:
+        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+      completed:
+        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+    };
+    return `px-2 py-1 rounded-full text-xs font-medium ${
+      badges[status] || badges.scheduled
+    }`;
   };
 
   const getStatusLabel = (status) => {
-    switch (status) {
-      case "scheduled":
-        return "Đã lên lịch";
-      case "active":
-        return "Đang thực hiện";
-      case "completed":
-        return "Đã hoàn thành";
-      case "cancelled":
-        return "Đã hủy";
-      default:
-        return status;
-    }
+    const labels = {
+      scheduled: "Đang chờ duyệt",
+      active: "Đang thực hiện",
+      completed: "Đã hoàn thành",
+      cancelled: "Đã hủy",
+    };
+    return labels[status] || status;
   };
 
   const filteredVaccinations = vaccinations.filter((vaccination) => {
-    // Filter by status (sub tab)
-    if (activeSubTab === "scheduled" && vaccination.status !== "scheduled")
-      return false;
-    if (activeSubTab === "active" && vaccination.status !== "active")
-      return false;
-    if (activeSubTab === "completed" && vaccination.status !== "completed")
-      return false;
+    // Filter by status
+    if (activeTab !== "all" && vaccination.status !== activeTab) return false;
 
     // Filter by search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+    if (parentSearchTerm) {
+      const term = parentSearchTerm.toLowerCase();
       return (
         vaccination.title.toLowerCase().includes(term) ||
         vaccination.description.toLowerCase().includes(term) ||
@@ -148,42 +128,14 @@ const VaccinationManagement = () => {
   });
 
   // Calculate statistics
-  const getStats = () => {
-    const scheduledCount = vaccinations.filter(
-      (v) => v.status === "scheduled"
-    ).length;
-    const activeCount = vaccinations.filter(
-      (v) => v.status === "active"
-    ).length;
-    const completedThisMonth = vaccinations.filter((v) => {
-      if (v.status !== "completed") return false;
-      const completedDate = new Date(v.completedDate || v.scheduledDate);
-      const now = new Date();
-      return (
-        completedDate.getMonth() === now.getMonth() &&
-        completedDate.getFullYear() === now.getFullYear()
-      );
-    }).length;
-
-    const totalStudents = vaccinations.reduce((sum, vaccination) => {
-      if (
-        vaccination.status === "scheduled" ||
-        vaccination.status === "active"
-      ) {
-        return sum + vaccination.totalStudents;
-      }
-      return sum;
-    }, 0);
-
-    return {
-      scheduled: scheduledCount,
-      active: activeCount,
-      completedThisMonth,
-      totalStudents,
-    };
+  const stats = {
+    scheduled: vaccinations.filter((v) => v.status === "scheduled").length,
+    active: vaccinations.filter((v) => v.status === "active").length,
+    completed: vaccinations.filter((v) => v.status === "completed").length,
+    totalStudents: vaccinations
+      .filter((v) => v.status === "scheduled" || v.status === "active")
+      .reduce((sum, v) => sum + v.totalStudents, 0),
   };
-
-  const stats = getStats();
 
   const handleStartVaccination = (vaccinationId) => {
     setVaccinations((prev) =>
@@ -216,178 +168,172 @@ const VaccinationManagement = () => {
   const renderVaccinationCard = (vaccination) => (
     <div
       key={vaccination.id}
-      className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-600 overflow-hidden hover:shadow-xl transition-all duration-300"
+      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
     >
-      <div className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400">
-              <FiShield className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                Tiêm chủng
-              </span>
-              <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mt-1">
-                {vaccination.title}
-              </h3>
-            </div>
+      {/* Header */}
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+            <FiShield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
-          <span className={getStatusBadge(vaccination.status)}>
-            {getStatusLabel(vaccination.status)}
+          <div>
+            <h3 className="font-medium text-gray-900 dark:text-white">
+              {vaccination.title}
+            </h3>
+            <span className={getStatusBadge(vaccination.status)}>
+              {getStatusLabel(vaccination.status)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Basic Info */}
+      <div className="grid grid-cols-2 gap-3 mb-3 text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex items-center">
+          <FiCalendar className="w-4 h-4 mr-2" />
+          <span>{vaccination.scheduledDate}</span>
+        </div>
+        <div className="flex items-center">
+          <FiClock className="w-4 h-4 mr-2" />
+          <span>{vaccination.scheduledTime || vaccination.startTime}</span>
+        </div>
+        <div className="flex items-center">
+          <FiUsers className="w-4 h-4 mr-2" />
+          <span>Lớp: {vaccination.grades.join(", ")}</span>
+        </div>
+        <div className="flex items-center">
+          <FiMapPin className="w-4 h-4 mr-2" />
+          <span>{vaccination.location}</span>
+        </div>
+      </div>
+
+      {/* Description */}
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+        {vaccination.description}
+      </p>
+
+      {/* Vaccine Information */}
+      {vaccination.vaccineInfo && (
+        <div className="mb-3">
+          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+            Vắc-xin:{" "}
+          </span>
+          <span className="text-xs text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
+            {vaccination.vaccineInfo}
           </span>
         </div>
+      )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div className="flex items-center text-neutral-600 dark:text-neutral-400">
-            <FiCalendar className="w-4 h-4 mr-2" />
-            <span>{vaccination.scheduledDate}</span>
+      {/* Progress */}
+      {vaccination.status === "scheduled" && (
+        <div className="mb-3">
+          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+            <span>Phụ huynh xác nhận</span>
+            <span>
+              {vaccination.confirmedParents}/{vaccination.totalStudents}
+            </span>
           </div>
-          <div className="flex items-center text-neutral-600 dark:text-neutral-400">
-            <FiClock className="w-4 h-4 mr-2" />
-            <span>{vaccination.scheduledTime || vaccination.startTime}</span>
-          </div>
-          <div className="flex items-center text-neutral-600 dark:text-neutral-400">
-            <FiUsers className="w-4 h-4 mr-2" />
-            <span>Lớp: {vaccination.grades.join(", ")}</span>
-          </div>
-          <div className="flex items-center text-neutral-600 dark:text-neutral-400">
-            <FiMapPin className="w-4 h-4 mr-2" />
-            <span>{vaccination.location}</span>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div
+              className="bg-blue-600 h-2 rounded-full"
+              style={{
+                width: `${Math.round(
+                  (vaccination.confirmedParents / vaccination.totalStudents) *
+                    100
+                )}%`,
+              }}
+            />
           </div>
         </div>
+      )}
 
-        <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-4 mb-4">
-          <p className="text-sm text-neutral-600 dark:text-neutral-300">
-            {vaccination.description}
-          </p>
+      {vaccination.status === "active" && (
+        <div className="mb-3">
+          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+            <span>Đã hoàn thành</span>
+            <span>
+              {vaccination.completedStudents}/{vaccination.totalStudents}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div
+              className="bg-yellow-600 h-2 rounded-full"
+              style={{
+                width: `${Math.round(
+                  (vaccination.completedStudents / vaccination.totalStudents) *
+                    100
+                )}%`,
+              }}
+            />
+          </div>
         </div>
+      )}
 
-        {/* Vaccine information */}
-        {vaccination.vaccineInfo && (
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
-              Thông tin vắc-xin:
-            </h4>
-            <p className="text-sm text-neutral-600 dark:text-neutral-300 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-              {vaccination.vaccineInfo}
+      {vaccination.status === "completed" && (
+        <div className="mb-3">
+          <div className="flex justify-between text-xs mb-1">
+            <span className="text-gray-600 dark:text-gray-400">Kết quả</span>
+            <span className="text-green-600 dark:text-green-400 font-medium">
+              {vaccination.vaccinatedStudents}/{vaccination.totalStudents}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Notes */}
+      {vaccination.notes && (
+        <div className="mb-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
+          <div className="flex items-start">
+            <FiInfo className="w-3 h-3 mr-2 mt-0.5 text-yellow-600 dark:text-yellow-400" />
+            <p className="text-xs text-yellow-800 dark:text-yellow-200">
+              {vaccination.notes}
             </p>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Progress information */}
-        {vaccination.status === "scheduled" && (
-          <div className="mb-4">
-            <div className="flex justify-between text-sm text-neutral-600 dark:text-neutral-400 mb-2">
-              <span>Phụ huynh đã xác nhận</span>
-              <span>
-                {vaccination.confirmedParents}/{vaccination.totalStudents}
-              </span>
-            </div>
-            <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2">
-              <div
-                className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${Math.round(
-                    (vaccination.confirmedParents / vaccination.totalStudents) *
-                      100
-                  )}%`,
-                }}
-              ></div>
-            </div>
-          </div>
-        )}
-
-        {vaccination.status === "active" && (
-          <div className="mb-4">
-            <div className="flex justify-between text-sm text-neutral-600 dark:text-neutral-400 mb-2">
-              <span>Đã hoàn thành</span>
-              <span>
-                {vaccination.completedStudents}/{vaccination.totalStudents}
-              </span>
-            </div>
-            <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2">
-              <div
-                className="bg-amber-600 dark:bg-amber-500 h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${Math.round(
-                    (vaccination.completedStudents /
-                      vaccination.totalStudents) *
-                      100
-                  )}%`,
-                }}
-              ></div>
-            </div>
-          </div>
-        )}
-
-        {vaccination.status === "completed" && (
-          <div className="mb-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-neutral-600 dark:text-neutral-400">
-                Kết quả hoàn thành
-              </span>
-              <span className="text-green-600 dark:text-green-400 font-semibold">
-                {vaccination.vaccinatedStudents}/{vaccination.totalStudents}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {vaccination.notes && (
-          <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <div className="flex items-start">
-              <FiInfo className="w-4 h-4 mr-2 mt-0.5 text-yellow-600 dark:text-yellow-400" />
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                {vaccination.notes}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Action buttons */}
-        <div className="flex justify-between items-center pt-4 border-t border-neutral-200 dark:border-neutral-600">
-          <div className="flex space-x-3">
+      {/* Actions */}
+      <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex space-x-2">
+          <Link
+            to={`/nurse/health-services/${
+              vaccination.formId || vaccination.id
+            }`}
+            className="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
+          >
+            <FiEye className="w-3 h-3 mr-1 inline" />
+            Chi tiết
+          </Link>
+          {vaccination.status === "scheduled" && (
             <Link
-              to={`/nurse/health-services/${vaccination.id}`}
-              className="inline-flex items-center px-3 py-2 text-sm bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600 transition-colors duration-200"
+              to={`/nurse/health-services/${vaccination.id}/edit`}
+              className="text-xs px-3 py-1 border border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded transition-colors"
             >
-              <FiEye className="w-4 h-4 mr-1" />
-              Chi tiết
+              <FiEdit className="w-3 h-3 mr-1 inline" />
+              Sửa
             </Link>
+          )}
+        </div>
 
-            {vaccination.status === "scheduled" && (
-              <Link
-                to={`/nurse/health-services/${vaccination.id}/edit`}
-                className="inline-flex items-center px-3 py-2 text-sm border border-primary-300 text-primary-700 rounded-lg hover:bg-primary-50 dark:border-primary-600 dark:text-primary-400 dark:hover:bg-primary-900/20 transition-colors duration-200"
-              >
-                <FiEdit className="w-4 h-4 mr-1" />
-                Chỉnh sửa
-              </Link>
-            )}
-          </div>
-
-          <div className="flex space-x-2">
-            {vaccination.status === "scheduled" && (
-              <button
-                onClick={() => handleStartVaccination(vaccination.id)}
-                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200"
-              >
-                <FiPlay className="w-4 h-4 mr-1" />
-                Bắt đầu
-              </button>
-            )}
-
-            {vaccination.status === "active" && (
-              <button
-                onClick={() => handleCompleteVaccination(vaccination.id)}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
-              >
-                <FiCheckCircle className="w-4 h-4 mr-1" />
-                Hoàn thành
-              </button>
-            )}
-          </div>
+        <div className="flex space-x-2">
+          {vaccination.status === "scheduled" && (
+            <button
+              onClick={() => handleStartVaccination(vaccination.id)}
+              className="text-xs px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
+            >
+              <FiPlay className="w-3 h-3 mr-1 inline" />
+              Bắt đầu
+            </button>
+          )}
+          {vaccination.status === "active" && (
+            <button
+              onClick={() => handleCompleteVaccination(vaccination.id)}
+              className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+            >
+              <FiCheckCircle className="w-3 h-3 mr-1 inline" />
+              Hoàn thành
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -395,71 +341,34 @@ const VaccinationManagement = () => {
 
   const renderEmptyState = () => (
     <div className="text-center py-12">
-      <div className="mx-auto h-12 w-12 text-neutral-400 dark:text-neutral-500 mb-4">
-        {activeSubTab === "scheduled" && <FiCalendar className="w-12 h-12" />}
-        {activeSubTab === "active" && <FiClock className="w-12 h-12" />}
-        {activeSubTab === "completed" && (
-          <FiCheckCircle className="w-12 h-12" />
-        )}
-      </div>
-      <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
-        {activeSubTab === "scheduled" &&
-          "Không có tiêm chủng nào được lên lịch"}
-        {activeSubTab === "active" && "Không có tiêm chủng nào đang thực hiện"}
-        {activeSubTab === "completed" && "Chưa có tiêm chủng nào hoàn thành"}
+      <FiShield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        Chưa có lịch tiêm chủng
       </h3>
-      <p className="text-neutral-500 dark:text-neutral-400 mb-6">
-        {activeSubTab === "scheduled" && "Tạo lịch tiêm chủng mới để bắt đầu"}
-        {activeSubTab === "active" &&
-          "Các tiêm chủng đang thực hiện sẽ hiển thị ở đây"}
-        {activeSubTab === "completed" &&
-          "Lịch sử các tiêm chủng đã hoàn thành sẽ hiển thị ở đây"}
+      <p className="text-gray-600 dark:text-gray-400 mb-4">
+        Tạo lịch tiêm chủng cho học sinh
       </p>
-      {activeSubTab === "scheduled" && (
-        <Link
-          to="/nurse/health-services/create/vaccination"
-          className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200"
-        >
-          <FiPlus className="w-4 h-4 mr-2" />
-          Tạo lịch tiêm chủng mới
-        </Link>
-      )}
+      <Link
+        to="/nurse/health-services/create/vaccination"
+        className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+      >
+        <FiShield className="w-4 h-4 mr-2" />
+        Tạo lịch tiêm mới
+      </Link>
     </div>
   );
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold text-neutral-800 dark:text-neutral-200">
-              Quản lý Tiêm chủng
-            </h1>
-            <p className="text-neutral-600 dark:text-neutral-400 mt-1">
-              Quản lý lịch tiêm chủng và theo dõi tiến độ tiêm phòng của học
-              sinh
-            </p>
-          </div>
-          <Link
-            to="/nurse/health-services/create/vaccination"
-            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 transition-colors duration-200"
-          >
-            <FiPlus className="w-4 h-4 mr-2" />
-            Tạo lịch tiêm chủng mới
-          </Link>
-        </div>
-      </div>
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+    <div className="space-y-6">
+      {/* Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
-                Đã lên lịch
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Chờ duyệt
               </p>
-              <p className="text-xl font-bold text-blue-900 dark:text-blue-100">
+              <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
                 {stats.scheduled}
               </p>
             </div>
@@ -467,128 +376,90 @@ const VaccinationManagement = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 rounded-xl p-6 border border-amber-200 dark:border-amber-800">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-600 dark:text-amber-400 text-sm font-medium">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Đang thực hiện
               </p>
-              <p className="text-xl font-bold text-amber-900 dark:text-amber-100">
+              <p className="text-2xl font-semibold text-yellow-600 dark:text-yellow-400">
                 {stats.active}
               </p>
             </div>
-            <FiClock className="w-8 h-8 text-amber-500 dark:text-amber-400" />
+            <FiClock className="w-8 h-8 text-yellow-500 dark:text-yellow-400" />
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6 border border-green-200 dark:border-green-800">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-green-600 dark:text-green-400 text-sm font-medium">
-                Hoàn thành tháng này
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Hoàn thành
               </p>
-              <p className="text-xl font-bold text-green-900 dark:text-green-100">
-                {stats.completedThisMonth}
+              <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
+                {stats.completed}
               </p>
             </div>
             <FiCheckCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-purple-600 dark:text-purple-400 text-sm font-medium">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Tổng học sinh
               </p>
-              <p className="text-xl font-bold text-purple-900 dark:text-purple-100">
+              <p className="text-2xl font-semibold text-gray-900 dark:text-white">
                 {stats.totalStudents}
               </p>
             </div>
-            <FiUsers className="w-8 h-8 text-purple-500 dark:text-purple-400" />
+            <FiUsers className="w-8 h-8 text-gray-500 dark:text-gray-400" />
           </div>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-neutral-200 dark:border-neutral-700 p-6 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" />
-              <input
-                type="text"
-                placeholder="Tìm kiếm tiêm chủng..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100"
-              />
-            </div>
-          </div>
-        </div>
+      {/* Tabs */}
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <nav className="flex space-x-8">
+          {[
+            { id: "scheduled", label: "Chờ duyệt", count: stats.scheduled },
+            { id: "active", label: "Đang thực hiện", count: stats.active },
+            { id: "completed", label: "Đã hoàn thành", count: stats.completed },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center py-2 px-1 border-b-2 text-sm font-medium transition-colors ${
+                activeTab === tab.id
+                  ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                  : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              }`}
+            >
+              {tab.label}
+              {tab.count > 0 && (
+                <span className="ml-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 text-xs rounded-full">
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
       </div>
 
-      {/* Sub Status Tabs */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-neutral-200 dark:border-neutral-700 overflow-hidden">
-        <div className="border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-700/50">
-          <nav className="flex">
-            {[
-              {
-                id: "scheduled",
-                label: "Đã lên lịch",
-                icon: FiCalendar,
-                count: vaccinations.filter((v) => v.status === "scheduled")
-                  .length,
-              },
-              {
-                id: "active",
-                label: "Đang thực hiện",
-                icon: FiClock,
-                count: vaccinations.filter((v) => v.status === "active").length,
-              },
-              {
-                id: "completed",
-                label: "Đã hoàn thành",
-                icon: FiCheckCircle,
-                count: vaccinations.filter((v) => v.status === "completed")
-                  .length,
-              },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveSubTab(tab.id)}
-                className={`relative flex items-center px-4 py-3 text-sm font-medium transition-colors duration-200 ${
-                  activeSubTab === tab.id
-                    ? "bg-white dark:bg-neutral-800 border-b-2 border-primary-500 text-primary-700 dark:text-primary-400 shadow-sm"
-                    : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-white/50 dark:hover:bg-neutral-600/50"
-                }`}
-              >
-                <tab.icon className="w-4 h-4 mr-2" />
-                {tab.label}
-                {tab.count > 0 && (
-                  <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium leading-4 bg-primary-100 text-primary-800 rounded-full dark:bg-primary-900 dark:text-primary-200">
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Tab Content */}
-        <div className="p-6">
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-            </div>
-          ) : filteredVaccinations.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredVaccinations.map(renderVaccinationCard)}
-            </div>
-          ) : (
-            renderEmptyState()
-          )}
-        </div>
+      {/* Content */}
+      <div>
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500" />
+          </div>
+        ) : filteredVaccinations.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {filteredVaccinations.map(renderVaccinationCard)}
+          </div>
+        ) : (
+          renderEmptyState()
+        )}
       </div>
     </div>
   );
