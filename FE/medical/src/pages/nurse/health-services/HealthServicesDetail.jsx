@@ -80,7 +80,8 @@ const HealthServicesDetail = () => {
     saveResults: true,
     generateReport: true,
     requireParentConfirmation: true,
-    selectedStations: '["height", "weight", "vision", "hearing", "dental"]',
+    selectedStations:
+      '["height_weight", "vision", "hearing", "dental", "cardiovascular"]',
     staffAssigned: "",
     status: "Đang chờ duyệt",
     estimatedEndTime: "09:59:00",
@@ -98,22 +99,46 @@ const HealthServicesDetail = () => {
     switch (status) {
       case "Đang chờ duyệt":
       case "Pending":
+      case "scheduled":
         return `${baseClasses} bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300`;
       case "Approved":
       case "Đã duyệt":
         return `${baseClasses} bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300`;
       case "Active":
       case "Đang thực hiện":
+      case "active":
         return `${baseClasses} bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300`;
       case "Completed":
       case "Hoàn thành":
+      case "completed":
         return `${baseClasses} bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300`;
       case "Cancelled":
       case "Đã hủy":
+      case "cancelled":
         return `${baseClasses} bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300`;
     }
+  };
+
+  const getStatusText = (status) => {
+    const statusMap = {
+      Pending: "Đang chờ duyệt",
+      scheduled: "Đã lên lịch",
+      Approved: "Đã duyệt",
+      Active: "Đang thực hiện",
+      active: "Đang thực hiện",
+      Completed: "Hoàn thành",
+      completed: "Hoàn thành",
+      Cancelled: "Đã hủy",
+      cancelled: "Đã hủy",
+      "Đang chờ duyệt": "Đang chờ duyệt",
+      "Đã duyệt": "Đã duyệt",
+      "Đang thực hiện": "Đang thực hiện",
+      "Hoàn thành": "Hoàn thành",
+      "Đã hủy": "Đã hủy",
+    };
+    return statusMap[status] || status || "Chưa xác định";
   };
 
   const parseJsonField = (field) => {
@@ -122,6 +147,85 @@ const HealthServicesDetail = () => {
     } catch (error) {
       return [];
     }
+  };
+
+  const formatGradesList = (gradeIds, grades) => {
+    // Try to use grades array first, then parse gradeIds
+    let gradesList = [];
+
+    if (grades && Array.isArray(grades) && grades.length > 0) {
+      gradesList = grades;
+    } else if (gradeIds) {
+      gradesList = parseJsonField(gradeIds);
+    }
+
+    if (gradesList.length === 0) {
+      return "Tất cả";
+    }
+
+    // Format grade names to be more readable
+    return gradesList
+      .map((grade) => {
+        // If grade is just a number or letter combination, format it
+        if (typeof grade === "string" && grade.match(/^[0-9]+[A-Z]?$/)) {
+          return `Lớp ${grade}`;
+        }
+        return grade;
+      })
+      .join(", ");
+  };
+
+  const getStationNameInVietnamese = (stationKey) => {
+    const stationMap = {
+      // Các trạm cơ bản
+      height: "Đo chiều cao",
+      weight: "Cân nặng",
+      height_weight: "Chiều cao & Cân nặng",
+      vision: "Khám mắt",
+      hearing: "Khám tai",
+      dental: "Khám răng miệng",
+
+      // Các trạm nâng cao
+      bloodPressure: "Đo huyết áp",
+      heartRate: "Đo nhịp tim",
+      temperature: "Đo nhiệt độ",
+      bmi: "Chỉ số BMI",
+      physical: "Thể lực",
+      general: "Khám tổng quát",
+      respiratory: "Khám hô hấp",
+      cardiovascular: "Khám tim mạch",
+      musculoskeletal: "Khám xương khớp",
+      neurological: "Khám thần kinh",
+      skin: "Khám da liễu",
+      mental_health: "Sức khỏe tâm thần",
+
+      // Các trạm khác
+      spine: "Khám cột sống",
+      posture: "Kiểm tra tư thế",
+      reflexes: "Kiểm tra phản xạ",
+      coordination: "Phối hợp vận động",
+
+      // Xử lý các trường hợp đặc biệt
+      oral: "Khám răng miệng",
+      sensory: "Khám giác quan",
+      dermatology: "Khám da liễu",
+      mental: "Sức khỏe tâm thần",
+    };
+
+    // Nếu không tìm thấy trong map, thử format lại
+    if (stationMap[stationKey]) {
+      return stationMap[stationKey];
+    }
+
+    // Xử lý các trường hợp có dấu gạch dưới
+    if (stationKey.includes("_")) {
+      const parts = stationKey.split("_");
+      const translatedParts = parts.map((part) => stationMap[part] || part);
+      return translatedParts.join(" & ");
+    }
+
+    // Trường hợp mặc định - capitalize first letter
+    return stationKey.charAt(0).toUpperCase() + stationKey.slice(1);
   };
 
   const formatDate = (dateString) => {
@@ -250,9 +354,7 @@ const HealthServicesDetail = () => {
                       Trạng thái
                     </label>
                     <span className={getStatusBadge(healthService.status)}>
-                      {healthService.status === "scheduled"
-                        ? "Đã lên lịch"
-                        : healthService.status || "Chưa xác định"}
+                      {getStatusText(healthService.status)}
                     </span>
                   </div>
                 </div>
@@ -372,33 +474,42 @@ const HealthServicesDetail = () => {
               </div>
             </div>
 
-            {/* Student Information Card */}
+            {/* Class Information Card */}
             <div className="bg-white dark:bg-neutral-800 shadow-sm rounded-lg border border-gray-200 dark:border-neutral-700">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                   <FiUsers className="h-5 w-5 mr-2 text-purple-600" />
-                  Thông tin học sinh
+                  Thông tin lớp
                 </h3>
               </div>
               <div className="px-6 py-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-left">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Lớp học
+                      Lớp học đã chọn
                     </label>
-                    <p className="text-base text-gray-900 dark:text-white">
-                      {healthService.className || "Tất cả"}
-                    </p>
+                    <div className="text-base text-gray-900 dark:text-white">
+                      {healthService.grades &&
+                      healthService.grades.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {healthService.grades.map((grade, index) => (
+                            <span
+                              key={index}
+                              className="inline-flex items-center px-2 py-1 rounded-md text-sm bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                            >
+                              Lớp {grade}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        formatGradesList(
+                          healthService.gradeIds,
+                          healthService.grades
+                        ) || "Chưa chọn lớp"
+                      )}
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      ID HS
-                    </label>
-                    <p className="text-base text-gray-900 dark:text-white">
-                      {healthService.studentId || "Tất cả"}
-                    </p>
-                  </div>
-                  <div className="text-right">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Tổng số học sinh
                     </label>
@@ -427,8 +538,8 @@ const HealthServicesDetail = () => {
                         className="flex items-center p-3 border border-gray-200 dark:border-neutral-600 rounded text-sm"
                       >
                         <FiCheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-gray-900 dark:text-white capitalize">
-                          {station.replace(/([A-Z])/g, " $1").trim()}
+                        <span className="text-gray-900 dark:text-white">
+                          {getStationNameInVietnamese(station)}
                         </span>
                       </div>
                     )

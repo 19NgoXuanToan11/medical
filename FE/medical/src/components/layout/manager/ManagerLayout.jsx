@@ -10,6 +10,8 @@ import {
   FiTablet,
   FiHeart,
   FiShield,
+  FiBookOpen,
+  FiClipboard,
 } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import ThemeToggle from "../../common/ThemeToggle";
@@ -44,6 +46,16 @@ const ManagerLayout = () => {
       icon: <FiUsers className="w-5 h-5" />,
     },
     {
+      path: "/manager/class-management",
+      name: "Quản lý lớp",
+      icon: <FiBookOpen className="w-5 h-5" />,
+    },
+    {
+      path: "/manager/examination-categories",
+      name: "Quản lý hạng mục khám",
+      icon: <FiClipboard className="w-5 h-5" />,
+    },
+    {
       path: "/manager/medication",
       name: "Quản lý thuốc",
       icon: <FiTablet className="w-5 h-5" />,
@@ -60,12 +72,12 @@ const ManagerLayout = () => {
     },
     {
       path: "/manager/medicine-inventory",
-      name: "Kho thuốc",
+      name: "Quản lý kho thuốc",
       icon: <FiPackage className="w-5 h-5" />,
     },
     {
       path: "/manager/supply-inventory",
-      name: "Kho vật tư y tế",
+      name: "Quản lý kho vật tư y tế",
       icon: <FiPackage className="w-5 h-5" />,
     },
     {

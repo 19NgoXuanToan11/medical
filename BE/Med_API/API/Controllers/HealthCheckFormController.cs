@@ -200,7 +200,31 @@ public class HealthCheckFormController : ControllerBase
             {
                 return NotFound();
             }
-            return Ok(_mapper.Map<HealthCheckFormDTO>(schedule));
+            
+            var dto = _mapper.Map<HealthCheckFormDTO>(schedule);
+            
+            // Map status về chữ thường cho FE
+            if (!string.IsNullOrEmpty(dto.Status))
+                dto.Status = dto.Status.ToLower();
+                
+            // Parse gradeIds (JSON string) thành mảng grades
+            if (!string.IsNullOrEmpty(dto.GradeIds))
+            {
+                try
+                {
+                    dto.Grades = JsonSerializer.Deserialize<List<string>>(dto.GradeIds);
+                }
+                catch
+                {
+                    dto.Grades = new List<string>();
+                }
+            }
+            else
+            {
+                dto.Grades = new List<string>();
+            }
+            
+            return Ok(dto);
         }
         catch (Exception ex)
         {
