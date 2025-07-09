@@ -10,11 +10,16 @@ import {
   getSeasonText,
 } from "../utils/healthCheckHelpers";
 import {
-  availableGradesData,
-  healthCheckItemsData,
+  // availableGradesData, // Remove mock data import for classes
   initialFormData,
+  healthCheckItemsData,
 } from "../data/healthCheckData";
 import { createHealthCheck } from "../../../../utils/api/healthCheck/healthCheckService";
+import { checkEquipmentAvailability } from "../../../../utils/api/medicalSupply/medicalSupplyService";
+// Add import for health check items API
+import { healthCheckItemService } from "../../../../utils/api/healthCheckItem/healthCheckItemService";
+// Add import for class API
+import { getActiveClasses } from "../../../../utils/api/class/classService";
 
 export const useHealthCheckForm = () => {
   // State management
@@ -23,8 +28,172 @@ export const useHealthCheckForm = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [validationErrors, setValidationErrors] = useState({});
   const [scheduleConflicts, setScheduleConflicts] = useState([]);
-  const [availableGrades] = useState(availableGradesData);
-  const [healthCheckItems] = useState(healthCheckItemsData);
+  // Replace mock data with real API data for both items and classes
+  const [availableGrades, setAvailableGrades] = useState([]);
+  const [loadingGrades, setLoadingGrades] = useState(false);
+  const [healthCheckItems, setHealthCheckItems] = useState([]);
+  const [loadingItems, setLoadingItems] = useState(false);
+  const [equipmentStatus, setEquipmentStatus] = useState(null);
+
+  // Load health check items from API on component mount
+  useEffect(() => {
+    const loadHealthCheckItems = async () => {
+      setLoadingItems(true);
+      try {
+        const result =
+          await healthCheckItemService.getHealthCheckItemsWithMedicalSupplies();
+
+        console.log("Full API Result:", result);
+
+        // Handle different response structures
+        let dataArray = null;
+
+        if (result?.success && result?.data) {
+          dataArray = result.data;
+        } else if (result?.data) {
+          dataArray = result.data;
+        } else if (Array.isArray(result)) {
+          dataArray = result;
+        }
+
+        console.log("Data array:", dataArray);
+
+        if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
+          // Transform API data to match expected UI format
+          const transformedItems = dataArray.map((item) => {
+            // Create equipment array from requiredMedicalSupplies
+            let equipment = [];
+
+            console.log(`Processing item: ${item.name}`);
+            console.log(
+              `RequiredMedicalSupplies:`,
+              item.requiredMedicalSupplies
+            );
+
+            if (
+              item.requiredMedicalSupplies &&
+              Array.isArray(item.requiredMedicalSupplies)
+            ) {
+              equipment = item.requiredMedicalSupplies
+                .map((supply) => {
+                  console.log(`Processing supply:`, supply);
+
+                  // Handle different possible structures
+                  if (supply.medicalSupply && supply.medicalSupply.name) {
+                    console.log(
+                      `Found equipment: ${supply.medicalSupply.name}`
+                    );
+                    return supply.medicalSupply.name;
+                  } else if (supply.medicalSupplyName) {
+                    console.log(
+                      `Found equipment (alt1): ${supply.medicalSupplyName}`
+                    );
+                    return supply.medicalSupplyName;
+                  } else if (supply.name) {
+                    console.log(`Found equipment (alt2): ${supply.name}`);
+                    return supply.name;
+                  } else if (typeof supply === "string") {
+                    console.log(`Found equipment (string): ${supply}`);
+                    return supply;
+                  } else {
+                    console.log(`No equipment name found for supply:`, supply);
+                    return null;
+                  }
+                })
+                .filter(
+                  (name) =>
+                    name !== null && name !== undefined && name.trim() !== ""
+                ); // Remove null/empty values
+            }
+
+            console.log(`Final equipment for ${item.name}:`, equipment);
+
+            return {
+              id: item.itemId || item.id,
+              name: item.name,
+              category: item.category ? item.category.toLowerCase() : "general",
+              estimatedTime:
+                item.estimatedTimeMinutes || item.estimatedTime || 10,
+              description: item.description || "",
+              equipment: equipment,
+              isActive: item.isActive !== false, // Default to true if not specified
+              requiredMedicalSupplies: item.requiredMedicalSupplies || [],
+            };
+          });
+
+          console.log("Final transformed items:", transformedItems);
+          console.log(
+            "Items with equipment:",
+            transformedItems.filter((item) => item.equipment.length > 0)
+          );
+
+          setHealthCheckItems(transformedItems);
+        } else {
+          console.warn("No valid data found in API response, using mock data");
+          setHealthCheckItems(healthCheckItemsData);
+        }
+      } catch (error) {
+        console.error("Error loading health check items:", error);
+        console.log("Using fallback mock data");
+        setHealthCheckItems(healthCheckItemsData);
+      } finally {
+        setLoadingItems(false);
+      }
+    };
+
+    loadHealthCheckItems();
+  }, []);
+
+  // Load active classes from API on component mount
+  useEffect(() => {
+    const loadActiveClasses = async () => {
+      setLoadingGrades(true);
+      try {
+        const result = await getActiveClasses();
+
+        console.log("Classes API Result:", result);
+
+        // Handle different response structures
+        let classesArray = null;
+
+        if (result?.success && result?.data) {
+          classesArray = result.data;
+        } else if (result?.data) {
+          classesArray = result.data;
+        } else if (Array.isArray(result)) {
+          classesArray = result;
+        }
+
+        if (classesArray && Array.isArray(classesArray)) {
+          // Transform API data to match expected UI format
+          const transformedClasses = classesArray.map((classItem) => ({
+            id: classItem.classId || classItem.id,
+            name: classItem.className || classItem.name,
+            gradeLevel: classItem.gradeLevel,
+            studentCount:
+              classItem.currentStudentCount ||
+              classItem.totalStudents ||
+              classItem.studentCount ||
+              0,
+            isActive: classItem.isActive !== false, // Default to true if not specified
+          }));
+
+          console.log("Transformed classes:", transformedClasses);
+          setAvailableGrades(transformedClasses);
+        } else {
+          console.warn("No valid classes data found in API response");
+          setAvailableGrades([]);
+        }
+      } catch (error) {
+        console.error("Error loading active classes:", error);
+        setAvailableGrades([]);
+      } finally {
+        setLoadingGrades(false);
+      }
+    };
+
+    loadActiveClasses();
+  }, []);
 
   // Calculated values
   const totalStudents = calculateTotalStudents(
@@ -40,6 +209,199 @@ export const useHealthCheckForm = () => {
     formData.checkItems,
     healthCheckItems
   );
+
+  // Helper function to get selected equipment with medical supplies data
+  const getSelectedEquipment = useCallback(() => {
+    const equipment = new Set();
+    console.log("🔍 getSelectedEquipment called:");
+    console.log("  formData.checkItems:", formData.checkItems);
+    console.log("  healthCheckItems:", healthCheckItems);
+
+    formData.checkItems.forEach((itemId) => {
+      console.log(
+        "  Looking for item with ID:",
+        itemId,
+        "Type:",
+        typeof itemId
+      );
+
+      // Convert itemId to both string and number for comparison
+      const numId = typeof itemId === "string" ? parseInt(itemId) : itemId;
+      const strId = String(itemId);
+
+      // Try multiple ways to find the item
+      let item = healthCheckItems.find((h) => {
+        return (
+          h.id === itemId ||
+          h.id === numId ||
+          h.id === strId ||
+          h.itemId === itemId ||
+          h.itemId === numId ||
+          h.itemId === strId
+        );
+      });
+
+      console.log("  Found item:", item?.name || "NOT FOUND");
+
+      if (item?.requiredMedicalSupplies) {
+        // Use medical supplies data from API
+        item.requiredMedicalSupplies.forEach((supplyItem) => {
+          const supplyName =
+            supplyItem.medicalSupply?.name ||
+            supplyItem.medicalSupplyName ||
+            supplyItem.name;
+          if (supplyName) {
+            equipment.add(supplyName);
+          }
+        });
+      } else if (item?.equipment) {
+        // Fallback to equipment array for compatibility
+        console.log("  Adding equipment:", item.equipment);
+        item.equipment.forEach((eq) => equipment.add(eq));
+      }
+    });
+
+    const result = Array.from(equipment);
+    console.log("🎯 Final selected equipment:", result);
+    return result;
+  }, [formData.checkItems, healthCheckItems]);
+
+  // Create equipment status directly from health check data
+  const createEquipmentStatusFromHealthCheckData = useCallback(() => {
+    const equipmentMap = new Map();
+
+    formData.checkItems.forEach((itemId) => {
+      // Convert itemId to both string and number for comparison
+      const numId = typeof itemId === "string" ? parseInt(itemId) : itemId;
+      const strId = String(itemId);
+
+      // Try multiple ways to find the item
+      let item = healthCheckItems.find((h) => {
+        return (
+          h.id === itemId ||
+          h.id === numId ||
+          h.id === strId ||
+          h.itemId === itemId ||
+          h.itemId === numId ||
+          h.itemId === strId
+        );
+      });
+
+      if (item?.requiredMedicalSupplies) {
+        item.requiredMedicalSupplies.forEach((supplyItem) => {
+          const key =
+            supplyItem.medicalSupplyName ||
+            supplyItem.medicalSupply?.name ||
+            supplyItem.name;
+          if (key) {
+            if (!equipmentMap.has(key)) {
+              equipmentMap.set(key, {
+                name: key,
+                available: true,
+                stockQuantity: supplyItem.stockQuantity || 0,
+                isInStock: (supplyItem.stockQuantity || 0) > 0,
+                isActive: supplyItem.isActive !== false,
+                supply: supplyItem,
+                requiredQuantity: supplyItem.quantityRequired || 1,
+              });
+            } else {
+              // Add to required quantity if same equipment needed multiple times
+              const existing = equipmentMap.get(key);
+              existing.requiredQuantity += supplyItem.quantityRequired || 1;
+            }
+          }
+        });
+      }
+    });
+
+    const equipment = Array.from(equipmentMap.values());
+    const unavailableEquipment = equipment.filter(
+      (eq) => !eq.available || !eq.isActive
+    );
+    const outOfStockEquipment = equipment.filter(
+      (eq) => eq.available && eq.isActive && !eq.isInStock
+    );
+
+    return {
+      equipment,
+      hasUnavailable: unavailableEquipment.length > 0,
+      hasOutOfStock: outOfStockEquipment.length > 0,
+      unavailableEquipment,
+      outOfStockEquipment,
+      allAvailable:
+        unavailableEquipment.length === 0 && outOfStockEquipment.length === 0,
+    };
+  }, [formData.checkItems, healthCheckItems]);
+
+  // Check equipment availability when check items change
+  useEffect(() => {
+    const checkEquipment = async () => {
+      console.log(
+        "🎯 Equipment check triggered by formData.checkItems:",
+        formData.checkItems
+      );
+
+      if (formData.checkItems.length === 0) {
+        console.log(
+          "❌ No equipment selected, setting equipmentStatus to null"
+        );
+        setEquipmentStatus(null);
+        return;
+      }
+
+      try {
+        // First try to create status from health check data (includes stock info)
+        const statusFromHealthCheckData =
+          createEquipmentStatusFromHealthCheckData();
+
+        if (statusFromHealthCheckData.equipment.length > 0) {
+          console.log(
+            "✅ Equipment status created from health check data:",
+            statusFromHealthCheckData
+          );
+          setEquipmentStatus(statusFromHealthCheckData);
+        } else {
+          // Fallback to old method for compatibility
+          console.log("🔄 Falling back to equipment availability check...");
+          const selectedEquipment = getSelectedEquipment();
+
+          if (selectedEquipment.length === 0) {
+            setEquipmentStatus(null);
+            return;
+          }
+
+          console.log("🔍 Checking equipment availability...");
+          const status = await checkEquipmentAvailability(selectedEquipment);
+          console.log("✅ Equipment status received:", status);
+          setEquipmentStatus(status);
+        }
+      } catch (error) {
+        console.error("❌ Error checking equipment:", error);
+        setEquipmentStatus({
+          equipment: getSelectedEquipment().map((eq) => ({
+            name: eq,
+            available: false,
+            stockQuantity: 0,
+            isInStock: false,
+            supply: null,
+          })),
+          hasUnavailable: true,
+          hasOutOfStock: false,
+          unavailableEquipment: getSelectedEquipment().map((eq) => ({
+            name: eq,
+          })),
+          outOfStockEquipment: [],
+          allAvailable: false,
+        });
+      }
+    };
+
+    checkEquipment();
+  }, [
+    formData.checkItems,
+    getSelectedEquipment,
+    createEquipmentStatusFromHealthCheckData,
+  ]);
 
   // Auto-calculate end time when start time or duration changes
   useEffect(() => {
@@ -217,9 +579,27 @@ export const useHealthCheckForm = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   }, []);
 
-  const goToStep = useCallback((step) => {
-    setCurrentStep(step);
-  }, []);
+  const goToStep = useCallback(
+    (step) => {
+      // Don't allow going to future steps if current or previous steps have validation errors
+      if (step > currentStep) {
+        // Validate all steps from 1 to the target step - 1
+        for (let i = 1; i < step; i++) {
+          const errors = validateFormStep(i, formData);
+          if (Object.keys(errors).length > 0) {
+            setValidationErrors(errors);
+            return false; // Don't allow navigation
+          }
+        }
+      }
+
+      // Clear validation errors and allow navigation
+      setValidationErrors({});
+      setCurrentStep(step);
+      return true;
+    },
+    [currentStep, formData]
+  );
 
   // Save draft functionality
   const saveDraft = useCallback(async () => {
@@ -229,6 +609,7 @@ export const useHealthCheckForm = () => {
         ...formData,
         status: "draft",
         lastModified: new Date().toISOString(),
+        equipmentStatus: equipmentStatus, // Save equipment status with draft
       };
 
       localStorage.setItem("healthcheck_draft", JSON.stringify(draftData));
@@ -242,7 +623,7 @@ export const useHealthCheckForm = () => {
     } finally {
       setLoading(false);
     }
-  }, [formData]);
+  }, [formData, equipmentStatus]);
 
   // Load draft functionality
   const loadDraft = useCallback(() => {
@@ -251,6 +632,9 @@ export const useHealthCheckForm = () => {
       if (savedDraft) {
         const draftData = JSON.parse(savedDraft);
         setFormData(draftData);
+        if (draftData.equipmentStatus) {
+          setEquipmentStatus(draftData.equipmentStatus);
+        }
         return true;
       }
     } catch (error) {
@@ -258,6 +642,36 @@ export const useHealthCheckForm = () => {
     }
     return false;
   }, []);
+
+  // Generate equipment report for submission
+  const generateEquipmentReport = useCallback(() => {
+    if (!equipmentStatus) return null;
+
+    const report = {
+      totalEquipmentNeeded: equipmentStatus.equipment.length,
+      allAvailable: equipmentStatus.allAvailable,
+      hasUnavailable: equipmentStatus.hasUnavailable,
+      hasOutOfStock: equipmentStatus.hasOutOfStock,
+      availableEquipment: equipmentStatus.equipment.filter(
+        (eq) => eq.available && eq.isInStock
+      ),
+      unavailableEquipment: equipmentStatus.unavailableEquipment,
+      outOfStockEquipment: equipmentStatus.outOfStockEquipment,
+      summary: equipmentStatus.allAvailable
+        ? "Tất cả thiết bị cần thiết đều có sẵn và đủ số lượng."
+        : equipmentStatus.hasUnavailable
+        ? `Thiếu ${equipmentStatus.unavailableEquipment.length} thiết bị không có trong kho. Cần liên hệ để bổ sung thiết bị.`
+        : `${equipmentStatus.outOfStockEquipment.length} thiết bị đã hết hàng. Cần nhập thêm trước khi thực hiện khám.`,
+      requiresAction: !equipmentStatus.allAvailable,
+      actionRequired: equipmentStatus.hasUnavailable
+        ? "Cần mua/cho mượn thiết bị thiếu"
+        : equipmentStatus.hasOutOfStock
+        ? "Cần nhập thêm thiết bị hết hàng"
+        : null,
+    };
+
+    return report;
+  }, [equipmentStatus]);
 
   // Submit form
   const handleSubmit = useCallback(async () => {
@@ -286,50 +700,153 @@ export const useHealthCheckForm = () => {
 
     setLoading(true);
     try {
-      // Map form data to complete API schema
+      // Generate equipment report
+      const equipmentReport = generateEquipmentReport();
+
+      // Create equipment notification for manager if there are issues
+      let managerNotification = "";
+      if (equipmentReport && equipmentReport.requiresAction) {
+        managerNotification = `
+THÔNG BÁO THIẾT BỊ CẦN CHÚ Ý:
+
+${equipmentReport.summary}
+
+Chi tiết:
+${
+  equipmentReport.hasUnavailable
+    ? `
+• Thiết bị không có sẵn (${equipmentReport.unavailableEquipment.length}):
+${equipmentReport.unavailableEquipment.map((eq) => `  - ${eq.name}`).join("\n")}
+`
+    : ""
+}${
+          equipmentReport.hasOutOfStock
+            ? `
+• Thiết bị hết hàng (${equipmentReport.outOfStockEquipment.length}):
+${equipmentReport.outOfStockEquipment.map((eq) => `  - ${eq.name}`).join("\n")}
+`
+            : ""
+        }
+
+Hành động cần thiết: ${equipmentReport.actionRequired}
+
+Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện khám.
+        `.trim();
+      }
+
+      // Ensure title is not empty
+      const finalTitle =
+        formData.title ||
+        `Khám sức khỏe định kỳ - ${new Date().toLocaleDateString("vi-VN")}`;
+
+      // Ensure description has content
+      const finalDescription =
+        (formData.description || "Khám sức khỏe định kỳ cho học sinh") +
+        (managerNotification ? `\n\n${managerNotification}` : "");
+
+      // Format date as ISO string for backend
+      const scheduledDateISO = formData.scheduledDate
+        ? new Date(formData.scheduledDate).toISOString().split("T")[0] +
+          "T00:00:00.000Z"
+        : new Date().toISOString();
+
+      // Format time as TimeSpan string (HH:mm:ss) for backend
+      const startTimeFormatted = formData.scheduledTime
+        ? `${formData.scheduledTime}:00`
+        : "08:00:00";
+
+      // Ensure gradeIds is properly formatted as JSON string
+      const gradeIdsFormatted =
+        formData.targetGrades && Array.isArray(formData.targetGrades)
+          ? JSON.stringify(formData.targetGrades.map((g) => String(g)))
+          : JSON.stringify([]);
+
+      // Map form data to API schema with proper validation
       const submissionData = {
-        formId: formData.formId || 0,
-        title: formData.title,
-        scheduledDate: formData.scheduledDate,
-        startTime: formData.scheduledTime,
-        estimatedDuration: formData.estimatedDuration,
-        description: formData.description,
-        location: formData.location,
-        studentId: formData.studentId || 0,
-        parentId: formData.parentId || 0,
-        createdDate: new Date().toISOString(),
-        consentStatus: formData.consentStatus || "pending",
-        consentDate: formData.consentDate || null,
-        confirmStatus: formData.confirmStatus || "pending",
-        confirmedBy: formData.confirmedBy || 0,
-        confirmedDate: formData.confirmedDate || null,
-        className: formData.className || "",
-        gradeIds: JSON.stringify(formData.targetGrades),
-        totalStudents: totalStudents,
-        notifyParents: formData.notifyParents,
-        autoAdvance: formData.autoAdvance,
-        saveResults: formData.saveResults,
-        generateReport: formData.generateReport,
-        requireParentConfirmation: formData.requireParentConfirmation,
-        selectedStations: JSON.stringify(formData.checkItems),
-        staffAssigned: formData.staffAssigned || "",
-        status: "Scheduled",
-        estimatedEndTime: formData.endTime || "",
-        student: formData.student || null,
-        parent: formData.parent || null,
-        confirmedByStaff: formData.confirmedByStaff || null,
-        results: formData.results || [],
-        grades: formData.targetGrades || [],
+        FormId: 0, // Always 0 for new forms
+        Title: finalTitle,
+        ScheduledDate: scheduledDateISO,
+        StartTime: startTimeFormatted, // Backend expects TimeSpan format
+        EstimatedDuration: formData.estimatedDuration || 60,
+        Description: finalDescription,
+        Location: formData.location || "Phòng y tế trường",
+        StudentId: null,
+        ParentId: null,
+        CreatedDate: new Date().toISOString(),
+        ConsentStatus: "pending",
+        ConsentDate: null,
+        ConfirmStatus: "pending",
+        ConfirmedBy: null,
+        ConfirmedDate: null,
+        ClassName: null,
+        GradeIds: gradeIdsFormatted, // Required field - must not be empty
+        TotalStudents: totalStudents || 0,
+        NotifyParents: formData.notifyParents === true,
+        AutoAdvance: formData.autoAdvance === true,
+        SaveResults: formData.saveResults === true,
+        GenerateReport: formData.generateReport === true,
+        RequireParentConfirmation: formData.requireParentConfirmation === true,
+        SelectedStations: JSON.stringify(formData.checkItems || []),
+        StaffAssigned: null,
+        Status: "Scheduled",
+        EstimatedEndTime: formData.endTime || null,
+        Student: null,
+        Parent: null,
+        ConfirmedByStaff: null,
+        Results: null,
+        Grades: formData.targetGrades || [],
       };
+
+      // Validate required fields before sending
+      if (!submissionData.Title || submissionData.Title.trim() === "") {
+        return { success: false, message: "Tiêu đề không được để trống" };
+      }
+
+      if (!submissionData.ScheduledDate) {
+        return { success: false, message: "Ngày khám không được để trống" };
+      }
+
+      if (!submissionData.GradeIds || submissionData.GradeIds === "[]") {
+        return { success: false, message: "Phải chọn ít nhất một lớp học" };
+      }
+
       console.log("Submitting health check data:", submissionData);
+      console.log("Date formatting:", {
+        originalDate: formData.scheduledDate,
+        formattedDate: scheduledDateISO,
+        originalTime: formData.scheduledTime,
+        formattedTime: startTimeFormatted,
+      });
+      console.log("Grade formatting:", {
+        originalGrades: formData.targetGrades,
+        formattedGradeIds: gradeIdsFormatted,
+      });
+      console.log("Data validation check:", {
+        hasTitle: !!submissionData.Title,
+        titleLength: submissionData.Title?.length,
+        hasScheduledDate: !!submissionData.ScheduledDate,
+        hasGradeIds: !!submissionData.GradeIds,
+        gradeIdsContent: submissionData.GradeIds,
+      });
+
       const response = await createHealthCheck(submissionData);
       console.log("API response:", response);
+
       // Clear draft after successful submission
       localStorage.removeItem("healthcheck_draft");
+
+      // Create success message based on equipment status
+      let successMessage = "Kế hoạch khám sức khỏe đã được gửi thành công!";
+      if (equipmentReport?.requiresAction) {
+        successMessage +=
+          " Lưu ý: Đã gửi thông báo về tình trạng thiết bị cho quản lý để xem xét.";
+      }
+
       return {
         success: true,
-        message: "Kế hoạch khám sức khỏe đã được gửi thành công!",
+        message: successMessage,
         data: response,
+        equipmentWarning: equipmentReport?.requiresAction || false,
       };
     } catch (error) {
       console.error("Error creating health check schedule:", error);
@@ -341,7 +858,13 @@ export const useHealthCheckForm = () => {
     } finally {
       setLoading(false);
     }
-  }, [formData, scheduleConflicts, totalStudents, resourceReqs]);
+  }, [
+    formData,
+    scheduleConflicts,
+    totalStudents,
+    resourceReqs,
+    generateEquipmentReport,
+  ]);
 
   // Reset form
   const resetForm = useCallback(() => {
@@ -349,18 +872,22 @@ export const useHealthCheckForm = () => {
     setCurrentStep(1);
     setValidationErrors({});
     setScheduleConflicts([]);
+    setEquipmentStatus(null);
     localStorage.removeItem("healthcheck_draft");
   }, []);
 
   return {
     // State
     loading,
+    loadingItems,
+    loadingGrades,
     currentStep,
     formData,
     validationErrors,
     scheduleConflicts,
     availableGrades,
     healthCheckItems,
+    equipmentStatus,
 
     // Calculated values
     totalStudents,
@@ -378,5 +905,7 @@ export const useHealthCheckForm = () => {
     loadDraft,
     handleSubmit,
     resetForm,
+    getSelectedEquipment,
+    generateEquipmentReport,
   };
 };

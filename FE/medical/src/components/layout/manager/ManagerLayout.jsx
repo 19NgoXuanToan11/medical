@@ -36,16 +36,6 @@ const ManagerLayout = () => {
       icon: <FiHome className="w-5 h-5" />,
     },
     {
-      path: "/manager/parent-management",
-      name: "Quản lý phụ huynh",
-      icon: <FiUsers className="w-5 h-5" />,
-    },
-    {
-      path: "/manager/student-management",
-      name: "Quản lý học sinh",
-      icon: <FiUsers className="w-5 h-5" />,
-    },
-    {
       path: "/manager/class-management",
       name: "Quản lý lớp",
       icon: <FiBookOpen className="w-5 h-5" />,

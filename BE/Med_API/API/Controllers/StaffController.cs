@@ -157,11 +157,11 @@ public class StaffController : ControllerBase
         [FromServices] IMapper mapper)
     {
         var students = await studentService.GetAllStudentsAsync();
-        var filteredStudents = students.Where(s => s.GradeLevel == grade);
+        var filteredStudents = students.Where(s => s.Class != null && s.Class.GradeLevel == grade);
         var studentViewModels = mapper.Map<IEnumerable<StudentDto.ViewModel>>(filteredStudents);
 
         var studentParents = await studentParentService.GetAllStudentParentsAsync();
-        var filteredStudentParents = studentParents.Where(sp => sp.Student != null && sp.Student.GradeLevel == grade);
+        var filteredStudentParents = studentParents.Where(sp => sp.Student != null && sp.Student.Class != null && sp.Student.Class.GradeLevel == grade);
         var studentParentViewModels = mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(filteredStudentParents);
 
         var response = new GradeStudentParentResponse

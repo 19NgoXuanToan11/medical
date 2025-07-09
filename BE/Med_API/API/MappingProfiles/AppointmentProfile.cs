@@ -16,7 +16,7 @@ public class AppointmentProfile : Profile
                 FirstName = src.Student.FirstName,
                 LastName = src.Student.LastName,
                 StudentCode = src.Student.StudentCode,
-                ClassName = src.Student.ClassName,
+                ClassName = src.Student.Class != null ? src.Student.Class.ClassName : null,
                 Gender = src.Student.Gender,
                 Address = src.Student.Address,
                 IsActive = src.Student.IsActive

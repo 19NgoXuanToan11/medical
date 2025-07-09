@@ -143,18 +143,8 @@ const TargetLogisticsHealthStep = ({
                       {grade.name}
                     </h4>
                     <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-                      {grade.studentCount} học sinh • {grade.classCount} lớp
+                      {grade.studentCount} học sinh
                     </p>
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center text-xs text-neutral-500 dark:text-neutral-400">
-                        <FiClock className="w-3 h-3 mr-1" />
-                        {grade.estimatedTime}h
-                      </div>
-                      <div className="flex items-center text-xs text-neutral-500 dark:text-neutral-400">
-                        <FiCalendar className="w-3 h-3 mr-1" />
-                        {grade.sessionsNeeded} ca
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>

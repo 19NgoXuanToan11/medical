@@ -63,7 +63,7 @@ namespace API.Controllers
         public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetStudentParentsByGrade(int grade)
         {
             var studentParents = await _studentParentService.GetAllStudentParentsAsync();
-            var filtered = studentParents.Where(sp => sp.Student != null && sp.Student.GradeLevel == grade);
+            var filtered = studentParents.Where(sp => sp.Student != null && sp.Student.Class != null && sp.Student.Class.GradeLevel == grade);
             var viewModels = _mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(filtered);
             return Ok(viewModels);
         }

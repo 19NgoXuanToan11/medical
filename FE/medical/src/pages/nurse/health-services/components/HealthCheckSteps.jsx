@@ -14,6 +14,8 @@ import { healthCheckStepsConfig } from "../data/healthCheckData";
 
 // Step Indicator Component
 export const StepIndicator = ({ currentStep, onStepClick }) => {
+  const [navigationError, setNavigationError] = React.useState(null);
+
   const getStepIcon = (stepNumber) => {
     switch (stepNumber) {
       case 1:
@@ -29,57 +31,95 @@ export const StepIndicator = ({ currentStep, onStepClick }) => {
     }
   };
 
+  const handleStepClick = (step) => {
+    const canNavigate = onStepClick(step);
+    if (!canNavigate && step > currentStep) {
+      setNavigationError(
+        `Vui lòng hoàn thành thông tin ở bước ${currentStep} trước khi chuyển sang bước ${step}`
+      );
+      setTimeout(() => setNavigationError(null), 3000);
+    }
+  };
+
   return (
-    <div className="flex items-center justify-center mb-8">
-      {healthCheckStepsConfig.map((step, index) => (
-        <div key={step.step} className="flex items-center">
-          <div
-            className={`flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all duration-300 ${
-              currentStep === step.step
-                ? "bg-primary-600 dark:bg-primary-500 text-white shadow-lg scale-110"
-                : currentStep > step.step
-                ? "bg-success-500 dark:bg-success-400 text-white hover:bg-success-600 dark:hover:bg-success-500"
-                : "bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-300 dark:hover:bg-neutral-600"
-            }`}
-            onClick={() => onStepClick(step.step)}
-          >
-            {currentStep > step.step ? <FiCheck /> : getStepIcon(step.step)}
+    <div className="mb-8">
+      {/* Navigation Error Message */}
+      {navigationError && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-3 mb-4 max-w-2xl mx-auto">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-red-400 dark:text-red-500"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-800 dark:text-red-200">
+                {navigationError}
+              </p>
+            </div>
           </div>
-          <div className="ml-3 text-left">
-            <p
-              className={`text-sm font-medium ${
-                currentStep === step.step
-                  ? "text-primary-600 dark:text-primary-400"
-                  : currentStep > step.step
-                  ? "text-success-600 dark:text-success-400"
-                  : "text-neutral-500 dark:text-neutral-400"
-              }`}
-            >
-              Bước {step.step}
-            </p>
-            <p
-              className={`text-xs ${
-                currentStep === step.step
-                  ? "text-primary-500 dark:text-primary-300"
-                  : currentStep > step.step
-                  ? "text-success-500 dark:text-success-300"
-                  : "text-neutral-400 dark:text-neutral-500"
-              }`}
-            >
-              {step.title}
-            </p>
-          </div>
-          {index < healthCheckStepsConfig.length - 1 && (
-            <div
-              className={`w-8 h-0.5 mx-4 ${
-                currentStep > step.step
-                  ? "bg-success-500 dark:bg-success-400"
-                  : "bg-neutral-300 dark:bg-neutral-600"
-              }`}
-            />
-          )}
         </div>
-      ))}
+      )}
+
+      <div className="flex items-center justify-center">
+        {healthCheckStepsConfig.map((step, index) => (
+          <div key={step.step} className="flex items-center">
+            <div
+              className={`flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all duration-300 ${
+                currentStep === step.step
+                  ? "bg-primary-600 dark:bg-primary-500 text-white shadow-lg scale-110"
+                  : currentStep > step.step
+                  ? "bg-success-500 dark:bg-success-400 text-white hover:bg-success-600 dark:hover:bg-success-500"
+                  : "bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-300 dark:hover:bg-neutral-600"
+              }`}
+              onClick={() => handleStepClick(step.step)}
+            >
+              {currentStep > step.step ? <FiCheck /> : getStepIcon(step.step)}
+            </div>
+            <div className="ml-3 text-left">
+              <p
+                className={`text-sm font-medium ${
+                  currentStep === step.step
+                    ? "text-primary-600 dark:text-primary-400"
+                    : currentStep > step.step
+                    ? "text-success-600 dark:text-success-400"
+                    : "text-neutral-500 dark:text-neutral-400"
+                }`}
+              >
+                Bước {step.step}
+              </p>
+              <p
+                className={`text-xs ${
+                  currentStep === step.step
+                    ? "text-primary-500 dark:text-primary-300"
+                    : currentStep > step.step
+                    ? "text-success-500 dark:text-success-300"
+                    : "text-neutral-400 dark:text-neutral-500"
+                }`}
+              >
+                {step.title}
+              </p>
+            </div>
+            {index < healthCheckStepsConfig.length - 1 && (
+              <div
+                className={`w-8 h-0.5 mx-4 ${
+                  currentStep > step.step
+                    ? "bg-success-500 dark:bg-success-400"
+                    : "bg-neutral-300 dark:bg-neutral-600"
+                }`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

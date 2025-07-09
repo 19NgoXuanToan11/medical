@@ -411,8 +411,7 @@ public class ExcelImportService : IExcelImportService
                     DateOfBirth = studentRow.DateOfBirth,
                     Gender = studentRow.Gender,
                     Address = studentRow.Address,
-                    ClassName = studentRow.ClassName,
-                    GradeLevel = studentRow.GradeLevel,
+                    // ClassId will be set separately based on class management
                     Password = studentRow.Password,
                     IsActive = true
                 };

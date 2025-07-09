@@ -25,10 +25,8 @@ public partial class Student
     [StringLength(10)]
     public string? Gender { get; set; }
 
-    public int GradeLevel { get; set; }
-
-    [StringLength(50)]
-    public string? ClassName { get; set; }
+    // Class relationship
+    public int? ClassId { get; set; }
 
     [StringLength(255)]
     public string? Address { get; set; }
@@ -38,6 +36,9 @@ public partial class Student
     public string Password { get; set; } = null!;
 
     public bool? IsActive { get; set; }
+
+    // Navigation properties
+    public virtual Class? Class { get; set; }
 
     public virtual ICollection<HealthEvent> HealthEvents { get; set; } = new List<HealthEvent>();
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiPlus,
   FiEdit2,
@@ -6,114 +6,97 @@ import {
   FiClock,
   FiSearch,
   FiTag,
+  FiLoader,
 } from "react-icons/fi";
+import { healthCheckItemService } from "../../../utils/api/healthCheckItem/healthCheckItemService";
 
 const ExaminationCategoryManagement = () => {
-  const [categories, setCategories] = useState([
-    {
-      id: 1,
-      name: "Chiều cao & Cân nặng",
-      type: "Khám thể lực",
-      duration: 5,
-      description: "Đo chiều cao, cân nặng và tính BMI",
-      isActive: true,
-    },
-    {
-      id: 2,
-      name: "Thị lực",
-      type: "sensory",
-      duration: 10,
-      description: "Kiểm tra thị lực, gần và màu sắc",
-      isActive: true,
-    },
-    {
-      id: 3,
-      name: "Thính lực",
-      type: "sensory",
-      duration: 8,
-      description: "Kiểm tra khả năng nghe và phân biệt âm thanh",
-      isActive: true,
-    },
-    {
-      id: 4,
-      name: "Răng miệng",
-      type: "oral",
-      duration: 12,
-      description: "Kiểm tra sâu răng, nướu và vệ sinh răng miệng",
-      isActive: true,
-    },
-    {
-      id: 5,
-      name: "Tim mạch",
-      type: "Khám tim mạch",
-      duration: 10,
-      description: "Nghe tim, đo huyết áp và kiểm tra mạch",
-      isActive: true,
-    },
-    {
-      id: 6,
-      name: "Hô hấp",
-      type: "respiratory",
-      duration: 8,
-      description: "Khám phổi và đường hô hấp",
-      isActive: true,
-    },
-    {
-      id: 7,
-      name: "Xương khớp",
-      type: "musculoskeletal",
-      duration: 15,
-      description: "Kiểm tra tư thế, cột sống và khớp",
-      isActive: true,
-    },
-    {
-      id: 8,
-      name: "Da liều",
-      type: "dermatology",
-      duration: 8,
-      description: "Kiểm tra da, tóc và móng",
-      isActive: true,
-    },
-    {
-      id: 9,
-      name: "Thần kinh",
-      type: "neurological",
-      duration: 12,
-      description: "Kiểm tra phản xạ và chức năng thần kinh",
-      isActive: true,
-    },
-    {
-      id: 10,
-      name: "Sức khỏe tâm thần",
-      type: "mental",
-      duration: 20,
-      description: "Đánh giá tâm lý và hành vi học đường",
-      isActive: true,
-    },
-  ]);
-
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const [newCategory, setNewCategory] = useState({
+    code: "",
     name: "",
-    type: "",
-    duration: 0,
+    category: "",
+    estimatedTimeMinutes: 0,
     description: "",
     isActive: true,
   });
 
   const categoryTypes = [
     { value: "Khám thể lực", label: "Khám thể lực" },
-    { value: "sensory", label: "Sensory" },
-    { value: "oral", label: "Oral" },
+    { value: "Sensory", label: "Khám giác quan" },
+    { value: "Oral", label: "Khám răng miệng" },
     { value: "Khám tim mạch", label: "Khám tim mạch" },
-    { value: "respiratory", label: "Respiratory" },
-    { value: "musculoskeletal", label: "Musculoskeletal" },
-    { value: "dermatology", label: "Dermatology" },
-    { value: "neurological", label: "Neurological" },
-    { value: "mental", label: "Mental" },
+    { value: "Respiratory", label: "Khám hô hấp" },
+    { value: "Musculoskeletal", label: "Khám xương khớp" },
+    { value: "Dermatology", label: "Khám da liễu" },
+    { value: "Neurological", label: "Khám thần kinh" },
+    { value: "Mental", label: "Khám sức khỏe tâm thần" },
   ];
+
+  // Map backend DTO to frontend data structure
+  const mapBackendToFrontend = (backendItem) => ({
+    id: backendItem.itemId,
+    code: backendItem.code,
+    name: backendItem.name,
+    type: backendItem.category,
+    duration: backendItem.estimatedTimeMinutes,
+    description: backendItem.description || "",
+    isActive: backendItem.isActive,
+  });
+
+  // Map frontend data to backend DTO structure
+  const mapFrontendToBackend = (frontendItem, isUpdate = false) => {
+    const baseData = {
+      code: frontendItem.code,
+      name: frontendItem.name,
+      category: frontendItem.category,
+      estimatedTimeMinutes: frontendItem.estimatedTimeMinutes,
+      description: frontendItem.description,
+      isActive: frontendItem.isActive,
+    };
+
+    if (isUpdate) {
+      // For updates, we only send changed fields
+      return baseData;
+    } else {
+      // For creation, include required medical supplies array
+      return {
+        ...baseData,
+        requiredMedicalSupplies: [], // Empty by default, can be updated later
+      };
+    }
+  };
+
+  // Load all health check items on component mount
+  useEffect(() => {
+    loadHealthCheckItems();
+  }, []);
+
+  const loadHealthCheckItems = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await healthCheckItemService.getAllHealthCheckItems();
+
+      if (result.success) {
+        const mappedCategories = result.data.map(mapBackendToFrontend);
+        setCategories(mappedCategories);
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError("Không thể tải danh sách hạng mục khám");
+      console.error("Error loading health check items:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredCategories = categories.filter(
     (category) =>
@@ -122,74 +105,187 @@ const ExaminationCategoryManagement = () => {
       category.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddCategory = () => {
-    if (newCategory.name && newCategory.type && newCategory.duration > 0) {
-      const id = Math.max(...categories.map((c) => c.id)) + 1;
-      setCategories([...categories, { ...newCategory, id }]);
-      setNewCategory({
-        name: "",
-        type: "",
-        duration: 0,
-        description: "",
-        isActive: true,
-      });
-      setShowAddModal(false);
+  const handleAddCategory = async () => {
+    if (
+      newCategory.name &&
+      newCategory.category &&
+      newCategory.estimatedTimeMinutes > 0
+    ) {
+      try {
+        setSubmitting(true);
+
+        // Check if code already exists
+        const codeCheckResult = await healthCheckItemService.checkCodeExists(
+          newCategory.code
+        );
+        if (codeCheckResult.success && codeCheckResult.data) {
+          setError("Mã hạng mục khám đã tồn tại");
+          return;
+        }
+
+        const backendData = mapFrontendToBackend(newCategory);
+        const result = await healthCheckItemService.createHealthCheckItem(
+          backendData
+        );
+
+        if (result.success) {
+          const newMappedCategory = mapBackendToFrontend(result.data);
+          setCategories([...categories, newMappedCategory]);
+          closeModal();
+          setError(null);
+        } else {
+          setError(result.message);
+        }
+      } catch (err) {
+        setError("Không thể tạo hạng mục khám mới");
+        console.error("Error creating health check item:", err);
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
   const handleEditCategory = (category) => {
     setEditingCategory(category);
-    setNewCategory(category);
+    setNewCategory({
+      code: category.code,
+      name: category.name,
+      category: category.type,
+      estimatedTimeMinutes: category.duration,
+      description: category.description,
+      isActive: category.isActive,
+    });
     setShowAddModal(true);
   };
 
-  const handleUpdateCategory = () => {
-    setCategories(
-      categories.map((c) =>
-        c.id === editingCategory.id
-          ? { ...newCategory, id: editingCategory.id }
-          : c
-      )
-    );
-    setEditingCategory(null);
-    setNewCategory({
-      name: "",
-      type: "",
-      duration: 0,
-      description: "",
-      isActive: true,
-    });
-    setShowAddModal(false);
-  };
+  const handleUpdateCategory = async () => {
+    try {
+      setSubmitting(true);
 
-  const handleDeleteCategory = (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa hạng mục khám này?")) {
-      setCategories(categories.filter((c) => c.id !== id));
+      // Check if code already exists (excluding current item)
+      if (newCategory.code !== editingCategory.code) {
+        const codeCheckResult = await healthCheckItemService.checkCodeExists(
+          newCategory.code,
+          editingCategory.id
+        );
+        if (codeCheckResult.success && codeCheckResult.data) {
+          setError("Mã hạng mục khám đã tồn tại");
+          return;
+        }
+      }
+
+      const backendData = mapFrontendToBackend(newCategory, true);
+      const result = await healthCheckItemService.updateHealthCheckItem(
+        editingCategory.id,
+        backendData
+      );
+
+      if (result.success) {
+        const updatedMappedCategory = mapBackendToFrontend(result.data);
+        setCategories(
+          categories.map((c) =>
+            c.id === editingCategory.id ? updatedMappedCategory : c
+          )
+        );
+        closeModal();
+        setError(null);
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError("Không thể cập nhật hạng mục khám");
+      console.error("Error updating health check item:", err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const toggleCategoryStatus = (id) => {
-    setCategories(
-      categories.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c))
-    );
+  const handleDeleteCategory = async (id) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa hạng mục khám này?")) {
+      try {
+        const result = await healthCheckItemService.deleteHealthCheckItem(id);
+
+        if (result.success) {
+          setCategories(categories.filter((c) => c.id !== id));
+          setError(null);
+        } else {
+          setError(result.message);
+        }
+      } catch (err) {
+        setError("Không thể xóa hạng mục khám");
+        console.error("Error deleting health check item:", err);
+      }
+    }
+  };
+
+  const toggleCategoryStatus = async (id) => {
+    try {
+      const category = categories.find((c) => c.id === id);
+      if (!category) return;
+
+      const updatedData = {
+        code: category.code,
+        name: category.name,
+        category: category.type,
+        estimatedTimeMinutes: category.duration,
+        description: category.description,
+        isActive: !category.isActive,
+      };
+
+      const result = await healthCheckItemService.updateHealthCheckItem(
+        id,
+        updatedData
+      );
+
+      if (result.success) {
+        setCategories(
+          categories.map((c) =>
+            c.id === id ? { ...c, isActive: !c.isActive } : c
+          )
+        );
+        setError(null);
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError("Không thể thay đổi trạng thái hạng mục khám");
+      console.error("Error toggling category status:", err);
+    }
   };
 
   const closeModal = () => {
     setShowAddModal(false);
     setEditingCategory(null);
     setNewCategory({
+      code: "",
       name: "",
-      type: "",
-      duration: 0,
+      category: "",
+      estimatedTimeMinutes: 0,
       description: "",
       isActive: true,
     });
+    setSubmitting(false);
   };
 
   const getTypeLabel = (type) => {
     const typeObj = categoryTypes.find((t) => t.value === type);
     return typeObj ? typeObj.label : type;
   };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex items-center space-x-2">
+            <FiLoader className="w-6 h-6 animate-spin text-primary-600" />
+            <span className="text-neutral-600 dark:text-neutral-400">
+              Đang tải danh sách hạng mục khám...
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -202,6 +298,19 @@ const ExaminationCategoryManagement = () => {
           Quản lý các hạng mục khám sức khỏe cho học sinh
         </p>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-red-800 dark:text-red-200">{error}</p>
+          <button
+            onClick={() => setError(null)}
+            className="mt-2 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200"
+          >
+            Đóng
+          </button>
+        </div>
+      )}
 
       {/* Search and Add */}
       <div className="flex justify-between items-center mb-6">
@@ -289,10 +398,35 @@ const ExaminationCategoryManagement = () => {
         ))}
       </div>
 
+      {/* Empty State */}
+      {!loading && filteredCategories.length === 0 && (
+        <div className="text-center py-12">
+          <FiTag className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-neutral-600 dark:text-neutral-400 mb-2">
+            {searchTerm
+              ? "Không tìm thấy hạng mục khám"
+              : "Chưa có hạng mục khám nào"}
+          </h3>
+          <p className="text-neutral-500 dark:text-neutral-500 mb-4">
+            {searchTerm
+              ? "Thử thay đổi từ khóa tìm kiếm"
+              : "Thêm hạng mục khám đầu tiên để bắt đầu"}
+          </p>
+          {!searchTerm && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              Thêm hạng mục khám
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Add/Edit Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
               {editingCategory
                 ? "Chỉnh sửa hạng mục khám"
@@ -301,7 +435,21 @@ const ExaminationCategoryManagement = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Tên hạng mục
+                  Mã hạng mục *
+                </label>
+                <input
+                  type="text"
+                  value={newCategory.code}
+                  onChange={(e) =>
+                    setNewCategory({ ...newCategory, code: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-neutral-700 dark:text-neutral-200"
+                  placeholder="Ví dụ: EYE001"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                  Tên hạng mục *
                 </label>
                 <input
                   type="text"
@@ -315,12 +463,12 @@ const ExaminationCategoryManagement = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Loại khám
+                  Loại khám *
                 </label>
                 <select
-                  value={newCategory.type}
+                  value={newCategory.category}
                   onChange={(e) =>
-                    setNewCategory({ ...newCategory, type: e.target.value })
+                    setNewCategory({ ...newCategory, category: e.target.value })
                   }
                   className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-neutral-700 dark:text-neutral-200"
                 >
@@ -334,15 +482,15 @@ const ExaminationCategoryManagement = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Thời gian (phút)
+                  Thời gian (phút) *
                 </label>
                 <input
                   type="number"
-                  value={newCategory.duration}
+                  value={newCategory.estimatedTimeMinutes}
                   onChange={(e) =>
                     setNewCategory({
                       ...newCategory,
-                      duration: parseInt(e.target.value) || 0,
+                      estimatedTimeMinutes: parseInt(e.target.value) || 0,
                     })
                   }
                   className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-neutral-700 dark:text-neutral-200"
@@ -391,7 +539,8 @@ const ExaminationCategoryManagement = () => {
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 onClick={closeModal}
-                className="px-4 py-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200"
+                disabled={submitting}
+                className="px-4 py-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 disabled:opacity-50"
               >
                 Hủy
               </button>
@@ -399,8 +548,12 @@ const ExaminationCategoryManagement = () => {
                 onClick={
                   editingCategory ? handleUpdateCategory : handleAddCategory
                 }
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                disabled={submitting}
+                className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
               >
+                {submitting && (
+                  <FiLoader className="w-4 h-4 mr-2 animate-spin" />
+                )}
                 {editingCategory ? "Cập nhật" : "Thêm"}
               </button>
             </div>

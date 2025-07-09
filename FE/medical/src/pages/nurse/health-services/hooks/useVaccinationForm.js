@@ -144,9 +144,27 @@ export const useVaccinationForm = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   }, []);
 
-  const goToStep = useCallback((step) => {
-    setCurrentStep(step);
-  }, []);
+  const goToStep = useCallback(
+    (step) => {
+      // Don't allow going to future steps if current or previous steps have validation errors
+      if (step > currentStep) {
+        // Validate all steps from 1 to the target step - 1
+        for (let i = 1; i < step; i++) {
+          const errors = validateFormStep(i, formData);
+          if (Object.keys(errors).length > 0) {
+            setValidationErrors(errors);
+            return false; // Don't allow navigation
+          }
+        }
+      }
+
+      // Clear validation errors and allow navigation
+      setValidationErrors({});
+      setCurrentStep(step);
+      return true;
+    },
+    [currentStep, formData]
+  );
 
   // Save draft functionality
   const saveDraft = useCallback(async () => {

@@ -147,6 +147,68 @@ namespace DB.Migrations
                     b.ToTable("Blog", (string)null);
                 });
 
+            modelBuilder.Entity("DB.Class", b =>
+                {
+                    b.Property<int>("ClassId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("ClassID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClassId"));
+
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ClassRoom")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ClassTeacher")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<int?>("CurrentStudentCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("GradeLevel")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int?>("MaxStudents")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Section")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("ClassId")
+                        .HasName("PK__Class__CB1927C0123456789");
+
+                    b.HasIndex(new[] { "ClassName", "GradeLevel", "Section" }, "UQ__Class__Name_Grade_Section")
+                        .IsUnique()
+                        .HasFilter("[Section] IS NOT NULL");
+
+                    b.ToTable("Class", (string)null);
+                });
+
             modelBuilder.Entity("DB.DashboardSummary", b =>
                 {
                     b.Property<int>("SummaryId")
@@ -348,9 +410,6 @@ namespace DB.Migrations
                     b.Property<int?>("GradeLevel")
                         .HasColumnType("int");
 
-                    b.Property<bool?>("HasSupplyShortage")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
@@ -363,9 +422,6 @@ namespace DB.Migrations
 
                     b.Property<bool?>("RequireParentConfirmation")
                         .HasColumnType("bit");
-
-                    b.Property<string>("RequiredSupplies")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("SaveResults")
                         .HasColumnType("bit");
@@ -388,9 +444,6 @@ namespace DB.Migrations
                     b.Property<int?>("StudentId")
                         .HasColumnType("int")
                         .HasColumnName("StudentID");
-
-                    b.Property<string>("SupplyWarnings")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
@@ -456,9 +509,10 @@ namespace DB.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime");
 
-                    b.HasKey("ItemId");
+                    b.HasKey("ItemId")
+                        .HasName("PK_HealthCheckItem");
 
-                    b.HasIndex("Code")
+                    b.HasIndex(new[] { "Code" }, "IX_HealthCheckItem_Code")
                         .IsUnique();
 
                     b.ToTable("HealthCheckItem", (string)null);
@@ -494,7 +548,8 @@ namespace DB.Migrations
                         .HasColumnType("decimal(10, 2)")
                         .HasDefaultValue(1m);
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("PK_HealthCheckItemMedicalSupply");
 
                     b.HasIndex("HealthCheckItemId");
 
@@ -1409,9 +1464,9 @@ namespace DB.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("ClassName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int?>("ClassId")
+                        .HasColumnType("int")
+                        .HasColumnName("ClassID");
 
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
@@ -1424,9 +1479,6 @@ namespace DB.Migrations
                     b.Property<string>("Gender")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
-
-                    b.Property<int>("GradeLevel")
-                        .HasColumnType("int");
 
                     b.Property<bool?>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1451,6 +1503,8 @@ namespace DB.Migrations
 
                     b.HasKey("StudentId")
                         .HasName("PK__Student__32C52A7964894850");
+
+                    b.HasIndex("ClassId");
 
                     b.HasIndex(new[] { "StudentCode" }, "UQ__Student__1FC8860437093A19")
                         .IsUnique();
@@ -1574,7 +1628,7 @@ namespace DB.Migrations
                         .HasConstraintName("FK_HealthCheckItemMedicalSupply_HealthCheckItem");
 
                     b.HasOne("DB.MedicalSupply", "MedicalSupply")
-                        .WithMany("HealthCheckItemMedicalSupplies")
+                        .WithMany()
                         .HasForeignKey("MedicalSupplyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -1812,6 +1866,17 @@ namespace DB.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("DB.Student", b =>
+                {
+                    b.HasOne("DB.Class", "Class")
+                        .WithMany("Students")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK__Student__ClassID");
+
+                    b.Navigation("Class");
+                });
+
             modelBuilder.Entity("DB.StudentParent", b =>
                 {
                     b.HasOne("DB.Parent", "Parent")
@@ -1834,6 +1899,11 @@ namespace DB.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("DB.Class", b =>
+                {
+                    b.Navigation("Students");
+                });
+
             modelBuilder.Entity("DB.HealthCheckForm", b =>
                 {
                     b.Navigation("Results");
@@ -1854,11 +1924,6 @@ namespace DB.Migrations
             modelBuilder.Entity("DB.InjectionForm", b =>
                 {
                     b.Navigation("InjectionResults");
-                });
-
-            modelBuilder.Entity("DB.MedicalSupply", b =>
-                {
-                    b.Navigation("HealthCheckItemMedicalSupplies");
                 });
 
             modelBuilder.Entity("DB.MedicineRequest", b =>

@@ -109,7 +109,7 @@ public class StudentController : ControllerBase
     public async Task<ActionResult<IEnumerable<StudentDto.ViewModel>>> GetStudentsByGrade(int grade)
     {
         var students = await _studentService.GetAllStudentsAsync();
-        var filtered = students.Where(s => s.GradeLevel == grade);
+        var filtered = students.Where(s => s.Class != null && s.Class.GradeLevel == grade);
         var studentViewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(filtered);
         return Ok(studentViewModels);
     }

@@ -86,7 +86,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add AutoMapper
-builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(StaffProfile).Assembly, typeof(ExcelImportProfile).Assembly, typeof(StudentParentProfile).Assembly, typeof(BlogProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(StaffProfile).Assembly, typeof(ExcelImportProfile).Assembly, typeof(StudentParentProfile).Assembly, typeof(BlogProfile).Assembly, typeof(ClassProfile).Assembly, typeof(HealthCheckItemProfile).Assembly);
 
 // Add DbContext with all entities
 builder.Services.AddDbContext<MedicalContext>(options =>
@@ -115,6 +115,8 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IExcelImportRepository, ExcelImportRepository>();
 builder.Services.AddScoped<IStudentParentRepository, StudentParentRepository>();
 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IHealthCheckItemRepository, HealthCheckItemRepository>();
 
 // Register Services
 builder.Services.AddScoped<IStudentService, StudentService>();
@@ -136,6 +138,8 @@ builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IExcelImportService, ExcelImportService>();
 builder.Services.AddScoped<IStudentParentService, StudentParentService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
+builder.Services.AddScoped<IClassService, ClassService>();
+builder.Services.AddScoped<IHealthCheckItemService, HealthCheckItemService>();
 
 // Register Background Services
 builder.Services.AddHostedService<TimeBasedStatusService>();

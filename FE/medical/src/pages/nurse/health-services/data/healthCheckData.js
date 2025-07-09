@@ -17,25 +17,25 @@ export const availableGradesData = [
 
 export const healthCheckStepsConfig = [
   {
-    id: 1,
+    step: 1,
     title: "Thông tin cơ bản",
     description: "Thời gian, địa điểm và mục tiêu",
     required: true,
   },
   {
-    id: 2,
+    step: 2,
     title: "Hạng mục khám",
     description: "Chi tiết các mục kiểm tra sức khỏe",
     required: true,
   },
   {
-    id: 3,
-    title: "Đối tượng & Logistics",
+    step: 3,
+    title: "Thông tin lớp học",
     description: "Lớp học và tổ chức thực hiện",
     required: true,
   },
   {
-    id: 4,
+    step: 4,
     title: "Kiểm tra & Xác nhận",
     description: "Xem trước và hoàn tất",
     required: true,

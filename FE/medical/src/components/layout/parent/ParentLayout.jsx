@@ -191,9 +191,6 @@ const ParentLayout = () => {
                     </div>
                     <div className="text-left">
                       <p className="font-medium">{currentStudent.name}</p>
-                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                        Lớp {currentStudent.class}
-                      </p>
                     </div>
                   </div>
                   <svg
@@ -230,9 +227,6 @@ const ParentLayout = () => {
                           </div>
                           <div className="text-left">
                             <p className="font-medium">{student.name}</p>
-                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                              Lớp {student.class} - {student.studentCode}
-                            </p>
                           </div>
                         </button>
                       ))}

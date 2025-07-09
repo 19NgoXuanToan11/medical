@@ -33,8 +33,6 @@ import ReportsAnalytics from "../../pages/admin/report/ReportsAnalytics";
 
 // manager
 import Dashboard from "../../pages/manager/dashboard/Dashboard";
-import ParentManagement from "../../pages/manager/manage/ParentManagement";
-import StudentManagement from "../../pages/manager/manage/StudentManagement";
 import MedicineInventory from "../../pages/manager/inventory/MedicineInventory";
 import SupplyInventory from "../../pages/manager/inventory/SupplyInventory";
 import ExcelImport from "../../pages/manager/inventory/ExcelImport";
@@ -45,6 +43,7 @@ import VaccinationManagement from "../../pages/manager/vaccination/VaccinationMa
 import VaccinationDetailManager from "../../pages/manager/vaccination/VaccinationDetail";
 import HealthCheckDetailManager from "../../pages/manager/health-check/HealthCheckDetail";
 import ClassManagement from "../../pages/manager/manage/ClassManagement";
+import ClassDetail from "../../pages/manager/manage/ClassDetail";
 import ExaminationCategoryManagement from "../../pages/manager/manage/ExaminationCategoryManagement";
 
 // nurse
@@ -138,14 +137,6 @@ function AppRoutes() {
         }
       >
         <Route path="/manager/dashboard" element={<Dashboard />} />
-        <Route
-          path="/manager/parent-management"
-          element={<ParentManagement />}
-        />
-        <Route
-          path="/manager/student-management"
-          element={<StudentManagement />}
-        />
         <Route path="/manager/medication" element={<MedicationManagement />} />
         <Route
           path="/manager/health-check"
@@ -164,6 +155,7 @@ function AppRoutes() {
           element={<HealthCheckDetailManager />}
         />
         <Route path="/manager/class-management" element={<ClassManagement />} />
+        <Route path="/manager/class-management/:id" element={<ClassDetail />} />
         <Route
           path="/manager/examination-categories"
           element={<ExaminationCategoryManagement />}

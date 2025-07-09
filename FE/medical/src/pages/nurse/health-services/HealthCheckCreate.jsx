@@ -35,6 +35,8 @@ const HealthCheckCreate = () => {
   // Use the custom hook for form management
   const {
     loading,
+    loadingItems,
+    loadingGrades,
     currentStep,
     formData,
     validationErrors,
@@ -44,6 +46,7 @@ const HealthCheckCreate = () => {
     totalStudents,
     sessions,
     resourceReqs,
+    equipmentStatus,
     handleInputChange,
     handleGradeSelection,
     handleCheckItemToggle,
@@ -107,6 +110,19 @@ const HealthCheckCreate = () => {
           />
         );
       case 2:
+        // Show loading state when health check items are being loaded
+        if (loadingItems) {
+          return (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Đang tải danh sách hạng mục khám...
+                </p>
+              </div>
+            </div>
+          );
+        }
         return (
           <HealthCheckItemsStep
             formData={formData}
@@ -114,9 +130,23 @@ const HealthCheckCreate = () => {
             onCheckItemToggle={handleCheckItemToggle}
             onInputChange={handleInputChange}
             healthCheckItems={healthCheckItems}
+            equipmentStatus={equipmentStatus}
           />
         );
       case 3:
+        // Show loading state when classes are being loaded
+        if (loadingGrades) {
+          return (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Đang tải danh sách lớp học...
+                </p>
+              </div>
+            </div>
+          );
+        }
         return (
           <TargetLogisticsHealthStep
             formData={formData}

@@ -59,6 +59,12 @@ public partial class MedicalContext : DbContext
 
     public virtual DbSet<GradeNurse> GradeNurses { get; set; }
 
+    public virtual DbSet<Class> Classes { get; set; }
+
+    public virtual DbSet<HealthCheckItem> HealthCheckItems { get; set; }
+
+    public virtual DbSet<HealthCheckItemMedicalSupply> HealthCheckItemMedicalSupplies { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=(local);Database=Medical;User Id=sa;Password=123456;TrustServerCertificate=True;");
@@ -692,7 +698,7 @@ public partial class MedicalContext : DbContext
 
             entity.Property(e => e.StudentId).HasColumnName("StudentID");
             entity.Property(e => e.Address).HasMaxLength(255);
-            entity.Property(e => e.ClassName).HasMaxLength(50);
+            entity.Property(e => e.ClassId).HasColumnName("ClassID");
             entity.Property(e => e.DateOfBirth).HasColumnType("date");
             entity.Property(e => e.FirstName).HasMaxLength(50);
             entity.Property(e => e.Gender).HasMaxLength(10);
@@ -705,6 +711,14 @@ public partial class MedicalContext : DbContext
 
             entity.HasIndex(e => e.StudentCode, "UQ__Student__1FC8860437093A19")
                 .IsUnique();
+            
+            entity.HasIndex(e => e.ClassId);
+
+            entity.HasOne(d => d.Class)
+                .WithMany(p => p.Students)
+                .HasForeignKey(d => d.ClassId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__Student__ClassID");
         });
 
         modelBuilder.Entity<Blog>(entity =>
@@ -751,6 +765,94 @@ public partial class MedicalContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.StaffId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Class>(entity =>
+        {
+            entity.HasKey(e => e.ClassId).HasName("PK__Class__CB1927C0123456789");
+
+            entity.ToTable("Class");
+
+            entity.Property(e => e.ClassId).HasColumnName("ClassID");
+            entity.Property(e => e.ClassName).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.GradeLevel).IsRequired();
+            entity.Property(e => e.Section).HasMaxLength(10);
+            entity.Property(e => e.Description).HasMaxLength(100);
+            entity.Property(e => e.MaxStudents);
+            entity.Property(e => e.CurrentStudentCount);
+            entity.Property(e => e.ClassTeacher).HasMaxLength(50);
+            entity.Property(e => e.ClassRoom).HasMaxLength(50);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasIndex(new[] { "ClassName", "GradeLevel", "Section" }, "UQ__Class__Name_Grade_Section")
+                .IsUnique()
+                .HasFilter("[Section] IS NOT NULL");
+        });
+
+        modelBuilder.Entity<HealthCheckItem>(entity =>
+        {
+            entity.HasKey(e => e.ItemId).HasName("PK_HealthCheckItem");
+
+            entity.ToTable("HealthCheckItem");
+
+            entity.Property(e => e.ItemId).HasColumnName("ItemID");
+            entity.Property(e => e.Code)
+                .HasMaxLength(50)
+                .IsRequired();
+            entity.Property(e => e.Name)
+                .HasMaxLength(200)
+                .IsRequired();
+            entity.Property(e => e.Category)
+                .HasMaxLength(50)
+                .IsRequired();
+            entity.Property(e => e.Description)
+                .HasMaxLength(1000);
+            entity.Property(e => e.EstimatedTimeMinutes)
+                .HasDefaultValue(10);
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.UpdatedDate)
+                .HasColumnType("datetime");
+
+            entity.HasIndex(e => e.Code, "IX_HealthCheckItem_Code")
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<HealthCheckItemMedicalSupply>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_HealthCheckItemMedicalSupply");
+
+            entity.ToTable("HealthCheckItemMedicalSupply");
+
+            entity.Property(e => e.HealthCheckItemId).HasColumnName("HealthCheckItemID");
+            entity.Property(e => e.MedicalSupplyId).HasColumnName("MedicalSupplyID");
+            entity.Property(e => e.QuantityRequired)
+                .HasColumnType("decimal(10, 2)")
+                .HasDefaultValue(1m);
+            entity.Property(e => e.IsOptional)
+                .HasDefaultValue(false);
+            entity.Property(e => e.Notes)
+                .HasMaxLength(500);
+
+            entity.HasOne(d => d.HealthCheckItem)
+                .WithMany(p => p.HealthCheckItemMedicalSupplies)
+                .HasForeignKey(d => d.HealthCheckItemId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_HealthCheckItemMedicalSupply_HealthCheckItem");
+
+            entity.HasOne(d => d.MedicalSupply)
+                .WithMany()
+                .HasForeignKey(d => d.MedicalSupplyId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_HealthCheckItemMedicalSupply_MedicalSupply");
+
+            entity.HasIndex(e => e.HealthCheckItemId);
+            entity.HasIndex(e => e.MedicalSupplyId);
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -208,55 +208,16 @@ const PreviewHealthStep = ({
                 className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-neutral-50 dark:bg-neutral-700"
               >
                 <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                  {grade.name}
+                  Lớp {grade.name}
                 </h4>
                 <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-                  {grade.studentCount} học sinh • {grade.classCount} lớp
+                  {grade.studentCount} học sinh
                 </p>
-                <div className="flex items-center justify-between mt-2">
-                  <div className="flex items-center text-xs text-neutral-500 dark:text-neutral-400">
-                    <FiClock className="w-3 h-3 mr-1" />
-                    {grade.estimatedTime}h
-                  </div>
-                  <div className="flex items-center text-xs text-neutral-500 dark:text-neutral-400">
-                    <FiCalendar className="w-3 h-3 mr-1" />
-                    {grade.sessionsNeeded} ca
-                  </div>
-                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
-
-      {/* Schedule Conflicts (if any) */}
-      {scheduleConflicts.length > 0 && (
-        <div className="bg-warning-50 dark:bg-warning-900/20 rounded-lg border border-warning-200 dark:border-warning-800 p-6">
-          <div className="flex items-start">
-            <FiAlertTriangle className="flex-shrink-0 h-6 w-6 text-warning-600 dark:text-warning-400 mt-0.5" />
-            <div className="ml-3">
-              <h3 className="text-lg font-medium text-warning-900 dark:text-warning-200">
-                Phát hiện xung đột lịch trình
-              </h3>
-              <div className="mt-2 space-y-2">
-                {scheduleConflicts.map((conflict, index) => (
-                  <div
-                    key={index}
-                    className="bg-warning-100 dark:bg-warning-800/20 rounded-lg p-3"
-                  >
-                    <p className="text-sm text-warning-800 dark:text-warning-300">
-                      <strong>{conflict.type}:</strong> {conflict.description}
-                    </p>
-                    <p className="text-xs text-warning-700 dark:text-warning-400 mt-1">
-                      Thời gian: {conflict.time} • Ảnh hưởng: {conflict.impact}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
