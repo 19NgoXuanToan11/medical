@@ -594,190 +594,25 @@ const MedicationRequest = () => {
               >
                 Ngày <span className="text-red-500 dark:text-red-400">*</span>
               </label>
-              <div className="grid grid-cols-3 gap-2">
-                {/* Year Dropdown */}
-                <div>
-                  <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                    Năm
-                  </label>
-                  <select
-                    value={formData.date ? formData.date.split("/")[0] || "" : ""}
-                    onChange={(e) => {
-                      const year = e.target.value;
-                      const currentParts = formData.date ? formData.date.split("/") : ["", "", ""];
-                      const month = currentParts[1] || "";
-                      const day = currentParts[2] || "";
-                      
-                      if (!year) {
-                        // If year is cleared, clear the whole date
-                        handleInputChange({
-                          target: {
-                            name: "date",
-                            value: ""
-                          }
-                        });
-                        return;
-                      }
-                      
-                      // Validate day when year changes
-                      const maxDays = year && month ? new Date(year, month, 0).getDate() : 31;
-                      const validDay = day && parseInt(day) <= maxDays ? day : "";
-                      
-                      // Update date, keeping partial selections
-                      let newDate = year;
-                      if (month) newDate += `/${month}`;
-                      if (month && validDay) newDate += `/${validDay}`;
-                      
-                      handleInputChange({
-                        target: {
-                          name: "date",
-                          value: newDate
-                        }
-                      });
-                    }}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
-                  >
-                    <option value="">Năm</option>
-                    {Array.from({ length: 5 }, (_, i) => {
-                      const year = new Date().getFullYear() + i;
-                      return (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
+              <input
+                type="text"
+                id="date"
+                name="date"
+                value={formData.date}
+                onChange={handleInputChange}
+                required
+                placeholder="y/m/d"
+                className={`w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
+                  formData.date && !isValidDate(formData.date)
+                    ? "border-red-400 dark:border-red-500"
+                    : "border-gray-300 dark:border-gray-600"
+                }`}
+              />
 
-                {/* Month Dropdown */}
-                <div>
-                  <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                    Tháng
-                  </label>
-                  <select
-                    value={formData.date && formData.date.split("/").length > 1 ? formData.date.split("/")[1] || "" : ""}
-                    onChange={(e) => {
-                      const month = e.target.value;
-                      const currentParts = formData.date ? formData.date.split("/") : ["", "", ""];
-                      const year = currentParts[0] || "";
-                      const day = currentParts[2] || "";
-                      
-                      if (!year) {
-                        // Need year first
-                        return;
-                      }
-                      
-                      if (!month) {
-                        // If month is cleared, keep only year
-                        handleInputChange({
-                          target: {
-                            name: "date",
-                            value: year
-                          }
-                        });
-                        return;
-                      }
-                      
-                      // Validate day when month changes
-                      const maxDays = new Date(year, month, 0).getDate();
-                      const validDay = day && parseInt(day) <= maxDays ? day : "";
-                      
-                      // Update date
-                      let newDate = `${year}/${month}`;
-                      if (validDay) newDate += `/${validDay}`;
-                      
-                      handleInputChange({
-                        target: {
-                          name: "date",
-                          value: newDate
-                        }
-                      });
-                    }}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
-                  >
-                    <option value="">Tháng</option>
-                    {Array.from({ length: 12 }, (_, i) => {
-                      const month = i + 1;
-                      return (
-                        <option key={month} value={month}>
-                          {month}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-
-                {/* Day Dropdown */}
-                <div>
-                  <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                    Ngày
-                  </label>
-                  <select
-                    value={formData.date && formData.date.split("/").length > 2 ? formData.date.split("/")[2] || "" : ""}
-                    onChange={(e) => {
-                      const day = e.target.value;
-                      const currentParts = formData.date ? formData.date.split("/") : ["", "", ""];
-                      const year = currentParts[0] || "";
-                      const month = currentParts[1] || "";
-                      
-                      if (!year || !month) {
-                        // Need year and month first
-                        return;
-                      }
-                      
-                      if (!day) {
-                        // If day is cleared, keep year/month
-                        handleInputChange({
-                          target: {
-                            name: "date",
-                            value: `${year}/${month}`
-                          }
-                        });
-                        return;
-                      }
-                      
-                      const newDate = `${year}/${month}/${day}`;
-                      handleInputChange({
-                        target: {
-                          name: "date",
-                          value: newDate
-                        }
-                      });
-                    }}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm"
-                  >
-                    <option value="">Ngày</option>
-                    {(() => {
-                      const currentParts = formData.date ? formData.date.split("/") : ["", "", ""];
-                      const year = currentParts[0];
-                      const month = currentParts[1];
-                      
-                      // Only show days if year and month are selected
-                      if (!year || !month) {
-                        return null;
-                      }
-                      
-                      const maxDays = new Date(year, month, 0).getDate();
-                      
-                      return Array.from({ length: maxDays }, (_, i) => {
-                        const day = i + 1;
-                        return (
-                          <option key={day} value={day}>
-                            {day}
-                          </option>
-                        );
-                      });
-                    })()}
-                  </select>
-                </div>
-              </div>
-              
               {formData.date && !isValidDate(formData.date) && (
                 <p className="text-red-500 dark:text-red-400 text-sm mt-1">
-                  Ngày không hợp lệ. Vui lòng chọn đầy đủ năm/tháng/ngày
+                  Ngày không hợp lệ. Vui lòng nhập theo định dạng y/m/d (ví dụ:
+                  2024/12/15)
                 </p>
               )}
               {formData.date &&
@@ -789,7 +624,7 @@ const MedicationRequest = () => {
                 )}
               {!formData.date && (
                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                  Chọn ngày cần cấp thuốc (định dạng: năm/tháng/ngày)
+                  Nhập ngày cần cấp thuốc (định dạng: y/m/d - ví dụ: 2024/12/15)
                 </p>
               )}
             </div>
