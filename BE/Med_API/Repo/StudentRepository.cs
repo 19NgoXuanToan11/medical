@@ -15,6 +15,7 @@ public class StudentRepository : IStudentRepository
     public async Task<IEnumerable<Student>> GetAllStudentsAsync()
     {
         return await _context.Students
+            .Include(s => s.Class)
             .Include(s => s.HealthProfiles)
             .Include(s => s.HealthEvents)
             .Include(s => s.StudentParents)
@@ -29,6 +30,7 @@ public class StudentRepository : IStudentRepository
     public async Task<Student?> GetStudentByIdAsync(int id)
     {
         return await _context.Students
+            .Include(s => s.Class)
             .Include(s => s.HealthProfiles)
             .Include(s => s.HealthEvents)
             .Include(s => s.StudentParents)
@@ -76,6 +78,7 @@ public class StudentRepository : IStudentRepository
     public async Task<Student?> GetStudentByCodeAsync(string studentCode)
     {
         return await _context.Students
+            .Include(s => s.Class)
             .Include(s => s.HealthProfiles)
             .Include(s => s.HealthEvents)
             .Include(s => s.StudentParents)

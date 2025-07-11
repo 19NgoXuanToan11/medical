@@ -181,6 +181,31 @@ public class ExcelImportRepository : IExcelImportRepository
         }
     }
 
+    public async Task<Class> GetOrCreateClassAsync(string className, int gradeLevel)
+    {
+        className = className.Trim();
+        if (className.StartsWith("Class ", StringComparison.OrdinalIgnoreCase))
+        {
+            className = className.Substring(6).Trim();
+        }
+        var classEntity = await _context.Classes.FirstOrDefaultAsync(c => c.ClassName.ToUpper() == className.ToUpper() && c.GradeLevel == gradeLevel);
+        if (classEntity != null)
+        {
+            return classEntity;
+        }
+        // Create new class if not found
+        classEntity = new Class
+        {
+            ClassName = className,
+            GradeLevel = gradeLevel,
+            IsActive = true,
+            CreatedAt = DateTime.Now
+        };
+        _context.Classes.Add(classEntity);
+        await _context.SaveChangesAsync();
+        return classEntity;
+    }
+
     private class StudentParentRelation
     {
         public string StudentCode { get; set; } = null!;

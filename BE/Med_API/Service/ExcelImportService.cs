@@ -389,6 +389,15 @@ public class ExcelImportService : IExcelImportService
             {
                 _logger.LogInformation("Processing student {StudentCode}", studentRow.StudentCode);
 
+                // Ensure ClassId is set by looking up or creating the class
+                var classEntity = await _repository.GetOrCreateClassAsync(studentRow.ClassName, studentRow.GradeLevel);
+                if (classEntity == null)
+                {
+                    result.FailedRows++;
+                    result.Errors.Add($"Class '{studentRow.ClassName}' (Grade {studentRow.GradeLevel}) not found or could not be created for student {studentRow.StudentCode}");
+                    continue;
+                }
+
                 // Validate student data
                 var validationContext = new ValidationContext(studentRow);
                 var validationResults = new List<ValidationResult>();
@@ -411,7 +420,7 @@ public class ExcelImportService : IExcelImportService
                     DateOfBirth = studentRow.DateOfBirth,
                     Gender = studentRow.Gender,
                     Address = studentRow.Address,
-                    // ClassId will be set separately based on class management
+                    ClassId = classEntity.ClassId, // Set ClassId here
                     Password = studentRow.Password,
                     IsActive = true
                 };

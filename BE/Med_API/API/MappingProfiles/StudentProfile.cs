@@ -19,7 +19,9 @@ public class StudentProfile : Profile
             .ForMember(dest => dest.ParentCount, opt => opt.MapFrom(src => 
                 src.StudentParents != null ? src.StudentParents.Count : 0))
             .ForMember(dest => dest.Parents, opt => opt.MapFrom(src => src.Parents))
-            .ForMember(dest => dest.StudentParents, opt => opt.MapFrom(src => src.StudentParents));
+            .ForMember(dest => dest.StudentParents, opt => opt.MapFrom(src => src.StudentParents))
+            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Class != null ? src.Class.ClassName : null))
+            .ForMember(dest => dest.GradeLevel, opt => opt.MapFrom(src => src.Class != null ? src.Class.GradeLevel : 0));
 
         // Map from Parent to StudentDto.ParentSummary
         CreateMap<Parent, StudentDto.ParentSummary>();
