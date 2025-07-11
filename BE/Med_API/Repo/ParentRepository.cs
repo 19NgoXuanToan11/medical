@@ -17,7 +17,9 @@ public class ParentRepository : IParentRepository
         return await _context.Parents
             .Include(p => p.StudentParents)
                 .ThenInclude(sp => sp.Student)
+                    .ThenInclude(s => s.Class)
             .Include(p => p.Students)
+                .ThenInclude(s => s.Class)
             .Include(p => p.MedicineRequests)
             .Include(p => p.InjectionForms)
             .ToListAsync();
@@ -28,7 +30,9 @@ public class ParentRepository : IParentRepository
         return await _context.Parents
             .Include(p => p.StudentParents)
                 .ThenInclude(sp => sp.Student)
+                    .ThenInclude(s => s.Class)
             .Include(p => p.Students)
+                .ThenInclude(s => s.Class)
             .Include(p => p.MedicineRequests)
             .Include(p => p.InjectionForms)
             .FirstOrDefaultAsync(p => p.ParentId == id);
@@ -97,7 +101,9 @@ public class ParentRepository : IParentRepository
         return await _context.Parents
             .Include(p => p.StudentParents)
                 .ThenInclude(sp => sp.Student)
+                    .ThenInclude(s => s.Class)
             .Include(p => p.Students)
+                .ThenInclude(s => s.Class)
             .Include(p => p.MedicineRequests)
             .Include(p => p.InjectionForms)
             .FirstOrDefaultAsync(p => p.Email == email);

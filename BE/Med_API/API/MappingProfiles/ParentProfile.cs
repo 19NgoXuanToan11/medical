@@ -24,7 +24,9 @@ public class ParentProfile : Profile
                     : null));
 
         // Map from Student to ParentDto.StudentSummary
-        CreateMap<Student, ParentDto.StudentSummary>();
+        CreateMap<Student, ParentDto.StudentSummary>()
+            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Class != null ? src.Class.ClassName : null))
+            .ForMember(dest => dest.GradeLevel, opt => opt.MapFrom(src => src.Class != null ? src.Class.GradeLevel : 0));
 
         // Map from ParentDto.Create to Parent
         CreateMap<ParentDto.Create, Parent>()
