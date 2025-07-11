@@ -340,91 +340,106 @@ const MedicationDetail = () => {
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
                 <div className="bg-green-50 dark:bg-green-900/30 p-3 border-b border-green-200 dark:border-green-800">
                   <h2 className="text-base font-medium text-green-800 dark:text-green-300">
-                    Thông tin thuốc
+                    Danh sách thuốc yêu cầu
                   </h2>
                 </div>
                 <div className="p-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Tên thuốc
-                      </h3>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {medication.medicationName}
+                  {medication.medicineRequestItems &&
+                  medication.medicineRequestItems.length > 0 ? (
+                    <div className="space-y-6">
+                      {medication.medicineRequestItems.map(
+                        (medicine, index) => (
+                          <div
+                            key={index}
+                            className="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                                {medicine.medicineName}
+                              </h3>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                Thuốc #{index + 1}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                  Tổng liều lượng
+                                </h4>
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                  {medicine.dosage && medicine.dosage !== "N/A"
+                                    ? `${medicine.dosage} ${
+                                        medicine.dosageUnit || "viên"
+                                      }`
+                                    : "Chưa xác định"}
+                                </p>
+                              </div>
+                              <div>
+                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                  Tần suất uống thuốc
+                                </h4>
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                  {medicine.frequency &&
+                                  medicine.frequency !== "N/A"
+                                    ? formatFrequency(medicine.frequency)
+                                    : "Chưa xác định"}
+                                </p>
+                              </div>
+                              <div>
+                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                  Liều lượng mỗi lần
+                                </h4>
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                  {medicine.dosage &&
+                                  medicine.frequency &&
+                                  medicine.dosage !== "N/A" &&
+                                  medicine.frequency !== "N/A"
+                                    ? calculateDosagePerAdministration(
+                                        `${medicine.dosage} ${
+                                          medicine.dosageUnit || "viên"
+                                        }`,
+                                        medicine.frequency
+                                      )
+                                    : "Chưa xác định"}
+                                </p>
+                              </div>
+                              <div>
+                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                  Thời gian uống
+                                </h4>
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                  {medicine.timeOfDay &&
+                                  medicine.timeOfDay !== "N/A"
+                                    ? medicine.timeOfDay
+                                    : "Chưa xác định"}
+                                </p>
+                              </div>
+                            </div>
+                            {medicine.instructions &&
+                              medicine.instructions !== "N/A" && (
+                                <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                                  <h4 className="text-xs font-medium text-amber-800 dark:text-amber-200 mb-1">
+                                    Hướng dẫn sử dụng
+                                  </h4>
+                                  <p className="text-sm text-amber-800 dark:text-amber-200">
+                                    {medicine.instructions}
+                                  </p>
+                                </div>
+                              )}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        Không có thông tin thuốc
                       </p>
                     </div>
-                    <div>
-                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Tổng liều lượng
-                      </h3>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {medication.dosage && medication.dosage !== "N/A"
-                          ? `${medication.dosage} ${
-                              medication.dosageUnit || "viên"
-                            }`
-                          : "Chưa xác định"}
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Tần suất uống thuốc
-                      </h3>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {medication.frequency && medication.frequency !== "N/A"
-                          ? formatFrequency(medication.frequency)
-                          : "Chưa xác định"}
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Liều lượng mỗi lần
-                      </h3>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {medication.dosage &&
-                        medication.frequency &&
-                        medication.dosage !== "N/A" &&
-                        medication.frequency !== "N/A"
-                          ? calculateDosagePerAdministration(
-                              `${medication.dosage} ${
-                                medication.dosageUnit || "viên"
-                              }`,
-                              medication.frequency
-                            )
-                          : "Chưa xác định"}
-                      </p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
-
-            {/* Special Instructions */}
-            {medication.specialInstructions &&
-              medication.specialInstructions !== "N/A" && (
-                <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
-                  <div className="flex items-start gap-2">
-                    <svg
-                      className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <div>
-                      <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-1">
-                        Hướng dẫn đặc biệt
-                      </h3>
-                      <p className="text-sm text-amber-800 dark:text-amber-200">
-                        {medication.specialInstructions}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
             {/* Medication Schedule */}
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
@@ -434,51 +449,70 @@ const MedicationDetail = () => {
                 </h2>
               </div>
               <div className="p-4">
-                {medication.timeOfDay && medication.timeOfDay !== "N/A" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                    {(Array.isArray(medication.timeOfDay)
-                      ? medication.timeOfDay
-                      : medication.timeOfDay.split(", ")
-                    ).map((time, index) => (
+                {medication.medicineRequestItems &&
+                medication.medicineRequestItems.length > 0 ? (
+                  <div className="space-y-6">
+                    {medication.medicineRequestItems.map((medicine, index) => (
                       <div
                         key={index}
-                        className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-3"
+                        className="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
                       >
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
-                            <svg
-                              className="w-3 h-3 text-green-600 dark:text-green-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3">
+                          {medicine.medicineName}
+                        </h3>
+                        {medicine.timeOfDay && medicine.timeOfDay !== "N/A" ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                            {(Array.isArray(medicine.timeOfDay)
+                              ? medicine.timeOfDay
+                              : medicine.timeOfDay.split(", ")
+                            ).map((time, timeIndex) => (
+                              <div
+                                key={timeIndex}
+                                className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-3"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="w-6 h-6 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
+                                    <svg
+                                      className="w-3 h-3 text-green-600 dark:text-green-400"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                      />
+                                    </svg>
+                                  </div>
+                                  <div>
+                                    <h4 className="font-medium text-green-800 dark:text-green-200 text-sm">
+                                      {getTimeOfDayText(time.trim())}
+                                    </h4>
+                                    <p className="text-xs text-green-600 dark:text-green-400">
+                                      {medicine.dosage &&
+                                      medicine.frequency &&
+                                      medicine.dosage !== "N/A" &&
+                                      medicine.frequency !== "N/A"
+                                        ? calculateDosagePerAdministration(
+                                            `${medicine.dosage} ${
+                                              medicine.dosageUnit || "viên"
+                                            }`,
+                                            medicine.frequency
+                                          )
+                                        : "Chưa xác định"}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                          <div>
-                            <h4 className="font-medium text-green-800 dark:text-green-200 text-sm">
-                              {getTimeOfDayText(time.trim())}
-                            </h4>
-                            <p className="text-xs text-green-600 dark:text-green-400">
-                              {medication.dosage &&
-                              medication.frequency &&
-                              medication.dosage !== "N/A" &&
-                              medication.frequency !== "N/A"
-                                ? calculateDosagePerAdministration(
-                                    `${medication.dosage} ${
-                                      medication.dosageUnit || "viên"
-                                    }`,
-                                    medication.frequency
-                                  )
-                                : "Chưa xác định"}
-                            </p>
-                          </div>
-                        </div>
+                        ) : (
+                          <p className="text-gray-500 dark:text-gray-400 italic text-sm text-center py-4">
+                            Chưa có lịch trình uống thuốc được xác định
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>
