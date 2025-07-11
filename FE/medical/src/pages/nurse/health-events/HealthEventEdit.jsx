@@ -11,124 +11,158 @@ import {
   FiX,
   FiPlusCircle,
   FiPackage,
+  FiCheck,
+  FiCheckCircle,
 } from "react-icons/fi";
+import {
+  getHealthEventById,
+  updateHealthEvent,
+  mapHealthEventToAPI,
+  sendNotificationToParent,
+} from "../../../utils/api/health-events/healthEventService";
+import {
+  medicineInventoryService,
+  medicalSupplyInventoryService,
+} from "../../../utils/api/medication/inventoryService";
+import { useAuth } from "../../../utils/auth/AuthContext";
 
 const HealthEventEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState(null);
-  const [validationErrors, setValidationErrors] = useState({});
+  const [submitStatus, setSubmitStatus] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Mock data - in a real application, this would come from an API
+  // State for inventory data
+  const [availableMedicines, setAvailableMedicines] = useState([]);
+  const [availableMedicalSupplies, setAvailableMedicalSupplies] = useState([]);
+  const [loadingInventory, setLoadingInventory] = useState(true);
+
+  const [formData, setFormData] = useState({
+    studentCode: "",
+    studentName: "",
+    class: "",
+    type: "illness",
+    symptoms: "",
+    assessment: "",
+    treatment: "",
+    notes: "",
+    temperature: "",
+    pulse: "",
+    bloodPressure: "",
+    respiratoryRate: "",
+    medications: [{ name: "", dosage: "", time: "" }],
+    medicalSupplies: [{ name: "", quantity: 1, time: "" }],
+    parentNotified: false,
+    followUpRequired: false,
+    parentContacted: {
+      contacted: false,
+      time: "",
+      person: "",
+      method: "phone",
+      response: "",
+    },
+  });
+
+  // Fetch event data and inventory on component mount
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const mockEvent = {
-        id: parseInt(id),
-        studentName: "Nguyễn Văn An",
-        class: "3A",
-        type: "illness",
-        description: "Sốt nhẹ 37.8°C, đã cấp thuốc hạ sốt",
-        time: "2023-06-15T09:30:00",
-        status: "resolved",
-        actionTaken: "Đã cho uống thuốc hạ sốt và thông báo cho phụ huynh",
-        details: [
-          "Học sinh có biểu hiện sốt từ sáng",
-          "Thân nhiệt đo được: 37.8°C",
-          "Không có các triệu chứng khác như ho, đau họng",
-          "Đã uống 1 liều Paracetamol 250mg lúc 9:30",
-        ],
-        vitalSigns: {
-          temperature: "37.8",
-          pulse: "88",
-          bloodPressure: "110/70",
-          respiratoryRate: "20",
-        },
-        medications: [
-          {
-            name: "Paracetamol",
-            dosage: "250mg",
-            time: "09:30",
-            administeredBy: "Y tá Trần Thị B",
-          },
-        ],
-        medicalSupplies: [
-          {
-            name: "Nhiệt kế điện tử",
-            quantity: 1,
-            time: "09:25",
-            usedBy: "Y tá Trần Thị B",
-          },
-        ],
-        parentContacted: {
-          time: "09:45",
-          person: "Mẹ - Nguyễn Thị X",
-          method: "Điện thoại",
-          response: "Đã nắm thông tin, không đón về",
-        },
-        followUp:
-          "Theo dõi sát thân nhiệt, liên hệ lại phụ huynh nếu sốt trên 38.5°C",
-      };
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Fetch health event data and inventory in parallel
+        const [eventResponse, medicinesResult, suppliesResult] =
+          await Promise.all([
+            getHealthEventById(id),
+            medicineInventoryService.getActiveMedicines(),
+            medicalSupplyInventoryService.getActiveMedicalSupplies(),
+          ]);
 
-      setFormData(mockEvent);
-      setLoading(false);
-    }, 1000);
+        // Set inventory data
+        if (medicinesResult.success) {
+          setAvailableMedicines(medicinesResult.data);
+        } else {
+          console.error("Failed to load medicines:", medicinesResult.message);
+        }
+
+        if (suppliesResult.success) {
+          setAvailableMedicalSupplies(suppliesResult.data);
+        } else {
+          console.error(
+            "Failed to load medical supplies:",
+            suppliesResult.message
+          );
+        }
+
+        // Map API data to form format
+        const mappedData = {
+          studentCode: eventResponse.studentCode || "",
+          studentName: eventResponse.student
+            ? `${eventResponse.student.firstName} ${eventResponse.student.lastName}`
+            : "",
+          class: eventResponse.student?.className || "",
+          type: eventResponse.eventType || "illness",
+          symptoms: eventResponse.symptoms || "",
+          assessment: eventResponse.assessment || "",
+          treatment: eventResponse.treatment || "",
+          notes: eventResponse.notes || "",
+          parentNotified: eventResponse.parentNotified || false,
+          followUpRequired: eventResponse.followUpRequired || false,
+          medications:
+            eventResponse.healthEventMedicines &&
+            eventResponse.healthEventMedicines.length > 0
+              ? eventResponse.healthEventMedicines.map((med) => ({
+                  name: med.medicine?.name || "",
+                  dosage: med.dosage || "",
+                  time: med.time || "",
+                  id: med.medicineId,
+                }))
+              : [{ name: "", dosage: "", time: "" }],
+          medicalSupplies:
+            eventResponse.healthEventMedicalSupplies &&
+            eventResponse.healthEventMedicalSupplies.length > 0
+              ? eventResponse.healthEventMedicalSupplies.map((supply) => ({
+                  name: supply.medicalSupply?.name || "",
+                  quantity: supply.quantity || 1,
+                  time: supply.time || "",
+                  id: supply.medicalSupplyId,
+                }))
+              : [{ name: "", quantity: 1, time: "" }],
+          parentContacted: {
+            contacted: eventResponse.parentNotified || false,
+            time: "",
+            person: "",
+            method: "phone",
+            response: "",
+          },
+        };
+
+        setFormData(mappedData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setErrorMessage("Không thể tải thông tin sự cố y tế");
+      } finally {
+        setLoading(false);
+        setLoadingInventory(false);
+      }
+    };
+
+    if (id) {
+      fetchData();
+    }
   }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Handle nested properties (e.g., vitalSigns.temperature)
-    if (name.includes(".")) {
-      const [parent, child] = name.split(".");
-      setFormData({
-        ...formData,
-        [parent]: {
-          ...formData[parent],
-          [child]: value,
-        },
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
-
-    // Clear validation error when field is edited
-    if (validationErrors[name]) {
-      setValidationErrors({
-        ...validationErrors,
-        [name]: null,
-      });
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDetailChange = (index, value) => {
-    const updatedDetails = [...formData.details];
-    updatedDetails[index] = value;
-    setFormData({
-      ...formData,
-      details: updatedDetails,
-    });
-  };
-
-  const handleAddDetail = () => {
-    setFormData({
-      ...formData,
-      details: [...formData.details, ""],
-    });
-  };
-
-  const handleRemoveDetail = (index) => {
-    const updatedDetails = [...formData.details];
-    updatedDetails.splice(index, 1);
-    setFormData({
-      ...formData,
-      details: updatedDetails,
-    });
+  const handleNestedChange = (category, field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [category]: { ...prev[category], [field]: value },
+    }));
   };
 
   const handleMedicationChange = (index, field, value) => {
@@ -137,10 +171,7 @@ const HealthEventEdit = () => {
       ...updatedMedications[index],
       [field]: value,
     };
-    setFormData({
-      ...formData,
-      medications: updatedMedications,
-    });
+    setFormData((prev) => ({ ...prev, medications: updatedMedications }));
   };
 
   const handleMedicalSupplyChange = (index, field, value) => {
@@ -149,839 +180,697 @@ const HealthEventEdit = () => {
       ...updatedSupplies[index],
       [field]: value,
     };
-    setFormData({
-      ...formData,
-      medicalSupplies: updatedSupplies,
-    });
+    setFormData((prev) => ({ ...prev, medicalSupplies: updatedSupplies }));
   };
 
-  const handleAddMedication = () => {
-    setFormData({
-      ...formData,
-      medications: [
-        ...formData.medications,
-        {
-          name: "",
-          dosage: "",
-          time: "",
-          administeredBy: "",
-        },
-      ],
-    });
+  const addMedication = () => {
+    setFormData((prev) => ({
+      ...prev,
+      medications: [...prev.medications, { name: "", dosage: "", time: "" }],
+    }));
   };
 
-  const handleAddMedicalSupply = () => {
-    setFormData({
-      ...formData,
+  const addMedicalSupply = () => {
+    setFormData((prev) => ({
+      ...prev,
       medicalSupplies: [
-        ...formData.medicalSupplies,
-        {
-          name: "",
-          quantity: 1,
-          time: "",
-          usedBy: "",
-        },
+        ...prev.medicalSupplies,
+        { name: "", quantity: 1, time: "" },
       ],
-    });
+    }));
   };
 
-  const handleRemoveMedication = (index) => {
+  const removeMedication = (index) => {
     const updatedMedications = [...formData.medications];
     updatedMedications.splice(index, 1);
-    setFormData({
-      ...formData,
-      medications: updatedMedications,
-    });
+    setFormData((prev) => ({ ...prev, medications: updatedMedications }));
   };
 
-  const handleRemoveMedicalSupply = (index) => {
+  const removeMedicalSupply = (index) => {
     const updatedSupplies = [...formData.medicalSupplies];
     updatedSupplies.splice(index, 1);
-    setFormData({
-      ...formData,
-      medicalSupplies: updatedSupplies,
-    });
+    setFormData((prev) => ({ ...prev, medicalSupplies: updatedSupplies }));
   };
 
-  const handleParentContactChange = (field, value) => {
-    setFormData({
-      ...formData,
-      parentContacted: {
-        ...formData.parentContacted,
-        [field]: value,
-      },
-    });
-  };
-
-  const validateForm = () => {
-    const errors = {};
-
-    if (!formData.studentName.trim()) {
-      errors.studentName = "Vui lòng nhập tên học sinh";
-    }
-
-    if (!formData.class.trim()) {
-      errors.class = "Vui lòng nhập lớp";
-    }
-
-    if (!formData.type) {
-      errors.type = "Vui lòng chọn loại sự kiện";
-    }
-
-    if (!formData.description.trim()) {
-      errors.description = "Vui lòng nhập mô tả";
-    }
-
-    if (!formData.time) {
-      errors.time = "Vui lòng chọn thời gian";
-    }
-
-    if (!formData.status) {
-      errors.status = "Vui lòng chọn trạng thái";
-    }
-
-    if (!formData.vitalSigns.temperature) {
-      errors["vitalSigns.temperature"] = "Vui lòng nhập thân nhiệt";
-    }
-
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
     setSaving(true);
+    setSubmitStatus(null);
+    setErrorMessage("");
 
-    // Simulate API call to save data
-    setTimeout(() => {
+    try {
+      // Validate required fields
+      if (!formData.studentCode || !formData.symptoms) {
+        throw new Error("Vui lòng điền đầy đủ thông tin bắt buộc");
+      }
+
+      // Check if user is logged in and has ID
+      if (!user || !user.id) {
+        throw new Error(
+          "Không thể xác định thông tin người dùng. Vui lòng đăng nhập lại."
+        );
+      }
+
+      // Map medications with correct IDs based on selected names
+      const mappedMedications = formData.medications
+        .filter((med) => med.name && med.name.trim() !== "")
+        .map((med) => {
+          // If medication already has ID (existing), use it; otherwise find from available medicines
+          if (med.id) {
+            return { ...med, id: med.id };
+          }
+          const selectedMedicine = availableMedicines.find(
+            (medicine) => medicine.name === med.name
+          );
+          return {
+            ...med,
+            id: selectedMedicine ? selectedMedicine.medicineId : 1,
+          };
+        });
+
+      // Map medical supplies with correct IDs based on selected names
+      const mappedMedicalSupplies = formData.medicalSupplies
+        .filter((supply) => supply.name && supply.name.trim() !== "")
+        .map((supply) => {
+          // If supply already has ID (existing), use it; otherwise find from available supplies
+          if (supply.id) {
+            return { ...supply, id: supply.id };
+          }
+          const selectedSupply = availableMedicalSupplies.find(
+            (medicalSupply) => medicalSupply.name === supply.name
+          );
+          return {
+            ...supply,
+            id: selectedSupply ? selectedSupply.supplyId : 1,
+          };
+        });
+
+      // Map form data to API format with staff ID from AuthContext
+      const apiData = mapHealthEventToAPI({
+        ...formData,
+        staffId: user.id, // Use staff ID from authenticated user
+        medications: mappedMedications,
+        medicalSupplies: mappedMedicalSupplies,
+      });
+
+      console.log("Updating health event with staff ID:", user.id, apiData);
+
+      // Update health event via API
+      const response = await updateHealthEvent(id, apiData);
+
+      console.log("Health event updated successfully:", response);
+
+      // Show success message
+      setSubmitStatus("success");
+
+      // Send notification to parent if needed
+      if (formData.parentNotified) {
+        await notifyParent(formData.studentCode, {
+          eventType: formData.type,
+          symptoms: formData.symptoms,
+          treatment: formData.treatment,
+          studentName: formData.studentName,
+        });
+      }
+
+      // Redirect after a short delay to show success message
+      setTimeout(() => {
+        navigate("/nurse/health-events");
+      }, 2000);
+    } catch (error) {
+      console.error("Error updating health event:", error);
+      setSubmitStatus("error");
+      setErrorMessage(error.message || "Có lỗi xảy ra khi cập nhật sự cố y tế");
       setSaving(false);
-      // Navigate back to detail page after saving
-      navigate(`/nurse/health-events/${id}`);
-    }, 1500);
+    }
   };
 
-  const formatDateTimeForInput = (dateTimeString) => {
-    const date = new Date(dateTimeString);
-    return date.toISOString().slice(0, 16); // Format as "YYYY-MM-DDTHH:MM"
+  // Function to notify parent
+  const notifyParent = async (studentCode, eventDetails) => {
+    try {
+      // Prepare notification data
+      const notificationData = {
+        studentCode,
+        type: "health_event_update",
+        title: `Cập nhật sự cố y tế - ${eventDetails.studentName}`,
+        message: `Thông tin sự cố y tế của học sinh ${
+          eventDetails.studentName
+        } đã được cập nhật: ${eventDetails.symptoms}. ${
+          eventDetails.treatment ? `Đã xử lý: ${eventDetails.treatment}.` : ""
+        } Vui lòng liên hệ với trường để biết thêm chi tiết.`,
+        eventDetails,
+        timestamp: new Date().toISOString(),
+        priority: eventDetails.severity || "medium",
+      };
+
+      // Send notification to parent
+      await sendNotificationToParent(notificationData);
+
+      console.log("Parent notification sent successfully");
+    } catch (error) {
+      console.error("Error sending parent notification:", error);
+      // Don't throw error here as the main event update was successful
+    }
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">
+          Đang tải...
+        </span>
+      </div>
+    );
+  }
+
+  if (errorMessage && !formData.studentCode) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <FiAlertCircle className="h-12 w-12 text-red-500 mb-4" />
+        <p className="text-lg text-gray-600 dark:text-gray-400">
+          {errorMessage}
+        </p>
+        <Link
+          to="/nurse/health-events"
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Quay lại danh sách
+        </Link>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center">
-          <Link
-            to={`/nurse/health-events/${id}`}
-            className="mr-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-          >
-            <FiArrowLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-            Chỉnh sửa sự cố y tế
-          </h1>
-        </div>
+      <div className="flex items-center mb-6">
+        <Link
+          to="/nurse/health-events"
+          className="mr-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+        >
+          <FiArrowLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+          Chỉnh sửa sự cố y tế
+        </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-neutral-700">
-          {/* Basic Information */}
-          <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
-            <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
-              Thông tin cơ bản
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label
-                  htmlFor="studentName"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Tên học sinh <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="studentName"
-                  name="studentName"
-                  value={formData.studentName}
-                  onChange={handleChange}
-                  className={`w-full rounded-md border ${
-                    validationErrors.studentName
-                      ? "border-red-500"
-                      : "border-gray-300 dark:border-neutral-600"
-                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100`}
-                />
-                {validationErrors.studentName && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {validationErrors.studentName}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="class"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Lớp <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="class"
-                  name="class"
-                  value={formData.class}
-                  onChange={handleChange}
-                  className={`w-full rounded-md border ${
-                    validationErrors.class
-                      ? "border-red-500"
-                      : "border-gray-300 dark:border-neutral-600"
-                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100`}
-                />
-                {validationErrors.class && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {validationErrors.class}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="type"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Loại sự kiện <span className="text-red-600">*</span>
-                </label>
-                <select
-                  id="type"
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  className={`w-full rounded-md border ${
-                    validationErrors.type
-                      ? "border-red-500"
-                      : "border-gray-300 dark:border-neutral-600"
-                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100`}
-                >
-                  <option value="">-- Chọn loại sự kiện --</option>
-                  <option value="illness">Bệnh tật</option>
-                  <option value="injury">Chấn thương</option>
-                  <option value="allergy">Dị ứng</option>
-                  <option value="chronic">Bệnh mãn tính</option>
-                </select>
-                {validationErrors.type && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {validationErrors.type}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="status"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Trạng thái <span className="text-red-600">*</span>
-                </label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className={`w-full rounded-md border ${
-                    validationErrors.status
-                      ? "border-red-500"
-                      : "border-gray-300 dark:border-neutral-600"
-                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100`}
-                >
-                  <option value="">-- Chọn trạng thái --</option>
-                  <option value="pending">Đang xử lý</option>
-                  <option value="resolved">Đã xử lý</option>
-                </select>
-                {validationErrors.status && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {validationErrors.status}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="time"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Thời gian <span className="text-red-600">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="datetime-local"
-                    id="time"
-                    name="time"
-                    value={formatDateTimeForInput(formData.time)}
-                    onChange={handleChange}
-                    className={`w-full rounded-md border ${
-                      validationErrors.time
-                        ? "border-red-500"
-                        : "border-gray-300 dark:border-neutral-600"
-                    } pl-10 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100`}
-                  />
-                  <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                </div>
-                {validationErrors.time && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {validationErrors.time}
-                  </p>
-                )}
-              </div>
-
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Mô tả <span className="text-red-600">*</span>
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows="2"
-                  className={`w-full rounded-md border ${
-                    validationErrors.description
-                      ? "border-red-500"
-                      : "border-gray-300 dark:border-neutral-600"
-                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100`}
-                />
-                {validationErrors.description && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {validationErrors.description}
-                  </p>
-                )}
-              </div>
-            </div>
+      {/* Success/Error Messages */}
+      {submitStatus === "success" && (
+        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+          <div className="flex items-center">
+            <FiCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
+            <p className="text-green-800 dark:text-green-300 font-medium">
+              Cập nhật sự cố y tế thành công! Đang chuyển hướng...
+            </p>
           </div>
+        </div>
+      )}
 
-          {/* Vital Signs */}
-          <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
-            <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
-              Dấu hiệu sinh tồn
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div>
-                <label
-                  htmlFor="temperature"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Thân nhiệt (°C) <span className="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="temperature"
-                  name="vitalSigns.temperature"
-                  value={formData.vitalSigns.temperature}
-                  onChange={handleChange}
-                  className={`w-full rounded-md border ${
-                    validationErrors["vitalSigns.temperature"]
-                      ? "border-red-500"
-                      : "border-gray-300 dark:border-neutral-600"
-                  } px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100`}
-                />
-                {validationErrors["vitalSigns.temperature"] && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {validationErrors["vitalSigns.temperature"]}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="pulse"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Mạch (lần/phút)
-                </label>
-                <input
-                  type="text"
-                  id="pulse"
-                  name="vitalSigns.pulse"
-                  value={formData.vitalSigns.pulse}
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="bloodPressure"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Huyết áp (mmHg)
-                </label>
-                <input
-                  type="text"
-                  id="bloodPressure"
-                  name="vitalSigns.bloodPressure"
-                  value={formData.vitalSigns.bloodPressure}
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="respiratoryRate"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Nhịp thở (lần/phút)
-                </label>
-                <input
-                  type="text"
-                  id="respiratoryRate"
-                  name="vitalSigns.respiratoryRate"
-                  value={formData.vitalSigns.respiratoryRate}
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-            </div>
+      {submitStatus === "error" && (
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="flex items-center">
+            <FiAlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
+            <p className="text-red-800 dark:text-red-300 font-medium">
+              {errorMessage}
+            </p>
           </div>
+        </div>
+      )}
 
-          {/* Event Details */}
-          <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                Chi tiết sự kiện
-              </h2>
-              <button
-                type="button"
-                onClick={handleAddDetail}
-                className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm flex items-center"
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-neutral-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-neutral-700"
+      >
+        {/* Student Information Section */}
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
+          <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
+            Thông tin học sinh
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label
+                htmlFor="studentCode"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
-                <FiPlusCircle className="mr-1" /> Thêm chi tiết
-              </button>
+                Mã số học sinh <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="studentCode"
+                name="studentCode"
+                required
+                value={formData.studentCode}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Ví dụ: ST001"
+              />
             </div>
-            <div className="space-y-3">
-              {formData.details.map((detail, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <FiAlertCircle className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                  <input
-                    type="text"
-                    value={detail}
-                    onChange={(e) => handleDetailChange(index, e.target.value)}
-                    className="flex-grow rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveDetail(index)}
-                    className="p-1 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50"
-                  >
-                    <FiX className="h-5 w-5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Medications */}
-          <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                Thuốc đã sử dụng
-              </h2>
-              <button
-                type="button"
-                onClick={handleAddMedication}
-                className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm flex items-center"
+            <div>
+              <label
+                htmlFor="studentName"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
-                <FiPlusCircle className="mr-1" /> Thêm thuốc
-              </button>
+                Họ và tên học sinh
+              </label>
+              <input
+                type="text"
+                id="studentName"
+                name="studentName"
+                value={formData.studentName}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Họ và tên học sinh"
+              />
             </div>
-            <div className="space-y-4">
-              {formData.medications.map((medication, index) => (
-                <div
-                  key={index}
-                  className="p-4 border border-gray-200 dark:border-neutral-600 rounded-lg bg-gray-50 dark:bg-neutral-700"
-                >
-                  <div className="flex justify-between mb-2">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Thuốc #{index + 1}
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMedication(index)}
-                      className="p-1 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50"
-                    >
-                      <FiX className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                      <label
-                        htmlFor={`medication-name-${index}`}
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >
-                        Tên thuốc
-                      </label>
-                      <input
-                        type="text"
-                        id={`medication-name-${index}`}
-                        value={medication.name}
-                        onChange={(e) =>
-                          handleMedicationChange(index, "name", e.target.value)
-                        }
-                        className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor={`medication-dosage-${index}`}
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >
-                        Liều lượng
-                      </label>
-                      <input
-                        type="text"
-                        id={`medication-dosage-${index}`}
-                        value={medication.dosage}
-                        onChange={(e) =>
-                          handleMedicationChange(
-                            index,
-                            "dosage",
-                            e.target.value
-                          )
-                        }
-                        className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor={`medication-time-${index}`}
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >
-                        Thời gian
-                      </label>
-                      <input
-                        type="time"
-                        id={`medication-time-${index}`}
-                        value={medication.time}
-                        onChange={(e) =>
-                          handleMedicationChange(index, "time", e.target.value)
-                        }
-                        className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor={`medication-admin-${index}`}
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >
-                        Người thực hiện
-                      </label>
-                      <input
-                        type="text"
-                        id={`medication-admin-${index}`}
-                        value={medication.administeredBy}
-                        onChange={(e) =>
-                          handleMedicationChange(
-                            index,
-                            "administeredBy",
-                            e.target.value
-                          )
-                        }
-                        className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Medical Supplies */}
-          <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                Vật tư y tế đã sử dụng
-              </h2>
-              <button
-                type="button"
-                onClick={handleAddMedicalSupply}
-                className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm flex items-center"
+            <div>
+              <label
+                htmlFor="class"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
-                <FiPackage className="mr-1" /> Thêm vật tư
-              </button>
-            </div>
-            <div className="space-y-4">
-              {formData.medicalSupplies.map((supply, index) => (
-                <div
-                  key={index}
-                  className="p-4 border border-gray-200 dark:border-neutral-600 rounded-lg bg-gray-50 dark:bg-neutral-700"
-                >
-                  <div className="flex justify-between mb-2">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Vật tư #{index + 1}
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMedicalSupply(index)}
-                      className="p-1 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50"
-                    >
-                      <FiX className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                      <label
-                        htmlFor={`supply-name-${index}`}
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >
-                        Tên vật tư
-                      </label>
-                      <input
-                        type="text"
-                        id={`supply-name-${index}`}
-                        value={supply.name}
-                        onChange={(e) =>
-                          handleMedicalSupplyChange(
-                            index,
-                            "name",
-                            e.target.value
-                          )
-                        }
-                        className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor={`supply-quantity-${index}`}
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >
-                        Số lượng
-                      </label>
-                      <input
-                        type="number"
-                        id={`supply-quantity-${index}`}
-                        min="1"
-                        value={supply.quantity}
-                        onChange={(e) =>
-                          handleMedicalSupplyChange(
-                            index,
-                            "quantity",
-                            parseInt(e.target.value) || 1
-                          )
-                        }
-                        className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor={`supply-time-${index}`}
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >
-                        Thời gian
-                      </label>
-                      <input
-                        type="time"
-                        id={`supply-time-${index}`}
-                        value={supply.time}
-                        onChange={(e) =>
-                          handleMedicalSupplyChange(
-                            index,
-                            "time",
-                            e.target.value
-                          )
-                        }
-                        className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor={`supply-admin-${index}`}
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >
-                        Người sử dụng
-                      </label>
-                      <input
-                        type="text"
-                        id={`supply-admin-${index}`}
-                        value={supply.usedBy}
-                        onChange={(e) =>
-                          handleMedicalSupplyChange(
-                            index,
-                            "usedBy",
-                            e.target.value
-                          )
-                        }
-                        className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Parent Contact */}
-          <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
-            <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
-              Liên hệ phụ huynh
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label
-                  htmlFor="contactTime"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Thời gian liên hệ
-                </label>
-                <input
-                  type="time"
-                  id="contactTime"
-                  value={formData.parentContacted.time}
-                  onChange={(e) =>
-                    handleParentContactChange("time", e.target.value)
-                  }
-                  className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="contactPerson"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Người được liên hệ
-                </label>
-                <input
-                  type="text"
-                  id="contactPerson"
-                  value={formData.parentContacted.person}
-                  onChange={(e) =>
-                    handleParentContactChange("person", e.target.value)
-                  }
-                  className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="contactMethod"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Phương thức liên hệ
-                </label>
-                <select
-                  id="contactMethod"
-                  value={formData.parentContacted.method}
-                  onChange={(e) =>
-                    handleParentContactChange("method", e.target.value)
-                  }
-                  className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="phone">Điện thoại</option>
-                  <option value="message">Tin nhắn</option>
-                  <option value="email">Email</option>
-                  <option value="in_person">Trực tiếp</option>
-                </select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="contactResponse"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Phản hồi
-                </label>
-                <input
-                  type="text"
-                  id="contactResponse"
-                  value={formData.parentContacted.response}
-                  onChange={(e) =>
-                    handleParentContactChange("response", e.target.value)
-                  }
-                  className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Additional Info */}
-          <div className="p-6">
-            <div className="grid grid-cols-1 gap-6">
-              <div>
-                <label
-                  htmlFor="actionTaken"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Hành động đã thực hiện
-                </label>
-                <textarea
-                  id="actionTaken"
-                  name="actionTaken"
-                  value={formData.actionTaken}
-                  onChange={handleChange}
-                  rows="2"
-                  className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="followUp"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  Theo dõi tiếp theo
-                </label>
-                <textarea
-                  id="followUp"
-                  name="followUp"
-                  value={formData.followUp}
-                  onChange={handleChange}
-                  rows="2"
-                  className="w-full rounded-md border border-gray-300 dark:border-neutral-600 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                />
-              </div>
+                Lớp
+              </label>
+              <input
+                type="text"
+                id="class"
+                name="class"
+                value={formData.class}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Ví dụ: 3A"
+              />
             </div>
           </div>
         </div>
 
-        <div className="flex justify-between">
+        {/* Event Details Section */}
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
+          <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
+            Chi tiết sự cố
+          </h2>
+          <div className="space-y-6">
+            <div>
+              <label
+                htmlFor="type"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Loại sự cố <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="type"
+                name="type"
+                required
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
+              >
+                <option value="illness">Bệnh tật</option>
+                <option value="injury">Chấn thương</option>
+                <option value="allergy">Dị ứng</option>
+                <option value="chronic">Bệnh mãn tính</option>
+                <option value="other">Khác</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="symptoms"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Triệu chứng <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="symptoms"
+                name="symptoms"
+                rows="3"
+                required
+                value={formData.symptoms}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Mô tả các triệu chứng quan sát được (ví dụ: Sốt nhẹ 37.8°C, ho khan, mệt mỏi)"
+              ></textarea>
+            </div>
+
+            <div>
+              <label
+                htmlFor="assessment"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Đánh giá ban đầu
+              </label>
+              <textarea
+                id="assessment"
+                name="assessment"
+                rows="3"
+                value={formData.assessment}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Đánh giá tình trạng sức khỏe và mức độ nghiêm trọng"
+              ></textarea>
+            </div>
+
+            <div>
+              <label
+                htmlFor="treatment"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Biện pháp xử lý
+              </label>
+              <textarea
+                id="treatment"
+                name="treatment"
+                rows="3"
+                value={formData.treatment}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Các biện pháp đã thực hiện (ví dụ: Cho uống thuốc hạ sốt, nghỉ ngơi)"
+              ></textarea>
+            </div>
+
+            <div>
+              <label
+                htmlFor="notes"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Ghi chú thêm
+              </label>
+              <textarea
+                id="notes"
+                name="notes"
+                rows="2"
+                value={formData.notes}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Thông tin bổ sung, lưu ý đặc biệt"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        {/* Medications Section */}
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200">
+              Thuốc đã sử dụng
+            </h2>
+            <button
+              type="button"
+              onClick={addMedication}
+              className="inline-flex items-center px-3 py-1.5 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50"
+              disabled={loadingInventory}
+            >
+              + Thêm thuốc
+            </button>
+          </div>
+
+          {/* Loading or empty state message */}
+          {loadingInventory && (
+            <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+              <div className="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+              Đang tải danh sách thuốc...
+            </div>
+          )}
+
+          {!loadingInventory && availableMedicines.length === 0 && (
+            <div className="text-center py-4 text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
+              <FiAlertCircle className="h-6 w-6 mx-auto mb-2" />
+              Không có thuốc nào khả dụng trong kho
+            </div>
+          )}
+
+          {formData.medications.map((med, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-end border-b border-gray-100 pb-4"
+            >
+              <div>
+                <label
+                  htmlFor={`medication-name-${index}`}
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Tên thuốc
+                </label>
+                <select
+                  id={`medication-name-${index}`}
+                  value={med.name}
+                  onChange={(e) =>
+                    handleMedicationChange(index, "name", e.target.value)
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
+                  disabled={loadingInventory}
+                >
+                  <option value="">
+                    {loadingInventory ? "Đang tải..." : "Chọn thuốc"}
+                  </option>
+                  {availableMedicines.map((medicine) => (
+                    <option key={medicine.medicineId} value={medicine.name}>
+                      {medicine.name} (Còn: {medicine.stockQuantity})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor={`medication-dosage-${index}`}
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Liều lượng
+                </label>
+                <input
+                  type="text"
+                  id={`medication-dosage-${index}`}
+                  value={med.dosage}
+                  onChange={(e) =>
+                    handleMedicationChange(index, "dosage", e.target.value)
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor={`medication-time-${index}`}
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Thời gian
+                </label>
+                <input
+                  type="text"
+                  id={`medication-time-${index}`}
+                  value={med.time}
+                  onChange={(e) =>
+                    handleMedicationChange(index, "time", e.target.value)
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                  placeholder="Ví dụ: 09:30"
+                />
+              </div>
+              <div>
+                {index > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => removeMedication(index)}
+                    className="inline-flex items-center px-3 py-2 border border-red-600 text-red-600 rounded-md hover:bg-red-50"
+                  >
+                    <FiX className="mr-1 h-4 w-4" /> Xóa
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Medical Supplies Section */}
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200">
+              Vật tư y tế đã sử dụng
+            </h2>
+            <button
+              type="button"
+              onClick={addMedicalSupply}
+              className="inline-flex items-center px-3 py-1.5 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50"
+              disabled={loadingInventory}
+            >
+              + Thêm vật tư
+            </button>
+          </div>
+
+          {/* Loading or empty state message */}
+          {loadingInventory && (
+            <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+              <div className="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+              Đang tải danh sách vật tư...
+            </div>
+          )}
+
+          {!loadingInventory && availableMedicalSupplies.length === 0 && (
+            <div className="text-center py-4 text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
+              <FiAlertCircle className="h-6 w-6 mx-auto mb-2" />
+              Không có vật tư y tế nào khả dụng trong kho
+            </div>
+          )}
+
+          {formData.medicalSupplies.map((supply, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-end border-b border-gray-100 pb-4"
+            >
+              <div>
+                <label
+                  htmlFor={`supply-name-${index}`}
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Tên vật tư
+                </label>
+                <select
+                  id={`supply-name-${index}`}
+                  value={supply.name}
+                  onChange={(e) =>
+                    handleMedicalSupplyChange(index, "name", e.target.value)
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
+                  disabled={loadingInventory}
+                >
+                  <option value="">
+                    {loadingInventory ? "Đang tải..." : "Chọn vật tư"}
+                  </option>
+                  {availableMedicalSupplies.map((supply) => (
+                    <option key={supply.supplyId} value={supply.name}>
+                      {supply.name} - {supply.category} (Còn:{" "}
+                      {supply.stockQuantity})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor={`supply-quantity-${index}`}
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Số lượng
+                </label>
+                <input
+                  type="number"
+                  id={`supply-quantity-${index}`}
+                  min="1"
+                  value={supply.quantity}
+                  onChange={(e) =>
+                    handleMedicalSupplyChange(
+                      index,
+                      "quantity",
+                      parseInt(e.target.value) || 1
+                    )
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor={`supply-time-${index}`}
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Thời gian
+                </label>
+                <input
+                  type="text"
+                  id={`supply-time-${index}`}
+                  value={supply.time}
+                  onChange={(e) =>
+                    handleMedicalSupplyChange(index, "time", e.target.value)
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                  placeholder="Ví dụ: 09:30"
+                />
+              </div>
+              <div>
+                {index > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => removeMedicalSupply(index)}
+                    className="inline-flex items-center px-3 py-2 border border-red-600 text-red-600 rounded-md hover:bg-red-50"
+                  >
+                    <FiX className="mr-1 h-4 w-4" /> Xóa
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Parent Contact Section */}
+        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
+          <h2 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
+            Thông báo phụ huynh
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="parentNotified"
+                name="parentNotified"
+                checked={formData.parentNotified}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    parentNotified: e.target.checked,
+                  }))
+                }
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label
+                htmlFor="parentNotified"
+                className="ml-2 text-sm text-gray-700 dark:text-gray-300"
+              >
+                Đã thông báo phụ huynh
+              </label>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="followUpRequired"
+                name="followUpRequired"
+                checked={formData.followUpRequired}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    followUpRequired: e.target.checked,
+                  }))
+                }
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label
+                htmlFor="followUpRequired"
+                className="ml-2 text-sm text-gray-700 dark:text-gray-300"
+              >
+                Cần theo dõi tiếp
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Submit Buttons */}
+        <div className="p-6 bg-gray-50 dark:bg-neutral-700 flex justify-end space-x-4">
           <Link
-            to={`/nurse/health-events/${id}`}
-            className="px-4 py-2 border border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-neutral-700"
+            to="/nurse/health-events"
+            className="px-4 py-2 border border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-600 bg-white dark:bg-neutral-800"
           >
             Hủy
           </Link>
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center disabled:bg-blue-300"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center disabled:bg-blue-400"
           >
             {saving ? (
               <>
-                <div className="animate-spin h-4 w-4 mr-2 border-2 border-t-transparent border-white rounded-full"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
                 Đang lưu...
               </>
             ) : (
               <>
-                <FiSave className="mr-2" />
-                Lưu thay đổi
+                <FiSave className="mr-2 h-4 w-4" />
+                Cập nhật sự cố
               </>
             )}
           </button>

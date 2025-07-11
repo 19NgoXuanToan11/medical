@@ -45,6 +45,8 @@ import HealthCheckDetailManager from "../../pages/manager/health-check/HealthChe
 import ClassManagement from "../../pages/manager/manage/ClassManagement";
 import ClassDetail from "../../pages/manager/manage/ClassDetail";
 import ExaminationCategoryManagement from "../../pages/manager/manage/ExaminationCategoryManagement";
+import HealthEventsManagement from "../../pages/manager/health-events/HealthEventsManagement";
+import ManagerHealthEventDetail from "../../pages/manager/health-events/HealthEventDetail";
 
 // nurse
 import NurseDashboard from "../../pages/nurse/dashboard/NurseDashboard";
@@ -153,6 +155,14 @@ function AppRoutes() {
         <Route
           path="/manager/health-check/:id"
           element={<HealthCheckDetailManager />}
+        />
+        <Route
+          path="/manager/health-events"
+          element={<HealthEventsManagement />}
+        />
+        <Route
+          path="/manager/health-events/:id"
+          element={<ManagerHealthEventDetail />}
         />
         <Route path="/manager/class-management" element={<ClassManagement />} />
         <Route path="/manager/class-management/:id" element={<ClassDetail />} />

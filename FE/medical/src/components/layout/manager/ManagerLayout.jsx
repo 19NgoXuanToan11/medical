@@ -12,6 +12,7 @@ import {
   FiShield,
   FiBookOpen,
   FiClipboard,
+  FiActivity,
 } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import ThemeToggle from "../../common/ThemeToggle";
@@ -49,6 +50,11 @@ const ManagerLayout = () => {
       path: "/manager/medication",
       name: "Quản lý thuốc",
       icon: <FiTablet className="w-5 h-5" />,
+    },
+    {
+      path: "/manager/health-events",
+      name: "Quản lý sự cố y tế",
+      icon: <FiActivity className="w-5 h-5" />,
     },
     {
       path: "/manager/vaccination",
