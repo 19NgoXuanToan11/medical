@@ -63,12 +63,39 @@ const ExcelUpload = () => {
       });
       const result = await ExcelService.importFile(file);
 
-      setUploadStatus({
-        loading: false,
-        success: true,
-        error: null,
-        result,
-      });
+      // Check if there are critical errors that should be treated as failure
+      const hasCriticalErrors =
+        result.errors &&
+        result.errors.length > 0 &&
+        (result.successfullyImported === 0 || // No successful imports
+          result.errors.some(
+            (error) =>
+              error.toLowerCase().includes("sheet not found") ||
+              error.toLowerCase().includes("không tìm thấy sheet") ||
+              error.toLowerCase().includes("file format") ||
+              error.toLowerCase().includes("invalid file") ||
+              error.toLowerCase().includes("error processing file") ||
+              error.toLowerCase().includes("was not recognized") ||
+              error.toLowerCase().includes("dateonly") ||
+              error.toLowerCase().includes("format error") ||
+              error.toLowerCase().includes("parsing error")
+          ));
+
+      if (hasCriticalErrors) {
+        setUploadStatus({
+          loading: false,
+          success: false,
+          error: result.errors.join("; "),
+          result: null,
+        });
+      } else {
+        setUploadStatus({
+          loading: false,
+          success: true,
+          error: null,
+          result,
+        });
+      }
     } catch (error) {
       setUploadStatus({
         loading: false,
