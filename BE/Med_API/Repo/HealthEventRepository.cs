@@ -18,6 +18,7 @@ public class HealthEventRepository : IHealthEventRepository
     {
         return await _context.HealthEvents
             .Include(e => e.Student)
+                .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
                 .ThenInclude(hem => hem.Medicine)
@@ -31,6 +32,7 @@ public class HealthEventRepository : IHealthEventRepository
     {
         return await _context.HealthEvents
             .Include(e => e.Student)
+                .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
                 .ThenInclude(hem => hem.Medicine)
@@ -137,6 +139,7 @@ public class HealthEventRepository : IHealthEventRepository
     {
         return await _context.HealthEvents
             .Include(e => e.Student)
+                .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
                 .ThenInclude(hem => hem.Medicine)
@@ -151,6 +154,7 @@ public class HealthEventRepository : IHealthEventRepository
     {
         return await _context.HealthEvents
             .Include(e => e.Student)
+                .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
                 .ThenInclude(hem => hem.Medicine)
@@ -165,6 +169,7 @@ public class HealthEventRepository : IHealthEventRepository
     {
         return await _context.HealthEvents
             .Include(e => e.Student)
+                .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
                 .ThenInclude(hem => hem.Medicine)

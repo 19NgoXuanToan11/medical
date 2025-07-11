@@ -12,6 +12,10 @@ public class StudentProfile : Profile
     {
         // Map from Student to StudentDto.ViewModel
         CreateMap<Student, StudentDto.ViewModel>()
+            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => 
+                src.Class != null ? src.Class.ClassName : "Unknown"))
+            .ForMember(dest => dest.GradeLevel, opt => opt.MapFrom(src => 
+                src.Class != null ? src.Class.GradeLevel : 0))
             .ForMember(dest => dest.HealthProfileCount, opt => opt.MapFrom(src => 
                 src.HealthProfiles != null ? src.HealthProfiles.Count : 0))
             .ForMember(dest => dest.HealthEventCount, opt => opt.MapFrom(src => 
