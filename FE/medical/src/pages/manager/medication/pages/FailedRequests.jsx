@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiSearch, FiRefreshCw, FiAlertTriangle } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useMedicationRequests } from "../hooks/useMedicationRequests";
-import {
-  transformRequestData,
-  filterRequests,
-  filterByStatus,
-} from "../utils/medicationUtils";
+import { transformRequestData, filterRequests } from "../utils/medicationUtils";
 import MedicationRequestTable from "../components/MedicationRequestTable";
 import MedicationDetailModal from "../components/MedicationDetailModal";
 
@@ -35,16 +31,9 @@ const FailedRequests = () => {
       const response = await medicationService.getFailedMedicationRequests();
 
       if (response.success) {
-        console.log("Raw failed API response:", response.data);
+        console.log("Failed API response:", response.data);
 
-        const failedOnly = filterByStatus(response.data, [
-          "Failed",
-          "failed",
-          "Thất bại",
-        ]);
-        console.log("Filtered failed requests:", failedOnly);
-
-        const transformedRequests = transformRequestData(failedOnly);
+        const transformedRequests = transformRequestData(response.data);
 
         // Force status to failed and add additional failure data
         const failedRequests = transformedRequests.map((req) => ({
