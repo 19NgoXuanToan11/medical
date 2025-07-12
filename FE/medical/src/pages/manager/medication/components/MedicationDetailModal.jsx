@@ -303,23 +303,7 @@ const MedicationDetailModal = ({
                 </button>
               </div>
             )}
-            {request.status === "assigned" && (
-              <button
-                onClick={() => {
-                  const confirmed = window.confirm(
-                    `Bạn có chắc chắn muốn đánh dấu yêu cầu thuốc cho ${request.studentName} là đã hoàn thành?`
-                  );
-                  if (confirmed) {
-                    onCompleteRequest(request);
-                    onClose();
-                  }
-                }}
-                className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white text-sm rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-              >
-                <FiCheckCircle className="inline mr-1 h-4 w-4" />
-                Hoàn thành
-              </button>
-            )}
+
             <button
               onClick={onClose}
               className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"

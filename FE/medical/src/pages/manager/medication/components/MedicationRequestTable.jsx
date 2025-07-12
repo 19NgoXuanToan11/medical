@@ -269,16 +269,7 @@ const MedicationRequestTable = ({
                           )}
                         </div>
                       )}
-                    {activeTab === "assigned" &&
-                      request.status === "assigned" && (
-                        <button
-                          onClick={() => onCompleteRequest(request)}
-                          className="flex items-center px-3 py-1 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-sm"
-                        >
-                          <FiCheckCircle className="mr-1 h-3 w-3" />
-                          Hoàn thành
-                        </button>
-                      )}
+
                     {activeTab === "failed" &&
                       request.status === "failed" &&
                       onRetryRequest && (
