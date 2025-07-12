@@ -292,28 +292,6 @@ const MedicationRequestTable = ({
                           Gửi lại
                         </button>
                       )}
-                    {activeTab === "failed" &&
-                      request.status === "failed" &&
-                      onRetryRequest && (
-                        <button
-                          onClick={() => onRetryRequest(request)}
-                          className="flex items-center px-3 py-1 bg-orange-600 dark:bg-orange-700 text-white rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors text-sm"
-                        >
-                          <FiRefreshCw className="mr-1 h-3 w-3" />
-                          Thử lại
-                        </button>
-                      )}
-                    {activeTab === "rejected" &&
-                      request.status === "rejected" &&
-                      onResubmitRequest && (
-                        <button
-                          onClick={() => onResubmitRequest(request)}
-                          className="flex items-center px-3 py-1 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors text-sm"
-                        >
-                          <FiSend className="mr-1 h-3 w-3" />
-                          Gửi lại
-                        </button>
-                      )}
                   </div>
                 </td>
               </tr>
