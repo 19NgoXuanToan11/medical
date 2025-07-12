@@ -393,15 +393,21 @@ export const medicationService = {
   // Get failed medication requests
   getFailedMedicationRequests: async () => {
     try {
-      // Use the specific failed requests endpoint
-      const response = await api.get("/MedicineRequest/failed-requests");
+      // First try to get all requests and filter by status
+      const response = await api.get("/MedicineRequest");
 
       if (response.data) {
-        console.log("Failed requests from API:", response.data);
+        // Filter for failed status
+        const failedRequests = response.data.filter(
+          (req) => req.status === "Failed" || req.status === "failed"
+        );
+
+        console.log("All requests from API:", response.data);
+        console.log("Filtered failed requests:", failedRequests);
 
         // For any requests missing medicineRequestItems, fetch them individually
         const requestsWithCompleteData = await Promise.all(
-          response.data.map(async (request) => {
+          failedRequests.map(async (request) => {
             if (
               !request.medicineRequestItems ||
               request.medicineRequestItems.length === 0
@@ -459,22 +465,28 @@ export const medicationService = {
   // Get rejected medication requests
   getRejectedMedicationRequests: async () => {
     try {
-      // Use the specific refused requests endpoint
-      const response = await api.get("/MedicineRequest/refused");
+      // First try to get all requests and filter by status
+      const response = await api.get("/MedicineRequest");
 
       if (response.data) {
-        console.log("Refused requests from API:", response.data);
+        // Filter for rejected status
+        const rejectedRequests = response.data.filter(
+          (req) => req.status === "Rejected" || req.status === "rejected"
+        );
+
+        console.log("All requests from API:", response.data);
+        console.log("Filtered rejected requests:", rejectedRequests);
 
         // For any requests missing medicineRequestItems, fetch them individually
         const requestsWithCompleteData = await Promise.all(
-          response.data.map(async (request) => {
+          rejectedRequests.map(async (request) => {
             if (
               !request.medicineRequestItems ||
               request.medicineRequestItems.length === 0
             ) {
               try {
                 console.log(
-                  `Fetching complete data for refused request ${request.requestId}`
+                  `Fetching complete data for rejected request ${request.requestId}`
                 );
                 const detailResponse = await api.get(
                   `/MedicineRequest/${request.requestId}`
@@ -510,7 +522,7 @@ export const medicationService = {
         message: "Không có dữ liệu từ API",
       };
     } catch (error) {
-      console.error("Error fetching refused medication requests:", error);
+      console.error("Error fetching rejected medication requests:", error);
       return {
         success: false,
         data: [],

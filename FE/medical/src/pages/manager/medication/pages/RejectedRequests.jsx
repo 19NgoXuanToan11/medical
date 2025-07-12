@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { FiSearch, FiRefreshCw, FiXCircle, FiFileText } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useMedicationRequests } from "../hooks/useMedicationRequests";
-import { transformRequestData, filterRequests } from "../utils/medicationUtils";
+import {
+  transformRequestData,
+  filterRequests,
+  filterByStatus,
+} from "../utils/medicationUtils";
 import MedicationRequestTable from "../components/MedicationRequestTable";
 import MedicationDetailModal from "../components/MedicationDetailModal";
 
@@ -31,9 +35,16 @@ const RejectedRequests = () => {
       const response = await medicationService.getRejectedMedicationRequests();
 
       if (response.success) {
-        console.log("Refused API response:", response.data);
+        console.log("Raw rejected API response:", response.data);
 
-        const transformedRequests = transformRequestData(response.data);
+        const rejectedOnly = filterByStatus(response.data, [
+          "Rejected",
+          "rejected",
+          "Từ chối",
+        ]);
+        console.log("Filtered rejected requests:", rejectedOnly);
+
+        const transformedRequests = transformRequestData(rejectedOnly);
 
         // Force status to rejected and add additional rejection data
         const rejectedRequests = transformedRequests.map((req) => ({
