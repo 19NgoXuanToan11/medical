@@ -48,7 +48,7 @@ const ManagerLayout = () => {
     },
     {
       path: "/manager/medication",
-      name: "Quản lý thuốc",
+      name: "Quản lý uống thuốc",
       icon: <FiTablet className="w-5 h-5" />,
     },
     {

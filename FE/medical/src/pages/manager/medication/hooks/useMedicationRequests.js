@@ -11,6 +11,7 @@ export const useMedicationRequests = () => {
     assigned: 0,
     completed: 0,
     rejected: 0,
+    failed: 0,
     today: 0,
     total: 0,
   });
@@ -30,16 +31,25 @@ export const useMedicationRequests = () => {
   // Load stats for all tabs
   const loadAllStats = async () => {
     try {
-      const [pendingResponse, assignedResponse, completedResponse] =
-        await Promise.all([
-          medicationService.getPendingMedicationRequests(),
-          medicationService.getAssignedMedicationRequests(),
-          medicationService.getCompletedMedicationRequests(),
-        ]);
+      const [
+        pendingResponse,
+        assignedResponse,
+        completedResponse,
+        rejectedResponse,
+        failedResponse,
+      ] = await Promise.all([
+        medicationService.getPendingMedicationRequests(),
+        medicationService.getAssignedMedicationRequests(),
+        medicationService.getCompletedMedicationRequests(),
+        medicationService.getRejectedMedicationRequests(),
+        medicationService.getFailedMedicationRequests(),
+      ]);
 
       let pendingCount = 0;
       let assignedCount = 0;
       let completedCount = 0;
+      let rejectedCount = 0;
+      let failedCount = 0;
       let todayCount = 0;
 
       // Calculate pending count
@@ -76,21 +86,50 @@ export const useMedicationRequests = () => {
         completedCount = completedData.length;
       }
 
+      // Calculate rejected count
+      if (rejectedResponse.success && rejectedResponse.data) {
+        const rejectedData = rejectedResponse.data.filter(
+          (req) => req.status === "Rejected" || req.status === "rejected"
+        );
+        rejectedCount = rejectedData.length;
+      }
+
+      // Calculate failed count
+      if (failedResponse.success && failedResponse.data) {
+        const failedData = failedResponse.data.filter(
+          (req) => req.status === "Failed" || req.status === "failed"
+        );
+        failedCount = failedData.length;
+      }
+
       setStats({
         pending: pendingCount,
         assigned: assignedCount,
         completed: completedCount,
-        rejected: 0,
+        rejected: rejectedCount,
+        failed: failedCount,
         today: todayCount,
-        total: pendingCount + assignedCount + completedCount,
+        total:
+          pendingCount +
+          assignedCount +
+          completedCount +
+          rejectedCount +
+          failedCount,
       });
 
       console.log("Updated stats:", {
         pending: pendingCount,
         assigned: assignedCount,
         completed: completedCount,
+        rejected: rejectedCount,
+        failed: failedCount,
         today: todayCount,
-        total: pendingCount + assignedCount + completedCount,
+        total:
+          pendingCount +
+          assignedCount +
+          completedCount +
+          rejectedCount +
+          failedCount,
       });
     } catch (error) {
       console.error("Error loading stats:", error);

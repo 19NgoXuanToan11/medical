@@ -8,6 +8,8 @@ import {
   FiChevronDown,
   FiTablet,
   FiInfo,
+  FiRefreshCw,
+  FiSend,
 } from "react-icons/fi";
 import { getVietnameseStatusText } from "../utils/medicationUtils";
 
@@ -22,6 +24,8 @@ const MedicationRequestTable = ({
   onViewDetail,
   onAssignRequest,
   onCompleteRequest,
+  onRetryRequest,
+  onResubmitRequest,
 }) => {
   return (
     <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 transition-colors duration-300">
@@ -41,6 +45,8 @@ const MedicationRequestTable = ({
               {/* Conditional column for assigned nurse */}
               {(activeTab === "assigned" ||
                 activeTab === "completed" ||
+                activeTab === "failed" ||
+                activeTab === "rejected" ||
                 activeTab === "all") && (
                 <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Nhân viên Y tế
@@ -94,6 +100,8 @@ const MedicationRequestTable = ({
                 {/* Conditional column for assigned nurse */}
                 {(activeTab === "assigned" ||
                   activeTab === "completed" ||
+                  activeTab === "failed" ||
+                  activeTab === "rejected" ||
                   activeTab === "all") && (
                   <td className="px-6 py-4 align-middle text-center">
                     <div className="flex flex-col items-center justify-center min-h-[60px]">
@@ -116,6 +124,22 @@ const MedicationRequestTable = ({
                         <div className="text-xs text-blue-600 dark:text-blue-400">
                           Hoàn thành:{" "}
                           {new Date(request.completedDate).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </div>
+                      )}
+                      {activeTab === "failed" && request.failedDate && (
+                        <div className="text-xs text-red-600 dark:text-red-400">
+                          Thất bại:{" "}
+                          {new Date(request.failedDate).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </div>
+                      )}
+                      {activeTab === "rejected" && request.rejectedDate && (
+                        <div className="text-xs text-orange-600 dark:text-orange-400">
+                          Từ chối:{" "}
+                          {new Date(request.rejectedDate).toLocaleDateString(
                             "vi-VN"
                           )}
                         </div>
@@ -255,6 +279,28 @@ const MedicationRequestTable = ({
                           Hoàn thành
                         </button>
                       )}
+                    {activeTab === "failed" &&
+                      request.status === "failed" &&
+                      onRetryRequest && (
+                        <button
+                          onClick={() => onRetryRequest(request)}
+                          className="flex items-center px-3 py-1 bg-orange-600 dark:bg-orange-700 text-white rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors text-sm"
+                        >
+                          <FiRefreshCw className="mr-1 h-3 w-3" />
+                          Thử lại
+                        </button>
+                      )}
+                    {activeTab === "rejected" &&
+                      request.status === "rejected" &&
+                      onResubmitRequest && (
+                        <button
+                          onClick={() => onResubmitRequest(request)}
+                          className="flex items-center px-3 py-1 bg-green-600 dark:bg-green-700 text-white rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors text-sm"
+                        >
+                          <FiSend className="mr-1 h-3 w-3" />
+                          Gửi lại
+                        </button>
+                      )}
                   </div>
                 </td>
               </tr>
@@ -276,6 +322,10 @@ const MedicationRequestTable = ({
               ? "Chưa có yêu cầu thuốc nào đã được gán cho nhân viên y tế."
               : activeTab === "completed"
               ? "Chưa có yêu cầu thuốc nào đã hoàn thành."
+              : activeTab === "failed"
+              ? "Chưa có yêu cầu thuốc nào thất bại."
+              : activeTab === "rejected"
+              ? "Chưa có yêu cầu thuốc nào bị từ chối."
               : "Chưa có yêu cầu thuốc nào trong hệ thống."}
           </p>
         </div>
