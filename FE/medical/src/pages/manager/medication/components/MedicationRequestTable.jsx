@@ -9,6 +9,7 @@ import {
   FiTablet,
   FiInfo,
 } from "react-icons/fi";
+import { getVietnameseStatusText } from "../utils/medicationUtils";
 
 const MedicationRequestTable = ({
   requests,
@@ -132,28 +133,50 @@ const MedicationRequestTable = ({
                     {request.status === "pending" ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200">
                         <FiClock className="h-4 w-4" />
-                        <span className="ml-1">Chờ xử lý</span>
+                        <span className="ml-1">
+                          {getVietnameseStatusText("pending")}
+                        </span>
                       </span>
                     ) : request.status === "assigned" ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
                         <FiCheckCircle className="h-4 w-4" />
-                        <span className="ml-1">Đã giao</span>
+                        <span className="ml-1">
+                          {getVietnameseStatusText("assigned")}
+                        </span>
                       </span>
                     ) : request.status === "completed" ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
                         <FiCheckCircle className="h-4 w-4" />
-                        <span className="ml-1">Đã hoàn thành</span>
+                        <span className="ml-1">
+                          {getVietnameseStatusText("completed")}
+                        </span>
                       </span>
                     ) : request.status === "rejected" ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
                         <FiXCircle className="h-4 w-4" />
-                        <span className="ml-1">Từ chối</span>
+                        <span className="ml-1">
+                          {getVietnameseStatusText("rejected")}
+                        </span>
+                      </span>
+                    ) : request.status === "failed" ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
+                        <FiXCircle className="h-4 w-4" />
+                        <span className="ml-1">
+                          {getVietnameseStatusText("failed")}
+                        </span>
+                      </span>
+                    ) : request.status === "refused" ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
+                        <FiXCircle className="h-4 w-4" />
+                        <span className="ml-1">
+                          {getVietnameseStatusText("refused")}
+                        </span>
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200">
                         <FiTablet className="h-4 w-4" />
                         <span className="ml-1">
-                          {request.status || "Không xác định"}
+                          {getVietnameseStatusText(request.status)}
                         </span>
                       </span>
                     )}

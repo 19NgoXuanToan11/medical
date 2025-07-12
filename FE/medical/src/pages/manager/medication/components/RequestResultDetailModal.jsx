@@ -22,6 +22,7 @@ import {
   shouldShowReRequestOption,
   getStatusDisplayText,
 } from "../utils/requestResultUtils";
+import { getVietnameseStatusText } from "../utils/medicationUtils";
 
 const RequestResultDetailModal = ({
   result,
@@ -431,8 +432,10 @@ const RequestResultDetailModal = ({
                           : result.status === "pending"
                           ? "Chờ cấp thuốc"
                           : result.status === "failed"
-                          ? "Thất bại"
-                          : getStatusDisplayText(result.status)}
+                          ? getVietnameseStatusText("failed")
+                          : result.status === "refused"
+                          ? getVietnameseStatusText("refused")
+                          : getVietnameseStatusText(result.status)}
                       </span>
                       {result.isReRequest && (
                         <span className="text-orange-600 dark:text-orange-400 text-sm">
