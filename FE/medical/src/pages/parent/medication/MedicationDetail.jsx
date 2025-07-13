@@ -410,7 +410,13 @@ const MedicationDetail = () => {
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   {medicine.timeOfDay &&
                                   medicine.timeOfDay !== "N/A"
-                                    ? medicine.timeOfDay
+                                    ? Array.isArray(medicine.timeOfDay)
+                                      ? medicine.timeOfDay
+                                          .map((time) =>
+                                            getTimeOfDayText(time.trim())
+                                          )
+                                          .join(", ")
+                                      : getTimeOfDayText(medicine.timeOfDay)
                                     : "Chưa xác định"}
                                 </p>
                               </div>
