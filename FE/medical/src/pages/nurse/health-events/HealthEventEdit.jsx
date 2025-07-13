@@ -25,6 +25,13 @@ import {
   medicalSupplyInventoryService,
 } from "../../../utils/api/medication/inventoryService";
 import { useAuth } from "../../../utils/auth/AuthContext";
+import {
+  getMedicineUnit,
+  getMedicalSupplyUnit,
+  getDosagePlaceholder,
+  formatDosageWithUnit,
+  extractDosageNumber,
+} from "../../../utils/medicineUnits";
 
 const HealthEventEdit = () => {
   const { id } = useParams();
@@ -112,23 +119,37 @@ const HealthEventEdit = () => {
           medications:
             eventResponse.healthEventMedicines &&
             eventResponse.healthEventMedicines.length > 0
-              ? eventResponse.healthEventMedicines.map((med) => ({
-                  name: med.medicine?.name || "",
-                  dosage: med.dosage || "",
-                  time: med.time || "",
-                  id: med.medicineId,
-                }))
-              : [{ name: "", dosage: "", time: "" }],
+              ? eventResponse.healthEventMedicines.map((med) => {
+                  const medicineName = med.medicine?.name || "";
+                  const unit = getMedicineUnit(medicineName);
+                  const dosage = med.dosage || "";
+                  // Extract number from dosage if it contains unit
+                  const numericDosage = extractDosageNumber(dosage) || dosage;
+                  return {
+                    name: medicineName,
+                    dosage: numericDosage,
+                    time: med.time || "",
+                    id: med.medicineId,
+                    unit: unit,
+                  };
+                })
+              : [{ name: "", dosage: "", time: "", unit: "" }],
           medicalSupplies:
             eventResponse.healthEventMedicalSupplies &&
             eventResponse.healthEventMedicalSupplies.length > 0
-              ? eventResponse.healthEventMedicalSupplies.map((supply) => ({
-                  name: supply.medicalSupply?.name || "",
-                  quantity: supply.quantity || 1,
-                  time: supply.time || "",
-                  id: supply.medicalSupplyId,
-                }))
-              : [{ name: "", quantity: 1, time: "" }],
+              ? eventResponse.healthEventMedicalSupplies.map((supply) => {
+                  const supplyName = supply.medicalSupply?.name || "";
+                  const supplyCategory = supply.medicalSupply?.category || "";
+                  const unit = getMedicalSupplyUnit(supplyName, supplyCategory);
+                  return {
+                    name: supplyName,
+                    quantity: supply.quantity || 1,
+                    time: supply.time || "",
+                    id: supply.medicalSupplyId,
+                    unit: unit,
+                  };
+                })
+              : [{ name: "", quantity: 1, time: "", unit: "" }],
           parentContacted: {
             contacted: eventResponse.parentNotified || false,
             time: "",
@@ -171,6 +192,20 @@ const HealthEventEdit = () => {
       ...updatedMedications[index],
       [field]: value,
     };
+
+    // If medicine name is changed, store the unit separately and clear dosage for number input
+    if (field === "name" && value) {
+      const unit = getMedicineUnit(value);
+      updatedMedications[index].unit = unit;
+      // Clear dosage to allow fresh number input
+      if (
+        !updatedMedications[index].dosage ||
+        updatedMedications[index].dosage === updatedMedications[index].unit
+      ) {
+        updatedMedications[index].dosage = "";
+      }
+    }
+
     setFormData((prev) => ({ ...prev, medications: updatedMedications }));
   };
 
@@ -180,13 +215,26 @@ const HealthEventEdit = () => {
       ...updatedSupplies[index],
       [field]: value,
     };
+
+    // If medical supply name is changed, determine the unit and store it
+    if (field === "name" && value) {
+      const selectedSupply = availableMedicalSupplies.find(
+        (supply) => supply.name === value
+      );
+      const unit = getMedicalSupplyUnit(value, selectedSupply?.category);
+      updatedSupplies[index].unit = unit;
+    }
+
     setFormData((prev) => ({ ...prev, medicalSupplies: updatedSupplies }));
   };
 
   const addMedication = () => {
     setFormData((prev) => ({
       ...prev,
-      medications: [...prev.medications, { name: "", dosage: "", time: "" }],
+      medications: [
+        ...prev.medications,
+        { name: "", dosage: "", time: "", unit: "" },
+      ],
     }));
   };
 
@@ -195,7 +243,7 @@ const HealthEventEdit = () => {
       ...prev,
       medicalSupplies: [
         ...prev.medicalSupplies,
-        { name: "", quantity: 1, time: "" },
+        { name: "", quantity: 1, time: "", unit: "" },
       ],
     }));
   };
@@ -235,15 +283,19 @@ const HealthEventEdit = () => {
       const mappedMedications = formData.medications
         .filter((med) => med.name && med.name.trim() !== "")
         .map((med) => {
+          // Combine dosage with unit for API
+          const dosageWithUnit =
+            med.dosage && med.unit ? `${med.dosage} ${med.unit}` : med.dosage;
           // If medication already has ID (existing), use it; otherwise find from available medicines
           if (med.id) {
-            return { ...med, id: med.id };
+            return { ...med, dosage: dosageWithUnit, id: med.id };
           }
           const selectedMedicine = availableMedicines.find(
             (medicine) => medicine.name === med.name
           );
           return {
             ...med,
+            dosage: dosageWithUnit,
             id: selectedMedicine ? selectedMedicine.medicineId : 1,
           };
         });
@@ -634,17 +686,29 @@ const HealthEventEdit = () => {
                   htmlFor={`medication-dosage-${index}`}
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  Liều lượng
+                  Liều lượng {med.unit && `(${med.unit})`}
                 </label>
-                <input
-                  type="text"
-                  id={`medication-dosage-${index}`}
-                  value={med.dosage}
-                  onChange={(e) =>
-                    handleMedicationChange(index, "dosage", e.target.value)
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                />
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    id={`medication-dosage-${index}`}
+                    value={med.dosage}
+                    onChange={(e) =>
+                      handleMedicationChange(index, "dosage", e.target.value)
+                    }
+                    placeholder={med.unit ? `Nhập số lượng` : "Nhập liều lượng"}
+                    className="w-full px-4 py-2 pr-12 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                  />
+                  {med.unit && (
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
+                        {med.unit}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
               <div>
                 <label
@@ -747,7 +811,7 @@ const HealthEventEdit = () => {
                   htmlFor={`supply-quantity-${index}`}
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  Số lượng
+                  Số lượng {supply.unit && `(${supply.unit})`}
                 </label>
                 <input
                   type="number"
@@ -760,6 +824,11 @@ const HealthEventEdit = () => {
                       "quantity",
                       parseInt(e.target.value) || 1
                     )
+                  }
+                  placeholder={
+                    supply.unit
+                      ? `Nhập số lượng (${supply.unit})`
+                      : "Nhập số lượng"
                   }
                   className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 />

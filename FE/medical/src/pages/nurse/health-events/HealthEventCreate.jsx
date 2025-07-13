@@ -21,6 +21,14 @@ import {
   medicalSupplyInventoryService,
 } from "../../../utils/api/medication/inventoryService";
 import { useAuth } from "../../../utils/auth/AuthContext";
+import {
+  getMedicineUnit,
+  getMedicalSupplyUnit,
+  getDosagePlaceholder,
+  formatDosageWithUnit,
+  extractDosageNumber,
+} from "../../../utils/medicineUnits";
+import { getStudentByCode } from "../../../utils/api/student/studentService";
 
 const HealthEventCreate = () => {
   const navigate = useNavigate();
@@ -33,6 +41,10 @@ const HealthEventCreate = () => {
   const [availableMedicines, setAvailableMedicines] = useState([]);
   const [availableMedicalSupplies, setAvailableMedicalSupplies] = useState([]);
   const [loadingInventory, setLoadingInventory] = useState(true);
+
+  // State for student info loading
+  const [loadingStudentInfo, setLoadingStudentInfo] = useState(false);
+  const [studentNotFound, setStudentNotFound] = useState(false);
 
   const [formData, setFormData] = useState({
     studentCode: "",
@@ -47,8 +59,8 @@ const HealthEventCreate = () => {
     pulse: "",
     bloodPressure: "",
     respiratoryRate: "",
-    medications: [{ name: "", dosage: "", time: "" }],
-    medicalSupplies: [{ name: "", quantity: 1, time: "" }],
+    medications: [{ name: "", dosage: "", time: "", unit: "" }],
+    medicalSupplies: [{ name: "", quantity: 1, time: "", unit: "" }],
     parentNotified: false,
     followUpRequired: false,
     parentContacted: {
@@ -100,6 +112,53 @@ const HealthEventCreate = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Function to handle student code change and auto-fetch student info
+  const handleStudentCodeChange = async (e) => {
+    const { value } = e.target;
+
+    // Update the student code in form data
+    setFormData((prev) => ({ ...prev, studentCode: value }));
+
+    // Reset states
+    setStudentNotFound(false);
+
+    // If student code is empty, clear student info
+    if (!value.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        studentName: "",
+        class: "",
+      }));
+      return;
+    }
+
+    // Fetch student info if student code has reasonable length
+    if (value.trim().length >= 3) {
+      setLoadingStudentInfo(true);
+      try {
+        const studentData = await getStudentByCode(value.trim());
+        // Auto-fill student name and class
+        setFormData((prev) => ({
+          ...prev,
+          studentName: `${studentData.firstName} ${studentData.lastName}`,
+          class: studentData.className,
+        }));
+        setStudentNotFound(false);
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+        setStudentNotFound(true);
+        // Clear student info if not found
+        setFormData((prev) => ({
+          ...prev,
+          studentName: "",
+          class: "",
+        }));
+      } finally {
+        setLoadingStudentInfo(false);
+      }
+    }
+  };
+
   const handleNestedChange = (category, field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -113,6 +172,20 @@ const HealthEventCreate = () => {
       ...updatedMedications[index],
       [field]: value,
     };
+
+    // If medicine name is changed, store the unit separately and clear dosage for number input
+    if (field === "name" && value) {
+      const unit = getMedicineUnit(value);
+      updatedMedications[index].unit = unit;
+      // Clear dosage to allow fresh number input
+      if (
+        !updatedMedications[index].dosage ||
+        updatedMedications[index].dosage === updatedMedications[index].unit
+      ) {
+        updatedMedications[index].dosage = "";
+      }
+    }
+
     setFormData((prev) => ({ ...prev, medications: updatedMedications }));
   };
 
@@ -122,13 +195,26 @@ const HealthEventCreate = () => {
       ...updatedSupplies[index],
       [field]: value,
     };
+
+    // If medical supply name is changed, determine the unit and store it
+    if (field === "name" && value) {
+      const selectedSupply = availableMedicalSupplies.find(
+        (supply) => supply.name === value
+      );
+      const unit = getMedicalSupplyUnit(value, selectedSupply?.category);
+      updatedSupplies[index].unit = unit;
+    }
+
     setFormData((prev) => ({ ...prev, medicalSupplies: updatedSupplies }));
   };
 
   const addMedication = () => {
     setFormData((prev) => ({
       ...prev,
-      medications: [...prev.medications, { name: "", dosage: "", time: "" }],
+      medications: [
+        ...prev.medications,
+        { name: "", dosage: "", time: "", unit: "" },
+      ],
     }));
   };
 
@@ -137,7 +223,7 @@ const HealthEventCreate = () => {
       ...prev,
       medicalSupplies: [
         ...prev.medicalSupplies,
-        { name: "", quantity: 1, time: "" },
+        { name: "", quantity: 1, time: "", unit: "" },
       ],
     }));
   };
@@ -180,8 +266,12 @@ const HealthEventCreate = () => {
           const selectedMedicine = availableMedicines.find(
             (medicine) => medicine.name === med.name
           );
+          // Combine dosage with unit for API
+          const dosageWithUnit =
+            med.dosage && med.unit ? `${med.dosage} ${med.unit}` : med.dosage;
           return {
             ...med,
+            dosage: dosageWithUnit,
             id: selectedMedicine ? selectedMedicine.medicineId : 1,
           };
         });
@@ -327,16 +417,32 @@ const HealthEventCreate = () => {
               >
                 Mã số học sinh <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                id="studentCode"
-                name="studentCode"
-                required
-                value={formData.studentCode}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                placeholder="Ví dụ: ST001"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  id="studentCode"
+                  name="studentCode"
+                  required
+                  value={formData.studentCode}
+                  onChange={handleStudentCodeChange}
+                  className={`w-full px-4 py-2 pr-10 border ${
+                    studentNotFound
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-gray-300 dark:border-neutral-600 focus:border-blue-500"
+                  } rounded-md focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400`}
+                  placeholder="Ví dụ: STU1C026"
+                />
+                {loadingStudentInfo && (
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                  </div>
+                )}
+              </div>
+              {studentNotFound && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  Không tìm thấy học sinh với mã này
+                </p>
+              )}
             </div>
             <div>
               <label
@@ -344,6 +450,10 @@ const HealthEventCreate = () => {
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Họ và tên học sinh
+                {formData.studentName && (
+                  <span className="text-xs text-green-600 dark:text-green-400 ml-1">
+                  </span>
+                )}
               </label>
               <input
                 type="text"
@@ -351,7 +461,11 @@ const HealthEventCreate = () => {
                 name="studentName"
                 value={formData.studentName}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                className={`w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                  formData.studentName
+                    ? "bg-green-50 dark:bg-green-900/20"
+                    : "bg-white dark:bg-neutral-700"
+                } text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400`}
                 placeholder="Họ và tên học sinh"
               />
             </div>
@@ -361,6 +475,10 @@ const HealthEventCreate = () => {
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Lớp
+                {formData.class && (
+                  <span className="text-xs text-green-600 dark:text-green-400 ml-1">
+                  </span>
+                )}
               </label>
               <input
                 type="text"
@@ -368,8 +486,13 @@ const HealthEventCreate = () => {
                 name="class"
                 value={formData.class}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                className={`w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                  formData.class
+                    ? "bg-green-50 dark:bg-green-900/20"
+                    : "bg-white dark:bg-neutral-700"
+                } text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400`}
                 placeholder="Ví dụ: 3A"
+                readOnly={!!formData.class}
               />
             </div>
           </div>
@@ -477,7 +600,7 @@ const HealthEventCreate = () => {
               ></textarea>
             </div>
           </div>
-        </div> 
+        </div>
 
         {/* Medications Section */}
         <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
@@ -546,17 +669,29 @@ const HealthEventCreate = () => {
                   htmlFor={`medication-dosage-${index}`}
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  Liều lượng
+                  Liều lượng {med.unit && `(${med.unit})`}
                 </label>
-                <input
-                  type="text"
-                  id={`medication-dosage-${index}`}
-                  value={med.dosage}
-                  onChange={(e) =>
-                    handleMedicationChange(index, "dosage", e.target.value)
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                />
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    id={`medication-dosage-${index}`}
+                    value={med.dosage}
+                    onChange={(e) =>
+                      handleMedicationChange(index, "dosage", e.target.value)
+                    }
+                    placeholder={med.unit ? `Nhập số lượng` : "Nhập liều lượng"}
+                    className="w-full px-4 py-2 pr-12 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                  />
+                  {med.unit && (
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">
+                        {med.unit}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
               <div>
                 <label
@@ -659,7 +794,7 @@ const HealthEventCreate = () => {
                   htmlFor={`supply-quantity-${index}`}
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  Số lượng
+                  Số lượng {supply.unit && `(${supply.unit})`}
                 </label>
                 <input
                   type="number"
@@ -672,6 +807,11 @@ const HealthEventCreate = () => {
                       "quantity",
                       parseInt(e.target.value) || 1
                     )
+                  }
+                  placeholder={
+                    supply.unit
+                      ? `Nhập số lượng (${supply.unit})`
+                      : "Nhập số lượng"
                   }
                   className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 />

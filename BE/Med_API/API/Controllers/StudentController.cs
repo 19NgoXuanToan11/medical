@@ -113,4 +113,19 @@ public class StudentController : ControllerBase
         var studentViewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(filtered);
         return Ok(studentViewModels);
     }
+
+    // GET: api/Student/by-code/{studentCode}
+    [HttpGet("by-code/{studentCode}")]
+    public async Task<ActionResult<StudentDto.ViewModel>> GetStudentByCode(string studentCode)
+    {
+        var student = await _studentService.GetStudentByCodeAsync(studentCode);
+
+        if (student == null)
+        {
+            return NotFound();
+        }
+
+        var studentViewModel = _mapper.Map<StudentDto.ViewModel>(student);
+        return Ok(studentViewModel);
+    }
 } 
