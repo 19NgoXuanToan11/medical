@@ -55,6 +55,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     {
         var existingRequest = await _context.MedicineRequests
             .Include(r => r.MedicineRequestItems)
+            .Include(r => r.RequestResults)
             .FirstOrDefaultAsync(r => r.RequestId == medicineRequest.RequestId);
 
         if (existingRequest == null)
@@ -64,6 +65,30 @@ public class MedicineRequestRepository : IMedicineRequestRepository
 
         _context.Entry(existingRequest).CurrentValues.SetValues(medicineRequest);
         existingRequest.RefusalReason = medicineRequest.RefusalReason;
+
+        // Only synchronize RequestResult status if MedicineRequest is being marked as completed
+        // AND the RequestResult is actually completed based on frequency progress
+        if (medicineRequest.Status == "Completed")
+        {
+            var latestResult = existingRequest.RequestResults
+                .OrderByDescending(r => r.SubmittedAt)
+                .FirstOrDefault();
+            
+            if (latestResult != null && latestResult.Status == "In Progress")
+            {
+                // Check if the RequestResult is actually completed based on frequency
+                var isActuallyCompleted = await IsRequestResultActuallyCompletedAsync(latestResult.ResultId);
+                if (isActuallyCompleted)
+                {
+                    latestResult.Status = "Completed";
+                }
+                else
+                {
+                    // If not actually completed, don't mark MedicineRequest as completed
+                    existingRequest.Status = "In Progress";
+                }
+            }
+        }
 
         // Handle MedicineRequestItems
         var existingItems = existingRequest.MedicineRequestItems.ToList();
@@ -238,15 +263,31 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             {
                 request.Status = "Failed";
             }
-            else
+            else if (latestResult.Status == "Completed")
             {
+                // Only mark MedicineRequest as completed if RequestResult is already completed
                 request.Status = "Completed";
-                latestResult.Status = "Completed";
+            }
+            else if (latestResult.Status == "In Progress")
+            {
+                // Check if the RequestResult is actually completed based on frequency
+                var isActuallyCompleted = await IsRequestResultActuallyCompletedAsync(latestResult.ResultId);
+                if (isActuallyCompleted)
+                {
+                    latestResult.Status = "Completed";
+                    request.Status = "Completed";
+                }
+                else
+                {
+                    // Cannot complete if frequency requirements are not met
+                    return false;
+                }
             }
         }
         else
         {
-            request.Status = "Completed";
+            // No RequestResult exists, cannot complete
+            return false;
         }
 
         await _context.SaveChangesAsync();
@@ -316,6 +357,8 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             requestResult.CurrentDate = today;
             requestResult.CurrentDayCount = 0;
             administeredFrequencies.Clear();
+            // Update the JSON field to reflect the cleared list
+            requestResult.AdministeredFrequencies = JsonSerializer.Serialize(administeredFrequencies);
         }
 
         // Check if this frequency is already administered
@@ -398,6 +441,13 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             return false;
         }
 
+        // Check if the RequestResult is actually completed based on frequency
+        var isActuallyCompleted = await IsRequestResultActuallyCompletedAsync(requestResultId);
+        if (!isActuallyCompleted)
+        {
+            return false; // Cannot complete if frequency requirements are not met
+        }
+
         requestResult.Status = "Completed";
         requestResult.ActionBy = staffId;
         await _context.SaveChangesAsync();
@@ -413,23 +463,52 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     }
 
     // Helper methods
-    private int ParseFrequencyToTimesPerDay(string? frequency)
+    public int ParseFrequencyToTimesPerDay(string? frequency)
     {
         if (string.IsNullOrEmpty(frequency))
             return 1;
 
-        // Handle different frequency formats
-        if (frequency.Contains("2") || frequency.Contains("hai") || frequency.Contains("two"))
-            return 2;
-        if (frequency.Contains("3") || frequency.Contains("ba") || frequency.Contains("three"))
-            return 3;
-        if (frequency.Contains("4") || frequency.Contains("bốn") || frequency.Contains("four"))
-            return 4;
+        // First, try to parse the total count from the frequency string
+        var totalCount = 0;
+        var segments = frequency.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        
+        foreach (var segment in segments)
+        {
+            var part = segment.Trim().ToLower();
+            // Match patterns like 'sáng 2 lần', 'trưa 1 lần', etc.
+            var match = Regex.Match(part, @"(sáng|trưa|chiều|tối)\s*(\d+)?\s*lần?");
+            if (match.Success)
+            {
+                var countStr = match.Groups[2].Value;
+                int count = 1;
+                if (!string.IsNullOrEmpty(countStr) && int.TryParse(countStr, out var parsed))
+                    count = parsed;
+                totalCount += count;
+            }
+            else
+            {
+                // Fallback: if just 'sáng', 'trưa', etc. (old format)
+                if (part == "sáng" || part == "trưa" || part == "chiều" || part == "tối")
+                    totalCount += 1;
+            }
+        }
 
-        return 1; // Default to once per day
+        // If we couldn't parse any specific counts, fall back to the old logic
+        if (totalCount == 0)
+        {
+            if (frequency.Contains("2") || frequency.Contains("hai") || frequency.Contains("two"))
+                return 2;
+            if (frequency.Contains("3") || frequency.Contains("ba") || frequency.Contains("three"))
+                return 3;
+            if (frequency.Contains("4") || frequency.Contains("bốn") || frequency.Contains("four"))
+                return 4;
+            return 1; // Default to once per day
+        }
+
+        return totalCount;
     }
 
-    private List<string> ParseFrequencyToFrequencies(string? frequency)
+    public List<string> ParseFrequencyToFrequencies(string? frequency)
     {
         if (string.IsNullOrEmpty(frequency))
             return new List<string>();
@@ -440,7 +519,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         {
             var part = segment.Trim().ToLower();
             // Match patterns like 'sáng 2 lần', 'trưa 1 lần', etc.
-            var match = Regex.Match(part, @"(sáng|trưa|chiều)\s*(\d+)?\s*lần?");
+            var match = Regex.Match(part, @"(sáng|trưa|chiều|tối)\s*(\d+)?\s*lần?");
             if (match.Success)
             {
                 var timeOfDay = match.Groups[1].Value;
@@ -449,16 +528,46 @@ public class MedicineRequestRepository : IMedicineRequestRepository
                 if (!string.IsNullOrEmpty(countStr) && int.TryParse(countStr, out var parsed))
                     count = parsed;
                 for (int i = 0; i < count; i++)
-                    result.Add(timeOfDay);
+                    result.Add(CapitalizeFirstLetter(timeOfDay));
             }
             else
             {
                 // Fallback: if just 'sáng', 'trưa', etc. (old format)
                 if (part == "sáng" || part == "trưa" || part == "chiều" || part == "tối")
-                    result.Add(part);
+                    result.Add(CapitalizeFirstLetter(part));
+                else
+                {
+                    // Handle simple count-based frequencies like "2 lần", "3 lần", etc.
+                    var countMatch = Regex.Match(part, @"(\d+)\s*lần?");
+                    if (countMatch.Success && int.TryParse(countMatch.Groups[1].Value, out var count))
+                    {
+                        // For simple count-based frequencies, map to Sáng and Trưa, each repeated 'count' times
+                        var slots = new[] { "Sáng", "Trưa" };
+                        foreach (var slot in slots)
+                        {
+                            for (int i = 0; i < count; i++)
+                            {
+                                result.Add(slot);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // If we can't parse it, assume it's a single administration
+                        result.Add("Sáng");
+                    }
+                }
             }
         }
         return result;
+    }
+
+    private string CapitalizeFirstLetter(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+        
+        return char.ToUpper(input[0]) + input.Substring(1);
     }
 
     private List<string> ParseAdministeredFrequencies(string? administeredFrequenciesJson)
@@ -548,7 +657,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
 
         // Check if it's past 5 PM
         var currentTime = DateTime.Now;
-        if (currentTime.Hour >= 17) // 5 PM
+        if (currentTime.Hour >= 17)
         {
             return null; // Cannot create re-request after 5 PM
         }
@@ -706,7 +815,12 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     {
         return await _context.RequestResults
             .Include(r => r.Request)
-            .ThenInclude(r => r!.MedicineRequestItems)
+                .ThenInclude(rq => rq.Student)
+                    .ThenInclude(s => s.Class)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.MedicineRequestItems)
             .Include(r => r.AdministeredByStaff)
             .Include(r => r.ActionByStaff)
             .Include(r => r.OriginalRequestResult)
@@ -733,19 +847,44 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     {
         var requestResult = await _context.RequestResults
             .Include(r => r.Request)
-            .ThenInclude(r => r!.MedicineRequestItems)
+                .ThenInclude(r => r!.MedicineRequestItems)
             .FirstOrDefaultAsync(r => r.ResultId == requestResultId);
         if (requestResult == null)
-            return (false, Enumerable.Empty<string>());
+            return (false, new List<string>());
         var medicineItem = requestResult.Request?.MedicineRequestItems
             .FirstOrDefault(i => i.MedicineRequestItemId == medicineRequestItemId);
         if (medicineItem == null)
-            return (false, Enumerable.Empty<string>());
-        var allFrequencies = ParseFrequencyToFrequencies(medicineItem.Frequency);
+            return (false, new List<string>());
+
+        // Check if we're on a new day and need to reset
+        var today = DateOnly.FromDateTime(DateTime.Today);
         var administeredFrequencies = ParseAdministeredFrequencies(requestResult.AdministeredFrequencies);
+        
+        if (requestResult.CurrentDate != today)
+        {
+            // New day, reset progress
+            administeredFrequencies.Clear();
+        }
+
+        // Parse frequency to determine required frequencies
+        var allFrequencies = ParseFrequencyToFrequencies(medicineItem.Frequency);
+        
+        var pendingFrequencies = new List<string>();
+        
+        // Check which frequencies are still pending
         var pending = allFrequencies.Except(administeredFrequencies).ToList();
-        bool isCompleted = pending.Count == 0;
-        return (isCompleted, pending);
+        bool allDone = pending.Count == 0;
+
+        if (!allDone)
+        {
+            // Add pending frequencies to the list with proper format
+            foreach (var freq in pending)
+            {
+                pendingFrequencies.Add($"{freq}: còn 1 lần nữa");
+            }
+        }
+
+        return (allDone, pendingFrequencies);
     }
 
     public async Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId)
@@ -771,20 +910,48 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             .Include(r => r.Student)
             .Include(r => r.Parent)
             .Include(r => r.Staff)
+            .Where(r => (r.Status == "Assigned" || r.Status == "In Progress"))
             .ToListAsync();
         return requests.Where(r => r.MedicineRequestItems.Any(item => ParseFrequencyToTimesPerDay(item.Frequency) > 1)).ToList();
     }
 
     public async Task<IEnumerable<MedicineRequest>> GetRequestsNeedingTimeOfDayAsync(string timeOfDay)
     {
+        timeOfDay = timeOfDay.ToLower();
         var requests = await _context.MedicineRequests
             .Include(r => r.MedicineRequestItems)
             .Include(r => r.Student)
             .Include(r => r.Parent)
             .Include(r => r.Staff)
+            .Where(r => (r.Status == "Assigned" || r.Status == "In Progress"))
             .ToListAsync();
-        timeOfDay = timeOfDay.ToLower();
         return requests.Where(r => r.MedicineRequestItems.Any(item => ParseFrequencyToFrequencies(item.Frequency).Any(f => f == timeOfDay))).ToList();
+    }
+
+    private async Task<bool> IsRequestResultActuallyCompletedAsync(int requestResultId)
+    {
+        var requestResult = await _context.RequestResults
+            .Include(r => r.Request)
+            .ThenInclude(r => r!.MedicineRequestItems)
+            .FirstOrDefaultAsync(r => r.ResultId == requestResultId);
+
+        if (requestResult == null)
+        {
+            return false;
+        }
+
+        var medicineItem = requestResult.Request?.MedicineRequestItems
+            .FirstOrDefault(i => i.MedicineRequestItemId == requestResult.Request.MedicineRequestItems.FirstOrDefault()?.MedicineRequestItemId);
+
+        if (medicineItem == null)
+        {
+            return false;
+        }
+
+        var timesPerDay = ParseFrequencyToTimesPerDay(medicineItem.Frequency);
+        var administeredFrequencies = ParseAdministeredFrequencies(requestResult.AdministeredFrequencies);
+
+        return administeredFrequencies.Count >= timesPerDay;
     }
 }
 

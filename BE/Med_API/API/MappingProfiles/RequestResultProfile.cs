@@ -36,9 +36,26 @@ public class RequestResultProfile : Profile
 
     private static List<string> DeserializeStringList(string? json)
     {
-        return string.IsNullOrEmpty(json)
-            ? new List<string>()
-            : System.Text.Json.JsonSerializer.Deserialize<List<string>>(json, new System.Text.Json.JsonSerializerOptions());
+        if (string.IsNullOrEmpty(json))
+            return new List<string>();
+
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var result = new List<string>();
+            foreach (var element in doc.RootElement.EnumerateArray())
+            {
+                if (element.ValueKind == System.Text.Json.JsonValueKind.String)
+                    result.Add(element.GetString()!);
+                else if (element.ValueKind == System.Text.Json.JsonValueKind.Object && element.TryGetProperty("freq", out var freqProp))
+                    result.Add(freqProp.GetString() ?? "");
+            }
+            return result;
+        }
+        catch
+        {
+            return new List<string>();
+        }
     }
 
     private static Dictionary<string, string> DeserializeStringDict(string? json)

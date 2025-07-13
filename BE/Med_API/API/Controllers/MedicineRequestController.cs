@@ -288,7 +288,44 @@ public class MedicineRequestController : ControllerBase
     public async Task<ActionResult<object>> GetProgressInfo(int requestResultId, int medicineRequestItemId)
     {
         var (isCompleted, pendingFrequencies) = await _medicineRequestService.GetProgressInfoAsync(requestResultId, medicineRequestItemId);
-        return Ok(new { isCompleted, pendingFrequencies });
+
+        // Optionally fetch medicine name and frequency for more context
+        var requestResult = await _medicineRequestService.GetRequestResultByIdAsync(requestResultId);
+        string? medicineName = null;
+        string? frequency = null;
+        string? studentName = null;
+        string? className = null;
+        string? parentName = null;
+        string? notes = null;
+        if (requestResult?.Request?.MedicineRequestItems != null)
+        {
+            var item = requestResult.Request.MedicineRequestItems.FirstOrDefault(i => i.MedicineRequestItemId == medicineRequestItemId);
+            if (item != null)
+            {
+                medicineName = item.MedicineName;
+                frequency = item.Frequency;
+                notes = item.Instructions; // Include notes from MedicineRequestItem
+            }
+        }
+        if (requestResult?.Request?.Student != null)
+        {
+            studentName = $"{requestResult.Request.Student.LastName} {requestResult.Request.Student.FirstName}".Trim();
+            className = requestResult.Request.Student.Class?.ClassName ?? requestResult.Request.ClassName;
+        }
+        if (requestResult?.Request?.Parent != null)
+        {
+            parentName = $"{requestResult.Request.Parent.LastName} {requestResult.Request.Parent.FirstName}".Trim();
+        }
+        return Ok(new {
+            isCompleted,
+            pendingFrequencies,
+            medicineName,
+            frequency,
+            studentName,
+            className,
+            parentName,
+            notes
+        });
     }
 
     // GET: api/MedicineRequest/{requestResultId}/re-request-info
@@ -430,5 +467,68 @@ public class MedicineRequestController : ControllerBase
         var requests = await _medicineRequestService.GetRequestsNeedingTimeOfDayAsync(time);
         var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
         return Ok(viewModels);
+    }
+
+    // GET: api/MedicineRequest/completed
+    [HttpGet("completed")]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetCompletedRequests()
+    {
+        var completedRequests = await _medicineRequestService.GetMedicineRequestsByStatusAsync("Completed");
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(completedRequests);
+        return Ok(viewModels);
+    }
+
+    // GET: api/MedicineRequest/{requestResultId}/debug/{medicineRequestItemId}
+    [HttpGet("{requestResultId}/debug/{medicineRequestItemId}")]
+    public async Task<ActionResult<object>> GetDebugInfo(int requestResultId, int medicineRequestItemId)
+    {
+        var requestResult = await _medicineRequestService.GetRequestResultByIdAsync(requestResultId);
+        if (requestResult == null)
+        {
+            return NotFound();
+        }
+
+        var medicineItem = requestResult.Request?.MedicineRequestItems
+            .FirstOrDefault(i => i.MedicineRequestItemId == medicineRequestItemId);
+        if (medicineItem == null)
+        {
+            return NotFound();
+        }
+
+        // Parse the data manually to see what's happening
+        var administeredFrequencies = string.IsNullOrEmpty(requestResult.AdministeredFrequencies)
+            ? new List<string>()
+            : System.Text.Json.JsonSerializer.Deserialize<List<string>>(requestResult.AdministeredFrequencies);
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var isNewDay = requestResult.CurrentDate != today;
+
+        // Get the progress info to see what the system thinks
+        var (isCompleted, pendingFrequencies) = await _medicineRequestService.GetProgressInfoAsync(requestResultId, medicineRequestItemId);
+
+        return Ok(new
+        {
+            RequestResultId = requestResultId,
+            MedicineRequestItemId = medicineRequestItemId,
+            CurrentDate = requestResult.CurrentDate,
+            Today = today,
+            IsNewDay = isNewDay,
+            CurrentDayCount = requestResult.CurrentDayCount,
+            AdministeredFrequencies = administeredFrequencies,
+            AdministeredFrequenciesJson = requestResult.AdministeredFrequencies,
+            MedicineFrequency = medicineItem.Frequency,
+            MedicineTimeOfDay = medicineItem.TimeOfDay,
+            Status = requestResult.Status,
+            TimesPerDay = requestResult.TimesPerDay,
+            
+            // Progress calculation details
+            IsCompleted = isCompleted,
+            PendingFrequencies = pendingFrequencies,
+            
+            // Additional debugging info
+            RequestCreatedAt = requestResult.SubmittedAt,
+            RequestStatus = requestResult.Request?.Status,
+            MedicineRequestId = requestResult.RequestId
+        });
     }
 } 
