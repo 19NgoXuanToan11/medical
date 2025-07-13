@@ -1,5 +1,30 @@
 import React from "react";
 import { FiX, FiCheckCircle, FiClock, FiCheck, FiInfo } from "react-icons/fi";
+import { 
+  calculateDosagePerAdministration, 
+  formatFrequency,
+  getMedicationSummary 
+} from "../../../../utils/api/medication/medicationUtils";
+
+// Helper function to parse dosage and extract unit
+const parseDosage = (dosage) => {
+  if (!dosage) return { number: "", unit: "viên" };
+  
+  // Check if dosage already contains unit
+  const dosageMatch = dosage.match(/^(\d+(?:\.\d+)?)\s*(.+)$/);
+  if (dosageMatch) {
+    return { number: dosageMatch[1], unit: dosageMatch[2] };
+  }
+  
+  // If no unit found, assume it's just a number and add default unit
+  return { number: dosage, unit: "viên" };
+};
+
+// Helper function to format dosage with unit
+const formatDosageWithUnit = (dosage) => {
+  const { number, unit } = parseDosage(dosage);
+  return `${number} ${unit}`;
+};
 
 const MedicationDetailModal = ({
   show,
@@ -103,16 +128,19 @@ const MedicationDetailModal = ({
                 <table className="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th className="w-1/4 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="w-1/5 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         TÊN THUỐC
                       </th>
-                      <th className="w-1/4 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="w-1/5 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         LIỀU LƯỢNG
                       </th>
-                      <th className="w-1/4 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="w-1/5 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         TẦN SUẤT
                       </th>
-                      <th className="w-1/4 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="w-1/5 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        LIỀU LƯỢNG MỖI LẦN
+                      </th>
+                      <th className="w-1/5 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         THỜI GIAN
                       </th>
                     </tr>
@@ -122,16 +150,28 @@ const MedicationDetailModal = ({
                     request.medicineRequestItems.length > 0 ? (
                       request.medicineRequestItems.map((item, index) => (
                         <tr key={index}>
-                          <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
+                          <td className="w-1/5 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
                             {item.medicineName}
                           </td>
-                          <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
-                            {item.dosage}
+                          <td className="w-1/5 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
+                            {formatDosageWithUnit(item.dosage)}
                           </td>
-                          <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
-                            {item.frequency}
+                          <td className="w-1/5 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
+                            {formatFrequency(item.frequency)}
                           </td>
-                          <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
+                          <td className="w-1/5 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
+                            {item.dosage && item.frequency ? (
+                              <span className="text-blue-600 dark:text-blue-400 font-medium">
+                                {calculateDosagePerAdministration(
+                                  formatDosageWithUnit(item.dosage),
+                                  item.frequency
+                                )}
+                              </span>
+                            ) : (
+                              "N/A"
+                            )}
+                          </td>
+                          <td className="w-1/5 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
                             {item.timeOfDay}
                           </td>
                         </tr>
@@ -139,7 +179,7 @@ const MedicationDetailModal = ({
                     ) : (
                       <tr>
                         <td
-                          colSpan="4"
+                          colSpan="5"
                           className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 text-center"
                         >
                           Không có thông tin thuốc

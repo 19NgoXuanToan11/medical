@@ -9,6 +9,30 @@ import {
   FiTablet,
   FiInfo,
 } from "react-icons/fi";
+import { 
+  calculateDosagePerAdministration, 
+  formatFrequency 
+} from "../../../../utils/api/medication/medicationUtils";
+
+// Helper function to parse dosage and extract unit
+const parseDosage = (dosage) => {
+  if (!dosage) return { number: "", unit: "viên" };
+  
+  // Check if dosage already contains unit
+  const dosageMatch = dosage.match(/^(\d+(?:\.\d+)?)\s*(.+)$/);
+  if (dosageMatch) {
+    return { number: dosageMatch[1], unit: dosageMatch[2] };
+  }
+  
+  // If no unit found, assume it's just a number and add default unit
+  return { number: dosage, unit: "viên" };
+};
+
+// Helper function to format dosage with unit
+const formatDosageWithUnit = (dosage) => {
+  const { number, unit } = parseDosage(dosage);
+  return `${number} ${unit}`;
+};
 
 const MedicationRequestTable = ({
   requests,
@@ -77,17 +101,30 @@ const MedicationRequestTable = ({
                 </td>
                 <td className="px-6 py-4 align-middle text-center">
                   <div className="flex flex-col justify-center items-center min-h-[60px]">
-                    <div className="text-xs text-gray-900 dark:text-gray-100">
+                    <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
                       {request.medicineName}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {request.frequency}
+                      {formatFrequency(request.frequency)}
                     </div>
+                    {request.dosage && request.frequency && (
+                      <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                        Mỗi lần: {calculateDosagePerAdministration(
+                          formatDosageWithUnit(request.dosage),
+                          request.frequency
+                        )}
+                      </div>
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-4 text-xs text-gray-900 dark:text-gray-100 align-middle text-center">
-                  <div className="flex items-center justify-center min-h-[60px]">
-                    {request.dosage}
+                  <div className="flex flex-col justify-center items-center min-h-[60px]">
+                    <div className="font-medium">
+                      {formatDosageWithUnit(request.dosage)}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Tổng liều lượng
+                    </div>
                   </div>
                 </td>
                 {/* Conditional column for assigned nurse */}

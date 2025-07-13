@@ -1,5 +1,6 @@
 import React from "react";
-import { FiX, FiCheckCircle, FiClock, FiCheck, FiInfo } from "react-icons/fi";
+import { FiX, FiCheckCircle, FiXCircle, FiClock, FiCheck, FiInfo } from "react-icons/fi";
+import { getVietnameseStatusText } from "../utils/medicationUtils";
 
 const MedicationDetailModal = ({
   show,
@@ -187,22 +188,32 @@ const MedicationDetailModal = ({
                   {request.status === "pending" ? (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200">
                       <FiClock className="h-3 w-3 mr-1" />
-                      Chờ xử lý
+                      {getVietnameseStatusText("pending")}
                     </span>
                   ) : request.status === "assigned" ? (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
                       <FiCheckCircle className="h-3 w-3 mr-1" />
-                      Đã giao
+                      {getVietnameseStatusText("assigned")}
                     </span>
                   ) : request.status === "completed" ? (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
                       <FiCheckCircle className="h-3 w-3 mr-1" />
-                      Đã hoàn thành
+                      {getVietnameseStatusText("completed")}
+                    </span>
+                  ) : request.status === "failed" ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
+                      <FiXCircle className="h-3 w-3 mr-1" />
+                      {getVietnameseStatusText("failed")}
+                    </span>
+                  ) : request.status === "refused" ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
+                      <FiXCircle className="h-3 w-3 mr-1" />
+                      {getVietnameseStatusText("refused")}
                     </span>
                   ) : (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200">
                       <FiInfo className="h-3 w-3 mr-1" />
-                      {request.status || "Không xác định"}
+                      {getVietnameseStatusText(request.status)}
                     </span>
                   )}
                 </div>
@@ -292,23 +303,7 @@ const MedicationDetailModal = ({
                 </button>
               </div>
             )}
-            {request.status === "assigned" && (
-              <button
-                onClick={() => {
-                  const confirmed = window.confirm(
-                    `Bạn có chắc chắn muốn đánh dấu yêu cầu thuốc cho ${request.studentName} là đã hoàn thành?`
-                  );
-                  if (confirmed) {
-                    onCompleteRequest(request);
-                    onClose();
-                  }
-                }}
-                className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white text-sm rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-              >
-                <FiCheckCircle className="inline mr-1 h-4 w-4" />
-                Hoàn thành
-              </button>
-            )}
+
             <button
               onClick={onClose}
               className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"

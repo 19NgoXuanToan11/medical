@@ -390,6 +390,192 @@ export const medicationService = {
     }
   },
 
+  // Get failed medication requests
+  getFailedMedicationRequests: async () => {
+    try {
+      // Use the specific failed requests endpoint
+      const response = await api.get("/MedicineRequest/failed-requests");
+
+      if (response.data) {
+        console.log("Failed requests from API:", response.data);
+
+        // For any requests missing medicineRequestItems, fetch them individually
+        const requestsWithCompleteData = await Promise.all(
+          response.data.map(async (request) => {
+            if (
+              !request.medicineRequestItems ||
+              request.medicineRequestItems.length === 0
+            ) {
+              try {
+                console.log(
+                  `Fetching complete data for failed request ${request.requestId}`
+                );
+                const detailResponse = await api.get(
+                  `/MedicineRequest/${request.requestId}`
+                );
+                if (detailResponse.data) {
+                  console.log(
+                    `Complete data for request ${request.requestId}:`,
+                    detailResponse.data
+                  );
+                  return { ...request, ...detailResponse.data };
+                }
+              } catch (error) {
+                console.error(
+                  `Error fetching detail for request ${request.requestId}:`,
+                  error
+                );
+              }
+            }
+            return request;
+          })
+        );
+
+        return {
+          success: true,
+          data: requestsWithCompleteData,
+          message: "Lấy danh sách yêu cầu thuốc thất bại thành công",
+        };
+      }
+
+      return {
+        success: false,
+        data: [],
+        message: "Không có dữ liệu từ API",
+      };
+    } catch (error) {
+      console.error("Error fetching failed medication requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc thất bại",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get rejected medication requests
+  getRejectedMedicationRequests: async () => {
+    try {
+      // Use the specific refused requests endpoint
+      const response = await api.get("/MedicineRequest/refused");
+
+      if (response.data) {
+        console.log("Refused requests from API:", response.data);
+
+        // For any requests missing medicineRequestItems, fetch them individually
+        const requestsWithCompleteData = await Promise.all(
+          response.data.map(async (request) => {
+            if (
+              !request.medicineRequestItems ||
+              request.medicineRequestItems.length === 0
+            ) {
+              try {
+                console.log(
+                  `Fetching complete data for refused request ${request.requestId}`
+                );
+                const detailResponse = await api.get(
+                  `/MedicineRequest/${request.requestId}`
+                );
+                if (detailResponse.data) {
+                  console.log(
+                    `Complete data for request ${request.requestId}:`,
+                    detailResponse.data
+                  );
+                  return { ...request, ...detailResponse.data };
+                }
+              } catch (error) {
+                console.error(
+                  `Error fetching detail for request ${request.requestId}:`,
+                  error
+                );
+              }
+            }
+            return request;
+          })
+        );
+
+        return {
+          success: true,
+          data: requestsWithCompleteData,
+          message: "Lấy danh sách yêu cầu thuốc từ chối thành công",
+        };
+      }
+
+      return {
+        success: false,
+        data: [],
+        message: "Không có dữ liệu từ API",
+      };
+    } catch (error) {
+      console.error("Error fetching refused medication requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc từ chối",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Retry failed medication request
+  retryMedicationRequest: async (id, retryData) => {
+    try {
+      const requestData = {
+        ...retryData,
+        status: "pending",
+        retryAttempts: (retryData.retryAttempts || 0) + 1,
+      };
+
+      const response = await api.put(`/MedicineRequest/${id}`, requestData);
+      return {
+        success: true,
+        data: response.data,
+        message: "Yêu cầu thuốc đã được thử lại thành công",
+      };
+    } catch (error) {
+      console.error("Error retrying medication request:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể thử lại yêu cầu thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Resubmit rejected medication request
+  resubmitMedicationRequest: async (id, resubmitData) => {
+    try {
+      const requestData = {
+        ...resubmitData,
+        status: "pending",
+        resubmittedDate: new Date().toISOString(),
+      };
+
+      const response = await api.put(`/MedicineRequest/${id}`, requestData);
+      return {
+        success: true,
+        data: response.data,
+        message: "Yêu cầu thuốc đã được gửi lại thành công",
+      };
+    } catch (error) {
+      console.error("Error resubmitting medication request:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể gửi lại yêu cầu thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
   // Get medication request statistics
   getMedicationRequestStats: async (dateRange = "today") => {
     try {
@@ -409,6 +595,7 @@ export const medicationService = {
           pending: 0,
           approved: 0,
           rejected: 0,
+          failed: 0,
           total: 0,
         },
         message:

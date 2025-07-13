@@ -61,8 +61,9 @@ public class HealthEventService : IHealthEventService
             throw new InvalidOperationException("EventType is required");
         }
 
-        // Set default values
-        healthEvent.EventDate = DateTime.UtcNow;
+        // Set default values with Vietnam timezone (UTC+7)
+        var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        healthEvent.EventDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
         healthEvent.ParentNotified ??= false;
         healthEvent.FollowUpRequired ??= false;
 

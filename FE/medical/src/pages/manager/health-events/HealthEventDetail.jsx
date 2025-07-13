@@ -22,6 +22,8 @@ import {
   FiPackage as FiPill,
   FiShield,
   FiClock as FiTime,
+  FiDownload,
+  FiPrinter,
 } from "react-icons/fi";
 import {
   getHealthEventById,
@@ -117,12 +119,23 @@ const HealthEventDetail = () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa sự cố y tế này?")) {
       try {
         await deleteHealthEvent(id);
-        navigate("/nurse/health-events");
+        navigate("/manager/health-events");
       } catch (error) {
         console.error("Failed to delete health event:", error);
         alert("Không thể xóa sự cố y tế. Vui lòng thử lại.");
       }
     }
+  };
+
+  const handlePrintReport = () => {
+    window.print();
+  };
+
+  const handleExportReport = () => {
+    // Implementation for exporting report
+    alert(
+      "Tính năng xuất báo cáo sẽ được triển khai trong phiên bản tiếp theo"
+    );
   };
 
   if (loading) {
@@ -142,7 +155,7 @@ const HealthEventDetail = () => {
         <FiAlertCircle className="h-12 w-12 text-red-500 mb-4" />
         <p className="text-lg text-gray-600 dark:text-gray-400">{error}</p>
         <Link
-          to="/nurse/health-events"
+          to="/manager/health-events"
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Quay lại danh sách
@@ -159,7 +172,7 @@ const HealthEventDetail = () => {
           Không tìm thấy sự cố y tế
         </p>
         <Link
-          to="/nurse/health-events"
+          to="/manager/health-events"
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Quay lại danh sách
@@ -174,7 +187,7 @@ const HealthEventDetail = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center">
           <Link
-            to="/nurse/health-events"
+            to="/manager/health-events"
             className="mr-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <FiArrowLeft className="h-5 w-5" />
@@ -189,13 +202,6 @@ const HealthEventDetail = () => {
           </div>
         </div>
         <div className="flex space-x-3 mt-4 sm:mt-0">
-          <Link
-            to={`/nurse/health-events/${id}/edit`}
-            className="inline-flex items-center px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:border-blue-400 dark:text-blue-400 transition-colors duration-200"
-          >
-            <FiEdit className="mr-2 h-4 w-4" />
-            Chỉnh sửa
-          </Link>
           <button
             onClick={handleDeleteEvent}
             className="inline-flex items-center px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 dark:border-red-400 dark:text-red-400 transition-colors duration-200"
@@ -479,6 +485,21 @@ const HealthEventDetail = () => {
                   <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
                     <FiClock className="mr-1 h-3 w-3" />
                     Chưa thông báo
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Cần theo dõi
+                </span>
+                {event.followUpRequired ? (
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300">
+                    <FiTime className="mr-1 h-3 w-3" />
+                    Cần theo dõi
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                    Không cần
                   </span>
                 )}
               </div>

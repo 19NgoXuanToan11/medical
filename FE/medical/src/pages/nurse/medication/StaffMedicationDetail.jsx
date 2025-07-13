@@ -11,6 +11,30 @@ import {
   FiInfo,
   FiPlus,
 } from "react-icons/fi";
+import { 
+  calculateDosagePerAdministration, 
+  formatFrequency 
+} from "../../../utils/api/medication/medicationUtils";
+
+// Helper function to parse dosage and extract unit
+const parseDosage = (dosage) => {
+  if (!dosage) return { number: "", unit: "viên" };
+  
+  // Check if dosage already contains unit
+  const dosageMatch = dosage.match(/^(\d+(?:\.\d+)?)\s*(.+)$/);
+  if (dosageMatch) {
+    return { number: dosageMatch[1], unit: dosageMatch[2] };
+  }
+  
+  // If no unit found, assume it's just a number and add default unit
+  return { number: dosage, unit: "viên" };
+};
+
+// Helper function to format dosage with unit
+const formatDosageWithUnit = (dosage) => {
+  const { number, unit } = parseDosage(dosage);
+  return `${number} ${unit}`;
+};
 
 const StaffMedicationDetail = () => {
   const { id } = useParams();
@@ -518,7 +542,7 @@ const StaffMedicationDetail = () => {
                   Liều lượng
                 </div>
                 <div className="font-medium text-gray-900 dark:text-gray-100">
-                  {medication.dosage}
+                  {formatDosageWithUnit(medication.dosage)}
                 </div>
               </div>
               <div>
@@ -526,7 +550,22 @@ const StaffMedicationDetail = () => {
                   Tần suất
                 </div>
                 <div className="font-medium text-gray-900 dark:text-gray-100">
-                  {medication.frequency}
+                  {formatFrequency(medication.frequency)}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Liều lượng mỗi lần
+                </div>
+                <div className="font-medium text-blue-600 dark:text-blue-400">
+                  {medication.dosage && medication.frequency ? (
+                    calculateDosagePerAdministration(
+                      formatDosageWithUnit(medication.dosage),
+                      medication.frequency
+                    )
+                  ) : (
+                    "N/A"
+                  )}
                 </div>
               </div>
               <div className="md:col-span-2">

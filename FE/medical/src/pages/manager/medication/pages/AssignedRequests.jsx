@@ -65,54 +65,7 @@ const AssignedRequests = () => {
     setLoading(false);
   };
 
-  // Handle complete request
-  const handleCompleteRequest = async (request, notes = "") => {
-    try {
-      if (!request) {
-        alert("Không tìm thấy yêu cầu!");
-        return;
-      }
 
-      const staffId = request.staffId || request.staff?.staffId;
-
-      if (!staffId) {
-        alert("Không tìm thấy thông tin nhân viên!");
-        return;
-      }
-
-      console.log("Completing request:", {
-        requestId: request.id,
-        staffId,
-        notes,
-      });
-
-      const response = await medicationService.completeMedicationRequest(
-        request.id,
-        staffId,
-        notes
-      );
-
-      console.log("Completion response:", response);
-
-      if (response.success) {
-        // Send notification to parent
-        await sendParentNotification(request.id, "completed", notes, request);
-
-        alert("Yêu cầu đã được hoàn thành thành công!");
-
-        // Reload stats and data
-        await loadAllStats();
-        setTimeout(async () => {
-          await loadAssignedRequests();
-        }, 1000);
-      } else {
-        alert(response.message || "Có lỗi xảy ra khi hoàn thành yêu cầu!");
-      }
-    } catch (error) {
-      console.error("Error in handleCompleteRequest:", error);
-      alert("Có lỗi xảy ra khi hoàn thành yêu cầu thuốc!");
-    }
-  };
 
   // Handle refresh
   const handleRefresh = () => {
@@ -200,7 +153,7 @@ const AssignedRequests = () => {
         toggleActionDropdown={toggleActionDropdown}
         onViewDetail={handleViewDetail}
         onAssignRequest={() => {}}
-        onCompleteRequest={handleCompleteRequest}
+        onCompleteRequest={() => {}}
       />
 
       {/* Detail Modal */}
@@ -212,7 +165,7 @@ const AssignedRequests = () => {
         selectedNurse={selectedNurse}
         setSelectedNurse={setSelectedNurse}
         onAssignRequest={() => {}}
-        onCompleteRequest={handleCompleteRequest}
+        onCompleteRequest={() => {}}
       />
     </div>
   );

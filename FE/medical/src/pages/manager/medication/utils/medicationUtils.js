@@ -16,7 +16,7 @@ export const transformRequestData = (requests) => {
       frequency: firstMedicine?.frequency || "N/A",
       timeOfDay: firstMedicine?.timeOfDay || "N/A",
       instructions: firstMedicine?.instructions || "N/A",
-      status: req.status || "pending",
+      status: normalizeStatus(req.status) || "pending",
       requestDate: req.requestDate
         ? new Date(req.requestDate).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0],
@@ -44,6 +44,94 @@ export const transformRequestData = (requests) => {
       completionNotes: req.completionNotes,
     };
   });
+};
+
+// Normalize status values from API to consistent lowercase format
+export const normalizeStatus = (status) => {
+  if (!status) return "pending";
+
+  const statusMap = {
+    Pending: "pending",
+    pending: "pending",
+    Assigned: "assigned",
+    assigned: "assigned",
+    Completed: "completed",
+    completed: "completed",
+    Rejected: "rejected",
+    rejected: "rejected",
+    Approved: "approved",
+    approved: "approved",
+    Done: "completed", // Map "Done" to "completed"
+    done: "completed",
+    Failed: "failed",
+    failed: "failed",
+    Refused: "refused",
+    refused: "refused",
+  };
+
+  return statusMap[status] || status.toLowerCase();
+};
+
+// Get Vietnamese status display text
+export const getVietnameseStatusText = (status) => {
+  const statusTextMap = {
+    pending: "Chờ xử lý",
+    assigned: "Đã giao",
+    completed: "Đã hoàn thành",
+    rejected: "Từ chối",
+    approved: "Đã phê duyệt",
+    failed: "Thất bại",
+    refused: "Từ chối",
+  };
+
+  return statusTextMap[status] || status || "Không xác định";
+};
+
+// Test function to verify status normalization (for development)
+export const testStatusNormalization = () => {
+  console.log("Testing status normalization:");
+  console.log(
+    "Pending ->",
+    normalizeStatus("Pending"),
+    "->",
+    getVietnameseStatusText(normalizeStatus("Pending"))
+  );
+  console.log(
+    "Assigned ->",
+    normalizeStatus("Assigned"),
+    "->",
+    getVietnameseStatusText(normalizeStatus("Assigned"))
+  );
+  console.log(
+    "Completed ->",
+    normalizeStatus("Completed"),
+    "->",
+    getVietnameseStatusText(normalizeStatus("Completed"))
+  );
+  console.log(
+    "Done ->",
+    normalizeStatus("Done"),
+    "->",
+    getVietnameseStatusText(normalizeStatus("Done"))
+  );
+  console.log(
+    "unknown ->",
+    normalizeStatus("unknown"),
+    "->",
+    getVietnameseStatusText(normalizeStatus("unknown"))
+  );
+  console.log(
+    "Failed ->",
+    normalizeStatus("Failed"),
+    "->",
+    getVietnameseStatusText(normalizeStatus("Failed"))
+  );
+  console.log(
+    "Refused ->",
+    normalizeStatus("Refused"),
+    "->",
+    getVietnameseStatusText(normalizeStatus("Refused"))
+  );
 };
 
 // Filter requests based on search term and date
