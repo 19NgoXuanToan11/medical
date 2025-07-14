@@ -259,6 +259,7 @@ public class MedicineRequestService : IMedicineRequestService
 
         request.Status = "Refused";
         request.RefusalReason = refusalReason;
+        request.StaffId = staffId; // Save the staff who refused
         await _medicineRequestRepository.UpdateMedicineRequestAsync(request);
 
         return true;

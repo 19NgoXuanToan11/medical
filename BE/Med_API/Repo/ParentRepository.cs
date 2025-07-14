@@ -129,4 +129,18 @@ public class ParentRepository : IParentRepository
             .Include(r => r.RequestResults)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<DB.MedicineRequest>> GetRefusedMedicineRequestsByParentIdAsync(int parentId)
+    {
+        return await _context.MedicineRequests
+            .Where(r => r.ParentId == parentId && r.Status == "Refused")
+            .Include(r => r.Student)
+            .ThenInclude(s => s.Class)
+            .Include(r => r.Parent)
+            .Include(r => r.Staff)
+            .ThenInclude(s => s.Role)
+            .Include(r => r.MedicineRequestItems)
+            .Include(r => r.RequestResults)
+            .ToListAsync();
+    }
 } 

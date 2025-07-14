@@ -11,4 +11,5 @@ public interface IParentService
     Task<bool> DeleteParentAsync(int id);
     Task<Parent?> GetParentByPhoneAsync(string phone);
     Task<IEnumerable<DB.MedicineRequest>> GetMedicineRequestProgressAsync(int parentId);
+    Task<IEnumerable<DB.MedicineRequest>> GetRefusedMedicineRequestsByParentIdAsync(int parentId);
 } 

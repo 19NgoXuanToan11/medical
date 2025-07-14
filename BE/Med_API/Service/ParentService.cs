@@ -115,4 +115,9 @@ public class ParentService : IParentService
     {
         return await _parentRepository.GetMedicineRequestProgressAsync(parentId);
     }
+
+    public async Task<IEnumerable<DB.MedicineRequest>> GetRefusedMedicineRequestsByParentIdAsync(int parentId)
+    {
+        return await _parentRepository.GetRefusedMedicineRequestsByParentIdAsync(parentId);
+    }
 } 

@@ -44,6 +44,18 @@ public class ParentProfile : Profile
             .ForMember(dest => dest.MedicineRequests, opt => opt.Ignore())
             .ForMember(dest => dest.InjectionForms, opt => opt.Ignore())
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); // Only map non-null properties
+
+        // Map from MedicineRequest to ParentDto.MedicineRequestProgress
+        CreateMap<MedicineRequest, ParentDto.MedicineRequestProgress>()
+            .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src => src.StudentCode ?? (src.Student != null ? src.Student.StudentCode : null)))
+            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName ?? (src.Student != null && src.Student.Class != null ? src.Student.Class.ClassName : null)))
+            .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src => src.Student != null ? (src.Student.FirstName + " " + src.Student.LastName).Trim() : null))
+            .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId ?? 0))
+            .ForMember(dest => dest.StaffId, opt => opt.MapFrom(src => src.StaffId))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
+            .ForMember(dest => dest.RequestDate, opt => opt.MapFrom(src => src.RequestDate ?? System.DateTime.MinValue))
+            .ForMember(dest => dest.MedicineRequestItems, opt => opt.MapFrom(src => src.MedicineRequestItems))
+            .ForMember(dest => dest.Progress, opt => opt.MapFrom(src => src.RequestResults.OrderByDescending(r => r.SubmittedAt)));
     }
 
     private string HashPassword(string password)

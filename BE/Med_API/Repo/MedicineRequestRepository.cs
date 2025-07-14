@@ -181,13 +181,15 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     {
         return await _context.MedicineRequests
             .Include(m => m.Student)
+            .ThenInclude(s => s.Class)
+            .Include(m => m.Parent)
+            .Include(m => m.Staff)
+            .ThenInclude(s => s.Role)
             .Include(m => m.Parent)
                 .ThenInclude(p => p.StudentParents)
                     .ThenInclude(sp => sp.Student)
             .Include(m => m.Parent)
                 .ThenInclude(p => p.Students)
-            .Include(m => m.Staff)
-                .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .Where(m => m.Status == status)
             .ToListAsync();

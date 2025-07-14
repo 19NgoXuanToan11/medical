@@ -107,50 +107,16 @@ public class ParentController : ControllerBase
     public async Task<ActionResult<IEnumerable<ParentDto.MedicineRequestProgress>>> GetMedicineRequestProgress(int parentId)
     {
         var medicineRequests = await _parentService.GetMedicineRequestProgressAsync(parentId);
-        var result = medicineRequests.Select(req => new ParentDto.MedicineRequestProgress
-        {
-            RequestId = req.RequestId,
-            Status = req.Status ?? string.Empty,
-            StudentCode = req.StudentCode ?? string.Empty,
-            StudentName = req.Student != null ? $"{req.Student.FirstName} {req.Student.LastName}" : null,
-            ClassName = req.ClassName,
-            ParentId = req.ParentId ?? 0,
-            StaffId = req.StaffId,
-            Date = req.Date,
-            RequestDate = req.RequestDate ?? System.DateTime.MinValue,
-            MedicineRequestItems = req.MedicineRequestItems.Select(i => new MedicineRequestItemDto.ViewModel
-            {
-                MedicineRequestItemId = i.MedicineRequestItemId,
-                MedicineRequestId = i.MedicineRequestId,
-                MedicineName = i.MedicineName,
-                Dosage = i.Dosage,
-                Frequency = i.Frequency,
-                TimeOfDay = i.TimeOfDay,
-                Instructions = i.Instructions
-            }).ToList(),
-            Progress = req.RequestResults
-                .OrderByDescending(r => r.SubmittedAt)
-                .Select(r => new RequestResultDto.ViewModel
-                {
-                    ResultId = r.ResultId,
-                    RequestId = r.RequestId ?? 0,
-                    AdministeredTime = r.AdministeredTime,
-                    Status = r.Status,
-                    SubmittedAt = r.SubmittedAt ?? System.DateTime.MinValue,
-                    Frequency = r.Frequency,
-                    TimesPerDay = r.TimesPerDay,
-                    CurrentDayCount = r.CurrentDayCount,
-                    CurrentDate = r.CurrentDate,
-                    AdministeredFrequencies = string.IsNullOrEmpty(r.AdministeredFrequencies) ? new List<string>() : System.Text.Json.JsonSerializer.Deserialize<List<string>>(r.AdministeredFrequencies),
-                    FailedFrequencies = string.IsNullOrEmpty(r.FailedFrequencies) ? new List<string>() : System.Text.Json.JsonSerializer.Deserialize<List<string>>(r.FailedFrequencies),
-                    FailureReasons = string.IsNullOrEmpty(r.FailureReasons) ? new Dictionary<string, string>() : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(r.FailureReasons),
-                    IsReRequest = r.IsReRequest,
-                    OriginalRequestResultId = r.OriginalRequestResultId,
-                    LastAttemptTime = r.LastAttemptTime,
-                    FailedAttempts = r.FailedAttempts,
-                    ReRequestReason = r.ReRequestReason
-                }).ToList()
-        }).ToList();
+        var result = _mapper.Map<IEnumerable<ParentDto.MedicineRequestProgress>>(medicineRequests);
         return Ok(result);
+    }
+
+    // GET: api/Parent/{parentId}/refused-medicine-requests
+    [HttpGet("{parentId}/refused-medicine-requests")]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetRefusedMedicineRequestsByParent(int parentId)
+    {
+        var refusedRequests = await _parentService.GetRefusedMedicineRequestsByParentIdAsync(parentId);
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(refusedRequests);
+        return Ok(viewModels);
     }
 }

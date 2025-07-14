@@ -10,7 +10,7 @@ public class MedicineRequestProfile : Profile
     {
         // Map from MedicineRequest to MedicineRequestDto.ViewModel
         CreateMap<MedicineRequest, MedicineRequestDto.ViewModel>()
-            .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src => src.StudentCode))
+            .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src => src.StudentCode ?? (src.Student != null ? src.Student.StudentCode : null)))
             .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName))
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
             .ForMember(dest => dest.MedicineRequestItems, opt => opt.MapFrom(src => src.MedicineRequestItems))

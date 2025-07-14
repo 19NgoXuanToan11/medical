@@ -22,7 +22,9 @@ public class RequestResultProfile : Profile
             .ForMember(dest => dest.FailedFrequencies, opt => opt.MapFrom(src =>
                 DeserializeStringList(src.FailedFrequencies)))
             .ForMember(dest => dest.FailureReasons, opt => opt.MapFrom(src =>
-                DeserializeStringDict(src.FailureReasons)));
+                DeserializeStringDict(src.FailureReasons)))
+            .ForMember(dest => dest.AdministeredByStaff, opt => opt.MapFrom(src => src.AdministeredByStaff))
+            .ForMember(dest => dest.ActionByStaff, opt => opt.MapFrom(src => src.ActionByStaff));
 
         // Map from RequestResultDto.Create to RequestResult
         CreateMap<RequestResultDto.Create, RequestResult>()
