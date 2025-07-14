@@ -92,6 +92,22 @@ public class AppointmentController : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/status")]
+    public async Task<ActionResult<AppointmentDto.ViewModel>> UpdateStatus(int id, [FromBody] AppointmentDto.AppointmentStatusUpdateDto dto)
+    {
+        var appointment = await _service.GetByIdAsync(id);
+        if (appointment == null)
+            return NotFound();
+
+        if (dto.Status != null)
+            appointment.Status = dto.Status;
+        if (dto.Notes != null)
+            appointment.Notes = dto.Notes;
+
+        appointment = await _service.UpdateAsync(id, appointment);
+        return Ok(_mapper.Map<AppointmentDto.ViewModel>(appointment));
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

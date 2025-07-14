@@ -58,4 +58,10 @@ public static class AppointmentDto
         public ParentDto.ViewModel? Parent { get; set; }
         public StaffDto.ViewModel? Staff { get; set; }
     }
+
+    public class AppointmentStatusUpdateDto
+    {
+        public string? Status { get; set; }
+        public string? Notes { get; set; }
+    }
 } 
