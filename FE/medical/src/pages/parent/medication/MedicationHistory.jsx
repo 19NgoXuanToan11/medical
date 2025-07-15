@@ -401,7 +401,13 @@ const MedicationHistory = () => {
                       scope="col"
                       className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                     >
-                      Ngày uống
+                      Ngày gửi yêu cầu
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
+                      Ngày uống thuốc
                     </th>
                     <th
                       scope="col"
@@ -434,9 +440,29 @@ const MedicationHistory = () => {
                           {medication.class}
                         </div>
                       </td>
+                      <td className="px-6 py-4 text-center">
+                        {medication.medicationCount >= 2 ? (
+                          <div className="space-y-1">
+                            {medication.medicationDisplay.map((name, index) => (
+                              <div key={index} className="text-sm font-medium">
+                                {name}
+                              </div>
+                            ))}
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              Tổng: {medication.medicationCount} loại thuốc
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {medication.medicationName}
+                          </div>
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {medication.medicationName}
+                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                          {new Date(medication.requestDate).toLocaleDateString(
+                            "vi-VN"
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">

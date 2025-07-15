@@ -367,17 +367,7 @@ const StudentMedication = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                    <div>
-                      <p className="text-xs text-neutral-500 mb-1">
-                        Thời gian uống
-                      </p>
-                      <p className="text-sm text-neutral-800">
-                        {medication.timeOfDay
-                          .map((time) => getTimeOfDayText(time))
-                          .join(", ")}
-                      </p>
-                    </div>
+                  <div className="grid grid-cols-1 gap-4 mb-3">
                     <div>
                       <p className="text-xs text-neutral-500 mb-1">
                         Thời gian điều trị
@@ -454,23 +444,13 @@ const StudentMedication = () => {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                     <div>
                       <p className="text-xs text-neutral-500 mb-1">
                         Liều lượng
                       </p>
                       <p className="text-sm text-neutral-800">
                         {medication.dosage}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-neutral-500 mb-1">
-                        Thời gian uống
-                      </p>
-                      <p className="text-sm text-neutral-800">
-                        {medication.timeOfDay
-                          .map((time) => getTimeOfDayText(time))
-                          .join(", ")}
                       </p>
                     </div>
                     <div>

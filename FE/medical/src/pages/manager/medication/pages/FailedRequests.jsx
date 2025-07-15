@@ -13,16 +13,7 @@ const FailedRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  const {
-    loading,
-    setLoading,
-    availableNurses,
-    selectedNurse,
-    setSelectedNurse,
-    showActionDropdown,
-    toggleActionDropdown,
-    loadAllStats,
-  } = useMedicationRequests();
+  const { loading, setLoading, loadAllStats } = useMedicationRequests();
 
   // Load failed requests
   const loadFailedRequests = async () => {
@@ -204,14 +195,7 @@ const FailedRequests = () => {
       <MedicationRequestTable
         requests={filteredRequests}
         activeTab="failed"
-        availableNurses={availableNurses}
-        selectedNurse={selectedNurse}
-        setSelectedNurse={setSelectedNurse}
-        showActionDropdown={showActionDropdown}
-        toggleActionDropdown={toggleActionDropdown}
         onViewDetail={handleViewDetail}
-        onAssignRequest={() => {}}
-        onCompleteRequest={() => {}}
         onRetryRequest={handleRetryRequest}
       />
 
@@ -220,11 +204,6 @@ const FailedRequests = () => {
         show={showDetailModal}
         request={selectedRequest}
         onClose={() => setShowDetailModal(false)}
-        availableNurses={availableNurses}
-        selectedNurse={selectedNurse}
-        setSelectedNurse={setSelectedNurse}
-        onAssignRequest={() => {}}
-        onCompleteRequest={() => {}}
       />
     </div>
   );

@@ -17,17 +17,7 @@ const PendingRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  const {
-    loading,
-    setLoading,
-    availableNurses,
-    selectedNurse,
-    setSelectedNurse,
-    showActionDropdown,
-    toggleActionDropdown,
-    sendParentNotification,
-    loadAllStats,
-  } = useMedicationRequests();
+  const { loading, setLoading, loadAllStats } = useMedicationRequests();
 
   // Load pending requests
   const loadPendingRequests = async () => {
@@ -61,58 +51,6 @@ const PendingRequests = () => {
       setRequests([]);
     }
     setLoading(false);
-  };
-
-  // Handle assign request
-  const handleAssignRequest = async (requestId, staffId, notes = "") => {
-    try {
-      if (!staffId) {
-        alert("Vui lòng chọn nhân viên y tế!");
-        return;
-      }
-
-      console.log("Assigning request:", { requestId, staffId, notes });
-
-      const currentRequest = requests.find((req) => req.id === requestId);
-      console.log("Current request data before assignment:", currentRequest);
-
-      const response = await medicationService.updateMedicationRequestWithStaff(
-        requestId,
-        staffId,
-        "approved",
-        notes
-      );
-
-      console.log("Assignment response:", response);
-
-      if (response.success) {
-        // Send notification to parent
-        if (currentRequest) {
-          await sendParentNotification(
-            requestId,
-            "assigned",
-            notes,
-            currentRequest
-          );
-        }
-
-        alert("Yêu cầu đã được giao nhiệm vụ thành công!");
-
-        // Clear form states
-        setSelectedNurse("");
-
-        // Reload stats and data
-        await loadAllStats();
-        setTimeout(async () => {
-          await loadPendingRequests();
-        }, 1000);
-      } else {
-        alert(response.message || "Có lỗi xảy ra khi phê duyệt yêu cầu!");
-      }
-    } catch (error) {
-      console.error("Error approving request:", error);
-      alert("Có lỗi xảy ra khi phê duyệt yêu cầu!");
-    }
   };
 
   // Handle refresh
@@ -194,14 +132,7 @@ const PendingRequests = () => {
       <MedicationRequestTable
         requests={filteredRequests}
         activeTab="pending"
-        availableNurses={availableNurses}
-        selectedNurse={selectedNurse}
-        setSelectedNurse={setSelectedNurse}
-        showActionDropdown={showActionDropdown}
-        toggleActionDropdown={toggleActionDropdown}
         onViewDetail={handleViewDetail}
-        onAssignRequest={handleAssignRequest}
-        onCompleteRequest={() => {}}
       />
 
       {/* Detail Modal */}
@@ -209,11 +140,6 @@ const PendingRequests = () => {
         show={showDetailModal}
         request={selectedRequest}
         onClose={() => setShowDetailModal(false)}
-        availableNurses={availableNurses}
-        selectedNurse={selectedNurse}
-        setSelectedNurse={setSelectedNurse}
-        onAssignRequest={handleAssignRequest}
-        onCompleteRequest={() => {}}
       />
     </div>
   );

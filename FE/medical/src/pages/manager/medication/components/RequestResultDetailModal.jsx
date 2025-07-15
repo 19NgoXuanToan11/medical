@@ -256,14 +256,6 @@ const RequestResultDetailModal = ({
             {result.frequency}
           </p>
         </div>
-        <div>
-          <label className="text-sm text-gray-500 dark:text-gray-400">
-            Thời gian trong ngày
-          </label>
-          <p className="font-medium text-gray-900 dark:text-gray-100">
-            {result.timeOfDay || "N/A"}
-          </p>
-        </div>
         {result.instructions && (
           <div className="md:col-span-2">
             <label className="text-sm text-gray-500 dark:text-gray-400">

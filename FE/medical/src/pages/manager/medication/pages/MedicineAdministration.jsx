@@ -14,7 +14,35 @@ import {
   FiChevronUp,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
+import { transformRequestData } from "../utils/medicationUtils";
 import { useMedicationRequests } from "../hooks/useMedicationRequests";
+
+// Helper function to format dosage with units
+const formatDosageWithUnit = (dosage, dosageUnit = "viên") => {
+  if (!dosage || dosage === "N/A") return "Chưa xác định";
+  return `${dosage} ${dosageUnit}`;
+};
+
+// Helper function to format frequency
+const formatFrequency = (frequency) => {
+  if (!frequency || frequency === "N/A") return "Chưa xác định";
+
+  // If it's already formatted
+  if (typeof frequency === "string" && frequency.includes("lần/ngày")) {
+    return frequency;
+  }
+
+  // If it's a number or number string
+  const numericFrequency = parseInt(frequency);
+  if (!isNaN(numericFrequency) && numericFrequency > 0) {
+    return `${numericFrequency} lần/ngày`;
+  }
+
+  // Handle special cases
+  if (frequency === "as_needed") return "Khi cần thiết";
+
+  return frequency;
+};
 
 const MedicineAdministration = () => {
   const [requests, setRequests] = useState([]);
@@ -313,29 +341,23 @@ const MedicineAdministration = () => {
                           {item.medicineName}
                         </p>
                       </div>
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Liều lượng
-                        </label>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
-                          {item.dosage}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Tần suất
-                        </label>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
-                          {item.frequency}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Thời gian
-                        </label>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
-                          {item.timeOfDay}
-                        </p>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                            Liều lượng
+                          </label>
+                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
+                            {formatDosageWithUnit(item.dosage, item.dosageUnit)}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                            Tần suất
+                          </label>
+                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
+                            {formatFrequency(item.frequency)}
+                          </p>
+                        </div>
                       </div>
                     </div>
                     {item.instructions && (

@@ -64,3 +64,36 @@ export const filterRequests = (requests, searchTerm, filterDate) => {
 export const filterByStatus = (requests, statuses) => {
   return requests.filter((req) => statuses.includes(req.status));
 };
+
+// Group requests by student and date to show multiple medicines together
+export const groupRequestsByStudentAndDate = (requests) => {
+  const grouped = {};
+
+  requests.forEach((request) => {
+    const key = `${request.studentName}_${request.requestDate}_${request.status}`;
+
+    if (!grouped[key]) {
+      grouped[key] = {
+        ...request,
+        medicineNames: [request.medicineName],
+        allMedicineItems: request.medicineRequestItems || [],
+        originalRequests: [request],
+      };
+    } else {
+      // Add medicine name if not already included
+      if (!grouped[key].medicineNames.includes(request.medicineName)) {
+        grouped[key].medicineNames.push(request.medicineName);
+      }
+      // Merge medicine items
+      if (request.medicineRequestItems) {
+        grouped[key].allMedicineItems = [
+          ...grouped[key].allMedicineItems,
+          ...request.medicineRequestItems,
+        ];
+      }
+      grouped[key].originalRequests.push(request);
+    }
+  });
+
+  return Object.values(grouped);
+};

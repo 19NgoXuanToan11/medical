@@ -42,13 +42,23 @@ export const transformParentMedicationData = (requests) => {
       ? new Date(latestProgress.administeredTime).toLocaleString("vi-VN")
       : null;
 
+    // Get all medication names for display
+    const allMedicationNames = medicineItems
+      .map((item) => item.medicineName)
+      .filter((name) => name);
+    const medicationDisplay =
+      allMedicationNames.length > 0 ? allMedicationNames : ["N/A"];
+
     return {
       id: `MED${req.requestId}`,
       requestId: req.requestId,
       studentName: req.studentName || req.studentCode, // Use actual studentName from API
       studentCode: req.studentCode,
       class: req.className,
-      medicationName: firstMedicine.medicineName || "N/A",
+      medicationName: firstMedicine.medicineName || "N/A", // Keep for backward compatibility
+      medicationNames: allMedicationNames, // Array of all medication names
+      medicationDisplay: medicationDisplay, // For easy display in components
+      medicationCount: medicineItems.length, // Number of medications in this request
       requestDate: req.requestDate
         ? new Date(req.requestDate).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0],

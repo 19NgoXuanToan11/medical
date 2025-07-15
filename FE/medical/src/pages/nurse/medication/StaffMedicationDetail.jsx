@@ -11,21 +11,21 @@ import {
   FiInfo,
   FiPlus,
 } from "react-icons/fi";
-import { 
-  calculateDosagePerAdministration, 
-  formatFrequency 
+import {
+  calculateDosagePerAdministration,
+  formatFrequency,
 } from "../../../utils/api/medication/medicationUtils";
 
 // Helper function to parse dosage and extract unit
 const parseDosage = (dosage) => {
   if (!dosage) return { number: "", unit: "viên" };
-  
+
   // Check if dosage already contains unit
   const dosageMatch = dosage.match(/^(\d+(?:\.\d+)?)\s*(.+)$/);
   if (dosageMatch) {
     return { number: dosageMatch[1], unit: dosageMatch[2] };
   }
-  
+
   // If no unit found, assume it's just a number and add default unit
   return { number: dosage, unit: "viên" };
 };
@@ -428,7 +428,7 @@ const StaffMedicationDetail = () => {
             </div>
             <div className="mx-4">
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                Ngày yêu cầu
+                Ngày gửi yêu cầu
               </div>
               <div className="mt-1 font-medium">
                 {new Date(medication.requestDate).toLocaleDateString("vi-VN")}
@@ -558,14 +558,12 @@ const StaffMedicationDetail = () => {
                   Liều lượng mỗi lần
                 </div>
                 <div className="font-medium text-blue-600 dark:text-blue-400">
-                  {medication.dosage && medication.frequency ? (
-                    calculateDosagePerAdministration(
-                      formatDosageWithUnit(medication.dosage),
-                      medication.frequency
-                    )
-                  ) : (
-                    "N/A"
-                  )}
+                  {medication.dosage && medication.frequency
+                    ? calculateDosagePerAdministration(
+                        formatDosageWithUnit(medication.dosage),
+                        medication.frequency
+                      )
+                    : "N/A"}
                 </div>
               </div>
               <div className="md:col-span-2">

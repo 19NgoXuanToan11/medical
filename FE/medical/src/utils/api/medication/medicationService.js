@@ -911,6 +911,398 @@ export const medicationService = {
       };
     }
   },
+
+  // ===== NEW FLOW FUNCTIONS =====
+
+  // Verify medication request
+  verifyRequest: async (id, staffId) => {
+    try {
+      const response = await api.post(`/MedicineRequest/${id}/verify`, staffId);
+      return {
+        success: true,
+        data: response.data,
+        message: "Xác nhận yêu cầu thuốc thành công",
+      };
+    } catch (error) {
+      console.error("Error verifying request:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể xác nhận yêu cầu thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Refuse medication request
+  refuseRequest: async (id, staffId, refusalReason) => {
+    try {
+      const response = await api.post(`/MedicineRequest/${id}/refuse`, {
+        staffId,
+        refusalReason,
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Từ chối yêu cầu thuốc thành công",
+      };
+    } catch (error) {
+      console.error("Error refusing request:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể từ chối yêu cầu thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get verified medication requests
+  getVerifiedMedicationRequests: async () => {
+    try {
+      const response = await api.get("/MedicineRequest/verified");
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu thuốc đã xác nhận thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching verified requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc đã xác nhận",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get refused medication requests
+  getRefusedMedicationRequests: async () => {
+    try {
+      const response = await api.get("/MedicineRequest/refused");
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu thuốc bị từ chối thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching refused requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc bị từ chối",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Assign nurse to verified request
+  assignNurseToRequest: async (requestId, staffId) => {
+    try {
+      const response = await api.post(
+        `/MedicineRequest/${requestId}/assign-nurse/${staffId}`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Giao nhiệm vụ cho y tá thành công",
+      };
+    } catch (error) {
+      console.error("Error assigning nurse:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể giao nhiệm vụ cho y tá",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Start medication administration
+  startMedicationAdministration: async (requestId, staffId) => {
+    try {
+      const response = await api.post(
+        `/MedicineRequest/${requestId}/start-administration/${staffId}`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Bắt đầu cho uống thuốc thành công",
+      };
+    } catch (error) {
+      console.error("Error starting administration:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể bắt đầu cho uống thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get request results (In Progress requests)
+  getRequestResults: async () => {
+    try {
+      const response = await api.get("/RequestResult");
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách kết quả yêu cầu thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching request results:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách kết quả yêu cầu",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Administer medicine by frequency
+  administerMedicineByFrequency: async (
+    requestResultId,
+    medicineRequestItemId,
+    frequency,
+    staffId,
+    notes = ""
+  ) => {
+    try {
+      const response = await api.post("/MedicineRequest/administer-frequency", {
+        requestResultId,
+        medicineRequestItemId,
+        frequency,
+        staffId,
+        notes,
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Ghi nhận cho uống thuốc thành công",
+      };
+    } catch (error) {
+      console.error("Error administering medicine:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể ghi nhận cho uống thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get progress info for medication
+  getProgressInfo: async (requestResultId, medicineRequestItemId) => {
+    try {
+      const response = await api.get(
+        `/MedicineRequest/${requestResultId}/progress/${medicineRequestItemId}`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy thông tin tiến độ thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching progress info:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể lấy thông tin tiến độ",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Report medication failure
+  reportMedicineFailure: async (
+    requestResultId,
+    medicineRequestItemId,
+    frequency,
+    failureReason,
+    staffId
+  ) => {
+    try {
+      const response = await api.post("/MedicineRequest/report-failure", {
+        requestResultId,
+        medicineRequestItemId,
+        frequency,
+        failureReason,
+        staffId,
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Báo cáo thất bại thành công",
+      };
+    } catch (error) {
+      console.error("Error reporting failure:", error);
+      return {
+        success: false,
+        data: null,
+        message: error.response?.data?.message || "Không thể báo cáo thất bại",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Create re-request
+  createReRequest: async (
+    originalRequestResultId,
+    reRequestReason,
+    staffId
+  ) => {
+    try {
+      const response = await api.post("/MedicineRequest/create-re-request", {
+        originalRequestResultId,
+        reRequestReason,
+        staffId,
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Tạo yêu cầu lại thành công",
+      };
+    } catch (error) {
+      console.error("Error creating re-request:", error);
+      return {
+        success: false,
+        data: null,
+        message: error.response?.data?.message || "Không thể tạo yêu cầu lại",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Mark request as failed
+  markRequestAsFailed: async (requestResultId, reason) => {
+    try {
+      const response = await api.post(
+        `/MedicineRequest/${requestResultId}/mark-failed`,
+        reason
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Đánh dấu thất bại thành công",
+      };
+    } catch (error) {
+      console.error("Error marking as failed:", error);
+      return {
+        success: false,
+        data: null,
+        message: error.response?.data?.message || "Không thể đánh dấu thất bại",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get re-requests for original request
+  getReRequests: async (originalRequestResultId) => {
+    try {
+      const response = await api.get(
+        `/MedicineRequest/${originalRequestResultId}/re-requests`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu lại thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching re-requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu lại",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get failure summary
+  getFailureSummary: async (requestResultId) => {
+    try {
+      const response = await api.get(
+        `/MedicineRequest/${requestResultId}/failure-summary`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy tóm tắt thất bại thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching failure summary:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể lấy tóm tắt thất bại",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get requests with frequency more than one
+  getRequestsWithFrequencyMoreThanOne: async () => {
+    try {
+      const response = await api.get(
+        "/MedicineRequest/frequency/more-than-one"
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy yêu cầu có tần suất nhiều buổi thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching frequency requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy yêu cầu có tần suất nhiều buổi",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get requests needing time of day
+  getRequestsNeedingTimeOfDay: async (time) => {
+    try {
+      const response = await api.get(
+        `/MedicineRequest/frequency/need-time-of-day?time=${time}`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy yêu cầu theo buổi thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching time-based requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message || "Không thể lấy yêu cầu theo buổi",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
 };
 
 // Notification Service for Medication Requests

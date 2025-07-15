@@ -13,6 +13,7 @@ export const transformRequestData = (requests) => {
       className: req.student?.className || req.className,
       medicineName: firstMedicine?.medicineName || "N/A",
       dosage: firstMedicine?.dosage || "N/A",
+      dosageUnit: firstMedicine?.dosageUnit || "viên", // Add dosageUnit extraction
       frequency: firstMedicine?.frequency || "N/A",
       timeOfDay: firstMedicine?.timeOfDay || "N/A",
       instructions: firstMedicine?.instructions || "N/A",
@@ -35,6 +36,8 @@ export const transformRequestData = (requests) => {
       rejectedBy: req.rejectedBy,
       rejectedDate: req.rejectedDate,
       rejectionReason: req.rejectionReason,
+      refusalReason: req.refusalReason,
+      reason: req.reason,
       approvalNotes: req.approvalNotes,
       assignedBy: req.assignedBy,
       assignmentNotes: req.assignmentNotes,
