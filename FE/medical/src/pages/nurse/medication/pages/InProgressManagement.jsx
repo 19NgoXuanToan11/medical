@@ -14,6 +14,7 @@ import {
   FiTarget,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
+import { useAuth } from "../../../../utils/auth/AuthContext";
 
 const InProgressManagement = () => {
   const [inProgressResults, setInProgressResults] = useState([]);
@@ -28,8 +29,8 @@ const InProgressManagement = () => {
   const [administerNotes, setAdministerNotes] = useState("");
   const [failureReason, setFailureReason] = useState("");
 
-  // Mock current staff ID - should be from auth context
-  const currentStaffId = 1;
+  const { user } = useAuth();
+  const currentStaffId = user?.id || 1; // Fallback to 1 if no user
 
   useEffect(() => {
     loadInProgressData();
@@ -445,7 +446,10 @@ const InProgressManagement = () => {
                     Ngày uống thuốc
                   </label>
                   <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                    {formatDate(selectedResult.request?.medicineRequestItems?.[0]?.timeOfDay)}
+                    {formatDate(
+                      selectedResult.request?.medicineRequestItems?.[0]
+                        ?.timeOfDay
+                    )}
                   </p>
                 </div>
                 <div>

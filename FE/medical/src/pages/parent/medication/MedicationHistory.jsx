@@ -31,9 +31,16 @@ const MedicationHistory = () => {
     setError(null);
 
     try {
-      const result = await medicationService.getMedicationRequestsByParent(
-        user.id
-      );
+      let result;
+
+      // Use specific API for rejected requests when that filter is selected
+      if (filterStatus === "rejected") {
+        result = await medicationService.getRefusedMedicineRequestsByParent(
+          user.id
+        );
+      } else {
+        result = await medicationService.getMedicationRequestsByParent(user.id);
+      }
 
       if (result.success) {
         const transformedData = transformParentMedicationData(result.data);
@@ -54,7 +61,7 @@ const MedicationHistory = () => {
   // Load data on component mount and when user changes
   useEffect(() => {
     fetchMedicationData();
-  }, [user?.id]);
+  }, [user?.id, filterStatus]); // Add filterStatus dependency to refetch when tab changes
 
   // Update filter status when URL parameter changes
   useEffect(() => {
@@ -64,12 +71,46 @@ const MedicationHistory = () => {
     }
   }, [searchParams]);
 
-  const filteredMedications = filterMedications(
-    medications,
-    filterStatus,
-    searchTerm
-  );
-  const stats = calculateMedicationStats(medications);
+  const filteredMedications =
+    filterStatus === "rejected"
+      ? medications // For rejected tab, show all data from refused API directly
+      : filterMedications(medications, filterStatus, searchTerm);
+
+  // Apply filtering logic
+  const finalFilteredMedications =
+    filterStatus === "rejected"
+      ? medications.filter((med) => {
+          if (!searchTerm) return true; // Show all if no search term
+          const matchesSearch =
+            (med.medicationName &&
+              med.medicationName
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())) ||
+            (med.id &&
+              med.id.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (med.studentName &&
+              med.studentName
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())) ||
+            (med.medicationDisplay &&
+              med.medicationDisplay.some((name) =>
+                name.toLowerCase().includes(searchTerm.toLowerCase())
+              ));
+          return matchesSearch;
+        })
+      : filterMedications(medications, filterStatus, searchTerm);
+
+  // Calculate stats based on current data
+  const stats =
+    filterStatus === "rejected"
+      ? {
+          pending: 0,
+          active: 0,
+          completed: 0,
+          rejected: medications.length, // All medications in rejected tab are rejected
+          total: medications.length,
+        }
+      : calculateMedicationStats(medications);
 
   const renderStatusBadge = (status) => {
     const badge = getStatusBadge(status);
@@ -93,7 +134,7 @@ const MedicationHistory = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
         <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
@@ -172,6 +213,34 @@ const MedicationHistory = () => {
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-600 dark:text-gray-400 text-xs">
+                Từ chối
+              </p>
+              <p className="text-xl font-bold mt-1 text-red-600 dark:text-red-400">
+                {stats.rejected}
+              </p>
+            </div>
+            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
+              <svg
+                className="h-5 w-5 text-red-600 dark:text-red-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
             </div>
@@ -331,7 +400,7 @@ const MedicationHistory = () => {
       )}
 
       {/* Data Table */}
-      {!loading && !error && filteredMedications.length === 0 ? (
+      {!loading && !error && finalFilteredMedications.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center border border-gray-200 dark:border-gray-700">
           <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
             <svg
@@ -415,6 +484,14 @@ const MedicationHistory = () => {
                     >
                       Trạng thái
                     </th>
+                    {filterStatus === "rejected" && (
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Lý do từ chối
+                      </th>
+                    )}
                     <th
                       scope="col"
                       className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
@@ -424,7 +501,7 @@ const MedicationHistory = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredMedications.map((medication) => (
+                  {finalFilteredMedications.map((medication) => (
                     <tr
                       key={medication.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -475,6 +552,19 @@ const MedicationHistory = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         {renderStatusBadge(medication.status)}
                       </td>
+                      {filterStatus === "rejected" && (
+                        <td className="px-6 py-4 text-center">
+                          <div className="text-sm text-gray-900 dark:text-gray-100 max-w-xs">
+                            {medication.refusalReason || "Không có lý do"}
+                          </div>
+                          {medication.staffName &&
+                            medication.staffName !== "N/A" && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Từ chối bởi: {medication.staffName}
+                              </div>
+                            )}
+                        </td>
+                      )}
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <Link
                           to={`/parent/medication/detail/${medication.id}`}

@@ -1303,6 +1303,69 @@ export const medicationService = {
       };
     }
   },
+
+  // Get refused medicine request by ID with detailed refusal information
+  getRefusedMedicineRequestById: async (parentId, requestId) => {
+    try {
+      const response = await api.get(
+        `/Parent/${parentId}/refused-medicine-requests`
+      );
+
+      // Find the specific request by ID from the refused requests
+      const refusedRequests = response.data;
+      const specificRequest = refusedRequests.find(
+        (req) => req.requestId.toString() === requestId.toString()
+      );
+
+      if (specificRequest) {
+        return {
+          success: true,
+          data: specificRequest,
+          message: "Lấy thông tin yêu cầu thuốc bị từ chối thành công",
+        };
+      } else {
+        return {
+          success: false,
+          data: null,
+          message: "Không tìm thấy yêu cầu thuốc bị từ chối",
+        };
+      }
+    } catch (error) {
+      console.error("Error fetching refused medication request by ID:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy thông tin yêu cầu thuốc bị từ chối",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Add new method for getting refused medicine requests by parent
+  getRefusedMedicineRequestsByParent: async (parentId) => {
+    try {
+      const response = await api.get(
+        `/Parent/${parentId}/refused-medicine-requests`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu thuốc bị từ chối thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching refused medicine requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc bị từ chối",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
 };
 
 // Notification Service for Medication Requests

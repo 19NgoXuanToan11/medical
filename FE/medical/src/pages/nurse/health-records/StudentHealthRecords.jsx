@@ -28,8 +28,12 @@ const StudentHealthRecords = () => {
         const transformedData = data.map((profile) => ({
           id: profile.healthProfileId,
           studentId: profile.studentCode,
-          studentName: profile.studentCode || "Không có tên", // API may need student name
-          className: "10A1", // This might need to come from student data
+          studentName: profile.student
+            ? `${profile.student.firstName || ""} ${
+                profile.student.lastName || ""
+              }`.trim()
+            : profile.studentCode || "Không có tên",
+          className: profile.student?.className || "N/A",
           lastCheckup: profile.createdAt
             ? new Date(profile.createdAt).toISOString().split("T")[0]
             : "N/A",

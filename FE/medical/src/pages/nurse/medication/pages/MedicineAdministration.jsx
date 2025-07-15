@@ -13,6 +13,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
+import { useAuth } from "../../../../utils/auth/AuthContext";
 
 const MedicineAdministration = () => {
   const [assignedRequests, setAssignedRequests] = useState([]);
@@ -25,8 +26,8 @@ const MedicineAdministration = () => {
   const [showStartModal, setShowStartModal] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  // Mock current staff ID - should be from auth context
-  const currentStaffId = 1;
+  const { user } = useAuth();
+  const currentStaffId = user?.id || 1; // Fallback to 1 if no user
 
   useEffect(() => {
     loadAllData();

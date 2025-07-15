@@ -16,6 +16,8 @@ public class HealthProfileRepository : IHealthProfileRepository
     {
         return await _context.HealthProfiles
             .Include(p => p.Student)
+                .ThenInclude(s => s.Class)
+            .Include(p => p.Student)
                 .ThenInclude(s => s.StudentParents)
                     .ThenInclude(sp => sp.Parent)
             .ToListAsync();
@@ -25,6 +27,8 @@ public class HealthProfileRepository : IHealthProfileRepository
     {
         return await _context.HealthProfiles
             .Include(p => p.Student)
+                .ThenInclude(s => s.Class)
+            .Include(p => p.Student)
                 .ThenInclude(s => s.StudentParents)
                     .ThenInclude(sp => sp.Parent)
             .FirstOrDefaultAsync(p => p.HealthProfileId == id);
@@ -33,6 +37,8 @@ public class HealthProfileRepository : IHealthProfileRepository
     public async Task<HealthProfile?> GetHealthProfileByStudentCodeAsync(string studentCode)
     {
         return await _context.HealthProfiles
+            .Include(p => p.Student)
+                .ThenInclude(s => s.Class)
             .Include(p => p.Student)
                 .ThenInclude(s => s.StudentParents)
                     .ThenInclude(sp => sp.Parent)

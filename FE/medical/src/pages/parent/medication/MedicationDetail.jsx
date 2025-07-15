@@ -24,66 +24,79 @@ const MedicationDetail = () => {
     setError(null);
 
     try {
-      // First get all parent medication requests
-      const result = await medicationService.getMedicationRequestsByParent(
-        user.id
-      );
+      const medicationId = id.replace("MED", ""); // Remove MED prefix
 
-      if (result.success) {
-        const transformedData = transformParentMedicationData(result.data);
-
-        // Find the specific medication by ID
-        const medicationId = id.replace("MED", ""); // Remove MED prefix
-        const foundMedication = transformedData.find(
-          (med) => med.requestId.toString() === medicationId || med.id === id
+      // First try to get the specific refused request if it exists
+      const refusedResult =
+        await medicationService.getRefusedMedicineRequestById(
+          user.id,
+          medicationId
         );
 
-        if (foundMedication) {
-          // Enhance with additional detail data
-          const enhancedMedication = {
-            ...foundMedication,
-            studentId: foundMedication.studentCode,
-            specialInstructions: foundMedication.instructions,
-            timeOfDay: foundMedication.timeOfDay.split(", ").map((time) => {
-              switch (time.toLowerCase()) {
-                case "morning":
-                case "sáng":
-                  return "morning";
-                case "afternoon":
-                case "chiều":
-                  return "afternoon";
-                case "noon":
-                case "trưa":
-                  return "noon";
-                default:
-                  return "as_needed";
-              }
-            }),
-            administrationLog: foundMedication.progress.map((p) => ({
-              date: p.administeredTime,
-              status:
-                p.status === "Completed"
-                  ? "completed"
-                  : p.status === "Failed"
-                  ? "missed"
-                  : "upcoming",
-              administrator:
-                p.administeredByStaff?.firstName &&
-                p.administeredByStaff?.lastName
-                  ? `${p.administeredByStaff.firstName} ${p.administeredByStaff.lastName}`
-                  : "N/A",
-              notes: p.reRequestReason || "Không có ghi chú",
-            })),
-            notes: [], // API doesn't provide notes, so empty array
-          };
+      let foundMedication = null;
 
-          setMedication(enhancedMedication);
-        } else {
-          setError("Không tìm thấy yêu cầu thuốc");
-        }
+      if (refusedResult.success && refusedResult.data) {
+        // Found in refused requests - this will have refusalReason
+        const transformedRefusedData = transformParentMedicationData([
+          refusedResult.data,
+        ]);
+        foundMedication = transformedRefusedData[0];
       } else {
-        setError(result.message);
-        toast.error(result.message);
+        // Not found in refused requests, try regular requests
+        const result = await medicationService.getMedicationRequestsByParent(
+          user.id
+        );
+
+        if (result.success) {
+          const transformedData = transformParentMedicationData(result.data);
+          foundMedication = transformedData.find(
+            (med) => med.requestId.toString() === medicationId || med.id === id
+          );
+        }
+      }
+
+      if (foundMedication) {
+        // Enhance with additional detail data
+        const enhancedMedication = {
+          ...foundMedication,
+          studentId: foundMedication.studentCode,
+          specialInstructions: foundMedication.instructions,
+          timeOfDay: foundMedication.timeOfDay.split(", ").map((time) => {
+            switch (time.toLowerCase()) {
+              case "morning":
+              case "sáng":
+                return "morning";
+              case "afternoon":
+              case "chiều":
+                return "afternoon";
+              case "noon":
+              case "trưa":
+                return "noon";
+              default:
+                return "as_needed";
+            }
+          }),
+          administrationLog: foundMedication.progress.map((p) => ({
+            date: p.administeredTime,
+            status:
+              p.status === "Completed"
+                ? "completed"
+                : p.status === "Failed"
+                ? "missed"
+                : "upcoming",
+            administrator:
+              p.administeredByStaff?.firstName &&
+              p.administeredByStaff?.lastName
+                ? `${p.administeredByStaff.firstName} ${p.administeredByStaff.lastName}`
+                : "N/A",
+            notes: p.reRequestReason || "Không có ghi chú",
+          })),
+          notes: [], // API doesn't provide notes, so empty array
+        };
+
+        setMedication(enhancedMedication);
+      } else {
+        setError("Không tìm thấy yêu cầu thuốc");
       }
     } catch (error) {
       console.error("Error fetching medication detail:", error);
@@ -429,6 +442,53 @@ const MedicationDetail = () => {
                 </div>
               </div>
             </div>
+
+            {/* Refusal Reason Section - Only show for rejected requests */}
+            {medication.status === "rejected" && (
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-red-200 dark:border-red-800 overflow-hidden mb-4">
+                <div className="bg-red-50 dark:bg-red-900/30 p-3 border-b border-red-200 dark:border-red-800">
+                  <h2 className="text-base font-medium text-red-800 dark:text-red-300 flex items-center gap-2">
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.502 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
+                      />
+                    </svg>
+                    Thông tin từ chối
+                  </h2>
+                </div>
+                <div className="p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        Lý do từ chối
+                      </h3>
+                      <p className="text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                        {medication.refusalReason ||
+                          "Không có lý do được cung cấp"}
+                      </p>
+                    </div>
+                    {medication.staffName && medication.staffName !== "N/A" && (
+                      <div>
+                        <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Từ chối bởi
+                        </h3>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                          {medication.staffName}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Medication Schedule */}
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">

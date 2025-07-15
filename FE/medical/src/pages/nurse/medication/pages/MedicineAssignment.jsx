@@ -14,6 +14,7 @@ import {
   FiInfo,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
+import { useAuth } from "../../../../utils/auth/AuthContext";
 
 const MedicineAssignment = () => {
   const [verifiedRequests, setVerifiedRequests] = useState([]);
@@ -27,8 +28,8 @@ const MedicineAssignment = () => {
   const [availableNurses, setAvailableNurses] = useState([]);
   const [selectedNurse, setSelectedNurse] = useState("");
 
-  // Mock current staff ID - should be from auth context
-  const currentStaffId = 1;
+  const { user } = useAuth();
+  const currentStaffId = user?.id || 1; // Fallback to 1 if no user
 
   useEffect(() => {
     loadAllData();

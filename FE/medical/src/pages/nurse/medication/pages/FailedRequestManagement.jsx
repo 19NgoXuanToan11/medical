@@ -14,6 +14,7 @@ import {
   FiInfo,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
+import { useAuth } from "../../../../utils/auth/AuthContext";
 
 const FailedRequestManagement = () => {
   const [failedRequests, setFailedRequests] = useState([]);
@@ -28,8 +29,8 @@ const FailedRequestManagement = () => {
   const [markFailedReason, setMarkFailedReason] = useState("");
   const [reRequests, setReRequests] = useState([]);
 
-  // Mock current staff ID - should be from auth context
-  const currentStaffId = 1;
+  const { user } = useAuth();
+  const currentStaffId = user?.id || 1; // Fallback to 1 if no user
 
   useEffect(() => {
     loadFailedRequests();
@@ -682,9 +683,9 @@ const FailedRequestManagement = () => {
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
                     <thead className="bg-gray-50 dark:bg-neutral-700">
                       <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Ngày tạo
-                    </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Ngày tạo
+                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Lý do
                         </th>

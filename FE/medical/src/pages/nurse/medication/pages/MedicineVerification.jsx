@@ -14,6 +14,7 @@ import {
   FiInfo,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
+import { useAuth } from "../../../../utils/auth/AuthContext";
 
 const MedicineVerification = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
@@ -28,8 +29,8 @@ const MedicineVerification = () => {
   const [showRefuseModal, setShowRefuseModal] = useState(false);
   const [refusalReason, setRefusalReason] = useState("");
 
-  // Mock staff ID - should be from auth context
-  const currentStaffId = 1;
+  const { user } = useAuth();
+  const currentStaffId = user?.id || 1; // Fallback to 1 if no user
 
   useEffect(() => {
     loadAllData();
@@ -248,29 +249,45 @@ const MedicineVerification = () => {
           { key: "pending", label: "Chờ kiểm tra", icon: FiClipboard },
           { key: "verified", label: "Đã xác nhận", icon: FiCheck },
           { key: "refused", label: "Đã từ chối", icon: FiX },
-        ].map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            onClick={() => setActiveSubTab(key)}
-            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
-              activeSubTab === key
-                ? "bg-white dark:bg-neutral-600 text-blue-600 dark:text-blue-400 shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-            }`}
-          >
-            <Icon className="h-4 w-4 mr-2" />
-            {label}
-            <span
-              className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+        ].map(({ key, label, icon: Icon }) => {
+          // Get the correct count for each tab
+          const getTabCount = (tabKey) => {
+            switch (tabKey) {
+              case "pending":
+                return pendingRequests.length;
+              case "verified":
+                return verifiedRequests.length;
+              case "refused":
+                return refusedRequests.length;
+              default:
+                return 0;
+            }
+          };
+
+          return (
+            <button
+              key={key}
+              onClick={() => setActiveSubTab(key)}
+              className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
                 activeSubTab === key
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
-                  : "bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300"
+                  ? "bg-white dark:bg-neutral-600 text-blue-600 dark:text-blue-400 shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
               }`}
             >
-              {getCurrentData().length}
-            </span>
-          </button>
-        ))}
+              <Icon className="h-4 w-4 mr-2" />
+              {label}
+              <span
+                className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                  activeSubTab === key
+                    ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                    : "bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300"
+                }`}
+              >
+                {getTabCount(key)}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Search */}
@@ -482,7 +499,9 @@ const MedicineVerification = () => {
                     Phụ huynh
                   </div>
                   <div className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                    {selectedRequest.parentName || "Văn Thái"}
+                    {selectedRequest.parent
+                      ? `${selectedRequest.parent.firstName} ${selectedRequest.parent.lastName}`
+                      : selectedRequest.parentName || "N/A"}
                   </div>
                 </div>
               </div>
@@ -772,14 +791,13 @@ const MedicineVerification = () => {
             </div>
             <div className="px-6 py-4">
               <div className="flex items-center mb-4">
-                <FiAlertTriangle className="h-8 w-8 text-red-600 mr-3" />
                 <div>
                   <p className="text-sm text-gray-900 dark:text-gray-100">
-                    Từ chối yêu cầu thuốc cho học sinh:
-                  </p>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
-                    {selectedRequest.student?.firstName}{" "}
-                    {selectedRequest.student?.lastName}
+                    Từ chối yêu cầu thuốc cho học sinh:{" "}
+                    <span className="font-medium">
+                      {selectedRequest.student?.firstName}{" "}
+                      {selectedRequest.student?.lastName}
+                    </span>
                   </p>
                 </div>
               </div>

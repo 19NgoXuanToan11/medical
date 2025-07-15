@@ -29,6 +29,7 @@ export const transformParentMedicationData = (requests) => {
           return "completed";
         case "failed":
         case "rejected":
+        case "refused":
           return "rejected";
         default:
           return "pending";
@@ -52,7 +53,10 @@ export const transformParentMedicationData = (requests) => {
     return {
       id: `MED${req.requestId}`,
       requestId: req.requestId,
-      studentName: req.studentName || req.studentCode, // Use actual studentName from API
+      studentName:
+        req.student?.firstName && req.student?.lastName
+          ? `${req.student.firstName} ${req.student.lastName}`
+          : req.studentName || req.studentCode, // Use student name from nested object or fallback
       studentCode: req.studentCode,
       class: req.className,
       medicationName: firstMedicine.medicineName || "N/A", // Keep for backward compatibility
@@ -70,6 +74,7 @@ export const transformParentMedicationData = (requests) => {
       frequency: firstMedicine.frequency || "N/A",
       timeOfDay: firstMedicine.timeOfDay || "N/A",
       instructions: firstMedicine.instructions || "N/A",
+      refusalReason: req.refusalReason || null, // Add refusal reason for rejected requests
       lastAdministered: lastAdministered,
       completedDoses: completedDoses,
       totalDoses: totalDoses,
@@ -78,6 +83,10 @@ export const transformParentMedicationData = (requests) => {
       medicineRequestItems: medicineItems,
       parentId: req.parentId,
       staffId: req.staffId,
+      staffName:
+        req.staff?.firstName && req.staff?.lastName
+          ? `${req.staff.firstName} ${req.staff.lastName}`
+          : "N/A", // Add staff name for who processed the request
       // Raw API data for reference
       originalData: req,
     };
