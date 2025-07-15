@@ -13,16 +13,7 @@ const RejectedRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  const {
-    loading,
-    setLoading,
-    availableNurses,
-    selectedNurse,
-    setSelectedNurse,
-    showActionDropdown,
-    toggleActionDropdown,
-    loadAllStats,
-  } = useMedicationRequests();
+  const { loading, setLoading, loadAllStats } = useMedicationRequests();
 
   // Load rejected requests
   const loadRejectedRequests = async () => {
@@ -64,37 +55,6 @@ const RejectedRequests = () => {
   const handleRefresh = () => {
     loadRejectedRequests();
     loadAllStats();
-  };
-
-  // Handle resubmit request
-  const handleResubmitRequest = async (request) => {
-    const reason = window.prompt(
-      `Lý do gửi lại yêu cầu thuốc cho ${request.studentName}:`
-    );
-
-    if (reason && reason.trim()) {
-      try {
-        const response = await medicationService.resubmitMedicationRequest(
-          request.id,
-          {
-            resubmitReason: reason.trim(),
-            resubmitDate: new Date().toISOString(),
-            originalRequestId: request.id,
-          }
-        );
-
-        if (response.success) {
-          alert("Yêu cầu đã được gửi lại thành công!");
-          loadRejectedRequests();
-          loadAllStats();
-        } else {
-          alert("Không thể gửi lại yêu cầu: " + response.message);
-        }
-      } catch (error) {
-        console.error("Error resubmitting request:", error);
-        alert("Đã xảy ra lỗi khi gửi lại yêu cầu");
-      }
-    }
   };
 
   // Load data on component mount
@@ -227,53 +187,11 @@ const RejectedRequests = () => {
         </div>
       </div>
 
-      {/* Rejection Reasons Summary */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4 transition-colors duration-300">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
-          Lý do từ chối phổ biến
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {[
-            "Thông tin không đầy đủ",
-            "Thuốc không phù hợp",
-            "Liều lượng không chính xác",
-            "Cần tư vấn bác sĩ",
-            "Thuốc hết hạn",
-            "Khác",
-          ].map((reason) => {
-            const count = filteredRequests.filter(
-              (req) => req.rejectionReason === reason
-            ).length;
-            return (
-              <div
-                key={reason}
-                className="flex justify-between items-center p-2 bg-gray-50 dark:bg-neutral-700 rounded"
-              >
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  {reason}
-                </span>
-                <span className="text-sm font-medium text-red-600 dark:text-red-400">
-                  {count}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Requests Table */}
       <MedicationRequestTable
         requests={filteredRequests}
         activeTab="rejected"
-        availableNurses={availableNurses}
-        selectedNurse={selectedNurse}
-        setSelectedNurse={setSelectedNurse}
-        showActionDropdown={showActionDropdown}
-        toggleActionDropdown={toggleActionDropdown}
         onViewDetail={handleViewDetail}
-        onAssignRequest={() => {}}
-        onCompleteRequest={() => {}}
-        onResubmitRequest={handleResubmitRequest}
       />
 
       {/* Detail Modal */}
@@ -281,11 +199,6 @@ const RejectedRequests = () => {
         show={showDetailModal}
         request={selectedRequest}
         onClose={() => setShowDetailModal(false)}
-        availableNurses={availableNurses}
-        selectedNurse={selectedNurse}
-        setSelectedNurse={setSelectedNurse}
-        onAssignRequest={() => {}}
-        onCompleteRequest={() => {}}
       />
     </div>
   );

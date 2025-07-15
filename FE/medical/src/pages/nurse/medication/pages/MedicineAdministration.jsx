@@ -2,229 +2,209 @@ import React, { useState, useEffect } from "react";
 import {
   FiSearch,
   FiRefreshCw,
-  FiClock,
+  FiPlay,
   FiCheck,
-  FiX,
-  FiAlertCircle,
+  FiEye,
   FiUser,
   FiCalendar,
+  FiTablet,
+  FiClock,
   FiActivity,
-  FiFileText,
-  FiChevronDown,
-  FiChevronUp,
+  FiX,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
-import { useMedicationRequests } from "../hooks/useMedicationRequests";
-import { 
-  calculateDosagePerAdministration, 
-  formatFrequency 
-} from "../../../../utils/api/medication/medicationUtils";
-
-// Helper function to parse dosage and extract unit
-const parseDosage = (dosage) => {
-  if (!dosage) return { number: "", unit: "viên" };
-  
-  // Check if dosage already contains unit
-  const dosageMatch = dosage.match(/^(\d+(?:\.\d+)?)\s*(.+)$/);
-  if (dosageMatch) {
-    return { number: dosageMatch[1], unit: dosageMatch[2] };
-  }
-  
-  // If no unit found, assume it's just a number and add default unit
-  return { number: dosage, unit: "viên" };
-};
-
-// Helper function to format dosage with unit
-const formatDosageWithUnit = (dosage) => {
-  const { number, unit } = parseDosage(dosage);
-  return `${number} ${unit}`;
-};
 
 const MedicineAdministration = () => {
-  const [requests, setRequests] = useState([]);
+  const [assignedRequests, setAssignedRequests] = useState([]);
+  const [completedRequests, setCompletedRequests] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState("assigned");
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterDate, setFilterDate] = useState("");
   const [selectedRequest, setSelectedRequest] = useState(null);
-  const [showAdministrationModal, setShowAdministrationModal] = useState(false);
-  const [administrationData, setAdministrationData] = useState({
-    administeredTime: "",
-    status: "administered",
-    frequency: "",
-    timesPerDay: 1,
-    currentDayCount: 1,
-    administeredFrequencies: [],
-    failedFrequencies: [],
-    failureReasons: {},
-    notes: "",
-    isReRequest: false,
-    reRequestReason: "",
-  });
-  const [expandedRequest, setExpandedRequest] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showStartModal, setShowStartModal] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  const { loading, setLoading, loadAllStats } = useMedicationRequests();
+  // Mock current staff ID - should be from auth context
+  const currentStaffId = 1;
 
-  // Load assigned requests ready for administration
-  const loadAdministrationRequests = async () => {
+  useEffect(() => {
+    loadAllData();
+  }, []);
+
+  const loadAllData = async () => {
     setLoading(true);
     try {
-      const response = await medicationService.getAssignedMedicationRequests();
-      if (response.success) {
-        // Filter only assigned requests that haven't been administered yet
-        const assignedRequests = response.data.filter(
-          (req) => req.status === "Assigned" || req.status === "assigned"
-        );
-        setRequests(assignedRequests);
-      } else {
-        setRequests([]);
-      }
+      await Promise.all([loadAssignedRequests(), loadCompletedRequests()]);
     } catch (error) {
-      console.error("Error loading administration requests:", error);
-      setRequests([]);
+      console.error("Error loading data:", error);
     }
     setLoading(false);
   };
 
-  // Handle start administration
-  const handleStartAdministration = async (request) => {
+  const loadAssignedRequests = async () => {
     try {
-      // Call the new API endpoint to start medication administration
+      const response = await medicationService.getAssignedMedicationRequests();
+      if (response.success) {
+        setAssignedRequests(response.data);
+      }
+    } catch (error) {
+      console.error("Error loading assigned requests:", error);
+    }
+  };
+
+  const loadCompletedRequests = async () => {
+    try {
+      const response = await medicationService.getCompletedMedicationRequests();
+      if (response.success) {
+        setCompletedRequests(response.data);
+      }
+    } catch (error) {
+      console.error("Error loading completed requests:", error);
+    }
+  };
+
+  const handleStartAdministration = async () => {
+    if (!selectedRequest) {
+      alert("Không có yêu cầu được chọn");
+      return;
+    }
+
+    try {
       const response = await medicationService.startMedicationAdministration(
-        request.requestId || request.id,
-        request.staffId || request.staff?.staffId
+        selectedRequest.requestId,
+        currentStaffId
       );
 
       if (response.success) {
-        alert("Đã bắt đầu quá trình cho uống thuốc thành công!");
-
-        // After starting administration, open the modal for recording the actual administration
-        setSelectedRequest(request);
-        setAdministrationData({
-          ...administrationData,
-          administeredTime: new Date().toISOString(),
-          frequency: request.medicineRequestItems?.[0]?.frequency || "",
-          timesPerDay: getTimesPerDay(
-            request.medicineRequestItems?.[0]?.frequency
-          ),
-        });
-        setShowAdministrationModal(true);
-
-        // Refresh the data
-        loadAdministrationRequests();
-        loadAllStats();
+        alert("Bắt đầu cho uống thuốc thành công!");
+        setShowStartModal(false);
+        loadAllData();
       } else {
-        alert(
-          "Có lỗi xảy ra: " +
-            (response.message || "Không thể bắt đầu quá trình")
-        );
+        alert(response.message);
       }
     } catch (error) {
+      alert("Có lỗi xảy ra khi bắt đầu cho uống thuốc");
       console.error("Error starting administration:", error);
-      alert("Có lỗi xảy ra khi bắt đầu quá trình cho uống thuốc!");
     }
   };
 
-  // Get times per day from frequency
-  const getTimesPerDay = (frequency) => {
-    if (!frequency) return 1;
-    const freq = frequency.toLowerCase();
-    if (freq.includes("3") || freq.includes("three")) return 3;
-    if (freq.includes("2") || freq.includes("two")) return 2;
-    if (freq.includes("4") || freq.includes("four")) return 4;
-    return 1;
-  };
+  const handleCompleteRequest = async () => {
+    if (!selectedRequest) {
+      alert("Không có yêu cầu được chọn");
+      return;
+    }
 
-  // Handle administration submission
-  const handleSubmitAdministration = async () => {
     try {
-      if (!selectedRequest) return;
-
-      const submissionData = {
-        resultId: 0,
-        requestId: selectedRequest.requestId || selectedRequest.id,
-        administeredTime: administrationData.administeredTime,
-        status: administrationData.status,
-        submittedAt: new Date().toISOString(),
-        frequency: administrationData.frequency,
-        timesPerDay: administrationData.timesPerDay,
-        currentDayCount: administrationData.currentDayCount,
-        currentDate: new Date().toISOString().split("T")[0],
-        administeredFrequencies: administrationData.administeredFrequencies,
-        failedFrequencies: administrationData.failedFrequencies,
-        failureReasons: administrationData.failureReasons,
-        isReRequest: administrationData.isReRequest,
-        originalRequestResultId: 0,
-        lastAttemptTime: new Date().toISOString(),
-        failedAttempts: administrationData.failedFrequencies.length,
-        reRequestReason: administrationData.reRequestReason,
-        request: selectedRequest,
-        administeredByStaff: {
-          staffId: selectedRequest.staffId || selectedRequest.staff?.staffId,
-        },
-        actionByStaff: {
-          staffId: selectedRequest.staffId || selectedRequest.staff?.staffId,
-        },
-      };
-
-      console.log("Submitting administration data:", submissionData);
-
-      // Call API to record administration
-      const response = await medicationService.recordMedicineAdministration(
-        submissionData
+      const response = await medicationService.completeMedicationRequest(
+        selectedRequest.requestId,
+        currentStaffId,
+        "Hoàn thành cho uống thuốc"
       );
 
       if (response.success) {
-        alert("Đã ghi nhận việc cho uống thuốc thành công!");
-        setShowAdministrationModal(false);
-        setSelectedRequest(null);
-        loadAdministrationRequests();
-        loadAllStats();
+        alert("Hoàn thành yêu cầu thuốc thành công!");
+        setShowCompleteModal(false);
+        loadAllData();
       } else {
-        alert("Có lỗi xảy ra: " + (response.message || "Không thể ghi nhận"));
+        alert(response.message);
       }
     } catch (error) {
-      console.error("Error submitting administration:", error);
-      alert("Có lỗi xảy ra khi ghi nhận việc cho uống thuốc!");
+      alert("Có lỗi xảy ra khi hoàn thành yêu cầu thuốc");
+      console.error("Error completing request:", error);
     }
   };
 
-  // Handle refresh
-  const handleRefresh = () => {
-    loadAllStats();
-    loadAdministrationRequests();
+  const getCurrentData = () => {
+    switch (activeSubTab) {
+      case "assigned":
+        return assignedRequests;
+      case "completed":
+        return completedRequests;
+      default:
+        return [];
+    }
   };
 
-  // Filter requests
-  const filteredRequests = requests.filter((request) => {
-    const matchesSearch =
-      searchTerm === "" ||
-      request.student?.firstName
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      request.student?.lastName
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      request.medicineRequestItems?.some((item) =>
-        item.medicineName?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filterRequests = (requests) => {
+    return requests.filter((request) => {
+      const searchLower = searchTerm.toLowerCase();
+      const studentName = `${request.student?.firstName || ""} ${
+        request.student?.lastName || ""
+      }`.toLowerCase();
+      const medicineName =
+        request.medicineRequestItems?.[0]?.medicineName?.toLowerCase() || "";
+      const requestId = request.requestId?.toString() || "";
+
+      return (
+        studentName.includes(searchLower) ||
+        medicineName.includes(searchLower) ||
+        requestId.includes(searchLower)
       );
+    });
+  };
 
-    const matchesDate =
-      filterDate === "" ||
-      new Date(request.requestDate).toISOString().split("T")[0] === filterDate;
+  const getStatusBadge = (status, subTab) => {
+    const statusMap = {
+      assigned: {
+        label: "Chờ cho uống",
+        color: "bg-orange-100 text-orange-800",
+      },
+      completed: {
+        label: "Đã hoàn thành",
+        color: "bg-green-100 text-green-800",
+      },
+    };
 
-    return matchesSearch && matchesDate;
-  });
-
-  useEffect(() => {
-    loadAdministrationRequests();
-  }, []);
-
-  if (loading) {
+    const config = statusMap[subTab] || statusMap.assigned;
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
+      <span
+        className={`px-2 py-1 text-xs font-medium rounded-full ${config.color}`}
+      >
+        {config.label}
+      </span>
     );
-  }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("vi-VN");
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleString("vi-VN");
+  };
+
+  const isOneTimeFrequency = (frequency) => {
+    if (!frequency) return false;
+    const freq = frequency.toLowerCase();
+    return freq.includes("1 lần") || freq.includes("một lần") || freq === "1";
+  };
+
+  const formatTimeOfDay = (timeOfDay) => {
+    if (!timeOfDay) return "";
+
+    const timeMap = {
+      morning: "Buổi sáng (06:00 - 11:00)",
+      noon: "Buổi trưa (11:00 - 14:00)",
+      afternoon: "Buổi chiều (14:00 - 17:00)",
+      as_needed: "Khi cần thiết",
+    };
+
+    // Xử lý trường hợp có nhiều thời điểm ngăn cách bởi dấu phẩy
+    if (timeOfDay.includes(",")) {
+      const times = timeOfDay.split(",").map((time) => time.trim());
+      const vietnameseTimes = times.map(
+        (time) => timeMap[time.toLowerCase()] || time
+      );
+      return vietnameseTimes.join(", ");
+    }
+
+    return timeMap[timeOfDay.toLowerCase()] || timeOfDay;
+  };
+
+  const currentRequests = filterRequests(getCurrentData());
 
   return (
     <div className="space-y-6">
@@ -232,14 +212,14 @@ const MedicineAdministration = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-            Quản lý cho uống thuốc
+            Cho uống thuốc
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Bắt đầu và ghi nhận quá trình cho học sinh uống thuốc
+            Bắt đầu và quản lý việc cho học sinh uống thuốc
           </p>
         </div>
         <button
-          onClick={handleRefresh}
+          onClick={loadAllData}
           disabled={loading}
           className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors duration-200"
         >
@@ -250,368 +230,449 @@ const MedicineAdministration = () => {
         </button>
       </div>
 
-      {/* Search and Filter */}
+      {/* Sub Tabs */}
+      <div className="flex space-x-1 bg-gray-100 dark:bg-neutral-700 p-1 rounded-lg">
+        {[
+          { key: "assigned", label: "Chờ cho uống", icon: FiClock },
+          { key: "completed", label: "Đã hoàn thành", icon: FiCheck },
+        ].map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            onClick={() => setActiveSubTab(key)}
+            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
+              activeSubTab === key
+                ? "bg-white dark:bg-neutral-600 text-blue-600 dark:text-blue-400 shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            }`}
+          >
+            <Icon className="h-4 w-4 mr-2" />
+            {label}
+            <span
+              className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                activeSubTab === key
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                  : "bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300"
+              }`}
+            >
+              {getCurrentData().length}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Search */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
-        <div className="flex gap-3">
-          <div className="relative flex-1">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Tìm kiếm theo tên học sinh hoặc thuốc..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 w-full"
-            />
-          </div>
+        <div className="relative">
+          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
-            type="date"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
+            type="text"
+            placeholder="Tìm kiếm theo tên học sinh, thuốc hoặc ID..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 w-full"
           />
         </div>
       </div>
 
-      {/* Requests List */}
-      <div className="space-y-4">
-        {filteredRequests.length === 0 ? (
-          <div className="text-center py-12 bg-white dark:bg-neutral-800 rounded-lg border border-gray-200 dark:border-neutral-700">
-            <FiActivity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400">
-              Không có yêu cầu cần cho uống thuốc
-            </p>
-          </div>
-        ) : (
-          filteredRequests.map((request) => (
-            <div
-              key={request.requestId || request.id}
-              className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6"
-            >
-              {/* Request Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <FiUser className="h-5 w-5 text-blue-500" />
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                      {request.student?.firstName} {request.student?.lastName}
-                    </h3>
-                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full">
-                      Lớp {request.student?.className}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                    <div className="flex items-center gap-1">
-                      <FiCalendar className="h-4 w-4" />
-                      {new Date(request.requestDate).toLocaleDateString(
-                        "vi-VN"
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <FiFileText className="h-4 w-4" />
-                      ID: {request.requestId || request.id}
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleStartAdministration(request)}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 transition-colors"
-                >
-                  <FiActivity className="h-4 w-4" />
-                  Bắt đầu cho uống thuốc
-                </button>
-              </div>
-
-              {/* Medicine Items */}
-              <div className="space-y-3">
-                {request.medicineRequestItems?.map((item, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-50 dark:bg-neutral-700 rounded-lg p-4"
+      {/* Requests Table */}
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+            <thead className="bg-gray-50 dark:bg-neutral-700">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Học sinh
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Thuốc
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Y tá phụ trách
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Ngày gửi yêu cầu
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Ngày uống thuốc
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Trạng thái
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Thao tác
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-gray-600">
+              {currentRequests.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="7"
+                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Tên thuốc
-                        </label>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1">
-                          {item.medicineName}
-                        </p>
+                    {loading ? "Đang tải..." : "Không có dữ liệu"}
+                  </td>
+                </tr>
+              ) : (
+                currentRequests.map((request) => (
+                  <tr
+                    key={request.requestId}
+                    className="hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-200"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {request.student?.firstName}{" "}
+                            {request.student?.lastName}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            Lớp:{" "}
+                            {request.student?.class?.className ||
+                              request.className}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Liều lượng
-                        </label>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
-                          {formatDosageWithUnit(item.dosage)}
-                        </p>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="text-sm text-gray-900 dark:text-gray-100">
+                        {request.medicineRequestItems?.[0]?.medicineName ||
+                          "N/A"}
                       </div>
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Tần suất
-                        </label>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
-                          {formatFrequency(item.frequency)}
-                        </p>
+                      {isOneTimeFrequency(
+                        request.medicineRequestItems?.[0]?.frequency
+                      ) && (
+                        <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                          Uống 1 lần
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex items-center justify-center">
+                        <div className="ml-2">
+                          <div className="text-sm text-gray-900 dark:text-gray-100">
+                            {request.staff?.firstName} {request.staff?.lastName}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Liều lượng mỗi lần
-                        </label>
-                        <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mt-1">
-                          {item.dosage && item.frequency ? (
-                            calculateDosagePerAdministration(
-                              formatDosageWithUnit(item.dosage),
-                              item.frequency
-                            )
-                          ) : (
-                            "N/A"
-                          )}
-                        </p>
+                    </td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-900 dark:text-gray-100">
+                      {formatDate(request.requestDate)}
+                    </td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-900 dark:text-gray-100">
+                      {request.date
+                        ? formatDate(request.date)
+                        : formatDate(request.requestDate)}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {getStatusBadge(request.status, activeSubTab)}
+                    </td>
+                    <td className="px-6 py-4 text-right text-sm font-medium">
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => {
+                            setSelectedRequest(request);
+                            setShowDetailModal(true);
+                          }}
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                          title="Xem chi tiết"
+                        >
+                          <FiEye className="h-4 w-4" />
+                        </button>
+                        {activeSubTab === "assigned" && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setSelectedRequest(request);
+                                setShowStartModal(true);
+                              }}
+                              className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                              title="Bắt đầu cho uống thuốc"
+                            >
+                              <FiPlay className="h-4 w-4" />
+                            </button>
+                            {isOneTimeFrequency(
+                              request.medicineRequestItems?.[0]?.frequency
+                            ) && (
+                              <button
+                                onClick={() => {
+                                  setSelectedRequest(request);
+                                  setShowCompleteModal(true);
+                                }}
+                                className="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
+                                title="Hoàn thành ngay (uống 1 lần)"
+                              >
+                                <FiCheck className="h-4 w-4" />
+                              </button>
+                            )}
+                          </>
+                        )}
                       </div>
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Thời gian
-                        </label>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
-                          {item.timeOfDay}
-                        </p>
-                      </div>
-                    </div>
-                    {item.instructions && (
-                      <div className="mt-3">
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          Hướng dẫn sử dụng
-                        </label>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
-                          {item.instructions}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Toggle Details */}
-              <button
-                onClick={() =>
-                  setExpandedRequest(
-                    expandedRequest === request.requestId
-                      ? null
-                      : request.requestId
-                  )
-                }
-                className="mt-4 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
-              >
-                {expandedRequest === request.requestId ? (
-                  <>
-                    <FiChevronUp className="h-4 w-4" />
-                    Ẩn chi tiết
-                  </>
-                ) : (
-                  <>
-                    <FiChevronDown className="h-4 w-4" />
-                    Xem chi tiết
-                  </>
-                )}
-              </button>
-
-              {/* Expanded Details */}
-              {expandedRequest === request.requestId && (
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-neutral-600">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">
-                        Thông tin phụ huynh
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {request.parent?.firstName} {request.parent?.lastName}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {request.parent?.phone} | {request.parent?.email}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">
-                        Nhân viên phụ trách
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {request.staff?.firstName} {request.staff?.lastName}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {request.staff?.email}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                    </td>
+                  </tr>
+                ))
               )}
-            </div>
-          ))
-        )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Administration Modal */}
-      {showAdministrationModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                  Ghi nhận kết quả cho uống thuốc
+      {/* Detail Modal */}
+      {showDetailModal && selectedRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                  Chi tiết yêu cầu thuốc #{selectedRequest.requestId}
                 </h3>
                 <button
-                  onClick={() => setShowAdministrationModal(false)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  onClick={() => setShowDetailModal(false)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
                   <FiX className="h-6 w-6" />
                 </button>
               </div>
+            </div>
+            <div className="px-6 py-4 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Học sinh
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {selectedRequest.student?.firstName}{" "}
+                    {selectedRequest.student?.lastName}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Lớp
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {selectedRequest.student?.class?.className ||
+                      selectedRequest.className}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Y tá phụ trách
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {selectedRequest.staff?.firstName}{" "}
+                    {selectedRequest.staff?.lastName}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Ngày gửi yêu cầu
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {formatDate(selectedRequest.requestDate)}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Ngày uống thuốc
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {formatDate(selectedRequest.date)}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Trạng thái
+                  </label>
+                  <p className="mt-1">
+                    {getStatusBadge(selectedRequest.status, activeSubTab)}
+                  </p>
+                </div>
+                {activeSubTab === "completed" &&
+                  selectedRequest.completedDate && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Ngày hoàn thành
+                      </label>
+                      <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                        {formatDateTime(selectedRequest.completedDate)}
+                      </p>
+                    </div>
+                  )}
+              </div>
 
-              {/* Patient Info */}
-              <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">
-                  Thông tin học sinh
-                </h4>
-                <p className="text-blue-700 dark:text-blue-300">
-                  {selectedRequest.student?.firstName}{" "}
-                  {selectedRequest.student?.lastName} - Lớp{" "}
-                  {selectedRequest.student?.className}
+              {selectedRequest.medicineRequestItems && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Thông tin thuốc
+                  </label>
+                  <div className="space-y-3">
+                    {selectedRequest.medicineRequestItems.map((item, index) => (
+                      <div
+                        key={index}
+                        className="border border-gray-200 dark:border-gray-600 rounded-lg p-3"
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              Tên thuốc:
+                            </span>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {item.medicineName}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              Tổng liều lượng (viên)
+                            </span>
+                            <p className="text-sm text-gray-900 dark:text-gray-100">
+                              {item.dosage}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              Liều lượng mỗi lần (viên)
+                            </span>
+                            <p className="text-sm text-gray-900 dark:text-gray-100">
+                              {item.dosagePerTime || "1"}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              Tần suất uống (lần/ngày)
+                            </span>
+                            <p className="text-sm text-gray-900 dark:text-gray-100">
+                              {item.frequency}
+                            </p>
+                          </div>
+                        </div>
+
+                        {(item.timeOfDay || item.schedule) && (
+                          <div className="mt-3">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 mb-2 block">
+                              Lịch uống thuốc:
+                            </span>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                              {formatTimeOfDay(item.timeOfDay) || item.schedule}
+                            </p>
+                          </div>
+                        )}
+
+                        {item.instructions && (
+                          <div className="mt-3">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              Hướng dẫn:
+                            </span>
+                            <p className="text-sm text-gray-900 dark:text-gray-100">
+                              {item.instructions}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Start Administration Modal */}
+      {showStartModal && selectedRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                Bắt đầu cho uống thuốc
+              </h3>
+            </div>
+            <div className="px-6 py-4">
+              <div className="flex items-center mb-4">
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    Bắt đầu cho học sinh uống thuốc:{" "}
+                    <span className="font-medium">
+                      {selectedRequest.student?.firstName}{" "}
+                      {selectedRequest.student?.lastName}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Thuốc:{" "}
+                    {selectedRequest.medicineRequestItems?.[0]?.medicineName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg mb-4">
+                <p className="text-sm text-green-800 dark:text-green-200">
+                  Bạn sẽ bắt đầu quá trình cho học sinh uống thuốc.
                 </p>
               </div>
 
-              {/* Administration Form */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Thời gian cho uống
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={administrationData.administeredTime.slice(0, 16)}
-                      onChange={(e) =>
-                        setAdministrationData({
-                          ...administrationData,
-                          administeredTime: e.target.value + ":00.000Z",
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Trạng thái
-                    </label>
-                    <select
-                      value={administrationData.status}
-                      onChange={(e) =>
-                        setAdministrationData({
-                          ...administrationData,
-                          status: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                    >
-                      <option value="administered">
-                        Đã cho uống thành công
-                      </option>
-                      <option value="failed">Không thể cho uống</option>
-                      <option value="partial">Cho uống một phần</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Số lần/ngày
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="4"
-                      value={administrationData.timesPerDay}
-                      onChange={(e) =>
-                        setAdministrationData({
-                          ...administrationData,
-                          timesPerDay: parseInt(e.target.value),
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Lần thứ (hôm nay)
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max={administrationData.timesPerDay}
-                      value={administrationData.currentDayCount}
-                      onChange={(e) =>
-                        setAdministrationData({
-                          ...administrationData,
-                          currentDayCount: parseInt(e.target.value),
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Ghi chú
-                  </label>
-                  <textarea
-                    value={administrationData.notes}
-                    onChange={(e) =>
-                      setAdministrationData({
-                        ...administrationData,
-                        notes: e.target.value,
-                      })
-                    }
-                    rows="3"
-                    placeholder="Ghi chú về quá trình cho uống thuốc..."
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                  />
-                </div>
-
-                {administrationData.status === "failed" && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Lý do không thể cho uống
-                    </label>
-                    <textarea
-                      value={administrationData.reRequestReason}
-                      onChange={(e) =>
-                        setAdministrationData({
-                          ...administrationData,
-                          reRequestReason: e.target.value,
-                        })
-                      }
-                      rows="2"
-                      placeholder="Mô tả lý do không thể cho học sinh uống thuốc..."
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-3 mt-6">
+              <div className="flex justify-end space-x-3">
                 <button
-                  onClick={() => setShowAdministrationModal(false)}
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  onClick={() => setShowStartModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500"
                 >
                   Hủy
                 </button>
                 <button
-                  onClick={handleSubmitAdministration}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+                  onClick={handleStartAdministration}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
                 >
-                  <FiCheck className="h-4 w-4" />
-                  Ghi nhận
+                  Bắt đầu
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Complete Modal */}
+      {showCompleteModal && selectedRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                Hoàn thành cho uống thuốc
+              </h3>
+            </div>
+            <div className="px-6 py-4">
+              <div className="mb-4">
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 inline">
+                    Hoàn thành cho học sinh uống thuốc:{" "}
+                    <span className="font-medium">
+                      {selectedRequest.student?.firstName}{" "}
+                      {selectedRequest.student?.lastName}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Thuốc:{" "}
+                    {selectedRequest.medicineRequestItems?.[0]?.medicineName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  Chỉ dùng cho thuốc uống 1 lần. Học sinh đã uống thuốc thành
+                  công và hoàn thành yêu cầu.
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowCompleteModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleCompleteRequest}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                >
+                  Hoàn thành
                 </button>
               </div>
             </div>

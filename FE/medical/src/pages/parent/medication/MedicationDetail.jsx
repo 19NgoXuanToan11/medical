@@ -263,8 +263,8 @@ const MedicationDetail = () => {
                   {getStatusBadge(medication.status)}
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Mã yêu cầu: #{medication.id} | Ngày tạo:{" "}
-                  {new Date(medication.requestDate).toLocaleString("vi-VN")}
+                  Ngày gửi yêu cầu:{" "}
+                  {medication.requestDate.toLocaleString("vi-VN")}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -324,7 +324,7 @@ const MedicationDetail = () => {
                     </div>
                     <div>
                       <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Thời gian sử dụng
+                        Thời gian sử dụng thuốc
                       </h3>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {new Date(medication.startDate).toLocaleDateString(
@@ -361,7 +361,7 @@ const MedicationDetail = () => {
                                 Thuốc #{index + 1}
                               </span>
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div>
                                 <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                                   Tổng liều lượng
@@ -403,23 +403,6 @@ const MedicationDetail = () => {
                                     : "Chưa xác định"}
                                 </p>
                               </div>
-                              <div>
-                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                                  Thời gian uống
-                                </h4>
-                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                  {medicine.timeOfDay &&
-                                  medicine.timeOfDay !== "N/A"
-                                    ? Array.isArray(medicine.timeOfDay)
-                                      ? medicine.timeOfDay
-                                          .map((time) =>
-                                            getTimeOfDayText(time.trim())
-                                          )
-                                          .join(", ")
-                                      : getTimeOfDayText(medicine.timeOfDay)
-                                    : "Chưa xác định"}
-                                </p>
-                              </div>
                             </div>
                             {medicine.instructions &&
                               medicine.instructions !== "N/A" && (
@@ -451,7 +434,7 @@ const MedicationDetail = () => {
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
               <div className="bg-purple-50 dark:bg-purple-900/30 p-3 border-b border-purple-200 dark:border-purple-800">
                 <h2 className="text-base font-medium text-purple-800 dark:text-purple-300">
-                  Lịch trình uống thuốc dự kiến
+                  Lịch uống thuốc
                 </h2>
               </div>
               <div className="p-4">

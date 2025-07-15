@@ -17,17 +17,7 @@ const AssignedRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  const {
-    loading,
-    setLoading,
-    availableNurses,
-    selectedNurse,
-    setSelectedNurse,
-    showActionDropdown,
-    toggleActionDropdown,
-    sendParentNotification,
-    loadAllStats,
-  } = useMedicationRequests();
+  const { loading, setLoading, loadAllStats } = useMedicationRequests();
 
   // Load assigned requests
   const loadAssignedRequests = async () => {
@@ -64,8 +54,6 @@ const AssignedRequests = () => {
     }
     setLoading(false);
   };
-
-
 
   // Handle refresh
   const handleRefresh = () => {
@@ -146,14 +134,7 @@ const AssignedRequests = () => {
       <MedicationRequestTable
         requests={filteredRequests}
         activeTab="assigned"
-        availableNurses={availableNurses}
-        selectedNurse={selectedNurse}
-        setSelectedNurse={setSelectedNurse}
-        showActionDropdown={showActionDropdown}
-        toggleActionDropdown={toggleActionDropdown}
         onViewDetail={handleViewDetail}
-        onAssignRequest={() => {}}
-        onCompleteRequest={() => {}}
       />
 
       {/* Detail Modal */}
@@ -161,11 +142,6 @@ const AssignedRequests = () => {
         show={showDetailModal}
         request={selectedRequest}
         onClose={() => setShowDetailModal(false)}
-        availableNurses={availableNurses}
-        selectedNurse={selectedNurse}
-        setSelectedNurse={setSelectedNurse}
-        onAssignRequest={() => {}}
-        onCompleteRequest={() => {}}
       />
     </div>
   );

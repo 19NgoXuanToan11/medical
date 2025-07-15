@@ -191,12 +191,10 @@ const RequestResultTable = ({
                     </div>
                     {result.dosage && result.frequency && (
                       <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                        {calculateDosagePerAdministration(result.dosage, result.frequency)}
-                      </div>
-                    )}
-                    {result.timeOfDay && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {result.timeOfDay}
+                        {calculateDosagePerAdministration(
+                          result.dosage,
+                          result.frequency
+                        )}
                       </div>
                     )}
                   </div>

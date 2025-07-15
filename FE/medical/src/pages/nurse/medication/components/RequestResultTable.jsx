@@ -18,21 +18,21 @@ import {
   formatAdministrationSchedule,
   shouldShowReRequestOption,
 } from "../utils/requestResultUtils";
-import { 
-  calculateDosagePerAdministration, 
-  formatFrequency 
+import {
+  calculateDosagePerAdministration,
+  formatFrequency,
 } from "../../../../utils/api/medication/medicationUtils";
 
 // Helper function to parse dosage and extract unit
 const parseDosage = (dosage) => {
   if (!dosage) return { number: "", unit: "viên" };
-  
+
   // Check if dosage already contains unit
   const dosageMatch = dosage.match(/^(\d+(?:\.\d+)?)\s*(.+)$/);
   if (dosageMatch) {
     return { number: dosageMatch[1], unit: dosageMatch[2] };
   }
-  
+
   // If no unit found, assume it's just a number and add default unit
   return { number: dosage, unit: "viên" };
 };
@@ -208,21 +208,19 @@ const RequestResultTable = ({
                 {/* Dosage & Frequency */}
                 <td className="px-6 py-4 text-center">
                   <div className="text-sm text-gray-900 dark:text-gray-100">
-                    <div className="font-medium">Tổng: {formatDosageWithUnit(result.dosage)}</div>
+                    <div className="font-medium">
+                      Tổng: {formatDosageWithUnit(result.dosage)}
+                    </div>
                     <div className="text-gray-500 dark:text-gray-400">
                       {formatFrequency(result.frequency)}
                     </div>
                     {result.dosage && result.frequency && (
                       <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                        Mỗi lần: {calculateDosagePerAdministration(
+                        Mỗi lần:{" "}
+                        {calculateDosagePerAdministration(
                           formatDosageWithUnit(result.dosage),
                           result.frequency
                         )}
-                      </div>
-                    )}
-                    {result.timeOfDay && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {result.timeOfDay}
                       </div>
                     )}
                   </div>

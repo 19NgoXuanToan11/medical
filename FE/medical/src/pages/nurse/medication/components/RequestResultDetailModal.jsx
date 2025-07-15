@@ -22,21 +22,21 @@ import {
   shouldShowReRequestOption,
   getStatusDisplayText,
 } from "../utils/requestResultUtils";
-import { 
-  calculateDosagePerAdministration, 
-  formatFrequency 
+import {
+  calculateDosagePerAdministration,
+  formatFrequency,
 } from "../../../../utils/api/medication/medicationUtils";
 
 // Helper function to parse dosage and extract unit
 const parseDosage = (dosage) => {
   if (!dosage) return { number: "", unit: "viên" };
-  
+
   // Check if dosage already contains unit
   const dosageMatch = dosage.match(/^(\d+(?:\.\d+)?)\s*(.+)$/);
   if (dosageMatch) {
     return { number: dosageMatch[1], unit: dosageMatch[2] };
   }
-  
+
   // If no unit found, assume it's just a number and add default unit
   return { number: dosage, unit: "viên" };
 };
@@ -281,25 +281,15 @@ const RequestResultDetailModal = ({
         </div>
         <div>
           <label className="text-sm text-gray-500 dark:text-gray-400">
-            Thời gian trong ngày
-          </label>
-          <p className="font-medium text-gray-900 dark:text-gray-100">
-            {result.timeOfDay || "N/A"}
-          </p>
-        </div>
-        <div>
-          <label className="text-sm text-gray-500 dark:text-gray-400">
             Liều lượng mỗi lần
           </label>
           <p className="font-medium text-blue-600 dark:text-blue-400">
-            {result.dosage && result.frequency ? (
-              calculateDosagePerAdministration(
-                formatDosageWithUnit(result.dosage),
-                result.frequency
-              )
-            ) : (
-              "N/A"
-            )}
+            {result.dosage && result.frequency
+              ? calculateDosagePerAdministration(
+                  formatDosageWithUnit(result.dosage),
+                  result.frequency
+                )
+              : "N/A"}
           </p>
         </div>
         {result.instructions && (

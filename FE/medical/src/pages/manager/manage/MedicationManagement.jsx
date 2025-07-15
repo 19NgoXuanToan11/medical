@@ -796,7 +796,9 @@ const MedicationManagement = () => {
                 </div>
               )}
 
-              {selectedRequest.status === "rejected" && (
+              {(selectedRequest.status === "rejected" ||
+                selectedRequest.status === "Refused" ||
+                selectedRequest.status === "refused") && (
                 <div className="mt-6 bg-red-50 p-4 rounded-lg border border-red-200">
                   <h4 className="font-medium text-red-800 mb-2 flex items-center">
                     <FiXCircle className="mr-2" /> Thông tin từ chối
@@ -811,7 +813,9 @@ const MedicationManagement = () => {
                   </p>
                   <p className="text-sm text-red-800">
                     <span className="font-medium">Lý do từ chối:</span>{" "}
-                    {selectedRequest.rejectionReason}
+                    {selectedRequest.rejectionReason ||
+                      selectedRequest.refusalReason ||
+                      selectedRequest.reason}
                   </p>
                 </div>
               )}

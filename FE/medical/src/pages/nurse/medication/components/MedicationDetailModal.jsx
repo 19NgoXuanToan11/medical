@@ -1,21 +1,21 @@
 import React from "react";
 import { FiX, FiCheckCircle, FiClock, FiCheck, FiInfo } from "react-icons/fi";
-import { 
-  calculateDosagePerAdministration, 
+import {
+  calculateDosagePerAdministration,
   formatFrequency,
-  getMedicationSummary 
+  getMedicationSummary,
 } from "../../../../utils/api/medication/medicationUtils";
 
 // Helper function to parse dosage and extract unit
 const parseDosage = (dosage) => {
   if (!dosage) return { number: "", unit: "viên" };
-  
+
   // Check if dosage already contains unit
   const dosageMatch = dosage.match(/^(\d+(?:\.\d+)?)\s*(.+)$/);
   if (dosageMatch) {
     return { number: dosageMatch[1], unit: dosageMatch[2] };
   }
-  
+
   // If no unit found, assume it's just a number and add default unit
   return { number: dosage, unit: "viên" };
 };
@@ -71,7 +71,7 @@ const MedicationDetailModal = ({
                 </div>
                 <div>
                   <span className="font-medium text-gray-700 dark:text-gray-300">
-                    Ngày yêu cầu:
+                    Ngày gửi yêu cầu:
                   </span>
                   <p className="text-gray-900 dark:text-gray-100">
                     {new Date(request.requestDate).toLocaleDateString("vi-VN")}
@@ -128,20 +128,17 @@ const MedicationDetailModal = ({
                 <table className="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th className="w-1/5 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="w-1/4 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         TÊN THUỐC
                       </th>
-                      <th className="w-1/5 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        LIỀU LƯỢNG
+                      <th className="w-1/4 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        TỔNG LIỀU LƯỢNG
                       </th>
-                      <th className="w-1/5 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        TẦN SUẤT
+                      <th className="w-1/4 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        TẦN SUẤT UỐNG
                       </th>
-                      <th className="w-1/5 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="w-1/4 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         LIỀU LƯỢNG MỖI LẦN
-                      </th>
-                      <th className="w-1/5 px-3 py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        THỜI GIAN
                       </th>
                     </tr>
                   </thead>
@@ -150,36 +147,38 @@ const MedicationDetailModal = ({
                     request.medicineRequestItems.length > 0 ? (
                       request.medicineRequestItems.map((item, index) => (
                         <tr key={index}>
-                          <td className="w-1/5 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
+                          <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
                             {item.medicineName}
                           </td>
-                          <td className="w-1/5 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
-                            {formatDosageWithUnit(item.dosage)}
+                          <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
+                            {item.dosage && item.dosage !== "N/A"
+                              ? `${item.dosage} ${item.dosageUnit || "viên"}`
+                              : "Chưa xác định"}
                           </td>
-                          <td className="w-1/5 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
-                            {formatFrequency(item.frequency)}
+                          <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
+                            {item.frequency && item.frequency !== "N/A"
+                              ? typeof item.frequency === "number"
+                                ? `${item.frequency} lần/ngày`
+                                : item.frequency
+                              : "Chưa xác định"}
                           </td>
-                          <td className="w-1/5 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
-                            {item.dosage && item.frequency ? (
-                              <span className="text-blue-600 dark:text-blue-400 font-medium">
-                                {calculateDosagePerAdministration(
-                                  formatDosageWithUnit(item.dosage),
+                          <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
+                            {item.dosage &&
+                            item.frequency &&
+                            item.dosage !== "N/A" &&
+                            item.frequency !== "N/A"
+                              ? calculateDosagePerAdministration(
+                                  `${item.dosage} ${item.dosageUnit || "viên"}`,
                                   item.frequency
-                                )}
-                              </span>
-                            ) : (
-                              "N/A"
-                            )}
-                          </td>
-                          <td className="w-1/5 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
-                            {item.timeOfDay}
+                                )
+                              : "Chưa xác định"}
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
                         <td
-                          colSpan="5"
+                          colSpan="4"
                           className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 text-center"
                         >
                           Không có thông tin thuốc
@@ -216,6 +215,80 @@ const MedicationDetailModal = ({
                   </div>
                 )}
             </div>
+
+            {/* Medication Schedule Section */}
+            {request.medicineRequestItems &&
+              request.medicineRequestItems.length > 0 &&
+              request.medicineRequestItems.some(
+                (item) => item.timeOfDay && item.timeOfDay !== "N/A"
+              ) && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Lịch uống thuốc
+                  </h4>
+                  <div className="space-y-3">
+                    {request.medicineRequestItems.map(
+                      (item, index) =>
+                        item.timeOfDay &&
+                        item.timeOfDay !== "N/A" && (
+                          <div
+                            key={index}
+                            className="border border-gray-200 dark:border-gray-600 rounded-lg p-3"
+                          >
+                            <h5 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                              {item.medicineName}
+                            </h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                              {(Array.isArray(item.timeOfDay)
+                                ? item.timeOfDay
+                                : item.timeOfDay.split(", ")
+                              ).map((time, timeIndex) => (
+                                <div
+                                  key={timeIndex}
+                                  className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-2"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <div className="flex-shrink-0">
+                                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                                        <span className="text-green-600 dark:text-green-400 text-xs font-medium">
+                                          {timeIndex + 1}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <h6 className="font-medium text-green-800 dark:text-green-200 text-xs">
+                                        {time.trim() === "morning"
+                                          ? "Buổi sáng (6:00 - 11:00)"
+                                          : time.trim() === "noon"
+                                          ? "Buổi trưa (11:00 - 14:00)"
+                                          : time.trim() === "afternoon"
+                                          ? "Buổi chiều (14:00 - 18:00)"
+                                          : time.trim() === "evening"
+                                          ? "Buổi tối (18:00 - 22:00)"
+                                          : time.trim()}
+                                      </h6>
+                                      <p className="text-xs text-green-600 dark:text-green-400">
+                                        {item.dosage &&
+                                        item.frequency &&
+                                        item.dosage !== "N/A" &&
+                                        item.frequency !== "N/A"
+                                          ? calculateDosagePerAdministration(
+                                              formatDosageWithUnit(item.dosage),
+                                              item.frequency
+                                            )
+                                          : "Chưa xác định"}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                    )}
+                  </div>
+                </div>
+              )}
 
             {/* Trạng thái và hướng dẫn đặc biệt - Compact */}
             <div className="grid grid-cols-1 gap-2">
@@ -293,6 +366,56 @@ const MedicationDetailModal = ({
                   <p>
                     <strong>Lý do:</strong> {request.rejectionReason}
                   </p>
+                </div>
+              </div>
+            )}
+
+            {request.status === "assigned" && (
+              <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-md border border-blue-200 dark:border-blue-800">
+                <div className="text-xs text-blue-800 dark:text-blue-200">
+                  <p>
+                    <strong>Được giao bởi:</strong>{" "}
+                    {request.assignedBy || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Ngày giao:</strong>{" "}
+                    {request.assignedDate
+                      ? new Date(request.assignedDate).toLocaleDateString(
+                          "vi-VN"
+                        )
+                      : "N/A"}
+                  </p>
+                  {request.assignmentNotes && (
+                    <p>
+                      <strong>Ghi chú giao việc:</strong>{" "}
+                      {request.assignmentNotes}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {request.status === "completed" && (
+              <div className="bg-green-50 dark:bg-green-900/30 p-2 rounded-md border border-green-200 dark:border-green-800">
+                <div className="text-xs text-green-800 dark:text-green-200">
+                  <p>
+                    <strong>Hoàn thành bởi:</strong>{" "}
+                    {request.completedBy || request.staffName || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Ngày hoàn thành:</strong>{" "}
+                    {request.completedDate
+                      ? new Date(request.completedDate).toLocaleDateString(
+                          "vi-VN"
+                        )
+                      : "N/A"}
+                  </p>
+                  {request.completionNotes && (
+                    <p>
+                      <strong>Ghi chú hoàn thành:</strong>{" "}
+                      {request.completionNotes}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
