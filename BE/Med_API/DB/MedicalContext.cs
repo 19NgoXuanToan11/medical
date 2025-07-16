@@ -92,7 +92,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .IsUnicode(false)
-                .HasDefaultValue("Scheduled");
+                ; // Removed default value to allow frontend control
             entity.Property(e => e.StudentId).HasColumnName("StudentID");
         });
 
@@ -160,6 +160,11 @@ public partial class MedicalContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.ParentId).HasColumnName("ParentID");
             entity.Property(e => e.StudentId).HasColumnName("StudentID");
+            
+            // Add explicit configuration for Status field
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Student)
                 .WithMany()

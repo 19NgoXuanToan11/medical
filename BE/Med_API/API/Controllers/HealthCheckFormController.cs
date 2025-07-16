@@ -236,14 +236,37 @@ public class HealthCheckFormController : ControllerBase
     [HttpPost("schedules")]
     public async Task<ActionResult<HealthCheckFormDTO>> CreateHealthCheckSchedule(HealthCheckFormDTO scheduleDto)
     {
+        // Debug logging - log the raw request
+        _logger.LogInformation("=== DEBUG: Raw request received ===");
+        _logger.LogInformation("Title: {Title}", scheduleDto.Title);
+        _logger.LogInformation("ScheduledDate: {Date}", scheduleDto.ScheduledDate);
+        _logger.LogInformation("StartTime: {StartTime}", scheduleDto.StartTime);
+        _logger.LogInformation("GradeIds: {GradeIds}", scheduleDto.GradeIds);
+        _logger.LogInformation("Description: {Description}", scheduleDto.Description);
+        _logger.LogInformation("Location: {Location}", scheduleDto.Location);
+        _logger.LogInformation("Status from frontend: {Status}", scheduleDto.Status);
+        Console.WriteLine($"CONTROLLER RECEIVED: Status = '{scheduleDto.Status}'");
+        
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            _logger.LogWarning("Invalid model state for HealthCheckSchedule creation:");
+            foreach (var error in ModelState)
+            {
+                _logger.LogWarning("Field {Field}: {Errors}", error.Key, 
+                    string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage)));
+            }
+            return BadRequest(new { 
+                error = "Validation failed", 
+                details = ModelState.Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage))
+            });
         }
 
         try
         {
             _logger.LogInformation("Creating HealthCheckSchedule with Title: {Title}", scheduleDto.Title);
+            _logger.LogInformation("Received data - Title: {Title}, ScheduledDate: {Date}, StartTime: {StartTime}, GradeIds: {GradeIds}", 
+                scheduleDto.Title, scheduleDto.ScheduledDate, scheduleDto.StartTime, scheduleDto.GradeIds);
             
             // Validate required fields
             if (string.IsNullOrEmpty(scheduleDto.Title))
@@ -252,22 +275,45 @@ public class HealthCheckFormController : ControllerBase
             if (scheduleDto.ScheduledDate == null)
                 return BadRequest(new { error = "Scheduled date is required" });
             
-            if (string.IsNullOrEmpty(scheduleDto.GradeIds))
+            // Check if GradeIds is empty or contains only empty array
+            if (string.IsNullOrEmpty(scheduleDto.GradeIds) || scheduleDto.GradeIds.Trim() == "[]")
                 return BadRequest(new { error = "At least one grade must be selected" });
 
             // Set default values
             scheduleDto.CreatedDate = DateTime.Now;
-            scheduleDto.Status = "Scheduled";
+            // Keep the status from frontend, only set default if empty
+            if (string.IsNullOrEmpty(scheduleDto.Status))
+                scheduleDto.Status = "pending";
+            
+            _logger.LogInformation("Final Status after processing: {Status}", scheduleDto.Status);
+            Console.WriteLine($"CONTROLLER SENDING TO SERVICE: Status = '{scheduleDto.Status}'");
 
+            // Convert StartTime from string to TimeSpan for mapping
             var schedule = _mapper.Map<HealthCheckForm>(scheduleDto);
+            if (!string.IsNullOrEmpty(scheduleDto.StartTime))
+            {
+                if (TimeSpan.TryParse(scheduleDto.StartTime, out var startTime))
+                {
+                    schedule.StartTime = startTime;
+                }
+                else
+                {
+                    return BadRequest(new { error = "Invalid start time format. Expected HH:mm:ss" });
+                }
+            }
             var createdSchedule = await _healthCheckFormService.CreateHealthCheckScheduleAsync(schedule);
             
             _logger.LogInformation("HealthCheckSchedule created successfully with ID: {FormId}", createdSchedule.FormId);
             
+            // FINAL DEBUG - CHECK WHAT WE'RE RETURNING
+            var responseDto = _mapper.Map<HealthCheckFormDTO>(createdSchedule);
+            Console.WriteLine($"MAPPED RESPONSE DTO: Status = '{responseDto.Status}'");
+            Console.WriteLine($"ORIGINAL ENTITY: Status = '{createdSchedule.Status}'");
+            
             return CreatedAtAction(
                 nameof(GetHealthCheckScheduleById),
                 new { id = createdSchedule.FormId },
-                _mapper.Map<HealthCheckFormDTO>(createdSchedule));
+                responseDto);
         }
         catch (InvalidOperationException ex)
         {
@@ -284,15 +330,44 @@ public class HealthCheckFormController : ControllerBase
     [HttpPut("schedules/{id}")]
     public async Task<IActionResult> UpdateHealthCheckSchedule(int id, HealthCheckFormDTO scheduleDto)
     {
+        _logger.LogInformation("=== UPDATE HEALTH CHECK SCHEDULE DEBUG ===");
+        _logger.LogInformation("ID from URL: {Id}", id);
+        _logger.LogInformation("FormId from DTO: {FormId}", scheduleDto.FormId);
+        _logger.LogInformation("Title: {Title}", scheduleDto.Title);
+        _logger.LogInformation("Status: {Status}", scheduleDto.Status);
+        _logger.LogInformation("StartTime: {StartTime}", scheduleDto.StartTime);
+        _logger.LogInformation("GradeIds: {GradeIds}", scheduleDto.GradeIds);
+        
         if (id != scheduleDto.FormId)
         {
+            _logger.LogWarning("ID mismatch - URL ID: {UrlId}, DTO FormId: {DtoFormId}", id, scheduleDto.FormId);
             return BadRequest("ID mismatch");
         }
 
         try
         {
             var schedule = _mapper.Map<HealthCheckForm>(scheduleDto);
+            _logger.LogInformation("Mapped schedule - FormId: {FormId}, Status: {Status}", schedule.FormId, schedule.Status);
+            
+            // Convert StartTime from string to TimeSpan for mapping
+            if (!string.IsNullOrEmpty(scheduleDto.StartTime))
+            {
+                if (TimeSpan.TryParse(scheduleDto.StartTime, out var startTime))
+                {
+                    schedule.StartTime = startTime;
+                    _logger.LogInformation("StartTime converted successfully: {StartTime}", startTime);
+                }
+                else
+                {
+                    _logger.LogError("Invalid start time format: {StartTime}", scheduleDto.StartTime);
+                    return BadRequest(new { error = "Invalid start time format. Expected HH:mm:ss" });
+                }
+            }
+            
+            _logger.LogInformation("Calling UpdateHealthCheckScheduleAsync...");
             var success = await _healthCheckFormService.UpdateHealthCheckScheduleAsync(schedule);
+            _logger.LogInformation("UpdateHealthCheckScheduleAsync result: {Success}", success);
+            
             if (!success)
             {
                 return NotFound();
@@ -301,7 +376,13 @@ public class HealthCheckFormController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(ex.Message);
+            _logger.LogError(ex, "InvalidOperationException in UpdateHealthCheckSchedule");
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error in UpdateHealthCheckSchedule");
+            return StatusCode(500, new { error = "An unexpected error occurred while updating the health check schedule." });
         }
     }
 
@@ -314,6 +395,26 @@ public class HealthCheckFormController : ControllerBase
             return NotFound();
         }
         return NoContent();
+    }
+
+    // Debug endpoint to test DTO binding
+    [HttpPost("debug/test")]
+    public ActionResult TestDTOBinding(HealthCheckFormDTO scheduleDto)
+    {
+        _logger.LogInformation("=== DEBUG TEST ENDPOINT ===");
+        _logger.LogInformation("Raw JSON received and parsed successfully");
+        _logger.LogInformation("Title: {Title}", scheduleDto.Title);
+        _logger.LogInformation("ScheduledDate: {Date}", scheduleDto.ScheduledDate);
+        _logger.LogInformation("StartTime: {StartTime}", scheduleDto.StartTime);
+        _logger.LogInformation("GradeIds: {GradeIds}", scheduleDto.GradeIds);
+        
+        return Ok(new { 
+            message = "DTO binding successful",
+            receivedData = scheduleDto,
+            modelStateValid = ModelState.IsValid,
+            modelStateErrors = ModelState.Where(x => x.Value.Errors.Count > 0)
+                .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage))
+        });
     }
 
     // Helper endpoints for frontend data

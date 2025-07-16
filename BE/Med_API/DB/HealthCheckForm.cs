@@ -45,7 +45,7 @@ public partial class HealthCheckForm
     public string? StaffAssigned { get; set; } // JSON array of staff assignments
 
     // Status and Timing
-    public string? Status { get; set; } = "Scheduled"; // Scheduled, InProgress, Completed, Cancelled
+    public string? Status { get; set; } = "pending"; // pending, approved, scheduled, active, completed, cancelled
     public string? EstimatedEndTime { get; set; }
 
     // Navigation properties

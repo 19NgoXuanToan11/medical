@@ -12,9 +12,11 @@ public class HealthCheckMappingProfile : Profile
             .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Student))
             .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.Parent))
             .ForMember(dest => dest.ConfirmedByStaff, opt => opt.MapFrom(src => src.ConfirmedByStaff))
-            .ForMember(dest => dest.Results, opt => opt.MapFrom(src => src.Results));
+            .ForMember(dest => dest.Results, opt => opt.MapFrom(src => src.Results))
+            .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime.HasValue ? src.StartTime.Value.ToString(@"hh\:mm\:ss") : null));
 
-        CreateMap<HealthCheckFormDTO, HealthCheckForm>();
+        CreateMap<HealthCheckFormDTO, HealthCheckForm>()
+            .ForMember(dest => dest.StartTime, opt => opt.Ignore()); // Handle conversion manually in controller
 
         CreateMap<HealthCheckResult, HealthCheckResultDTO>()
             .ForMember(dest => dest.Form, opt => opt.MapFrom(src => src.Form))
