@@ -93,10 +93,6 @@ const FailedAdministrations = () => {
     (result) => result.failedAttempts > 1
   ).length;
 
-  const canRetry = filteredResults.filter(
-    (result) => result.failedAttempts < 3 && !result.isReRequest
-  ).length;
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -131,7 +127,7 @@ const FailedAdministrations = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-center">
             <FiAlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400 mr-3" />
@@ -169,20 +165,6 @@ const FailedAdministrations = () => {
               </p>
               <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
                 {multipleFailures}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-          <div className="flex items-center">
-            <FiRefreshCw className="h-8 w-8 text-blue-600 dark:text-blue-400 mr-3" />
-            <div>
-              <p className="text-sm text-blue-600 dark:text-blue-400">
-                Có thể thử lại
-              </p>
-              <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                {canRetry}
               </p>
             </div>
           </div>

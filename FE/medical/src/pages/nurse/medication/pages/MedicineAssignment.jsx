@@ -249,7 +249,9 @@ const MedicineAssignment = () => {
                   : "bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300"
               }`}
             >
-              {getCurrentData().length}
+              {key === "verified"
+                ? verifiedRequests.length
+                : assignedRequests.length}
             </span>
           </button>
         ))}
@@ -598,7 +600,7 @@ const MedicineAssignment = () => {
                               <div className="flex items-center space-x-2 mb-2">
                                 <FiClock className="h-4 w-4 text-green-600 dark:text-green-400" />
                                 <span className="text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wide">
-                                  Lịch uống thuốc
+                                  Lịch uống thuốc:
                                 </span>
                               </div>
                               {(() => {
@@ -609,6 +611,60 @@ const MedicineAssignment = () => {
                                     ? Math.ceil(totalDosage / frequency)
                                     : 1;
 
+                                // Use timeOfDay from API if available
+                                if (
+                                  item.timeOfDay &&
+                                  item.timeOfDay !== "N/A"
+                                ) {
+                                  const timeSlots = item.timeOfDay
+                                    .split(",")
+                                    .map((time) => time.trim().toLowerCase());
+
+                                  const timeMap = {
+                                    morning: "Buổi sáng (6:00 - 11:00)",
+                                    noon: "Buổi trưa (11:00 - 14:00)",
+                                    afternoon: "Buổi chiều (14:00 - 18:00)",
+                                    evening: "Buổi tối (18:00 - 22:00)",
+                                    as_needed: "Khi cần thiết",
+                                  };
+
+                                  const timeSlotLabels = timeSlots
+                                    .map((time) => timeMap[time] || time)
+                                    .filter(Boolean);
+
+                                  if (timeSlotLabels.length > 0) {
+                                    const gridCols =
+                                      timeSlotLabels.length === 1
+                                        ? "grid-cols-1"
+                                        : timeSlotLabels.length === 2
+                                        ? "grid-cols-2"
+                                        : timeSlotLabels.length === 3
+                                        ? "grid-cols-3"
+                                        : "grid-cols-4";
+
+                                    return (
+                                      <div className={`grid ${gridCols} gap-2`}>
+                                        {timeSlotLabels.map(
+                                          (timeLabel, index) => (
+                                            <div
+                                              key={index}
+                                              className="bg-green-100 dark:bg-green-800/40 p-2 rounded text-center"
+                                            >
+                                              <div className="text-green-700 dark:text-green-300 font-medium text-sm">
+                                                {timeLabel}
+                                              </div>
+                                              <div className="text-green-600 dark:text-green-400 text-xs">
+                                                {dosagePerTime} viên/lần
+                                              </div>
+                                            </div>
+                                          )
+                                        )}
+                                      </div>
+                                    );
+                                  }
+                                }
+
+                                // Fallback to frequency-based logic if no timeOfDay
                                 if (frequency === 1) {
                                   return (
                                     <div className="grid grid-cols-1 gap-2">
@@ -656,7 +712,7 @@ const MedicineAssignment = () => {
                                       </div>
                                       <div className="bg-green-100 dark:bg-green-800/40 p-2 rounded text-center">
                                         <div className="text-green-700 dark:text-green-300 font-medium text-sm">
-                                          Buổi trua (11:00 - 14:00)
+                                          Buổi trưa (11:00 - 14:00)
                                         </div>
                                         <div className="text-green-600 dark:text-green-400 text-xs">
                                           {dosagePerTime} viên/lần

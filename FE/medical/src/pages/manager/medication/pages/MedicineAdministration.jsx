@@ -14,7 +14,10 @@ import {
   FiChevronUp,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
-import { transformRequestData } from "../utils/medicationUtils";
+import {
+  transformRequestData,
+  validateMedicationStart,
+} from "../utils/medicationUtils";
 import { useMedicationRequests } from "../hooks/useMedicationRequests";
 
 // Helper function to format dosage with units
@@ -90,6 +93,18 @@ const MedicineAdministration = () => {
 
   // Handle start administration
   const handleStartAdministration = async (request) => {
+    // Validate if there's already an in-progress request for this student
+    const studentId = request.student?.studentId;
+    const studentName = request.student
+      ? `${request.student.firstName} ${request.student.lastName}`
+      : "học sinh này";
+
+    const validation = await validateMedicationStart(studentId, studentName);
+    if (!validation.canStart) {
+      alert(validation.message);
+      return;
+    }
+
     try {
       // Call the new API endpoint to start medication administration
       const response = await medicationService.startMedicationAdministration(

@@ -230,7 +230,7 @@ const StudentDashboard = () => {
             <div className="lg:col-span-1 bg-white rounded-lg shadow-sm border border-neutral-100 overflow-hidden">
               <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
                 <h3 className="text-lg font-medium text-neutral-800">
-                  Lịch uống thuốc
+                  Lịch uống thuốc:
                 </h3>
                 <Link
                   to="/student/medication"
