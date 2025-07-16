@@ -34,6 +34,7 @@ const HealthCheckManagement = () => {
   const [approvalNotes, setApprovalNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [upcomingRequests, setUpcomingRequests] = useState([]);
   const [healthCheckPrograms, setHealthCheckPrograms] = useState([]);
   const [fetchingData, setFetchingData] = useState(true);
   const [error, setError] = useState(null);
@@ -53,7 +54,6 @@ const HealthCheckManagement = () => {
     setError(null);
     try {
       const schedules = await getHealthCheckSchedules();
-      console.log("Fetched schedules:", schedules);
 
       // Transform API data to match component structure
       const transformedRequests = schedules.map((schedule) => ({
@@ -81,11 +81,13 @@ const HealthCheckManagement = () => {
           ? JSON.parse(schedule.selectedStations)
           : [],
         urgencyLevel:
-          schedule.status === "pending_equipment_review" ? "high" : "normal",
+          schedule.confirmStatus === "pending" ? "high" : "normal",
         estimatedCost: schedule.totalStudents * 20000 || 0, // Estimate 20k per student
         equipmentNeeded: [], // Will be populated from selectedStations
         followUpRequired: schedule.requireParentConfirmation !== false,
-        status: schedule.status || "pending",
+        // Manager workflow: confirmStatus is what manager controls
+        confirmStatus: schedule.confirmStatus || "pending", 
+        status: schedule.status || "scheduled", // Overall health check status
         equipmentStatus: schedule.equipmentStatus || "ready",
         requiresManagerReview: schedule.requiresManagerReview || false,
         equipmentReport: schedule.equipmentReport
@@ -104,20 +106,30 @@ const HealthCheckManagement = () => {
           : "",
         targetStudents: schedule.totalStudents || 0,
         completedStudents: 0, // Will be updated based on results
+        confirmedDate: schedule.confirmedDate || null,
       }));
 
-      // Filter pending requests (those that need manager approval)
+      // Filter pending requests (those that need manager approval) - use confirmStatus
       const pending = transformedRequests.filter(
-        (req) =>
-          req.status === "pending" ||
-          req.status === "pending_equipment_review" ||
-          req.status === "scheduled"
+        (req) => {
+          const confirmStatus = req.confirmStatus?.toLowerCase();
+          return confirmStatus === "pending";
+        }
+      );
+
+      // Filter upcoming requests (manager approved) - use confirmStatus
+      const upcoming = transformedRequests.filter(
+        (req) => {
+          const confirmStatus = req.confirmStatus?.toLowerCase();
+          return confirmStatus === "approved";
+        }
       );
 
       setPendingRequests(pending);
+      setUpcomingRequests(upcoming);
       setHealthCheckPrograms(transformedRequests); // For programs tab
 
-      // Calculate stats
+      // Calculate stats based on manager workflow
       const newStats = {
         totalHealthChecks: transformedRequests.length,
         completedToday: transformedRequests.filter(
@@ -125,15 +137,14 @@ const HealthCheckManagement = () => {
             req.status === "completed" &&
             req.scheduledDate === new Date().toISOString().split("T")[0]
         ).length,
-        scheduled: transformedRequests.filter(
-          (req) => req.status === "scheduled"
-        ).length,
-        pending: pending.length,
+        scheduled: upcoming.length, // Manager approved
+        pending: pending.length,   // Manager pending review
         completionRate:
           transformedRequests.length > 0
             ? Math.round(
-                (transformedRequests.filter((req) => req.status === "completed")
-                  .length /
+                (transformedRequests.filter((req) => 
+                  req.confirmStatus?.toLowerCase() === "approved"
+                ).length /
                   transformedRequests.length) *
                   100
               )
@@ -180,26 +191,46 @@ const HealthCheckManagement = () => {
       // Determine new status based on approval action
       const newStatus = approvalAction === "approve" ? "Approved" : "Rejected";
 
-      // Update the schedule status via API
+      // Update the schedule status via API - only send fields that backend DTO has
       const updateData = {
-        ...selectedRequest,
         formId: selectedRequest.id,
+        title: selectedRequest.title,
         scheduledDate: new Date(
           selectedRequest.scheduledDate + "T00:00:00.000Z"
         ).toISOString(),
-        startTime: selectedRequest.scheduledTime + ":00",
-        gradeIds: JSON.stringify(selectedRequest.targetGrades),
-        selectedStations: JSON.stringify(selectedRequest.checkItems),
-        status: newStatus,
-        confirmedBy: 1, // Manager ID - should be from auth context
-        confirmedDate: new Date().toISOString(),
-        confirmStatus: approvalAction === "approve" ? "confirmed" : "rejected",
-        // Add approval notes to description
-        description:
-          selectedRequest.description +
+        startTime: selectedRequest.scheduledTime, // Don't add ":00" - let backend handle conversion
+        estimatedDuration: selectedRequest.estimatedDuration,
+        description: selectedRequest.description + 
           (approvalNotes ? `\n\nGhi chú phê duyệt: ${approvalNotes}` : ""),
+        location: selectedRequest.location,
+        // Student and Parent Information - set to null for schedule-type forms
+        studentId: null,
+        parentId: null,
+        createdDate: selectedRequest.createdDate || new Date().toISOString(),
+        // Consent and Confirmation
+        consentStatus: "pending", // Parent consent - leave as pending for now
+        consentDate: null,
+        confirmStatus: approvalAction === "approve" ? "approved" : "rejected",
+        confirmedBy: null, // TODO: Get actual manager ID from auth context
+        confirmedDate: new Date().toISOString(),
+        // Grade and Class Information
+        className: null,
+        gradeIds: JSON.stringify(selectedRequest.targetGrades),
+        totalStudents: selectedRequest.totalStudents,
+        // Settings
+        notifyParents: selectedRequest.notifyParents !== false,
+        autoAdvance: selectedRequest.autoAdvance !== false,
+        saveResults: selectedRequest.saveResults !== false,
+        generateReport: selectedRequest.generateReport !== false,
+        requireParentConfirmation: selectedRequest.requireParentConfirmation !== false,
+        // Station Information
+        selectedStations: JSON.stringify(selectedRequest.checkItems),
+        staffAssigned: null,
+        // Status and Timing
+        status: newStatus,
+        estimatedEndTime: null,
       };
-
+      
       await updateHealthCheckSchedule(selectedRequest.id, updateData);
 
       const actionText = approvalAction === "approve" ? "duyệt" : "từ chối";
@@ -219,6 +250,195 @@ const HealthCheckManagement = () => {
       setLoading(false);
     }
   };
+
+  // Render upcoming requests tab
+  const renderUpcomingRequests = () => (
+    <div className="space-y-6">
+      {/* Header with refresh button */}
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          Lịch khám sắp tới ({upcomingRequests.length})
+        </h3>
+        <button
+          onClick={handleRefresh}
+          disabled={fetchingData}
+          className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <FiRefreshCw
+            className={`w-4 h-4 ${fetchingData ? "animate-spin" : ""}`}
+          />
+          Làm mới
+        </button>
+      </div>
+
+      {/* Error message */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div className="flex items-center gap-2">
+            <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <span className="text-red-800 dark:text-red-200">{error}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {fetchingData && (
+        <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
+          <div className="flex items-center justify-center">
+            <FiRefreshCw className="w-6 h-6 animate-spin text-blue-600 mr-2" />
+            <span className="text-gray-600 dark:text-gray-300">
+              Đang tải dữ liệu...
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming Requests List */}
+      {!fetchingData && (
+        <div className="grid grid-cols-1 gap-6">
+          {upcomingRequests
+            .sort((a, b) => {
+              // Status order: active first, then Approved, then scheduled
+              const statusOrder = { "active": 1, "Approved": 2, "scheduled": 3 };
+              const orderA = statusOrder[a.status] || 99;
+              const orderB = statusOrder[b.status] || 99;
+              if (orderA !== orderB) return orderA - orderB;
+              // Then sort by date (newest first)
+              return new Date(a.scheduledDate) - new Date(b.scheduledDate);
+            })
+            .map((request) => (
+              <div
+                key={request.id}
+                className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg shadow overflow-hidden"
+              >
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          request.status === "active" 
+                            ? "bg-yellow-100 dark:bg-yellow-900/30"
+                            : request.status === "Approved"
+                            ? "bg-green-100 dark:bg-green-900/30" 
+                            : "bg-blue-100 dark:bg-blue-900/30"
+                        }`}>
+                          <FiActivity className={`h-5 w-5 ${
+                            request.status === "active"
+                              ? "text-yellow-600 dark:text-yellow-400"
+                              : request.status === "Approved"
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-blue-600 dark:text-blue-400"
+                          }`} />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            {request.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Yêu cầu bởi: {request.requestedBy} •{" "}
+                            {new Date(request.requestDate).toLocaleDateString("vi-VN")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        request.status === "active"
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                          : request.status === "Approved"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                      }`}>
+                        {request.status === "active"
+                          ? "Đang thực hiện"
+                          : request.status === "Approved"
+                          ? "Đã duyệt"
+                          : "Đã lên lịch"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Ngày thực hiện
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {new Date(request.scheduledDate).toLocaleDateString("vi-VN")}{" "}
+                        • {request.scheduledTime}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Đối tượng
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {request.targetGrades.join(", ")} ({request.totalStudents} học sinh)
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Thời gian dự kiến
+                      </p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {request.estimatedDuration} phút
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                      Hạng mục khám
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {request.checkItems.map((item, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded text-xs"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                      Mô tả
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm">
+                      {request.description}
+                    </p>
+                  </div>
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => handleViewDetail(request)}
+                      className="px-3 py-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 border border-blue-200 dark:border-blue-600 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-1"
+                    >
+                      <FiEye className="h-4 w-4" />
+                      Xem chi tiết
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+          {upcomingRequests.length === 0 && !error && (
+            <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow border border-gray-200 dark:border-neutral-700 text-center">
+              <FiCalendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                Không có lịch khám sắp tới
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Chưa có lịch khám sức khỏe nào được phê duyệt hoặc đang thực hiện
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   // Render pending requests tab
   const renderPendingRequests = () => (
@@ -747,7 +967,7 @@ const HealthCheckManagement = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Đã lên lịch
+                Sắp tới
               </p>
               <p className="text-2xl font-bold mt-1 text-orange-600 dark:text-orange-400">
                 {stats.scheduled}
@@ -793,11 +1013,31 @@ const HealthCheckManagement = () => {
       </div>
 
       {/* Health Check Programs Table */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
+              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
         <div className="p-6">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Chương trình khám gần đây
-          </h4>
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Chương trình khám gần đây
+            </h4>
+            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                Đã duyệt/Hoàn thành
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                Đã từ chối
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                Đã lên lịch
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                Chờ duyệt
+              </span>
+            </div>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -818,12 +1058,32 @@ const HealthCheckManagement = () => {
                     Trạng thái
                   </th>
                   <th className="text-center py-4 px-6 font-medium text-gray-700 dark:text-gray-300">
+                    Xử lý bởi
+                  </th>
+                  <th className="text-center py-4 px-6 font-medium text-gray-700 dark:text-gray-300">
                     Thao tác
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {healthCheckPrograms.slice(0, 5).map((program) => (
+                {healthCheckPrograms
+                  .sort((a, b) => {
+                    // Approved/Rejected first, then scheduled, then pending
+                    const statusOrder = {
+                      "Approved": 1,
+                      "Rejected": 2, 
+                      "completed": 3,
+                      "scheduled": 4,
+                      "pending": 5,
+                      "pending_equipment_review": 6
+                    };
+                    const orderA = statusOrder[a.status] || 99;
+                    const orderB = statusOrder[b.status] || 99;
+                    if (orderA !== orderB) return orderA - orderB;
+                    // Then sort by date (newest first)
+                    return new Date(b.requestDate) - new Date(a.requestDate);
+                  })
+                  .slice(0, 5).map((program) => (
                   <tr
                     key={program.id}
                     className="border-b border-gray-100 dark:border-neutral-700"
@@ -849,17 +1109,40 @@ const HealthCheckManagement = () => {
                         className={`px-3 py-1 rounded-full text-xs font-medium ${
                           program.status === "completed"
                             ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                            : program.status === "Approved"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                             : program.status === "scheduled"
                             ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
+                            : program.status === "Rejected"
+                            ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
                             : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
                         }`}
                       >
                         {program.status === "completed"
                           ? "Hoàn thành"
+                          : program.status === "Approved"
+                          ? "Đã duyệt"
                           : program.status === "scheduled"
                           ? "Đã lên lịch"
+                          : program.status === "Rejected"
+                          ? "Đã từ chối"
                           : "Chờ duyệt"}
                       </span>
+                    </td>
+                    <td className="py-4 px-6 text-center text-gray-600 dark:text-gray-400">
+                      {program.status === "Approved" || program.status === "Rejected" ? (
+                        <div className="text-xs">
+                          <div className="font-medium">Manager</div>
+                          <div>{program.confirmedDate ? new Date(program.confirmedDate).toLocaleDateString("vi-VN") : "N/A"}</div>
+                        </div>
+                      ) : program.status === "scheduled" ? (
+                        <div className="text-xs">
+                          <div className="font-medium">Hệ thống</div>
+                          <div>Tự động</div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="py-4 px-6 text-center">
                       <button
@@ -981,7 +1264,7 @@ const HealthCheckManagement = () => {
               </h1>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
                 Xem xét và phê duyệt các yêu cầu khám sức khỏe từ y tá - Đặc
-                biệt chú ý tình trạng thiết bị
+                biệt chú ý tình trạng thiết bị. Các yêu cầu đã xử lý sẽ hiển thị trạng thái "Đã duyệt" hoặc "Đã từ chối".
               </p>
             </div>
             {/* Equipment Summary Alert */}
@@ -1002,7 +1285,7 @@ const HealthCheckManagement = () => {
                 </div>
               )}
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                {pendingRequests.length} yêu cầu chờ xét duyệt
+                {pendingRequests.length} yêu cầu chờ xét duyệt • {upcomingRequests.length} lịch sắp tới • {healthCheckPrograms.filter(p => p.status === "Approved").length} đã duyệt
               </div>
             </div>
           </div>
@@ -1035,12 +1318,24 @@ const HealthCheckManagement = () => {
               <FiClock className="inline-block w-4 h-4 mr-2" />
               Chờ duyệt ({pendingRequests.length})
             </button>
+            <button
+              onClick={() => setActiveTab("upcoming")}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "upcoming"
+                  ? "border-red-500 text-red-600 dark:text-red-400"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
+              }`}
+            >
+              <FiCalendar className="inline-block w-4 h-4 mr-2" />
+              Sắp tới ({upcomingRequests.length})
+            </button>
           </nav>
         </div>
 
         {/* Tab Content */}
         {activeTab === "overview" && renderOverview()}
         {activeTab === "pending" && renderPendingRequests()}
+        {activeTab === "upcoming" && renderUpcomingRequests()}
       </div>
 
       {/* Detail Modal */}

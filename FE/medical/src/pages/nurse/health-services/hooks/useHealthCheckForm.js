@@ -683,8 +683,13 @@ export const useHealthCheckForm = () => {
     }
 
     if (Object.keys(allErrors).length > 0) {
+      console.error("Validation errors found:", allErrors);
+      console.log("Form data when validation failed:", formData);
       setValidationErrors(allErrors);
-      return { success: false, message: "Vui lòng kiểm tra lại thông tin" };
+      return { 
+        success: false, 
+        message: `Vui lòng kiểm tra lại thông tin: ${Object.keys(allErrors).join(", ")}` 
+      };
     }
 
     // Check for critical conflicts
@@ -788,14 +793,29 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         RequireParentConfirmation: formData.requireParentConfirmation === true,
         SelectedStations: JSON.stringify(formData.checkItems || []),
         StaffAssigned: null,
-        Status: "Scheduled",
+        Status: "pending",
         EstimatedEndTime: formData.endTime || null,
         Student: null,
         Parent: null,
         ConfirmedByStaff: null,
         Results: null,
-        Grades: formData.targetGrades || [],
       };
+
+      // Set default values for missing fields to pass validation
+      if (!formData.checkItems || formData.checkItems.length === 0) {
+        console.warn("No checkItems selected, using default");
+        formData.checkItems = ["general"]; // Default check item
+      }
+      
+      if (!formData.maxStudentsPerSession || formData.maxStudentsPerSession < 1) {
+        console.warn("maxStudentsPerSession missing, using default");
+        formData.maxStudentsPerSession = 50;
+      }
+      
+      if (!formData.estimatedDuration || formData.estimatedDuration < 30) {
+        console.warn("estimatedDuration missing, using default");
+        formData.estimatedDuration = 60;
+      }
 
       // Validate required fields before sending
       if (!submissionData.Title || submissionData.Title.trim() === "") {

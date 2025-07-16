@@ -11,7 +11,7 @@ public class HealthCheckFormDTO
     [StringLength(200)]
     public string? Title { get; set; }
     public DateTime? ScheduledDate { get; set; }
-    public TimeSpan? StartTime { get; set; }
+    public string? StartTime { get; set; } // Accepts "HH:mm:ss" format from frontend
     public int? EstimatedDuration { get; set; } // in minutes
     [StringLength(500)]
     public string? Description { get; set; }
@@ -50,7 +50,7 @@ public class HealthCheckFormDTO
     public string? StaffAssigned { get; set; } // JSON array of staff assignments
 
     // Status and Timing
-    public string? Status { get; set; } = "Scheduled"; // Scheduled, InProgress, Completed, Cancelled
+    public string? Status { get; set; } = "pending"; // pending, approved, scheduled, active, completed, cancelled
     public string? EstimatedEndTime { get; set; }
 
     // Navigation properties
