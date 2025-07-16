@@ -197,25 +197,46 @@ const PreviewHealthStep = ({
         <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
           <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 flex items-center">
             <FiUsers className="mr-2" />
-            Khối lớp tham gia ({selectedGrades.length})
+            Khối lớp tham gia
           </h3>
         </div>
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {selectedGrades.map((grade) => (
-              <div
-                key={grade.id}
-                className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-neutral-50 dark:bg-neutral-700"
-              >
-                <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                  Lớp {grade.name}
-                </h4>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-                  {grade.studentCount} học sinh
-                </p>
-              </div>
-            ))}
-          </div>
+          {selectedGrades.length > 0 ? (
+            <div className="space-y-4">
+              {selectedGrades.map((grade) => (
+                <div
+                  key={grade.id}
+                  className="border border-primary-200 dark:border-primary-800 rounded-lg p-4 bg-primary-50 dark:bg-primary-900/20"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-lg font-medium text-primary-900 dark:text-primary-200">
+                        {grade.name}
+                      </h4>
+                      <p className="text-sm text-primary-700 dark:text-primary-300 mt-1">
+                        Lớp: {grade.classes ? grade.classes.join(", ") : "N/A"}
+                      </p>
+                      <p className="text-sm text-primary-600 dark:text-primary-400 mt-1">
+                        Độ tuổi: {grade.ageRange}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-primary-900 dark:text-primary-200">
+                        {grade.studentCount}
+                      </p>
+                      <p className="text-sm text-primary-700 dark:text-primary-300">
+                        học sinh
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-neutral-600 dark:text-neutral-400 text-center py-4">
+              Chưa chọn khối lớp nào
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -110,14 +110,47 @@ export const formatDuration = (minutes) => {
 };
 
 /**
- * Check if a date is in the future
+ * Check if a date is in the future and at least 1 week from today
  */
 export const isFutureDate = (dateString) => {
   if (!dateString) return false;
   const selectedDate = new Date(dateString);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  return selectedDate >= today;
+  
+  // Calculate minimum date (1 week from today)
+  const minDate = new Date(today);
+  minDate.setDate(today.getDate() + 7);
+  
+  return selectedDate >= minDate;
+};
+
+/**
+ * Check if a date is valid for health check scheduling
+ * Returns validation error message or null if valid
+ */
+export const validateScheduleDate = (dateString) => {
+  if (!dateString) return "Ngày thực hiện là bắt buộc";
+  
+  const selectedDate = new Date(dateString);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Check if date is in the past
+  if (selectedDate < today) {
+    return "Ngày thực hiện không thể trong quá khứ";
+  }
+  
+  // Calculate minimum date (1 week from today)
+  const minDate = new Date(today);
+  minDate.setDate(today.getDate() + 7);
+  
+  if (selectedDate < minDate) {
+    const minDateStr = minDate.toLocaleDateString("vi-VN");
+    return `Ngày thực hiện phải cách tối thiểu 1 tuần (từ ${minDateStr})`;
+  }
+  
+  return null;
 };
 
 /**
@@ -262,10 +295,9 @@ export const validateFormStep = (step, formData) => {
       if (!formData.title?.trim()) {
         errors.title = "Tiêu đề là bắt buộc";
       }
-      if (!formData.scheduledDate) {
-        errors.scheduledDate = "Ngày thực hiện là bắt buộc";
-      } else if (!isFutureDate(formData.scheduledDate)) {
-        errors.scheduledDate = "Ngày thực hiện không thể trong quá khứ";
+      const dateError = validateScheduleDate(formData.scheduledDate);
+      if (dateError) {
+        errors.scheduledDate = dateError;
       } else {
         const selectedDate = new Date(formData.scheduledDate);
         const dayOfWeek = selectedDate.getDay();
@@ -275,10 +307,7 @@ export const validateFormStep = (step, formData) => {
         }
       }
       if (!formData.scheduledTime) {
-        errors.scheduledTime = "Thời gian bắt đầu là bắt buộc";
-      } else if (!isSchoolHours(formData.scheduledTime)) {
-        // Đổi thành warning thay vì error để không block việc chuyển bước
-        // errors.scheduledTime = "Thời gian nên trong khoảng 7:00 - 17:00";
+        errors.scheduledTime = "Buổi thực hiện là bắt buộc";
       }
       if (!formData.location?.trim()) {
         errors.location = "Địa điểm là bắt buộc";
@@ -293,7 +322,9 @@ export const validateFormStep = (step, formData) => {
 
     case 3: // Target & Logistics
       if (!formData.targetGrades || formData.targetGrades.length === 0) {
-        errors.targetGrades = "Vui lòng chọn ít nhất một lớp học";
+        errors.targetGrades = "Vui lòng chọn một khối lớp";
+      } else if (formData.targetGrades.length > 1) {
+        errors.targetGrades = "Chỉ được chọn một khối lớp";
       }
       if (
         !formData.maxStudentsPerSession ||

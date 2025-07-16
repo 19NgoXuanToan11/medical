@@ -122,7 +122,7 @@ const BasicInfoHealthStep = ({
           </div>
 
           {/* Date and Time */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Ngày thực hiện *
@@ -131,6 +131,11 @@ const BasicInfoHealthStep = ({
                 type="date"
                 value={formData.scheduledDate}
                 onChange={(e) => onInputChange("scheduledDate", e.target.value)}
+                min={(() => {
+                  const minDate = new Date();
+                  minDate.setDate(minDate.getDate() + 7); // 1 week from today
+                  return minDate.toISOString().split('T')[0];
+                })()}
                 className={`w-full px-3 py-2 border rounded-lg shadow-sm bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                   validationErrors.scheduledDate
                     ? "border-error-300 dark:border-error-600"
@@ -146,10 +151,9 @@ const BasicInfoHealthStep = ({
 
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                Thời gian bắt đầu *
+                Buổi thực hiện *
               </label>
-              <input
-                type="time"
+              <select
                 value={formData.scheduledTime}
                 onChange={(e) => onInputChange("scheduledTime", e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg shadow-sm bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
@@ -157,28 +161,16 @@ const BasicInfoHealthStep = ({
                     ? "border-error-300 dark:border-error-600"
                     : "border-neutral-300 dark:border-neutral-600"
                 }`}
-              />
+              >
+                <option value="">Chọn buổi thực hiện</option>
+                <option value="09:00">Sáng (9h-10h)</option>
+                <option value="14:00">Chiều (14h-15h)</option>
+              </select>
               {validationErrors.scheduledTime && (
                 <p className="mt-1 text-sm text-error-600 dark:text-error-400">
                   {validationErrors.scheduledTime}
                 </p>
               )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                Thời gian kết thúc
-              </label>
-              <input
-                type="time"
-                value={formData.endTime}
-                onChange={(e) => onInputChange("endTime", e.target.value)}
-                className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                readOnly
-              />
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                Tự động tính toán
-              </p>
             </div>
           </div>
 
