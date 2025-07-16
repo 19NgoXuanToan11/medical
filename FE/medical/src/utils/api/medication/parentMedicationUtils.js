@@ -19,21 +19,19 @@ export const transformParentMedicationData = (requests) => {
 
     // Map status from API to UI
     const getUIStatus = (apiStatus) => {
-      switch (apiStatus?.toLowerCase()) {
-        case "pending":
-          return "pending";
-        case "assigned":
-          return "active";
-        case "completed":
-        case "done":
-          return "completed";
-        case "failed":
-        case "rejected":
-        case "refused":
-          return "rejected";
-        default:
-          return "pending";
-      }
+      const normalizedStatus = normalizeStatus(apiStatus);
+
+      // Map normalized status to UI status
+      const uiStatusMap = {
+        pending: "pending",
+        assigned: "active",
+        completed: "completed",
+        rejected: "rejected",
+        refused: "rejected",
+        failed: "rejected",
+      };
+
+      return uiStatusMap[normalizedStatus] || "pending";
     };
 
     // Get the latest progress entry for last administered time
@@ -93,9 +91,56 @@ export const transformParentMedicationData = (requests) => {
   });
 };
 
+// Normalize status values from API to consistent lowercase format
+const normalizeStatus = (status) => {
+  if (!status) return "pending";
+
+  const statusMap = {
+    Pending: "pending",
+    pending: "pending",
+    Assigned: "assigned",
+    assigned: "assigned",
+    Completed: "completed",
+    completed: "completed",
+    Rejected: "rejected",
+    rejected: "rejected",
+    Approved: "approved",
+    approved: "approved",
+    Done: "completed", // Map "Done" to "completed"
+    done: "completed",
+    Failed: "failed",
+    failed: "failed",
+    Refused: "refused",
+    refused: "refused",
+  };
+
+  return statusMap[status] || status.toLowerCase();
+};
+
+// Convert API status to UI status for display
+const getUIStatus = (apiStatus) => {
+  const normalizedStatus = normalizeStatus(apiStatus);
+
+  // Map normalized status to UI status
+  const uiStatusMap = {
+    pending: "pending",
+    assigned: "active",
+    completed: "completed",
+    rejected: "rejected",
+    refused: "rejected",
+    failed: "rejected",
+  };
+
+  return uiStatusMap[normalizedStatus] || "pending";
+};
+
 // Get status badge configuration
 export const getStatusBadge = (status) => {
-  switch (status) {
+  // Normalize status first to handle variations
+  const normalizedStatus = normalizeStatus(status);
+  const uiStatus = getUIStatus(normalizedStatus);
+
+  switch (uiStatus) {
     case "active":
       return {
         className:
@@ -118,7 +163,12 @@ export const getStatusBadge = (status) => {
       return {
         className:
           "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 ring-1 ring-red-600/20 dark:ring-red-400/20",
-        text: "Từ chối",
+        text:
+          normalizedStatus === "refused"
+            ? "Từ chối"
+            : normalizedStatus === "failed"
+            ? "Thất bại"
+            : "Từ chối",
       };
     default:
       return {
@@ -136,6 +186,7 @@ export const calculateMedicationStats = (medications) => {
     active: 0,
     completed: 0,
     rejected: 0,
+    failed: 0,
     total: medications.length,
   };
 
@@ -152,6 +203,9 @@ export const calculateMedicationStats = (medications) => {
         break;
       case "rejected":
         stats.rejected++;
+        break;
+      case "failed":
+        stats.failed++;
         break;
     }
   });

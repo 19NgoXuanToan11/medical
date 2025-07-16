@@ -176,27 +176,82 @@ const InProgressManagement = () => {
     return new Date(dateString).toLocaleString("vi-VN");
   };
 
-  const getFrequencyOptions = (frequency) => {
+  const getFrequencyOptions = (frequency, timeOfDay = null) => {
     if (!frequency) return [];
 
-    const freq = frequency.toLowerCase();
-    if (freq.includes("3") || freq.includes("ba")) {
-      return ["Sáng", "Trưa", "Tối"];
-    } else if (freq.includes("2") || freq.includes("hai")) {
-      return ["Sáng", "Tối"];
-    } else if (freq.includes("4") || freq.includes("bốn")) {
-      return ["Sáng", "Trưa", "Chiều", "Tối"];
+    // Define mapping between display text and API values
+    const frequencyMap = {
+      "Buổi sáng (6:00 - 11:00)": "morning",
+      "Buổi trưa (11:00 - 14:00)": "noon",
+      "Buổi chiều (14:00 - 18:00)": "afternoon",
+      "Buổi tối (18:00 - 22:00)": "evening",
+      "Khi cần thiết": "as_needed",
+    };
+
+    let displayOptions = [];
+
+    // If timeOfDay is provided, use it to generate proper time labels
+    if (timeOfDay && timeOfDay !== "N/A") {
+      const timeSlots = timeOfDay
+        .split(",")
+        .map((time) => time.trim().toLowerCase());
+      const timeMap = {
+        morning: "Buổi sáng (6:00 - 11:00)",
+        noon: "Buổi trưa (11:00 - 14:00)",
+        afternoon: "Buổi chiều (14:00 - 18:00)",
+        evening: "Buổi tối (18:00 - 22:00)",
+        as_needed: "Khi cần thiết",
+      };
+
+      displayOptions = timeSlots
+        .map((time) => timeMap[time] || time)
+        .filter(Boolean);
     } else {
-      return ["Sáng"];
+      // Fallback to old logic if no timeOfDay is provided
+      const freq = frequency.toLowerCase();
+      if (freq.includes("3") || freq.includes("ba")) {
+        displayOptions = [
+          "Buổi sáng (6:00 - 11:00)",
+          "Buổi trưa (11:00 - 14:00)",
+          "Buổi tối (18:00 - 22:00)",
+        ];
+      } else if (freq.includes("2") || freq.includes("hai")) {
+        displayOptions = [
+          "Buổi sáng (6:00 - 11:00)",
+          "Buổi tối (18:00 - 22:00)",
+        ];
+      } else if (freq.includes("4") || freq.includes("bốn")) {
+        displayOptions = [
+          "Buổi sáng (6:00 - 11:00)",
+          "Buổi trưa (11:00 - 14:00)",
+          "Buổi chiều (14:00 - 18:00)",
+          "Buổi tối (18:00 - 22:00)",
+        ];
+      } else {
+        displayOptions = ["Buổi sáng (6:00 - 11:00)"];
+      }
     }
+
+    // Return objects with both display and API values
+    return displayOptions.map((option) => ({
+      display: option,
+      value: frequencyMap[option] || option,
+    }));
   };
 
-  const getProgressStatus = (administeredFrequencies, frequency) => {
+  const getProgressStatus = (
+    administeredFrequencies,
+    frequency,
+    timeOfDay = null
+  ) => {
     try {
       const administered = Array.isArray(administeredFrequencies)
         ? administeredFrequencies
         : JSON.parse(administeredFrequencies || "[]");
-      const totalFrequencies = getFrequencyOptions(frequency);
+      const totalFrequencyOptions = getFrequencyOptions(frequency, timeOfDay);
+      const totalFrequencies = totalFrequencyOptions.map(
+        (option) => option.value
+      );
       return {
         completed: administered.length,
         total: totalFrequencies.length,
@@ -447,8 +502,8 @@ const InProgressManagement = () => {
                   </label>
                   <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                     {formatDate(
-                      selectedResult.request?.medicineRequestItems?.[0]
-                        ?.timeOfDay
+                      selectedResult.request?.date ||
+                        selectedResult.request?.requestDate
                     )}
                   </p>
                 </div>
@@ -472,10 +527,12 @@ const InProgressManagement = () => {
                       (item, index) => {
                         const progress = getProgressStatus(
                           selectedResult.administeredFrequencies,
-                          item.frequency
+                          item.frequency,
+                          item.timeOfDay
                         );
                         const frequencyOptions = getFrequencyOptions(
-                          item.frequency
+                          item.frequency,
+                          item.timeOfDay
                         );
                         const administeredList = Array.isArray(
                           selectedResult.administeredFrequencies
@@ -542,20 +599,20 @@ const InProgressManagement = () => {
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                 {frequencyOptions.map((freq) => (
                                   <div
-                                    key={freq}
+                                    key={freq.value}
                                     className={`px-3 py-2 rounded-lg text-center text-sm ${
-                                      administeredList.includes(freq)
+                                      administeredList.includes(freq.value)
                                         ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                                         : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
                                     }`}
                                   >
                                     <div className="flex items-center justify-center">
-                                      {administeredList.includes(freq) ? (
+                                      {administeredList.includes(freq.value) ? (
                                         <FiCheck className="h-4 w-4 mr-1" />
                                       ) : (
                                         <FiClock className="h-4 w-4 mr-1" />
                                       )}
-                                      {freq}
+                                      {freq.display}
                                     </div>
                                   </div>
                                 ))}
@@ -604,13 +661,14 @@ const InProgressManagement = () => {
                   required
                 >
                   <option value="">-- Chọn buổi --</option>
-                  {getFrequencyOptions(selectedMedicineItem.frequency).map(
-                    (freq) => (
-                      <option key={freq} value={freq}>
-                        {freq}
-                      </option>
-                    )
-                  )}
+                  {getFrequencyOptions(
+                    selectedMedicineItem.frequency,
+                    selectedMedicineItem.timeOfDay
+                  ).map((freq) => (
+                    <option key={freq.value} value={freq.value}>
+                      {freq.display}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -683,13 +741,14 @@ const InProgressManagement = () => {
                   required
                 >
                   <option value="">-- Chọn buổi thất bại --</option>
-                  {getFrequencyOptions(selectedMedicineItem.frequency).map(
-                    (freq) => (
-                      <option key={freq} value={freq}>
-                        {freq}
-                      </option>
-                    )
-                  )}
+                  {getFrequencyOptions(
+                    selectedMedicineItem.frequency,
+                    selectedMedicineItem.timeOfDay
+                  ).map((freq) => (
+                    <option key={freq.value} value={freq.value}>
+                      {freq.display}
+                    </option>
+                  ))}
                 </select>
               </div>
 

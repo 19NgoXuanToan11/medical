@@ -1,3 +1,5 @@
+import { medicationService } from "../../../../utils/api/medication/medicationService";
+
 // Transform API data to component structure
 export const transformRequestData = (requests) => {
   return requests.map((req) => {
@@ -10,6 +12,7 @@ export const transformRequestData = (requests) => {
         ? `${req.student.firstName} ${req.student.lastName}`
         : "N/A",
       studentId: req.student?.studentId || 0,
+      studentCode: req.student?.studentCode || "N/A",
       className: req.student?.className || req.className,
       medicineName: firstMedicine?.medicineName || "N/A",
       dosage: firstMedicine?.dosage || "N/A",
@@ -17,7 +20,7 @@ export const transformRequestData = (requests) => {
       frequency: firstMedicine?.frequency || "N/A",
       timeOfDay: firstMedicine?.timeOfDay || "N/A",
       instructions: firstMedicine?.instructions || "N/A",
-      status: normalizeStatus(req.status) || "pending",
+      status: normalizeStatus(req.status || "pending"),
       requestDate: req.requestDate
         ? new Date(req.requestDate).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0],
@@ -38,6 +41,8 @@ export const transformRequestData = (requests) => {
       rejectionReason: req.rejectionReason,
       refusalReason: req.refusalReason,
       reason: req.reason,
+      failureReason: req.failureReason,
+      failureReasons: req.failureReasons,
       approvalNotes: req.approvalNotes,
       assignedBy: req.assignedBy,
       assignmentNotes: req.assignmentNotes,
@@ -77,6 +82,9 @@ export const normalizeStatus = (status) => {
 
 // Get Vietnamese status display text
 export const getVietnameseStatusText = (status) => {
+  // First normalize the status to handle variations
+  const normalizedStatus = normalizeStatus(status);
+  
   const statusTextMap = {
     pending: "Chờ xử lý",
     assigned: "Đã giao",
@@ -87,7 +95,7 @@ export const getVietnameseStatusText = (status) => {
     refused: "Từ chối",
   };
 
-  return statusTextMap[status] || status || "Không xác định";
+  return statusTextMap[normalizedStatus] || normalizedStatus || "Không xác định";
 };
 
 // Test function to verify status normalization (for development)
@@ -154,4 +162,98 @@ export const filterRequests = (requests, searchTerm, filterDate) => {
 // Filter requests by status
 export const filterByStatus = (requests, statuses) => {
   return requests.filter((req) => statuses.includes(req.status));
+};
+
+// Check if student has any in-progress medication requests
+export const checkForInProgressRequests = async (studentId) => {
+  try {
+    console.log(
+      "🔍 Checking for in-progress requests for studentId:",
+      studentId
+    );
+    const response = await medicationService.getRequestResults();
+    console.log("📊 API Response:", response);
+
+    if (response.success) {
+      console.log("📋 All request results:", response.data);
+
+      // Filter for in-progress requests for the same student
+      const inProgressRequests = response.data.filter((result) => {
+        const isInProgress =
+          result.status === "In Progress" || result.status === "in progress";
+
+        // Try multiple possible paths for student ID
+        let resultStudentId = null;
+        if (result.medicineRequest?.student?.studentId) {
+          resultStudentId = result.medicineRequest.student.studentId;
+        } else if (result.student?.studentId) {
+          resultStudentId = result.student.studentId;
+        } else if (result.studentId) {
+          resultStudentId = result.studentId;
+        } else if (result.request?.student?.studentId) {
+          resultStudentId = result.request.student.studentId;
+        }
+
+        // Convert both to same type for comparison
+        const targetId = parseInt(studentId);
+        const resultId = parseInt(resultStudentId);
+        const matches =
+          resultId === targetId && !isNaN(resultId) && !isNaN(targetId);
+
+        console.log(`🎯 Checking result ID ${result.resultId}:`, {
+          status: result.status,
+          isInProgress,
+          resultStudentId,
+          targetStudentId: studentId,
+          resultIdParsed: resultId,
+          targetIdParsed: targetId,
+          matches: isInProgress && matches,
+          fullResult: result,
+        });
+
+        return isInProgress && matches;
+      });
+
+      console.log("🚨 Found in-progress requests:", inProgressRequests);
+      console.log(
+        "✅ Has in-progress requests:",
+        inProgressRequests.length > 0
+      );
+
+      return inProgressRequests.length > 0;
+    }
+    console.log("❌ API call failed");
+    return false;
+  } catch (error) {
+    console.error("💥 Error checking in-progress requests:", error);
+    return false;
+  }
+};
+
+// Validate medication start with user-friendly message
+export const validateMedicationStart = async (
+  studentId,
+  studentName = "học sinh này"
+) => {
+  console.log("🎯 Starting validation for:", { studentId, studentName });
+
+  if (!studentId) {
+    console.log("⚠️ No studentId provided, allowing start");
+    return { canStart: true }; // Allow if no student ID (shouldn't happen, but be safe)
+  }
+
+  const hasInProgressRequest = await checkForInProgressRequests(studentId);
+  console.log("🔒 Validation result:", { hasInProgressRequest });
+
+  if (hasInProgressRequest) {
+    const message = `Đang có yêu cầu thuốc đang diễn ra cho ${studentName} và chưa hoàn thành. Vui lòng hoàn thành yêu cầu hiện tại trước khi bắt đầu yêu cầu mới.`;
+    console.log("🚫 Blocking start:", message);
+    return {
+      canStart: false,
+      message,
+    };
+  }
+
+  console.log("✅ Allowing start - no conflicts found");
+  return { canStart: true };
 };

@@ -24,6 +24,12 @@ const FailedRequests = () => {
       if (response.success) {
         console.log("Failed API response:", response.data);
 
+        // Debug: Log first item to see actual structure
+        if (response.data && response.data.length > 0) {
+          console.log("First failed request sample:", response.data[0]);
+          console.log("Available fields:", Object.keys(response.data[0]));
+        }
+
         const transformedRequests = transformRequestData(response.data);
 
         // Force status to failed and add additional failure data
@@ -33,6 +39,12 @@ const FailedRequests = () => {
         }));
 
         console.log("Transformed failed requests:", failedRequests);
+
+        // Debug: Log first transformed item
+        if (failedRequests.length > 0) {
+          console.log("First transformed request sample:", failedRequests[0]);
+        }
+
         setRequests(failedRequests);
       } else {
         console.error("Error loading failed requests:", response.message);
@@ -55,36 +67,6 @@ const FailedRequests = () => {
   const handleRefresh = () => {
     loadFailedRequests();
     loadAllStats();
-  };
-
-  // Handle retry request
-  const handleRetryRequest = async (request) => {
-    const confirmed = window.confirm(
-      `Bạn có muốn thử lại yêu cầu thuốc cho ${request.studentName}?`
-    );
-
-    if (confirmed) {
-      try {
-        const response = await medicationService.retryMedicationRequest(
-          request.id,
-          {
-            retryReason: "Thử lại sau khi thất bại",
-            retryDate: new Date().toISOString(),
-          }
-        );
-
-        if (response.success) {
-          alert("Yêu cầu đã được thử lại thành công!");
-          loadFailedRequests();
-          loadAllStats();
-        } else {
-          alert("Không thể thử lại yêu cầu: " + response.message);
-        }
-      } catch (error) {
-        console.error("Error retrying request:", error);
-        alert("Đã xảy ra lỗi khi thử lại yêu cầu");
-      }
-    }
   };
 
   // Load data on component mount
@@ -121,7 +103,7 @@ const FailedRequests = () => {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
           <div className="flex items-center">
             <FiAlertTriangle className="h-8 w-8 text-red-500 mr-3" />
@@ -131,24 +113,6 @@ const FailedRequests = () => {
               </p>
               <p className="text-2xl font-bold text-red-600">
                 {filteredRequests.length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
-          <div className="flex items-center">
-            <FiRefreshCw className="h-8 w-8 text-orange-500 mr-3" />
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Có thể thử lại
-              </p>
-              <p className="text-2xl font-bold text-orange-600">
-                {
-                  filteredRequests.filter(
-                    (req) => !req.retryAttempts || req.retryAttempts < 3
-                  ).length
-                }
               </p>
             </div>
           </div>
@@ -196,7 +160,6 @@ const FailedRequests = () => {
         requests={filteredRequests}
         activeTab="failed"
         onViewDetail={handleViewDetail}
-        onRetryRequest={handleRetryRequest}
       />
 
       {/* Detail Modal */}

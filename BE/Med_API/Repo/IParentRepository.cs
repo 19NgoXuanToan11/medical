@@ -14,4 +14,5 @@ public interface IParentRepository
     Task<Parent?> GetParentByPhoneAsync(string phone);
     Task<IEnumerable<DB.MedicineRequest>> GetMedicineRequestProgressAsync(int parentId);
     Task<IEnumerable<DB.MedicineRequest>> GetRefusedMedicineRequestsByParentIdAsync(int parentId);
+    Task<IEnumerable<DB.MedicineRequest>> GetFailedMedicineRequestsByParentIdAsync(int parentId);
 } 

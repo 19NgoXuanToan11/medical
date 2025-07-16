@@ -23,6 +23,12 @@ public partial class MedicineRequest
 
     public string? RefusalReason { get; set; }
 
+    public string? FailureReason { get; set; }
+
+    public bool IsResent { get; set; } = false;
+
+    public int? OriginalRequestId { get; set; }
+
     // Navigation properties
     public virtual Student? Student { get; set; }
     public virtual Parent? Parent { get; set; }

@@ -494,7 +494,7 @@ const MedicationDetail = () => {
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
               <div className="bg-purple-50 dark:bg-purple-900/30 p-3 border-b border-purple-200 dark:border-purple-800">
                 <h2 className="text-base font-medium text-purple-800 dark:text-purple-300">
-                  Lịch uống thuốc
+                  Lịch uống thuốc:
                 </h2>
               </div>
               <div className="p-4">

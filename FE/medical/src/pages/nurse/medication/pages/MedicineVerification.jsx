@@ -12,6 +12,7 @@ import {
   FiTablet,
   FiClock,
   FiInfo,
+  FiXCircle,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../../utils/auth/AuthContext";
@@ -554,6 +555,55 @@ const MedicineVerification = () => {
                 </div>
               </div>
 
+              {/* Refusal Reason Section - Only show for refused requests */}
+              {(selectedRequest.status === "refused" ||
+                selectedRequest.status === "Refused" ||
+                selectedRequest.status === "rejected") && (
+                <div className="mb-6">
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                    <h4 className="text-md font-medium text-red-800 dark:text-red-300 mb-3 flex items-center">
+                      <FiXCircle className="h-5 w-5 mr-2" />
+                      Lý do từ chối
+                    </h4>
+                    <div className="bg-white dark:bg-red-900/30 p-3 rounded border border-red-300 dark:border-red-700">
+                      <p className="text-red-700 dark:text-red-300 font-medium">
+                        {selectedRequest.refusalReason ||
+                          selectedRequest.rejectionReason ||
+                          selectedRequest.reason ||
+                          "Không có lý do cụ thể"}
+                      </p>
+                    </div>
+                    {/* Additional rejection info */}
+                    {(selectedRequest.rejectedBy ||
+                      selectedRequest.rejectedDate ||
+                      selectedRequest.staff) && (
+                      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {selectedRequest.rejectedBy && (
+                          <div>
+                            <label className="text-sm font-medium text-red-700 dark:text-red-300">
+                              Từ chối bởi:
+                            </label>
+                            <p className="text-red-800 dark:text-red-200">
+                              {selectedRequest.rejectedBy}
+                            </p>
+                          </div>
+                        )}
+                        {selectedRequest.rejectedDate && (
+                          <div>
+                            <label className="text-sm font-medium text-red-700 dark:text-red-300">
+                              Ngày từ chối:
+                            </label>
+                            <p className="text-red-800 dark:text-red-200">
+                              {formatDate(selectedRequest.rejectedDate)}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Usage Instructions */}
               <div className="mb-6">
                 <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">
@@ -575,7 +625,7 @@ const MedicineVerification = () => {
               {/* Medication Schedule */}
               <div className="mb-6">
                 <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">
-                  Lịch uống thuốc
+                  Lịch uống thuốc:
                 </h4>
 
                 {selectedRequest.medicineRequestItems?.map((item, index) => {
@@ -591,7 +641,7 @@ const MedicineVerification = () => {
                       show: timeSlots.includes("morning"),
                     },
                     noon: {
-                      label: "Buổi trua (11:00 - 14:00)",
+                      label: "Buổi trưa (11:00 - 14:00)",
                       show: timeSlots.includes("noon"),
                     },
                     afternoon: {

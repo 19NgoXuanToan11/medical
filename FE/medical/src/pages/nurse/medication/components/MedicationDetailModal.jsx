@@ -1,10 +1,18 @@
 import React from "react";
-import { FiX, FiCheckCircle, FiClock, FiCheck, FiInfo } from "react-icons/fi";
+import {
+  FiX,
+  FiCheckCircle,
+  FiClock,
+  FiCheck,
+  FiInfo,
+  FiXCircle,
+} from "react-icons/fi";
 import {
   calculateDosagePerAdministration,
   formatFrequency,
   getMedicationSummary,
 } from "../../../../utils/api/medication/medicationUtils";
+import { getVietnameseStatusText } from "../utils/medicationUtils";
 
 // Helper function to parse dosage and extract unit
 const parseDosage = (dosage) => {
@@ -224,7 +232,7 @@ const MedicationDetailModal = ({
               ) && (
                 <div>
                   <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Lịch uống thuốc
+                    Lịch uống thuốc:
                   </h4>
                   <div className="space-y-3">
                     {request.medicineRequestItems.map(
@@ -300,22 +308,34 @@ const MedicationDetailModal = ({
                   {request.status === "pending" ? (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200">
                       <FiClock className="h-3 w-3 mr-1" />
-                      Chờ xử lý
+                      {getVietnameseStatusText("pending")}
                     </span>
                   ) : request.status === "assigned" ? (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
                       <FiCheckCircle className="h-3 w-3 mr-1" />
-                      Đã giao
+                      {getVietnameseStatusText("assigned")}
                     </span>
                   ) : request.status === "completed" ? (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
                       <FiCheckCircle className="h-3 w-3 mr-1" />
-                      Đã hoàn thành
+                      {getVietnameseStatusText("completed")}
+                    </span>
+                  ) : request.status === "refused" ||
+                    request.status === "Refused" ||
+                    request.status === "rejected" ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
+                      <FiX className="h-3 w-3 mr-1" />
+                      {getVietnameseStatusText(request.status)}
+                    </span>
+                  ) : request.status === "failed" ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
+                      <FiX className="h-3 w-3 mr-1" />
+                      {getVietnameseStatusText("failed")}
                     </span>
                   ) : (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200">
                       <FiInfo className="h-3 w-3 mr-1" />
-                      {request.status || "Không xác định"}
+                      {getVietnameseStatusText(request.status)}
                     </span>
                   )}
                 </div>
@@ -365,6 +385,83 @@ const MedicationDetailModal = ({
                   </p>
                   <p>
                     <strong>Lý do:</strong> {request.rejectionReason}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {(request.status === "refused" ||
+              request.status === "Refused" ||
+              request.status === "failed") && (
+              <div className="bg-red-50 dark:bg-red-900/30 p-2 rounded-md border border-red-200 dark:border-red-800">
+                <div className="text-xs text-red-800 dark:text-red-200">
+                  <p>
+                    <strong>Thất bại bởi:</strong>{" "}
+                    {(() => {
+                      const staffName =
+                        request.rejectedBy ||
+                        (request.staff?.firstName && request.staff?.lastName
+                          ? `${request.staff.firstName} ${request.staff.lastName}`
+                          : null) ||
+                        "N/A";
+                      return typeof staffName === "string"
+                        ? staffName
+                        : String(staffName);
+                    })()}
+                  </p>
+                  {request.rejectedDate && (
+                    <p>
+                      <strong>Ngày thất bại:</strong>{" "}
+                      {(() => {
+                        try {
+                          return new Date(
+                            request.rejectedDate
+                          ).toLocaleDateString("vi-VN");
+                        } catch (error) {
+                          return String(request.rejectedDate);
+                        }
+                      })()}
+                    </p>
+                  )}
+                  <p>
+                    <strong>Lý do thất bại:</strong>{" "}
+                    {(() => {
+                      const failureText =
+                        request.failureReason ||
+                        request.failureReasons ||
+                        request.refusalReason ||
+                        request.rejectionReason ||
+                        "Không có lý do cụ thể";
+
+                      // Function to extract readable text from various formats
+                      const extractText = (value) => {
+                        if (!value) return "Không có lý do cụ thể";
+
+                        if (typeof value === "string") {
+                          // If it's a JSON string, try to parse and extract
+                          try {
+                            const parsed = JSON.parse(value);
+                            return extractText(parsed);
+                          } catch {
+                            return value;
+                          }
+                        }
+
+                        if (typeof value === "object") {
+                          // Extract values from object
+                          const values = Object.values(value).filter(
+                            (v) => v && typeof v === "string" && v.trim() !== ""
+                          );
+                          return values.length > 0
+                            ? values.join(", ")
+                            : "Không có lý do cụ thể";
+                        }
+
+                        return String(value);
+                      };
+
+                      return extractText(failureText);
+                    })()}
                   </p>
                 </div>
               </div>

@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../../utils/auth/AuthContext";
+import { validateMedicationStart } from "../utils/medicationUtils";
 
 const MedicineAdministration = () => {
   const [assignedRequests, setAssignedRequests] = useState([]);
@@ -68,6 +69,18 @@ const MedicineAdministration = () => {
   const handleStartAdministration = async () => {
     if (!selectedRequest) {
       alert("Không có yêu cầu được chọn");
+      return;
+    }
+
+    // Validate if there's already an in-progress request for this student
+    const studentId = selectedRequest.student?.studentId;
+    const studentName = selectedRequest.student
+      ? `${selectedRequest.student.firstName} ${selectedRequest.student.lastName}`
+      : "học sinh này";
+
+    const validation = await validateMedicationStart(studentId, studentName);
+    if (!validation.canStart) {
+      alert(validation.message);
       return;
     }
 
@@ -187,9 +200,9 @@ const MedicineAdministration = () => {
     if (!timeOfDay) return "";
 
     const timeMap = {
-      morning: "Buổi sáng (06:00 - 11:00)",
+      morning: "Buổi sáng (6:00 - 11:00)",
       noon: "Buổi trưa (11:00 - 14:00)",
-      afternoon: "Buổi chiều (14:00 - 17:00)",
+      afternoon: "Buổi chiều (14:00 - 18:00)",
       as_needed: "Khi cần thiết",
     };
 
@@ -255,7 +268,9 @@ const MedicineAdministration = () => {
                   : "bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300"
               }`}
             >
-              {getCurrentData().length}
+              {key === "assigned"
+                ? assignedRequests.length
+                : completedRequests.length}
             </span>
           </button>
         ))}

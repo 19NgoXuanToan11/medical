@@ -730,10 +730,18 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     {
         return await _context.RequestResults
             .Include(r => r.Request)
-            .ThenInclude(r => r!.MedicineRequestItems)
+                .ThenInclude(rq => rq.Student)
+                    .ThenInclude(s => s.Class)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.MedicineRequestItems)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Staff)
             .Include(r => r.AdministeredByStaff)
             .Include(r => r.ActionByStaff)
             .Where(r => r.Status == "Failed" || r.Status == "Partially Failed")
+            .OrderByDescending(r => r.SubmittedAt)
             .ToListAsync();
     }
 
@@ -741,10 +749,18 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     {
         return await _context.RequestResults
             .Include(r => r.Request)
-            .ThenInclude(r => r!.MedicineRequestItems)
+                .ThenInclude(rq => rq.Student)
+                    .ThenInclude(s => s.Class)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.MedicineRequestItems)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Staff)
             .Include(r => r.AdministeredByStaff)
             .Include(r => r.ActionByStaff)
             .Where(r => r.OriginalRequestResultId == originalRequestResultId && r.IsReRequest)
+            .OrderByDescending(r => r.SubmittedAt)
             .ToListAsync();
     }
 
