@@ -119,13 +119,4 @@ public class ParentController : ControllerBase
         var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(refusedRequests);
         return Ok(viewModels);
     }
-
-    // GET: api/Parent/{parentId}/failed-request-results
-    [HttpGet("{parentId}/failed-request-results")]
-    public async Task<ActionResult<IEnumerable<RequestResultDto.ViewModel>>> GetFailedRequestResultsByParent(int parentId)
-    {
-        var failedResults = await _parentService.GetFailedRequestResultsByParentIdAsync(parentId);
-        var viewModels = _mapper.Map<IEnumerable<RequestResultDto.ViewModel>>(failedResults);
-        return Ok(viewModels);
-    }
 }

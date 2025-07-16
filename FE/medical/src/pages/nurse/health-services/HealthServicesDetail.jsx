@@ -176,6 +176,11 @@ const HealthServicesDetail = () => {
   };
 
   const getStationNameInVietnamese = (stationKey) => {
+    // Kiểm tra nếu stationKey không hợp lệ
+    if (!stationKey || typeof stationKey !== "string") {
+      return "Trạm không xác định";
+    }
+
     const stationMap = {
       // Các trạm cơ bản
       height: "Đo chiều cao",
