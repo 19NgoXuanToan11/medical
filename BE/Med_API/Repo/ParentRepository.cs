@@ -146,17 +146,33 @@ public class ParentRepository : IParentRepository
 
     public async Task<IEnumerable<DB.MedicineRequest>> GetFailedMedicineRequestsByParentIdAsync(int parentId)
     {
-        // Get MedicineRequests that have at least one RequestResult with "Failed" or "Partially Failed" status
+        // Only return requests where the main status is Failed or Partially Failed
         return await _context.MedicineRequests
-            .Where(r => r.ParentId == parentId && 
-                   r.RequestResults.Any(rr => rr.Status == "Failed" || rr.Status == "Partially Failed"))
+            .Where(r => r.ParentId == parentId && (r.Status == "Failed" || r.Status == "Partially Failed"))
             .Include(r => r.Student)
             .ThenInclude(s => s.Class)
             .Include(r => r.Parent)
             .Include(r => r.Staff)
             .ThenInclude(s => s.Role)
             .Include(r => r.MedicineRequestItems)
-            .Include(r => r.RequestResults.Where(rr => rr.Status == "Failed" || rr.Status == "Partially Failed"))
+            .Include(r => r.RequestResults)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<RequestResult>> GetFailedRequestResultsByParentIdAsync(int parentId)
+    {
+        return await _context.RequestResults
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Student)
+                    .ThenInclude(s => s.Class)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Parent)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.MedicineRequestItems)
+            .Include(r => r.Request)
+                .ThenInclude(rq => rq.Staff)
+            .Where(r => (r.Status == "Failed" || r.Status == "Partially Failed") && r.Request.ParentId == parentId)
+            .OrderByDescending(r => r.SubmittedAt)
             .ToListAsync();
     }
 } 
