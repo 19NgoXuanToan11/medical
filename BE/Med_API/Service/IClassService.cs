@@ -15,4 +15,5 @@ public interface IClassService
     Task<bool> RemoveStudentFromClassAsync(int studentId);
     Task<IEnumerable<Class>> GetActiveClassesAsync();
     Task<bool> ValidateClassDataAsync(Class classEntity);
+    Task<int> PromoteStudentsToNextClassIfNewYearAsync();
 } 

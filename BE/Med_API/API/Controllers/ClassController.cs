@@ -183,4 +183,16 @@ public class ClassController : ControllerBase
 
         return Ok(summary);
     }
+
+    // POST: api/Class/promote-students
+    [HttpPost("promote-students")]
+    public async Task<IActionResult> PromoteStudentsToNextClass()
+    {
+        var promotedCount = await _classService.PromoteStudentsToNextClassIfNewYearAsync();
+        if (promotedCount == 0)
+        {
+            return Ok(new { message = "Promotion not performed. It's not yet the start of the new school year." });
+        }
+        return Ok(new { message = $"{promotedCount} students promoted to the next class." });
+    }
 } 
