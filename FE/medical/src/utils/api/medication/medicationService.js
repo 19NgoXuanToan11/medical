@@ -1366,6 +1366,30 @@ export const medicationService = {
       };
     }
   },
+
+  // Add new method for getting failed medicine requests by parent
+  getFailedMedicineRequestsByParent: async (parentId) => {
+    try {
+      const response = await api.get(
+        `/Parent/${parentId}/failed-medicine-requests`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu thuốc thất bại thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching failed medicine requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc thất bại",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
 };
 
 // Notification Service for Medication Requests

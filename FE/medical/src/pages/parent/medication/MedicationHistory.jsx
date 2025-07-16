@@ -33,9 +33,13 @@ const MedicationHistory = () => {
     try {
       let result;
 
-      // Use specific API for rejected requests when that filter is selected
+      // Use specific API for rejected or failed requests when those filters are selected
       if (filterStatus === "rejected") {
         result = await medicationService.getRefusedMedicineRequestsByParent(
+          user.id
+        );
+      } else if (filterStatus === "failed") {
+        result = await medicationService.getFailedMedicineRequestsByParent(
           user.id
         );
       } else {
@@ -72,13 +76,13 @@ const MedicationHistory = () => {
   }, [searchParams]);
 
   const filteredMedications =
-    filterStatus === "rejected"
-      ? medications // For rejected tab, show all data from refused API directly
+    filterStatus === "rejected" || filterStatus === "failed"
+      ? medications // For rejected and failed tabs, show all data from specific API directly
       : filterMedications(medications, filterStatus, searchTerm);
 
   // Apply filtering logic
   const finalFilteredMedications =
-    filterStatus === "rejected"
+    filterStatus === "rejected" || filterStatus === "failed"
       ? medications.filter((med) => {
           if (!searchTerm) return true; // Show all if no search term
           const matchesSearch =
@@ -108,6 +112,16 @@ const MedicationHistory = () => {
           active: 0,
           completed: 0,
           rejected: medications.length, // All medications in rejected tab are rejected
+          failed: 0,
+          total: medications.length,
+        }
+      : filterStatus === "failed"
+      ? {
+          pending: 0,
+          active: 0,
+          completed: 0,
+          rejected: 0,
+          failed: medications.length, // All medications in failed tab are failed
           total: medications.length,
         }
       : calculateMedicationStats(medications);
@@ -134,7 +148,7 @@ const MedicationHistory = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
         <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
@@ -251,6 +265,34 @@ const MedicationHistory = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-600 dark:text-gray-400 text-xs">
+                Thất bại
+              </p>
+              <p className="text-xl font-bold mt-1 text-orange-600 dark:text-orange-400">
+                {stats.failed || 0}
+              </p>
+            </div>
+            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
+              <svg
+                className="h-5 w-5 text-orange-600 dark:text-orange-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L5.082 15.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-600 dark:text-gray-400 text-xs">
                 Tổng yêu cầu
               </p>
               <p className="text-xl font-bold mt-1 text-gray-800 dark:text-gray-200">
@@ -328,6 +370,16 @@ const MedicationHistory = () => {
             }`}
           >
             Từ chối
+          </button>
+          <button
+            onClick={() => setFilterStatus("failed")}
+            className={`px-4 py-2 rounded-md whitespace-nowrap transition-colors duration-200 ${
+              filterStatus === "failed"
+                ? "bg-blue-600 dark:bg-blue-500 text-white"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
+            }`}
+          >
+            Thất bại
           </button>
         </div>
         <div className="flex w-full sm:w-auto">

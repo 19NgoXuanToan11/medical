@@ -189,7 +189,7 @@ const MedicationDetailModal = ({ show, request, onClose }) => {
                 </div>
               </div>
 
-              {/* Rejection Reason - Hiển thị rõ ràng */}
+              {/* Failure Reason - Hiển thị rõ ràng */}
               {(request.status === "refused" ||
                 request.status === "Refused" ||
                 request.status === "rejected" ||
@@ -197,14 +197,49 @@ const MedicationDetailModal = ({ show, request, onClose }) => {
                 <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
                   <h4 className="text-lg font-medium text-red-800 dark:text-red-200 mb-3 flex items-center">
                     <FiXCircle className="h-5 w-5 mr-2" />
-                    Lý do từ chối
+                    Lý do thất bại
                   </h4>
                   <div className="bg-white dark:bg-red-900/30 p-3 rounded border border-red-300 dark:border-red-700">
                     <p className="text-red-700 dark:text-red-300 font-medium">
-                      {request.refusalReason ||
-                        request.rejectionReason ||
-                        request.reason ||
-                        "Không có lý do cụ thể"}
+                      {(() => {
+                        const failureText =
+                          request.failureReason ||
+                          request.failureReasons ||
+                          request.refusalReason ||
+                          request.rejectionReason ||
+                          request.reason ||
+                          "Không có lý do cụ thể";
+
+                        // Function to extract readable text from various formats
+                        const extractText = (value) => {
+                          if (!value) return "Không có lý do cụ thể";
+
+                          if (typeof value === "string") {
+                            // If it's a JSON string, try to parse and extract
+                            try {
+                              const parsed = JSON.parse(value);
+                              return extractText(parsed);
+                            } catch {
+                              return value;
+                            }
+                          }
+
+                          if (typeof value === "object") {
+                            // Extract values from object
+                            const values = Object.values(value).filter(
+                              (v) =>
+                                v && typeof v === "string" && v.trim() !== ""
+                            );
+                            return values.length > 0
+                              ? values.join(", ")
+                              : "Không có lý do cụ thể";
+                          }
+
+                          return String(value);
+                        };
+
+                        return extractText(failureText);
+                      })()}
                     </p>
                   </div>
                   {/* Additional rejection info */}
@@ -213,22 +248,30 @@ const MedicationDetailModal = ({ show, request, onClose }) => {
                       {request.rejectedBy && (
                         <div>
                           <label className="text-sm font-medium text-red-700 dark:text-red-300">
-                            Người từ chối:
+                            Người thất bại:
                           </label>
                           <p className="text-red-800 dark:text-red-200">
-                            {request.rejectedBy}
+                            {typeof request.rejectedBy === "string"
+                              ? request.rejectedBy
+                              : String(request.rejectedBy)}
                           </p>
                         </div>
                       )}
                       {request.rejectedDate && (
                         <div>
                           <label className="text-sm font-medium text-red-700 dark:text-red-300">
-                            Ngày từ chối:
+                            Ngày thất bại:
                           </label>
                           <p className="text-red-800 dark:text-red-200">
-                            {new Date(request.rejectedDate).toLocaleDateString(
-                              "vi-VN"
-                            )}
+                            {(() => {
+                              try {
+                                return new Date(
+                                  request.rejectedDate
+                                ).toLocaleDateString("vi-VN");
+                              } catch (error) {
+                                return String(request.rejectedDate);
+                              }
+                            })()}
                           </p>
                         </div>
                       )}
@@ -387,7 +430,7 @@ const MedicationDetailModal = ({ show, request, onClose }) => {
                   <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
                     <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center">
                       <FiClock className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
-                      Lịch uống thuốc
+                      Lịch uống thuốc:
                     </h4>
                     <div className="space-y-4">
                       {request.medicineRequestItems.map(

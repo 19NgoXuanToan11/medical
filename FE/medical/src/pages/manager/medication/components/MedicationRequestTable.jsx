@@ -17,9 +17,40 @@ const MedicationRequestTable = ({
   requests,
   activeTab,
   onViewDetail,
-  onRetryRequest,
   onResubmitRequest,
 }) => {
+  // Helper function to get failure info from request
+  const getFailureInfo = (request) => {
+    try {
+      // Parse failedFrequencies - array of failed time periods
+      let failedFrequencies = [];
+      if (request.failedFrequencies) {
+        if (Array.isArray(request.failedFrequencies)) {
+          failedFrequencies = request.failedFrequencies;
+        } else if (typeof request.failedFrequencies === "string") {
+          failedFrequencies = JSON.parse(request.failedFrequencies);
+        }
+      }
+
+      // Parse failureReasons - object with time period as key and reason as value
+      let failureReasons = {};
+      if (request.failureReasons) {
+        if (
+          typeof request.failureReasons === "object" &&
+          !Array.isArray(request.failureReasons)
+        ) {
+          failureReasons = request.failureReasons;
+        } else if (typeof request.failureReasons === "string") {
+          failureReasons = JSON.parse(request.failureReasons);
+        }
+      }
+
+      return { failedFrequencies, failureReasons };
+    } catch (error) {
+      console.error("Error parsing failure info:", error);
+      return { failedFrequencies: [], failureReasons: {} };
+    }
+  };
   // Helper function to render all medicines in a request
   const renderMedicines = (medicineRequestItems) => {
     if (!medicineRequestItems || medicineRequestItems.length === 0) {
@@ -84,6 +115,12 @@ const MedicationRequestTable = ({
               <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Ngày uống thuốc
               </th>
+              {/* Show failure reason column only for failed tab */}
+              {activeTab === "failed" && (
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-[200px]">
+                  Lý do thất bại
+                </th>
+              )}
               <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Trạng thái
               </th>
@@ -169,6 +206,33 @@ const MedicationRequestTable = ({
                         )}
                   </div>
                 </td>
+                {/* Show failure reason column only for failed tab */}
+                {activeTab === "failed" && (
+                  <td className="px-6 py-4 text-left align-middle min-w-[200px]">
+                    {(() => {
+                      const failureInfo = getFailureInfo(request);
+                      const shortReason =
+                        request.refusalReason ||
+                        request.failureReason ||
+                        (failureInfo.failedFrequencies.length > 0 &&
+                          failureInfo.failureReasons[
+                            failureInfo.failedFrequencies[0]
+                          ]) ||
+                        "Không xác định";
+
+                      return (
+                        <div
+                          className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded border-l-4 border-red-500"
+                          title={shortReason}
+                        >
+                          <p className="break-words">
+                            {shortReason}
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </td>
+                )}
                 <td className="px-6 py-4 text-center align-middle">
                   {request.status === "pending" ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200">
@@ -202,7 +266,7 @@ const MedicationRequestTable = ({
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
                       <FiXCircle className="h-4 w-4" />
                       <span className="ml-1">
-                        {getVietnameseStatusText("refused")}
+                        {getVietnameseStatusText("failed")}
                       </span>
                     </span>
                   ) : (
@@ -224,18 +288,6 @@ const MedicationRequestTable = ({
                       <FiEye className="h-4 w-4" />
                     </button>
 
-                    {activeTab === "failed" &&
-                      request.status === "failed" &&
-                      onRetryRequest && (
-                        <button
-                          onClick={() => onRetryRequest(request)}
-                          className="flex items-center px-3 py-1 bg-orange-600 dark:bg-orange-700 text-white rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors text-sm"
-                          title="Thử lại"
-                        >
-                          <FiRefreshCw className="mr-1 h-3 w-3" />
-                          Thử lại
-                        </button>
-                      )}
                     {activeTab === "rejected" &&
                       request.status === "rejected" &&
                       onResubmitRequest && (
