@@ -10,7 +10,7 @@ import {
   getSeasonText,
 } from "../utils/healthCheckHelpers";
 import {
-  // availableGradesData, // Remove mock data import for classes
+  availableGradesData, // Import mock data for fallback
   initialFormData,
   healthCheckItemsData,
 } from "../data/healthCheckData";
@@ -144,56 +144,26 @@ export const useHealthCheckForm = () => {
     loadHealthCheckItems();
   }, []);
 
-  // Load active classes from API on component mount
-  useEffect(() => {
-    const loadActiveClasses = async () => {
-      setLoadingGrades(true);
-      try {
-        const result = await getActiveClasses();
-
-        console.log("Classes API Result:", result);
-
-        // Handle different response structures
-        let classesArray = null;
-
-        if (result?.success && result?.data) {
-          classesArray = result.data;
-        } else if (result?.data) {
-          classesArray = result.data;
-        } else if (Array.isArray(result)) {
-          classesArray = result;
-        }
-
-        if (classesArray && Array.isArray(classesArray)) {
-          // Transform API data to match expected UI format
-          const transformedClasses = classesArray.map((classItem) => ({
-            id: classItem.classId || classItem.id,
-            name: classItem.className || classItem.name,
-            gradeLevel: classItem.gradeLevel,
-            studentCount:
-              classItem.currentStudentCount ||
-              classItem.totalStudents ||
-              classItem.studentCount ||
-              0,
-            isActive: classItem.isActive !== false, // Default to true if not specified
-          }));
-
-          console.log("Transformed classes:", transformedClasses);
-          setAvailableGrades(transformedClasses);
-        } else {
-          console.warn("No valid classes data found in API response");
-          setAvailableGrades([]);
-        }
-      } catch (error) {
-        console.error("Error loading active classes:", error);
-        setAvailableGrades([]);
-      } finally {
-        setLoadingGrades(false);
-      }
-    };
-
-    loadActiveClasses();
+  // Load active classes
+  const loadActiveClasses = useCallback(async () => {
+    setLoadingGrades(true);
+    try {
+      console.log("🔄 Loading grade blocks data...");
+      // Use grade blocks data directly instead of fetching individual classes
+      setAvailableGrades(availableGradesData);
+      console.log("✅ Grade blocks loaded successfully:", availableGradesData);
+    } catch (error) {
+      console.error("Error loading grade blocks:", error);
+      setAvailableGrades(availableGradesData);
+    } finally {
+      setLoadingGrades(false);
+    }
   }, []);
+
+  // Load grade blocks on component mount
+  useEffect(() => {
+    loadActiveClasses();
+  }, [loadActiveClasses]);
 
   // Calculated values
   const totalStudents = calculateTotalStudents(
@@ -403,19 +373,6 @@ export const useHealthCheckForm = () => {
     createEquipmentStatusFromHealthCheckData,
   ]);
 
-  // Auto-calculate end time when start time or duration changes
-  useEffect(() => {
-    if (formData.scheduledTime && formData.estimatedDuration) {
-      const endTime = calculateEndTime(
-        formData.scheduledTime,
-        formData.estimatedDuration
-      );
-      if (endTime && endTime !== formData.endTime) {
-        setFormData((prev) => ({ ...prev, endTime }));
-      }
-    }
-  }, [formData.scheduledTime, formData.estimatedDuration]);
-
   // Auto-update health check details when check items change
   useEffect(() => {
     if (formData.checkItems.length > 0 && healthCheckItems.length > 0) {
@@ -464,7 +421,6 @@ export const useHealthCheckForm = () => {
   }, [
     formData.scheduledDate,
     formData.scheduledTime,
-    formData.endTime,
     formData.location,
     formData.equipmentNeeded,
   ]);
@@ -501,18 +457,15 @@ export const useHealthCheckForm = () => {
     [validationErrors]
   );
 
-  // Handle grade selection
+  // Handle grade selection (single selection only)
   const handleGradeSelection = useCallback(
     (gradeId) => {
       setFormData((prev) => {
-        const newTargetGrades = prev.targetGrades.includes(gradeId)
-          ? prev.targetGrades.filter((id) => id !== gradeId)
-          : [...prev.targetGrades, gradeId];
+        // Single selection - replace current selection
+        const newTargetGrades = [gradeId];
 
-        const totalStudents = newTargetGrades.reduce((total, id) => {
-          const grade = availableGrades.find((g) => g.id === id);
-          return total + (grade?.studentCount || 0);
-        }, 0);
+        const grade = availableGrades.find((g) => g.id === gradeId);
+        const totalStudents = grade?.studentCount || 0;
 
         return {
           ...prev,
@@ -794,7 +747,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         SelectedStations: JSON.stringify(formData.checkItems || []),
         StaffAssigned: null,
         Status: "pending",
-        EstimatedEndTime: formData.endTime || null,
+        EstimatedEndTime: null, // Not used with session-based scheduling
         Student: null,
         Parent: null,
         ConfirmedByStaff: null,
@@ -827,7 +780,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
       }
 
       if (!submissionData.GradeIds || submissionData.GradeIds === "[]") {
-        return { success: false, message: "Phải chọn ít nhất một lớp học" };
+        return { success: false, message: "Phải chọn một khối lớp" };
       }
 
       console.log("Submitting health check data:", submissionData);
