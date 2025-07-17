@@ -445,7 +445,7 @@ export const medicationService = {
                 const detailResponse = await api.get(
                   `/MedicineRequest/${request.requestId}`
                 );
-                if (detailResponse.data) {  
+                if (detailResponse.data) {
                   return { ...request, ...detailResponse.data };
                 }
               } catch (error) {

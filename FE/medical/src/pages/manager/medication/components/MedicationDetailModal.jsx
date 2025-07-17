@@ -11,7 +11,7 @@ import {
 } from "react-icons/fi";
 import { getVietnameseStatusText } from "../utils/medicationUtils";
 import { calculateDosagePerAdministration } from "../../../../utils/api/medication/medicationUtils";
-import { getMedicineUnit } from "../../../../utils/medicineUnits";
+import { getMedicineUnit } from "../../../../utils/medicine/medicineUnits";
 
 // Helper function to format dosage with units
 const formatDosageWithUnit = (dosage, dosageUnit, medicineName) => {

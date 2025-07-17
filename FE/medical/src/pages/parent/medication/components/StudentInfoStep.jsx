@@ -83,7 +83,8 @@ const StudentInfoStep = ({
           htmlFor="date"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
-          Ngày uống thuốc <span className="text-red-500 dark:text-red-400">*</span>
+          Ngày uống thuốc{" "}
+          <span className="text-red-500 dark:text-red-400">*</span>
         </label>
         <input
           type="text"

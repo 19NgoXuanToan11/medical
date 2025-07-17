@@ -7,7 +7,7 @@ import {
   calculateDosagePerAdministration,
   formatFrequency,
 } from "../../../utils/api/medication/medicationUtils";
-import { getMedicineUnit } from "../../../utils/medicineUnits";
+import { getMedicineUnit } from "../../../utils/medicine/medicineUnits";
 import { toast } from "react-toastify";
 
 const MedicationDetail = () => {

@@ -23,7 +23,7 @@ import {
   validateMedicationStart,
 } from "../utils/medicationUtils";
 import { useMedicationRequests } from "../hooks/useMedicationRequests";
-import { getMedicineUnit } from "../../../../utils/medicineUnits";
+import { getMedicineUnit } from "../../../../utils/medicine/medicineUnits";
 
 const MedicineAdministration = () => {
   const [assignedRequests, setAssignedRequests] = useState([]);

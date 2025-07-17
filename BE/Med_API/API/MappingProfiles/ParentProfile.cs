@@ -1,6 +1,7 @@
 using AutoMapper;
 using DB;
 using API.DTOs;
+using Service.DTOs;
 using System.Security.Cryptography;
 using System.Text;
 using System.Linq;
@@ -47,15 +48,30 @@ public class ParentProfile : Profile
 
         // Map from MedicineRequest to ParentDto.MedicineRequestProgress
         CreateMap<MedicineRequest, ParentDto.MedicineRequestProgress>()
+            .ForMember(dest => dest.RequestId, opt => opt.MapFrom(src => src.RequestId))
             .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src => src.StudentCode ?? (src.Student != null ? src.Student.StudentCode : null)))
             .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName ?? (src.Student != null && src.Student.Class != null ? src.Student.Class.ClassName : null)))
             .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src => src.Student != null ? (src.Student.FirstName + " " + src.Student.LastName).Trim() : null))
-            .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId ?? 0))
-            .ForMember(dest => dest.StaffId, opt => opt.MapFrom(src => src.StaffId))
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
-            .ForMember(dest => dest.RequestDate, opt => opt.MapFrom(src => src.RequestDate ?? System.DateTime.MinValue))
-            .ForMember(dest => dest.MedicineRequestItems, opt => opt.MapFrom(src => src.MedicineRequestItems))
-            .ForMember(dest => dest.Progress, opt => opt.MapFrom(src => src.RequestResults.OrderByDescending(r => r.SubmittedAt)));
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+            .ForMember(dest => dest.RequestDate, opt => opt.MapFrom(src => src.RequestDate))
+            .ForMember(dest => dest.MedicineItems, opt => opt.MapFrom(src => src.MedicineRequestItems));
+
+        // Map from MedicineRequestItem to ParentDto.MedicineRequestItemProgress
+        CreateMap<MedicineRequestItem, ParentDto.MedicineRequestItemProgress>()
+            .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.MedicineName))
+            .ForMember(dest => dest.Dosage, opt => opt.MapFrom(src => src.Dosage))
+            .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency))
+            .ForMember(dest => dest.TimeOfDay, opt => opt.MapFrom(src => src.TimeOfDay))
+            .ForMember(dest => dest.Instructions, opt => opt.MapFrom(src => src.Instructions));
+
+        // Map from Service DTOs to API DTOs
+        CreateMap<ParentStatisticsDto, ParentDto.ParentStatistics>();
+        CreateMap<VaccinationStats, ParentDto.VaccinationStats>();
+        CreateMap<HealthEventStats, ParentDto.HealthEventStats>();
+        CreateMap<HealthCheckStats, ParentDto.HealthCheckStats>();
+        CreateMap<MedicineRequestStats, ParentDto.MedicineRequestStats>();
+        CreateMap<ChildStatistic, ParentDto.ChildStatistic>();
     }
 
     private string HashPassword(string password)

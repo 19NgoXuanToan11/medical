@@ -27,7 +27,7 @@ import {
   getDosagePlaceholder,
   formatDosageWithUnit,
   extractDosageNumber,
-} from "../../../utils/medicineUnits";
+} from "../../../utils/medicine/medicineUnits";
 import { getStudentByCode } from "../../../utils/api/student/studentService";
 
 const HealthEventCreate = () => {

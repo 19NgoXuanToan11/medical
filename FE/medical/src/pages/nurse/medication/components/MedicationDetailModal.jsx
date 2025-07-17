@@ -16,7 +16,7 @@ import {
   getMedicationSummary,
 } from "../../../../utils/api/medication/medicationUtils";
 import { getVietnameseStatusText } from "../utils/medicationUtils";
-import { getMedicineUnit } from "../../../../utils/medicineUnits";
+import { getMedicineUnit } from "../../../../utils/medicine/medicineUnits";
 
 // Helper function to parse dosage and extract unit
 const parseDosage = (dosage) => {

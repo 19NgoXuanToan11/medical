@@ -31,7 +31,7 @@ import {
   getDosagePlaceholder,
   formatDosageWithUnit,
   extractDosageNumber,
-} from "../../../utils/medicineUnits";
+} from "../../../utils/medicine/medicineUnits";
 
 const HealthEventEdit = () => {
   const { id } = useParams();

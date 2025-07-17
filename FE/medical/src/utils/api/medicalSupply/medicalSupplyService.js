@@ -215,7 +215,7 @@ export const getEquipmentByCategory = async (category) => {
     return supplies.filter(
       (supply) => supply.category.toLowerCase() === category.toLowerCase()
     );
-  } catch (error) { 
+  } catch (error) {
     throw new Error(
       error.response?.data?.error || "Failed to fetch equipment by category"
     );

@@ -15,7 +15,7 @@ import {
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../../utils/auth/AuthContext";
-import { getMedicineUnit } from "../../../../utils/medicineUnits";
+import { getMedicineUnit } from "../../../../utils/medicine/medicineUnits";
 import {
   calculateDosagePerAdministration,
   calculateDosagePerTime,
