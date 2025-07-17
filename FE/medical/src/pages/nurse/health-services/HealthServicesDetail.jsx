@@ -33,13 +33,10 @@ const HealthServicesDetail = () => {
       setError(null);
       try {
         if (id && id !== "undefined") {
-          console.log("Loading health service detail with formId:", id);
           // Sử dụng API thực với formId
           const data = await getHealthCheckScheduleById(id);
-          console.log("API response data:", data);
           setHealthService(data);
         } else {
-          console.log("No formId provided, showing mock data");
           // Nếu không có ID, hiển thị dữ liệu mẫu để demo
           setHealthService(mockHealthServiceData);
         }
@@ -47,7 +44,6 @@ const HealthServicesDetail = () => {
         console.error("Lỗi khi tải dữ liệu từ API:", err);
         setError(err.message);
         // Hiển thị dữ liệu mẫu khi có lỗi để demo
-        console.log("Using mock data due to API error");
         setHealthService(mockHealthServiceData);
       }
       setLoading(false);

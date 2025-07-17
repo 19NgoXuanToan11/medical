@@ -7,6 +7,7 @@ import {
   calculateDosagePerAdministration,
   formatFrequency,
 } from "../../../utils/api/medication/medicationUtils";
+import { getMedicineUnit } from "../../../utils/medicineUnits";
 import { toast } from "react-toastify";
 
 const MedicationDetail = () => {
@@ -382,14 +383,15 @@ const MedicationDetail = () => {
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   {medicine.dosage && medicine.dosage !== "N/A"
                                     ? `${medicine.dosage} ${
-                                        medicine.dosageUnit || "viên"
+                                        medicine.dosageUnit ||
+                                        getMedicineUnit(medicine.medicineName)
                                       }`
                                     : "Chưa xác định"}
                                 </p>
                               </div>
                               <div>
                                 <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                                  Tần suất uống thuốc
+                                  Tần suất uống thuốc 
                                 </h4>
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   {medicine.frequency &&
@@ -409,7 +411,8 @@ const MedicationDetail = () => {
                                   medicine.frequency !== "N/A"
                                     ? calculateDosagePerAdministration(
                                         `${medicine.dosage} ${
-                                          medicine.dosageUnit || "viên"
+                                          medicine.dosageUnit ||
+                                          getMedicineUnit(medicine.medicineName)
                                         }`,
                                         medicine.frequency
                                       )
@@ -546,7 +549,10 @@ const MedicationDetail = () => {
                                       medicine.frequency !== "N/A"
                                         ? calculateDosagePerAdministration(
                                             `${medicine.dosage} ${
-                                              medicine.dosageUnit || "viên"
+                                              medicine.dosageUnit ||
+                                              getMedicineUnit(
+                                                medicine.medicineName
+                                              )
                                             }`,
                                             medicine.frequency
                                           )

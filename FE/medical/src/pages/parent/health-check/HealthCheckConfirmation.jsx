@@ -92,9 +92,6 @@ const HealthCheckConfirmation = ({ initialTab = "pending" }) => {
   }, []);
 
   const confirmHealthCheck = (checkId) => {
-    // In a real app, this would send a confirmation to the backend
-    console.log(`Confirming health check ${checkId}`);
-
     // Update local state to reflect the change
     const checkToMove = pendingChecks.find((check) => check.id === checkId);
     if (checkToMove) {

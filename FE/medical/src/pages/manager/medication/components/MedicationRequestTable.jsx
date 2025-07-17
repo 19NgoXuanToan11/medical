@@ -210,24 +210,50 @@ const MedicationRequestTable = ({
                 {activeTab === "failed" && (
                   <td className="px-6 py-4 text-left align-middle min-w-[200px]">
                     {(() => {
-                      const failureInfo = getFailureInfo(request);
-                      const shortReason =
-                        request.refusalReason ||
+                      // Function to extract readable text from various formats
+                      const extractText = (value) => {
+                        if (!value) return "Không xác định";
+
+                        if (typeof value === "string") {
+                          // If it's a JSON string, try to parse and extract
+                          try {
+                            const parsed = JSON.parse(value);
+                            return extractText(parsed);
+                          } catch {
+                            return value;
+                          }
+                        }
+
+                        if (typeof value === "object") {
+                          // Extract values from object
+                          const values = Object.values(value).filter(
+                            (v) => v && typeof v === "string" && v.trim() !== ""
+                          );
+                          return values.length > 0
+                            ? values.join(", ")
+                            : "Không xác định";
+                        }
+
+                        return String(value);
+                      };
+
+                      // Get failure reason with same priority as modal
+                      const failureText =
                         request.failureReason ||
-                        (failureInfo.failedFrequencies.length > 0 &&
-                          failureInfo.failureReasons[
-                            failureInfo.failedFrequencies[0]
-                          ]) ||
+                        request.failureReasons ||
+                        request.refusalReason ||
+                        request.rejectionReason ||
+                        request.reason ||
                         "Không xác định";
+
+                      const shortReason = extractText(failureText);
 
                       return (
                         <div
                           className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded border-l-4 border-red-500"
                           title={shortReason}
                         >
-                          <p className="break-words">
-                            {shortReason}
-                          </p>
+                          <p className="break-words">{shortReason}</p>
                         </div>
                       );
                     })()}

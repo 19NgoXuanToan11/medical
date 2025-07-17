@@ -9,10 +9,14 @@ import {
 } from "react-icons/fi";
 import {
   calculateDosagePerAdministration,
+  calculateDosagePerTime,
   formatFrequency,
+  formatTotalDosage,
+  formatFrequencyDisplay,
   getMedicationSummary,
 } from "../../../../utils/api/medication/medicationUtils";
 import { getVietnameseStatusText } from "../utils/medicationUtils";
+import { getMedicineUnit } from "../../../../utils/medicineUnits";
 
 // Helper function to parse dosage and extract unit
 const parseDosage = (dosage) => {
@@ -29,9 +33,13 @@ const parseDosage = (dosage) => {
 };
 
 // Helper function to format dosage with unit
-const formatDosageWithUnit = (dosage) => {
-  const { number, unit } = parseDosage(dosage);
-  return `${number} ${unit}`;
+const formatDosageWithUnit = (dosage, dosageUnit, medicineName) => {
+  if (!dosage) return "Chưa xác định";
+
+  // Use dosageUnit if available, otherwise get from medicine name
+  const unit = dosageUnit || getMedicineUnit(medicineName);
+  const { number } = parseDosage(dosage);
+  return `${number || dosage} ${unit}`;
 };
 
 const MedicationDetailModal = ({
@@ -159,27 +167,22 @@ const MedicationDetailModal = ({
                             {item.medicineName}
                           </td>
                           <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
-                            {item.dosage && item.dosage !== "N/A"
-                              ? `${item.dosage} ${item.dosageUnit || "viên"}`
-                              : "Chưa xác định"}
+                            {formatTotalDosage(
+                              item.dosage,
+                              item.dosageUnit ||
+                                getMedicineUnit(item.medicineName)
+                            )}
                           </td>
                           <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
-                            {item.frequency && item.frequency !== "N/A"
-                              ? typeof item.frequency === "number"
-                                ? `${item.frequency} lần/ngày`
-                                : item.frequency
-                              : "Chưa xác định"}
+                            {formatFrequencyDisplay(item.frequency)}
                           </td>
                           <td className="w-1/4 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 text-center break-words">
-                            {item.dosage &&
-                            item.frequency &&
-                            item.dosage !== "N/A" &&
-                            item.frequency !== "N/A"
-                              ? calculateDosagePerAdministration(
-                                  `${item.dosage} ${item.dosageUnit || "viên"}`,
-                                  item.frequency
-                                )
-                              : "Chưa xác định"}
+                            {calculateDosagePerTime(
+                              item.dosage,
+                              item.dosageUnit ||
+                                getMedicineUnit(item.medicineName),
+                              item.frequency
+                            )}
                           </td>
                         </tr>
                       ))
@@ -276,15 +279,12 @@ const MedicationDetailModal = ({
                                           : time.trim()}
                                       </h6>
                                       <p className="text-xs text-green-600 dark:text-green-400">
-                                        {item.dosage &&
-                                        item.frequency &&
-                                        item.dosage !== "N/A" &&
-                                        item.frequency !== "N/A"
-                                          ? calculateDosagePerAdministration(
-                                              formatDosageWithUnit(item.dosage),
-                                              item.frequency
-                                            )
-                                          : "Chưa xác định"}
+                                        {calculateDosagePerTime(
+                                          item.dosage,
+                                          item.dosageUnit ||
+                                            getMedicineUnit(item.medicineName),
+                                          item.frequency
+                                        )}
                                       </p>
                                     </div>
                                   </div>

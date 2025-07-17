@@ -207,9 +207,6 @@ const HealthServices = () => {
   };
 
   const handleConsent = (serviceId, action) => {
-    // Handle consent approval/rejection
-    console.log(`Consent ${action} for service ${serviceId}`);
-
     if (action === "approve") {
       // Update the service consent status
       setUpcomingServices((prev) =>

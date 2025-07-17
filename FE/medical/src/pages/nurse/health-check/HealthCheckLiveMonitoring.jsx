@@ -150,7 +150,6 @@ const HealthCheckLiveMonitoring = () => {
 
     const refreshTimer = setInterval(() => {
       // Simulate data updates
-      console.log("Refreshing data...");
     }, 5000);
 
     return () => clearInterval(refreshTimer);
@@ -199,12 +198,10 @@ const HealthCheckLiveMonitoring = () => {
 
   const handlePauseResume = () => {
     // Implement pause/resume functionality
-    console.log("Pause/Resume clicked");
   };
 
   const handleCompleteEarly = () => {
     if (window.confirm("Bạn có chắc chắn muốn hoàn thành buổi kiểm tra sớm?")) {
-      console.log("Complete early");
       navigate("/nurse/health-check");
     }
   };

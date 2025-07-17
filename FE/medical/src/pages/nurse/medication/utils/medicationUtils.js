@@ -107,16 +107,9 @@ export const groupRequestsByStudentAndDate = (requests) => {
 // Check if student has any in-progress medication requests
 export const checkForInProgressRequests = async (studentId) => {
   try {
-    console.log(
-      "🔍 Checking for in-progress requests for studentId:",
-      studentId
-    );
     const response = await medicationService.getRequestResults();
-    console.log("📊 API Response:", response);
 
     if (response.success) {
-      console.log("📋 All request results:", response.data);
-
       // Filter for in-progress requests for the same student
       const inProgressRequests = response.data.filter((result) => {
         const isInProgress =
@@ -140,32 +133,13 @@ export const checkForInProgressRequests = async (studentId) => {
         const matches =
           resultId === targetId && !isNaN(resultId) && !isNaN(targetId);
 
-        console.log(`🎯 Checking result ID ${result.resultId}:`, {
-          status: result.status,
-          isInProgress,
-          resultStudentId,
-          targetStudentId: studentId,
-          resultIdParsed: resultId,
-          targetIdParsed: targetId,
-          matches: isInProgress && matches,
-          fullResult: result,
-        });
-
         return isInProgress && matches;
       });
 
-      console.log("🚨 Found in-progress requests:", inProgressRequests);
-      console.log(
-        "✅ Has in-progress requests:",
-        inProgressRequests.length > 0
-      );
-
       return inProgressRequests.length > 0;
     }
-    console.log("❌ API call failed");
     return false;
   } catch (error) {
-    console.error("💥 Error checking in-progress requests:", error);
     return false;
   }
 };
@@ -175,37 +149,31 @@ export const validateMedicationStart = async (
   studentId,
   studentName = "học sinh này"
 ) => {
-  console.log("🎯 Starting validation for:", { studentId, studentName });
-
   if (!studentId) {
-    console.log("⚠️ No studentId provided, allowing start");
     return { canStart: true }; // Allow if no student ID (shouldn't happen, but be safe)
   }
 
   const hasInProgressRequest = await checkForInProgressRequests(studentId);
-  console.log("🔒 Validation result:", { hasInProgressRequest });
 
   if (hasInProgressRequest) {
     const message = `Đang có yêu cầu thuốc đang diễn ra cho ${studentName} và chưa hoàn thành. Vui lòng hoàn thành yêu cầu hiện tại trước khi bắt đầu yêu cầu mới.`;
-    console.log("🚫 Blocking start:", message);
     return {
       canStart: false,
       message,
     };
   }
 
-  console.log("✅ Allowing start - no conflicts found");
   return { canStart: true };
 };
 
-// Normalize status values from API to consistent lowercase format  
+// Normalize status values from API to consistent lowercase format
 export const normalizeStatus = (status) => {
   if (!status) return "pending";
 
   const statusMap = {
     Pending: "pending",
     pending: "pending",
-    Assigned: "assigned", 
+    Assigned: "assigned",
     assigned: "assigned",
     Completed: "completed",
     completed: "completed",
@@ -228,10 +196,10 @@ export const normalizeStatus = (status) => {
 export const getVietnameseStatusText = (status) => {
   // First normalize the status to handle variations
   const normalizedStatus = normalizeStatus(status);
-  
+
   const statusTextMap = {
     pending: "Chờ xử lý",
-    assigned: "Đã giao", 
+    assigned: "Đã giao",
     completed: "Đã hoàn thành",
     rejected: "Từ chối",
     approved: "Đã phê duyệt",
@@ -239,5 +207,7 @@ export const getVietnameseStatusText = (status) => {
     refused: "Từ chối",
   };
 
-  return statusTextMap[normalizedStatus] || normalizedStatus || "Không xác định";
+  return (
+    statusTextMap[normalizedStatus] || normalizedStatus || "Không xác định"
+  );
 };

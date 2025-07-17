@@ -19,9 +19,6 @@ import {
 } from "react-icons/fi";
 import { formatDuration } from "../../utils/healthCheckHelpers";
 
-// Test log để kiểm tra
-console.log("🚀 HealthCheckItemsStep component loaded!");
-
 const HealthCheckItemsStep = ({
   formData,
   validationErrors,
@@ -33,15 +30,8 @@ const HealthCheckItemsStep = ({
   const [expandedCategories, setExpandedCategories] = useState({});
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  // Debug logs for component props
-  console.log("🎯 HealthCheckItemsStep rendered with:");
-  console.log("  formData.checkItems:", formData.checkItems);
-  console.log("  healthCheckItems:", healthCheckItems);
-  console.log("  equipmentStatus:", equipmentStatus);
-
   // Show message when no health check items are available
   if (!healthCheckItems || healthCheckItems.length === 0) {
-    console.log("❌ No health check items available");
     return (
       <div className="text-center py-12">
         <FiInfo className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />

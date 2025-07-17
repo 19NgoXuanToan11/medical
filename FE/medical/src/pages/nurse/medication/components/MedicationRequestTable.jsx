@@ -119,7 +119,7 @@ const MedicationRequestTable = ({
                         <div className="flex flex-wrap gap-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
                           {item.dosage && item.dosage !== "N/A" && (
                             <span className="bg-white dark:bg-gray-800 px-2 py-0.5 rounded border">
-                              {item.dosage} {item.dosageUnit || "viên"}
+                              Tổng: {item.dosage} {item.dosageUnit || "viên"}
                             </span>
                           )}
                           {item.frequency && item.frequency !== "N/A" && (
@@ -129,6 +129,18 @@ const MedicationRequestTable = ({
                                 : item.frequency}
                             </span>
                           )}
+                          {item.dosage &&
+                            item.frequency &&
+                            item.dosage !== "N/A" &&
+                            item.frequency !== "N/A" && (
+                              <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded border border-blue-200">
+                                Mỗi lần:{" "}
+                                {(item.dosage / item.frequency).toFixed(
+                                  item.dosage % item.frequency === 0 ? 0 : 1
+                                )}{" "}
+                                {item.dosageUnit || "viên"}
+                              </span>
+                            )}
                           {item.timeOfDay && item.timeOfDay !== "N/A" && (
                             <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 rounded border border-green-200">
                               {Array.isArray(item.timeOfDay)

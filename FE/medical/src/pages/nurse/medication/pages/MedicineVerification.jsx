@@ -16,6 +16,13 @@ import {
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../../utils/auth/AuthContext";
+import { getMedicineUnit } from "../../../../utils/medicineUnits";
+import {
+  calculateDosagePerAdministration,
+  calculateDosagePerTime,
+  formatTotalDosage,
+  formatFrequencyDisplay,
+} from "../../../../utils/api/medication/medicationUtils";
 
 const MedicineVerification = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
@@ -209,11 +216,6 @@ const MedicineVerification = () => {
             <span className="font-medium">{item.medicineName}</span>
           </div>
         ))}
-        {medicineItems.length > 2 && (
-          <div className="text-xs text-blue-600 dark:text-blue-400">
-            +{medicineItems.length - 2} thuốc khác
-          </div>
-        )}
       </div>
     );
   };
@@ -521,10 +523,10 @@ const MedicineVerification = () => {
                           Tên thuốc
                         </th>
                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                          Tổng liều lượng (viên)
+                          Tổng liều lượng
                         </th>
                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                          Tần suất uống (lần/ngày)
+                          Tần suất uống
                         </th>
                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                           Liều lượng mỗi lần
@@ -539,13 +541,22 @@ const MedicineVerification = () => {
                               {item.medicineName}
                             </td>
                             <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-gray-100">
-                              {item.totalQuantity || item.dosage}
+                              {formatTotalDosage(
+                                item.totalQuantity || item.dosage,
+                                item.dosageUnit ||
+                                  getMedicineUnit(item.medicineName)
+                              )}
                             </td>
                             <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-gray-100">
-                              {item.frequency}
+                              {formatFrequencyDisplay(item.frequency)}
                             </td>
                             <td className="px-4 py-3 text-center text-sm text-gray-900 dark:text-gray-100">
-                              {item.dosagePerTime || "1 viên/lần"}
+                              {calculateDosagePerTime(
+                                item.dosage,
+                                item.dosageUnit ||
+                                  getMedicineUnit(item.medicineName),
+                                item.frequency
+                              )}
                             </td>
                           </tr>
                         )
@@ -616,7 +627,24 @@ const MedicineVerification = () => {
                       {item.medicineName}:
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 ml-4">
-                      {item.instructions || "Uống dụng theo toa"}
+                      {item.instructions ||
+                        (() => {
+                          if (item.dosage && item.frequency) {
+                            const dosagePerTime = item.dosage / item.frequency;
+                            const roundedDosage =
+                              dosagePerTime % 1 === 0
+                                ? dosagePerTime.toString()
+                                : dosagePerTime.toFixed(1);
+                            const unit =
+                              item.dosageUnit ||
+                              getMedicineUnit(item.medicineName);
+                            return `Uống ${roundedDosage} ${unit} mỗi lần theo toa`;
+                          }
+                          return `Uống ${item.dosagePerTime || "1"} ${
+                            item.dosageUnit ||
+                            getMedicineUnit(item.medicineName)
+                          } mỗi lần theo toa`;
+                        })()}
                     </div>
                   </div>
                 ))}
@@ -657,7 +685,16 @@ const MedicineVerification = () => {
                   const activeSlots = Object.values(timeSlotConfig).filter(
                     (slot) => slot.show
                   );
-                  const dosagePerTime = item.dosagePerTime || "1 viên/lần";
+                  const dosagePerTime =
+                    item.dosage && item.frequency
+                      ? calculateDosagePerTime(
+                          item.dosage,
+                          item.dosageUnit || getMedicineUnit(item.medicineName),
+                          item.frequency
+                        )
+                      : `${item.dosagePerTime || "1"} ${
+                          item.dosageUnit || getMedicineUnit(item.medicineName)
+                        }/lần`;
 
                   return (
                     <div key={index} className="mb-4">
@@ -701,6 +738,9 @@ const MedicineVerification = () => {
                             Thời gian uống thuốc
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {dosagePerTime}
+                          </div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">
                             Theo chỉ định của bác sĩ
                           </div>
                         </div>

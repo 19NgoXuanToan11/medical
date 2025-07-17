@@ -516,6 +516,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.MedicineRequestId).HasColumnName("MedicineRequestID");
             entity.Property(e => e.MedicineName).HasMaxLength(100).IsRequired();
             entity.Property(e => e.Dosage).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.DosageUnit).HasMaxLength(50);
             entity.Property(e => e.Frequency).HasMaxLength(100).IsRequired();
             entity.Property(e => e.TimeOfDay).HasMaxLength(100);
             entity.Property(e => e.Instructions).HasMaxLength(500);

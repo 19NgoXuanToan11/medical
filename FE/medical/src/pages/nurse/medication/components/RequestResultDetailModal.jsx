@@ -24,7 +24,10 @@ import {
 } from "../utils/requestResultUtils";
 import {
   calculateDosagePerAdministration,
+  calculateDosagePerTime,
   formatFrequency,
+  formatTotalDosage,
+  formatFrequencyDisplay,
 } from "../../../../utils/api/medication/medicationUtils";
 
 // Helper function to parse dosage and extract unit
@@ -265,18 +268,18 @@ const RequestResultDetailModal = ({
         </div>
         <div>
           <label className="text-sm text-gray-500 dark:text-gray-400">
-            Liều lượng
+            Tổng liều lượng
           </label>
           <p className="font-medium text-gray-900 dark:text-gray-100">
-            {formatDosageWithUnit(result.dosage)}
+            {formatTotalDosage(result.dosage, result.dosageUnit || "viên")}
           </p>
         </div>
         <div>
           <label className="text-sm text-gray-500 dark:text-gray-400">
-            Tần suất
+            Tần suất uống
           </label>
           <p className="font-medium text-gray-900 dark:text-gray-100">
-            {formatFrequency(result.frequency)}
+            {formatFrequencyDisplay(result.frequency)}
           </p>
         </div>
         <div>
@@ -284,12 +287,11 @@ const RequestResultDetailModal = ({
             Liều lượng mỗi lần
           </label>
           <p className="font-medium text-blue-600 dark:text-blue-400">
-            {result.dosage && result.frequency
-              ? calculateDosagePerAdministration(
-                  formatDosageWithUnit(result.dosage),
-                  result.frequency
-                )
-              : "N/A"}
+            {calculateDosagePerTime(
+              result.dosage,
+              result.dosageUnit || "viên",
+              result.frequency
+            )}
           </p>
         </div>
         {result.instructions && (

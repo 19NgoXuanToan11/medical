@@ -40,8 +40,6 @@ const NurseProfile = () => {
   const handleSave = () => {
     setProfileData(editedData);
     setIsEditing(false);
-    // Trong thực tế, bạn sẽ gọi API để cập nhật thông tin
-    console.log("Saving profile data:", editedData);
   };
 
   const handleCancel = () => {
