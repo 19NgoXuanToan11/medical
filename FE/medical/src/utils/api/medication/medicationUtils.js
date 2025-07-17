@@ -24,13 +24,20 @@ export const calculateDosagePerAdministration = (totalDosage, frequency) => {
     return `${totalDosageNumber} ${unit}/lần (khi cần)`;
   }
 
-  // Convert frequency to number
+  // Convert frequency to number - improved parsing
   let frequencyNumber = 1;
   if (typeof frequency === "string") {
-    if (frequency.includes("2")) frequencyNumber = 2;
-    else if (frequency.includes("3")) frequencyNumber = 3;
-    else if (frequency.includes("4")) frequencyNumber = 4;
-  } else if (typeof frequency === "number") {
+    // Try to parse as direct number first
+    const numericFreq = parseInt(frequency);
+    if (!isNaN(numericFreq) && numericFreq > 0) {
+      frequencyNumber = numericFreq;
+    } else {
+      // Fallback to old logic for text-based frequencies
+      if (frequency.includes("2")) frequencyNumber = 2;
+      else if (frequency.includes("3")) frequencyNumber = 3;
+      else if (frequency.includes("4")) frequencyNumber = 4;
+    }
+  } else if (typeof frequency === "number" && frequency > 0) {
     frequencyNumber = frequency;
   }
 
@@ -42,6 +49,63 @@ export const calculateDosagePerAdministration = (totalDosage, frequency) => {
       : dosagePerTime.toFixed(1);
 
   return `${roundedDosage} ${unit}/lần`;
+};
+
+/**
+ * NEW: Calculate dosage per administration from separate dosage, dosageUnit, and frequency
+ * @param {number|string} dosage - Numeric dosage amount
+ * @param {string} dosageUnit - Unit of dosage (e.g., "viên", "mg", "gói")
+ * @param {number|string} frequency - Number of times per day
+ * @returns {string} Calculated dosage per administration
+ */
+export const calculateDosagePerTime = (dosage, dosageUnit, frequency) => {
+  if (!dosage || !frequency) return "N/A";
+
+  const dosageNumber = typeof dosage === "string" ? parseFloat(dosage) : dosage;
+  const frequencyNumber =
+    typeof frequency === "string" ? parseInt(frequency) : frequency;
+
+  if (isNaN(dosageNumber) || isNaN(frequencyNumber) || frequencyNumber <= 0) {
+    return "N/A";
+  }
+
+  // Calculate dosage per administration
+  const dosagePerTime = dosageNumber / frequencyNumber;
+  const roundedDosage =
+    dosagePerTime % 1 === 0
+      ? dosagePerTime.toString()
+      : dosagePerTime.toFixed(1);
+
+  return `${roundedDosage} ${dosageUnit}/lần`;
+};
+
+/**
+ * NEW: Format total dosage display
+ * @param {number|string} dosage - Numeric dosage amount
+ * @param {string} dosageUnit - Unit of dosage
+ * @returns {string} Formatted total dosage
+ */
+export const formatTotalDosage = (dosage, dosageUnit) => {
+  if (!dosage) return "N/A";
+  return `${dosage} ${dosageUnit || "viên"}`;
+};
+
+/**
+ * NEW: Format frequency display
+ * @param {number|string} frequency - Number of times per day
+ * @returns {string} Formatted frequency
+ */
+export const formatFrequencyDisplay = (frequency) => {
+  if (!frequency) return "N/A";
+
+  const frequencyNumber =
+    typeof frequency === "string" ? parseInt(frequency) : frequency;
+
+  if (isNaN(frequencyNumber) || frequencyNumber <= 0) {
+    return "N/A";
+  }
+
+  return `${frequencyNumber} lần/ngày`;
 };
 
 /**

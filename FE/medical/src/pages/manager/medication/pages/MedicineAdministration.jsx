@@ -184,8 +184,6 @@ const MedicineAdministration = () => {
         },
       };
 
-      console.log("Submitting administration data:", submissionData);
-
       // Call API to record administration
       const response = await medicationService.recordMedicineAdministration(
         submissionData

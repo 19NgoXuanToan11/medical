@@ -12,7 +12,6 @@ const ApiTestComponent = () => {
     try {
       const result =
         await healthCheckItemService.getHealthCheckItemsWithMedicalSupplies();
-      console.log("API Result:", result);
       setData(result);
     } catch (err) {
       console.error("API Error:", err);

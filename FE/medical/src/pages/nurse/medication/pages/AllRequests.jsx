@@ -32,18 +32,12 @@ const AllRequests = () => {
       const response = await medicationService.getAllMedicationRequests();
 
       if (response.success) {
-        console.log("Raw all requests API response:", response.data);
-
         const transformedRequests = transformRequestData(response.data);
-
-        console.log("All transformed requests:", transformedRequests);
         setRequests(transformedRequests);
       } else {
-        console.error("Error loading all requests:", response.message);
         setRequests([]);
       }
     } catch (error) {
-      console.error("Error loading all medication requests:", error);
       setRequests([]);
     }
     setLoading(false);
@@ -57,10 +51,7 @@ const AllRequests = () => {
         return;
       }
 
-      console.log("Assigning request:", { requestId, staffId, notes });
-
       const currentRequest = requests.find((req) => req.id === requestId);
-      console.log("Current request data before assignment:", currentRequest);
 
       const response = await medicationService.updateMedicationRequestWithStaff(
         requestId,
@@ -68,8 +59,6 @@ const AllRequests = () => {
         "approved",
         notes
       );
-
-      console.log("Assignment response:", response);
 
       if (response.success) {
         // Send notification to parent
@@ -116,19 +105,11 @@ const AllRequests = () => {
         return;
       }
 
-      console.log("Completing request:", {
-        requestId: request.id,
-        staffId,
-        notes,
-      });
-
       const response = await medicationService.completeMedicationRequest(
         request.id,
         staffId,
         notes
       );
-
-      console.log("Completion response:", response);
 
       if (response.success) {
         // Send notification to parent
@@ -158,7 +139,6 @@ const AllRequests = () => {
 
   // Handle view detail
   const handleViewDetail = (request) => {
-    console.log("Opening modal for request:", request);
     setSelectedRequest(request);
     setShowDetailModal(true);
   };

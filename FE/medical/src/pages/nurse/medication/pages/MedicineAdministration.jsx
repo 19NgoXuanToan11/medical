@@ -11,10 +11,19 @@ import {
   FiClock,
   FiActivity,
   FiX,
+  FiAlertCircle,
+  FiFileText,
+  FiChevronDown,
+  FiChevronUp,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../../utils/auth/AuthContext";
-import { validateMedicationStart } from "../utils/medicationUtils";
+import {
+  transformRequestData,
+  validateMedicationStart,
+} from "../utils/medicationUtils";
+import { useMedicationRequests } from "../hooks/useMedicationRequests";
+import { getMedicineUnit } from "../../../../utils/medicineUnits";
 
 const MedicineAdministration = () => {
   const [assignedRequests, setAssignedRequests] = useState([]);
@@ -538,26 +547,38 @@ const MedicineAdministration = () => {
                           </div>
                           <div>
                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                              Tổng liều lượng (viên)
+                              Tổng liều lượng
                             </span>
                             <p className="text-sm text-gray-900 dark:text-gray-100">
-                              {item.dosage}
+                              {item.dosage}{" "}
+                              {item.dosageUnit ||
+                                getMedicineUnit(item.medicineName)}
                             </p>
                           </div>
                           <div>
                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                              Liều lượng mỗi lần (viên)
+                              Liều lượng mỗi lần
                             </span>
                             <p className="text-sm text-gray-900 dark:text-gray-100">
-                              {item.dosagePerTime || "1"}
+                              {item.dosage && item.frequency
+                                ? `${(item.dosage / item.frequency).toFixed(
+                                    item.dosage % item.frequency === 0 ? 0 : 1
+                                  )} ${
+                                    item.dosageUnit ||
+                                    getMedicineUnit(item.medicineName)
+                                  }/lần`
+                                : `${item.dosagePerTime || "1"} ${
+                                    item.dosageUnit ||
+                                    getMedicineUnit(item.medicineName)
+                                  }/lần`}
                             </p>
                           </div>
                           <div>
                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                              Tần suất uống (lần/ngày)
+                              Tần suất uống
                             </span>
                             <p className="text-sm text-gray-900 dark:text-gray-100">
-                              {item.frequency}
+                              {item.frequency} lần/ngày
                             </p>
                           </div>
                         </div>

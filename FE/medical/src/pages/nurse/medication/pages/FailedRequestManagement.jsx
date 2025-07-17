@@ -18,7 +18,12 @@ import {
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../../utils/auth/AuthContext";
-import { calculateDosagePerAdministration } from "../../../../utils/api/medication/medicationUtils";
+import {
+  calculateDosagePerAdministration,
+  calculateDosagePerTime,
+  formatTotalDosage,
+  formatFrequencyDisplay,
+} from "../../../../utils/api/medication/medicationUtils";
 
 // Helper function to format dosage with units
 const formatDosageWithUnit = (dosage, dosageUnit = "viên") => {
@@ -72,17 +77,6 @@ const FailedRequestManagement = () => {
     try {
       const response = await medicationService.getFailedMedicationRequests();
       if (response.success) {
-        console.log("Nurse - Failed API response:", response.data);
-
-        // Debug: Log first item to see actual structure
-        if (response.data && response.data.length > 0) {
-          console.log("Nurse - First failed request sample:", response.data[0]);
-          console.log(
-            "Nurse - Available fields:",
-            Object.keys(response.data[0])
-          );
-        }
-
         setFailedRequests(response.data);
       }
     } catch (error) {
@@ -243,9 +237,6 @@ const FailedRequestManagement = () => {
 
       return { failedFrequencies, failureReasons };
     } catch (error) {
-      console.error("Error parsing failure info:", error);
-      console.log("Raw failureReasons:", request.failureReasons);
-      console.log("Raw failedFrequencies:", request.failedFrequencies);
       return { failedFrequencies: [], failureReasons: {} };
     }
   };
@@ -576,9 +567,6 @@ const FailedRequestManagement = () => {
                     {(() => {
                       const failureInfo = getFailureInfo(selectedRequest);
 
-                      // Debug log to see actual data structure
-                      console.log("Failure Info:", failureInfo);
-
                       if (failureInfo.failedFrequencies.length === 0) {
                         return (
                           <div className="bg-white dark:bg-red-900/30 p-3 rounded border border-red-300 dark:border-red-700">
@@ -697,27 +685,20 @@ const FailedRequestManagement = () => {
                                     {item.medicineName}
                                   </td>
                                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-center">
-                                    {formatDosageWithUnit(
+                                    {formatTotalDosage(
                                       item.dosage,
                                       item.dosageUnit
                                     )}
                                   </td>
                                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-center">
-                                    {formatFrequency(item.frequency)}
+                                    {formatFrequencyDisplay(item.frequency)}
                                   </td>
                                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-center">
-                                    {item.dosage &&
-                                    item.frequency &&
-                                    item.dosage !== "N/A" &&
-                                    item.frequency !== "N/A"
-                                      ? calculateDosagePerAdministration(
-                                          formatDosageWithUnit(
-                                            item.dosage,
-                                            item.dosageUnit
-                                          ),
-                                          item.frequency
-                                        )
-                                      : "Chưa xác định"}
+                                    {calculateDosagePerTime(
+                                      item.dosage,
+                                      item.dosageUnit,
+                                      item.frequency
+                                    )}
                                   </td>
                                 </tr>
                               )

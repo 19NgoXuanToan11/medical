@@ -277,8 +277,6 @@ const NurseHealthCheckCreate = () => {
         estimatedEndTime: calculateEstimatedEndTime(),
       };
 
-      console.log("Submitting health check schedule:", submitData);
-
       // Wait for a moment to simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 

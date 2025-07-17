@@ -38,21 +38,8 @@ const MedicationAdministration = () => {
 
   // Enhanced refresh function with time-based status update
   const handleRefreshWithTimeCheck = async () => {
-    try {
-      // Call the time-based status update API using medicationService
-      const response = await medicationService.updateTimeBasedStatus();
-
-      if (response.success) {
-        console.log("Time-based status update completed:", response.message);
-      } else {
-        console.log("Time-based status update failed:", response.message);
-      }
-    } catch (error) {
-      console.log(
-        "Time-based API call failed, but continuing with refresh:",
-        error
-      );
-    }
+    // Call the time-based status update API using medicationService
+    await medicationService.updateTimeBasedStatus();
 
     // Always refresh data regardless of API call result
     await refreshData();

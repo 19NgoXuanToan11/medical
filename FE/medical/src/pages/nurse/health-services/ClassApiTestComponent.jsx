@@ -11,7 +11,6 @@ const ClassApiTestComponent = () => {
     setError(null);
     try {
       const result = await getActiveClasses();
-      console.log("Class API Result:", result);
       setData(result);
     } catch (err) {
       console.error("Class API Error:", err);

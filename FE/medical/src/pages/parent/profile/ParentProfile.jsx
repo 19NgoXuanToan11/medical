@@ -98,9 +98,6 @@ const ParentProfile = () => {
 
       setProfileData(editedData);
       setIsEditing(false);
-
-      // Show success message (you can add a toast notification here)
-      console.log("Profile updated successfully:", editedData);
     } catch (error) {
       console.error("Error updating profile:", error);
       // Show error message (you can add a toast notification here)

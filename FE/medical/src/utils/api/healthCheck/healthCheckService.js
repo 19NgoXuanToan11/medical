@@ -5,8 +5,6 @@ const API_BASE_URL = "https://localhost:7111/api/HealthCheckForm";
 // Health Check Form API calls - Updated to match API schema
 export const createHealthCheck = async (formData) => {
   try {
-    console.log("Creating health check schedule with data:", formData);
-
     // Set proper headers
     const config = {
       headers: {
@@ -14,15 +12,12 @@ export const createHealthCheck = async (formData) => {
       },
     };
 
-    console.log("Sending request directly with data:", formData);
-
     // Use the schedules endpoint for creating health check schedules
     const response = await axios.post(
       `${API_BASE_URL}/schedules`,
       formData,
       config
     );
-    console.log("API response:", response.data);
     return response.data;
   } catch (error) {
     console.error("API error:", error.response?.data || error.message);

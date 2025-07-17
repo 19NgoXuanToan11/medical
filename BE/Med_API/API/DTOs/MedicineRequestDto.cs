@@ -71,6 +71,7 @@ public static class MedicineRequestItemDto
         public int MedicineRequestId { get; set; }
         public string MedicineName { get; set; } = null!;
         public string Dosage { get; set; } = null!;
+        public string? DosageUnit { get; set; }
         public string Frequency { get; set; } = null!;
         public string? TimeOfDay { get; set; }
         public string? Instructions { get; set; }
@@ -85,6 +86,9 @@ public static class MedicineRequestItemDto
         [Required]
         [StringLength(100)]
         public string Dosage { get; set; } = null!;
+
+        [StringLength(50)]
+        public string? DosageUnit { get; set; }
 
         [Required]
         [StringLength(100)]
@@ -106,6 +110,9 @@ public static class MedicineRequestItemDto
 
         [StringLength(100)]
         public string? Dosage { get; set; }
+
+        [StringLength(50)]
+        public string? DosageUnit { get; set; }
 
         [StringLength(100)]
         public string? Frequency { get; set; }

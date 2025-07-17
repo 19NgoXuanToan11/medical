@@ -84,14 +84,6 @@ export const useMedicationRequests = () => {
         today: todayCount,
         total: pendingCount + assignedCount + completedCount,
       });
-
-      console.log("Updated stats:", {
-        pending: pendingCount,
-        assigned: assignedCount,
-        completed: completedCount,
-        today: todayCount,
-        total: pendingCount + assignedCount + completedCount,
-      });
     } catch (error) {
       console.error("Error loading stats:", error);
     }
@@ -137,7 +129,6 @@ export const useMedicationRequests = () => {
         JSON.stringify(existingNotifications)
       );
 
-      console.log("Parent notification sent:", notificationData);
     } catch (error) {
       console.error("Error sending parent notification:", error);
     }

@@ -7,54 +7,35 @@ const USE_MOCK_DATA = true; // Changed to true temporarily for testing
 
 // Get all medical supplies
 export const getAllMedicalSupplies = async () => {
-  console.log("🔍 getAllMedicalSupplies called, USE_MOCK_DATA:", USE_MOCK_DATA);
-
   if (USE_MOCK_DATA) {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
-    console.log("📦 Returning mock medical supplies:", mockMedicalSupplies);
     return mockMedicalSupplies;
   }
 
   try {
-    console.log("🌐 Making API call to:", API_BASE_URL);
     const response = await axios.get(API_BASE_URL);
-    console.log("✅ API response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ Error fetching medical supplies:", error);
-    // Fallback to mock data if API fails
-    console.log("🔄 Falling back to mock data...");
     return mockMedicalSupplies;
   }
 };
 
 // Get active medical supplies only
 export const getActiveMedicalSupplies = async () => {
-  console.log(
-    "🔍 getActiveMedicalSupplies called, USE_MOCK_DATA:",
-    USE_MOCK_DATA
-  );
-
   if (USE_MOCK_DATA) {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
     const activeSupplies = mockMedicalSupplies.filter(
       (supply) => supply.isActive
     );
-    console.log("📦 Returning active mock supplies:", activeSupplies);
     return activeSupplies;
   }
 
   try {
-    console.log("🌐 Making API call to:", `${API_BASE_URL}/active`);
     const response = await axios.get(`${API_BASE_URL}/active`);
-    console.log("✅ API response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ Error fetching active medical supplies:", error);
-    // Fallback to mock data if API fails
-    console.log("🔄 Falling back to mock data...");
     return mockMedicalSupplies.filter((supply) => supply.isActive);
   }
 };
@@ -74,7 +55,6 @@ export const getMedicalSupplyById = async (id) => {
     const response = await axios.get(`${API_BASE_URL}/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching medical supply:", error);
     throw new Error(
       error.response?.data?.error || "Failed to fetch medical supply"
     );
@@ -87,7 +67,6 @@ export const createMedicalSupply = async (supplyData) => {
     const response = await axios.post(API_BASE_URL, supplyData);
     return response.data;
   } catch (error) {
-    console.error("Error creating medical supply:", error);
     throw new Error(
       error.response?.data?.error || "Failed to create medical supply"
     );
@@ -100,7 +79,6 @@ export const updateMedicalSupply = async (id, supplyData) => {
     const response = await axios.put(`${API_BASE_URL}/${id}`, supplyData);
     return response.data;
   } catch (error) {
-    console.error("Error updating medical supply:", error);
     throw new Error(
       error.response?.data?.error || "Failed to update medical supply"
     );
@@ -113,7 +91,6 @@ export const deleteMedicalSupply = async (id) => {
     const response = await axios.delete(`${API_BASE_URL}/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error deleting medical supply:", error);
     throw new Error(
       error.response?.data?.error || "Failed to delete medical supply"
     );
@@ -123,22 +100,14 @@ export const deleteMedicalSupply = async (id) => {
 // Check equipment availability for health check items
 export const checkEquipmentAvailability = async (requiredEquipment) => {
   try {
-    console.log(
-      "🔍 checkEquipmentAvailability called with:",
-      requiredEquipment
-    );
     const supplies = await getActiveMedicalSupplies();
-    console.log("📦 Got supplies:", supplies);
 
     const availabilityCheck = requiredEquipment.map((equipmentName) => {
-      console.log("🔍 Checking equipment:", equipmentName);
-
       // Try to find exact match first
       let supply = supplies.find(
         (s) =>
           s.name.toLowerCase().trim() === equipmentName.toLowerCase().trim()
       );
-      console.log("🎯 Exact match found:", supply);
 
       // If no exact match, try partial matching
       if (!supply) {
@@ -147,7 +116,6 @@ export const checkEquipmentAvailability = async (requiredEquipment) => {
             s.name.toLowerCase().includes(equipmentName.toLowerCase()) ||
             equipmentName.toLowerCase().includes(s.name.toLowerCase())
         );
-        console.log("🔍 Partial match found:", supply);
       }
 
       // If still no match, try specific equipment mappings based on health check data
@@ -198,12 +166,10 @@ export const checkEquipmentAvailability = async (requiredEquipment) => {
         };
 
         const mappedName = equipmentMappings[equipmentName.toLowerCase()];
-        console.log("🗺️ Mapped name for", equipmentName, ":", mappedName);
         if (mappedName) {
           supply = supplies.find((s) =>
             s.name.toLowerCase().includes(mappedName.toLowerCase())
           );
-          console.log("🎯 Mapped match found:", supply);
         }
       }
 
@@ -216,7 +182,6 @@ export const checkEquipmentAvailability = async (requiredEquipment) => {
         mappedSupplyName: supply?.name || null,
       };
 
-      console.log("📋 Equipment check result:", result);
       return result;
     });
 
@@ -237,10 +202,8 @@ export const checkEquipmentAvailability = async (requiredEquipment) => {
         unavailableEquipment.length === 0 && outOfStockEquipment.length === 0,
     };
 
-    console.log("🎯 Final equipment status:", result);
     return result;
   } catch (error) {
-    console.error("❌ Error checking equipment availability:", error);
     throw error;
   }
 };
@@ -252,8 +215,7 @@ export const getEquipmentByCategory = async (category) => {
     return supplies.filter(
       (supply) => supply.category.toLowerCase() === category.toLowerCase()
     );
-  } catch (error) {
-    console.error("Error fetching equipment by category:", error);
+  } catch (error) { 
     throw new Error(
       error.response?.data?.error || "Failed to fetch equipment by category"
     );

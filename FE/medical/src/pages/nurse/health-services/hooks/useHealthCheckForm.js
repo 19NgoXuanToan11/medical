@@ -43,8 +43,6 @@ export const useHealthCheckForm = () => {
         const result =
           await healthCheckItemService.getHealthCheckItemsWithMedicalSupplies();
 
-        console.log("Full API Result:", result);
-
         // Handle different response structures
         let dataArray = null;
 
@@ -56,19 +54,11 @@ export const useHealthCheckForm = () => {
           dataArray = result;
         }
 
-        console.log("Data array:", dataArray);
-
         if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
           // Transform API data to match expected UI format
           const transformedItems = dataArray.map((item) => {
             // Create equipment array from requiredMedicalSupplies
             let equipment = [];
-
-            console.log(`Processing item: ${item.name}`);
-            console.log(
-              `RequiredMedicalSupplies:`,
-              item.requiredMedicalSupplies
-            );
 
             if (
               item.requiredMedicalSupplies &&
@@ -76,27 +66,16 @@ export const useHealthCheckForm = () => {
             ) {
               equipment = item.requiredMedicalSupplies
                 .map((supply) => {
-                  console.log(`Processing supply:`, supply);
-
                   // Handle different possible structures
                   if (supply.medicalSupply && supply.medicalSupply.name) {
-                    console.log(
-                      `Found equipment: ${supply.medicalSupply.name}`
-                    );
                     return supply.medicalSupply.name;
                   } else if (supply.medicalSupplyName) {
-                    console.log(
-                      `Found equipment (alt1): ${supply.medicalSupplyName}`
-                    );
                     return supply.medicalSupplyName;
                   } else if (supply.name) {
-                    console.log(`Found equipment (alt2): ${supply.name}`);
                     return supply.name;
                   } else if (typeof supply === "string") {
-                    console.log(`Found equipment (string): ${supply}`);
                     return supply;
                   } else {
-                    console.log(`No equipment name found for supply:`, supply);
                     return null;
                   }
                 })
@@ -105,8 +84,6 @@ export const useHealthCheckForm = () => {
                     name !== null && name !== undefined && name.trim() !== ""
                 ); // Remove null/empty values
             }
-
-            console.log(`Final equipment for ${item.name}:`, equipment);
 
             return {
               id: item.itemId || item.id,
@@ -121,20 +98,11 @@ export const useHealthCheckForm = () => {
             };
           });
 
-          console.log("Final transformed items:", transformedItems);
-          console.log(
-            "Items with equipment:",
-            transformedItems.filter((item) => item.equipment.length > 0)
-          );
-
           setHealthCheckItems(transformedItems);
         } else {
-          console.warn("No valid data found in API response, using mock data");
           setHealthCheckItems(healthCheckItemsData);
         }
       } catch (error) {
-        console.error("Error loading health check items:", error);
-        console.log("Using fallback mock data");
         setHealthCheckItems(healthCheckItemsData);
       } finally {
         setLoadingItems(false);
@@ -150,8 +118,6 @@ export const useHealthCheckForm = () => {
       setLoadingGrades(true);
       try {
         const result = await getActiveClasses();
-
-        console.log("Classes API Result:", result);
 
         // Handle different response structures
         let classesArray = null;
@@ -178,7 +144,6 @@ export const useHealthCheckForm = () => {
             isActive: classItem.isActive !== false, // Default to true if not specified
           }));
 
-          console.log("Transformed classes:", transformedClasses);
           setAvailableGrades(transformedClasses);
         } else {
           console.warn("No valid classes data found in API response");
@@ -213,18 +178,8 @@ export const useHealthCheckForm = () => {
   // Helper function to get selected equipment with medical supplies data
   const getSelectedEquipment = useCallback(() => {
     const equipment = new Set();
-    console.log("🔍 getSelectedEquipment called:");
-    console.log("  formData.checkItems:", formData.checkItems);
-    console.log("  healthCheckItems:", healthCheckItems);
 
     formData.checkItems.forEach((itemId) => {
-      console.log(
-        "  Looking for item with ID:",
-        itemId,
-        "Type:",
-        typeof itemId
-      );
-
       // Convert itemId to both string and number for comparison
       const numId = typeof itemId === "string" ? parseInt(itemId) : itemId;
       const strId = String(itemId);
@@ -241,8 +196,6 @@ export const useHealthCheckForm = () => {
         );
       });
 
-      console.log("  Found item:", item?.name || "NOT FOUND");
-
       if (item?.requiredMedicalSupplies) {
         // Use medical supplies data from API
         item.requiredMedicalSupplies.forEach((supplyItem) => {
@@ -256,13 +209,11 @@ export const useHealthCheckForm = () => {
         });
       } else if (item?.equipment) {
         // Fallback to equipment array for compatibility
-        console.log("  Adding equipment:", item.equipment);
         item.equipment.forEach((eq) => equipment.add(eq));
       }
     });
 
     const result = Array.from(equipment);
-    console.log("🎯 Final selected equipment:", result);
     return result;
   }, [formData.checkItems, healthCheckItems]);
 
@@ -336,15 +287,7 @@ export const useHealthCheckForm = () => {
   // Check equipment availability when check items change
   useEffect(() => {
     const checkEquipment = async () => {
-      console.log(
-        "🎯 Equipment check triggered by formData.checkItems:",
-        formData.checkItems
-      );
-
       if (formData.checkItems.length === 0) {
-        console.log(
-          "❌ No equipment selected, setting equipmentStatus to null"
-        );
         setEquipmentStatus(null);
         return;
       }
@@ -355,14 +298,9 @@ export const useHealthCheckForm = () => {
           createEquipmentStatusFromHealthCheckData();
 
         if (statusFromHealthCheckData.equipment.length > 0) {
-          console.log(
-            "✅ Equipment status created from health check data:",
-            statusFromHealthCheckData
-          );
           setEquipmentStatus(statusFromHealthCheckData);
         } else {
           // Fallback to old method for compatibility
-          console.log("🔄 Falling back to equipment availability check...");
           const selectedEquipment = getSelectedEquipment();
 
           if (selectedEquipment.length === 0) {
@@ -370,13 +308,10 @@ export const useHealthCheckForm = () => {
             return;
           }
 
-          console.log("🔍 Checking equipment availability...");
           const status = await checkEquipmentAvailability(selectedEquipment);
-          console.log("✅ Equipment status received:", status);
           setEquipmentStatus(status);
         }
       } catch (error) {
-        console.error("❌ Error checking equipment:", error);
         setEquipmentStatus({
           equipment: getSelectedEquipment().map((eq) => ({
             name: eq,
@@ -683,12 +618,12 @@ export const useHealthCheckForm = () => {
     }
 
     if (Object.keys(allErrors).length > 0) {
-      console.error("Validation errors found:", allErrors);
-      console.log("Form data when validation failed:", formData);
       setValidationErrors(allErrors);
-      return { 
-        success: false, 
-        message: `Vui lòng kiểm tra lại thông tin: ${Object.keys(allErrors).join(", ")}` 
+      return {
+        success: false,
+        message: `Vui lòng kiểm tra lại thông tin: ${Object.keys(
+          allErrors
+        ).join(", ")}`,
       };
     }
 
@@ -806,12 +741,15 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         console.warn("No checkItems selected, using default");
         formData.checkItems = ["general"]; // Default check item
       }
-      
-      if (!formData.maxStudentsPerSession || formData.maxStudentsPerSession < 1) {
+
+      if (
+        !formData.maxStudentsPerSession ||
+        formData.maxStudentsPerSession < 1
+      ) {
         console.warn("maxStudentsPerSession missing, using default");
         formData.maxStudentsPerSession = 50;
       }
-      
+
       if (!formData.estimatedDuration || formData.estimatedDuration < 30) {
         console.warn("estimatedDuration missing, using default");
         formData.estimatedDuration = 60;
@@ -830,27 +768,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         return { success: false, message: "Phải chọn ít nhất một lớp học" };
       }
 
-      console.log("Submitting health check data:", submissionData);
-      console.log("Date formatting:", {
-        originalDate: formData.scheduledDate,
-        formattedDate: scheduledDateISO,
-        originalTime: formData.scheduledTime,
-        formattedTime: startTimeFormatted,
-      });
-      console.log("Grade formatting:", {
-        originalGrades: formData.targetGrades,
-        formattedGradeIds: gradeIdsFormatted,
-      });
-      console.log("Data validation check:", {
-        hasTitle: !!submissionData.Title,
-        titleLength: submissionData.Title?.length,
-        hasScheduledDate: !!submissionData.ScheduledDate,
-        hasGradeIds: !!submissionData.GradeIds,
-        gradeIdsContent: submissionData.GradeIds,
-      });
-
       const response = await createHealthCheck(submissionData);
-      console.log("API response:", response);
 
       // Clear draft after successful submission
       localStorage.removeItem("healthcheck_draft");
@@ -869,7 +787,6 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         equipmentWarning: equipmentReport?.requiresAction || false,
       };
     } catch (error) {
-      console.error("Error creating health check schedule:", error);
       return {
         success: false,
         message:

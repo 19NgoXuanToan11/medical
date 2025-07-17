@@ -12,6 +12,12 @@ import {
   FiActivity,
   FiAlertTriangle,
   FiTarget,
+  FiCheckCircle,
+  FiXCircle,
+  FiCoffee,
+  FiSun,
+  FiMoon,
+  FiSunset,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../../utils/auth/AuthContext";
@@ -25,9 +31,10 @@ const InProgressManagement = () => {
   const [showAdministerModal, setShowAdministerModal] = useState(false);
   const [showFailureModal, setShowFailureModal] = useState(false);
   const [selectedMedicineItem, setSelectedMedicineItem] = useState(null);
-  const [selectedFrequency, setSelectedFrequency] = useState("");
+  const [selectedFrequencies, setSelectedFrequencies] = useState([]);
   const [administerNotes, setAdministerNotes] = useState("");
   const [failureReason, setFailureReason] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const { user } = useAuth();
   const currentStaffId = user?.id || 1; // Fallback to 1 if no user
@@ -54,71 +61,102 @@ const InProgressManagement = () => {
     setLoading(false);
   };
 
-  const handleAdministerMedicine = async () => {
-    if (!selectedResult || !selectedMedicineItem || !selectedFrequency) {
-      alert("Vui lòng chọn đầy đủ thông tin");
+  const handleBatchAdministerMedicine = async () => {
+    if (
+      !selectedResult ||
+      !selectedMedicineItem ||
+      selectedFrequencies.length === 0
+    ) {
+      alert("Vui lòng chọn ít nhất một buổi uống thuốc");
       return;
     }
 
+    setIsProcessing(true);
     try {
-      const response = await medicationService.administerMedicineByFrequency(
-        selectedResult.resultId,
-        selectedMedicineItem.medicineRequestItemId,
-        selectedFrequency,
-        currentStaffId,
-        administerNotes
+      const promises = selectedFrequencies.map((frequency) =>
+        medicationService.administerMedicineByFrequency(
+          selectedResult.resultId,
+          selectedMedicineItem.medicineRequestItemId,
+          frequency,
+          currentStaffId,
+          administerNotes
+        )
       );
 
-      if (response.success) {
-        alert("Ghi nhận cho uống thuốc thành công!");
+      const results = await Promise.all(promises);
+      const successCount = results.filter((r) => r.success).length;
+      const failCount = results.length - successCount;
+
+      if (successCount > 0) {
+        alert(
+          `Ghi nhận thành công ${successCount} buổi uống thuốc!${
+            failCount > 0 ? ` (${failCount} buổi thất bại)` : ""
+          }`
+        );
         setShowAdministerModal(false);
-        setAdministerNotes("");
-        setSelectedFrequency("");
-        setSelectedMedicineItem(null);
+        resetModalState();
         loadInProgressData();
       } else {
-        alert(response.message);
+        alert("Không thể ghi nhận buổi uống thuốc nào");
       }
     } catch (error) {
       alert("Có lỗi xảy ra khi ghi nhận cho uống thuốc");
       console.error("Error administering medicine:", error);
     }
+    setIsProcessing(false);
   };
 
-  const handleReportFailure = async () => {
+  const handleBatchReportFailure = async () => {
     if (
       !selectedResult ||
       !selectedMedicineItem ||
-      !selectedFrequency ||
+      selectedFrequencies.length === 0 ||
       !failureReason.trim()
     ) {
-      alert("Vui lòng nhập đầy đủ thông tin và lý do thất bại");
+      alert("Vui lòng chọn ít nhất một buổi và nhập lý do thất bại");
       return;
     }
 
+    setIsProcessing(true);
     try {
-      const response = await medicationService.reportMedicineFailure(
-        selectedResult.resultId,
-        selectedMedicineItem.medicineRequestItemId,
-        selectedFrequency,
-        failureReason,
-        currentStaffId
+      const promises = selectedFrequencies.map((frequency) =>
+        medicationService.reportMedicineFailure(
+          selectedResult.resultId,
+          selectedMedicineItem.medicineRequestItemId,
+          frequency,
+          failureReason,
+          currentStaffId
+        )
       );
 
-      if (response.success) {
-        alert("Báo cáo thất bại thành công!");
+      const results = await Promise.all(promises);
+      const successCount = results.filter((r) => r.success).length;
+      const failCount = results.length - successCount;
+
+      if (successCount > 0) {
+        alert(
+          `Báo cáo thất bại thành công ${successCount} buổi!${
+            failCount > 0 ? ` (${failCount} buổi thất bại)` : ""
+          }`
+        );
         setShowFailureModal(false);
-        setFailureReason("");
-        setSelectedFrequency("");
-        setSelectedMedicineItem(null);
+        resetModalState();
         loadInProgressData();
       } else {
-        alert(response.message);
+        alert("Không thể báo cáo thất bại cho buổi nào");
       }
     } catch (error) {
       alert("Có lỗi xảy ra khi báo cáo thất bại");
       console.error("Error reporting failure:", error);
     }
+    setIsProcessing(false);
+  };
+
+  const resetModalState = () => {
+    setAdministerNotes("");
+    setFailureReason("");
+    setSelectedFrequencies([]);
+    setSelectedMedicineItem(null);
   };
 
   const handleCompleteRequest = async (result) => {
@@ -266,6 +304,53 @@ const InProgressManagement = () => {
     }
   };
 
+  const getTimeIcon = (timeSlot) => {
+    const time = timeSlot.toLowerCase();
+    if (time.includes("sáng")) return FiSun;
+    if (time.includes("trưa")) return FiCoffee;
+    if (time.includes("chiều")) return FiSunset;
+    if (time.includes("tối")) return FiMoon;
+    return FiClock;
+  };
+
+  const isFrequencyAdministered = (frequency, administeredFrequencies) => {
+    try {
+      const administered = Array.isArray(administeredFrequencies)
+        ? administeredFrequencies
+        : JSON.parse(administeredFrequencies || "[]");
+      return administered.includes(frequency);
+    } catch (error) {
+      console.error("Error checking administered frequencies:", error);
+      return false;
+    }
+  };
+
+  const calculateDosagePerTime = (totalDosage, frequency) => {
+    // Parse frequency to get number of times per day
+    const freq = frequency?.toLowerCase() || "";
+    let timesPerDay = 1;
+
+    if (freq.includes("3") || freq.includes("ba")) {
+      timesPerDay = 3;
+    } else if (freq.includes("2") || freq.includes("hai")) {
+      timesPerDay = 2;
+    } else if (freq.includes("4") || freq.includes("bốn")) {
+      timesPerDay = 4;
+    }
+
+    return totalDosage / timesPerDay;
+  };
+
+  const getAvailableFrequencies = (medicineItem, administeredFrequencies) => {
+    const allFrequencies = getFrequencyOptions(
+      medicineItem.frequency,
+      medicineItem.timeOfDay
+    );
+    return allFrequencies.filter(
+      (freq) => !isFrequencyAdministered(freq.value, administeredFrequencies)
+    );
+  };
+
   const filteredResults = filterResults(inProgressResults);
 
   return (
@@ -274,7 +359,7 @@ const InProgressManagement = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-            Quản lý In Progress
+            Theo dõi quá trình uống thuốc
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Theo dõi và ghi nhận quá trình cho uống thuốc
@@ -413,6 +498,7 @@ const InProgressManagement = () => {
                             onClick={() => {
                               setSelectedResult(result);
                               setSelectedMedicineItem(medicineItem);
+                              setSelectedFrequencies([]);
                               setShowAdministerModal(true);
                             }}
                             className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
@@ -424,6 +510,7 @@ const InProgressManagement = () => {
                             onClick={() => {
                               setSelectedResult(result);
                               setSelectedMedicineItem(medicineItem);
+                              setSelectedFrequencies([]);
                               setShowFailureModal(true);
                             }}
                             className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
@@ -547,7 +634,7 @@ const InProgressManagement = () => {
                             key={index}
                             className="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
                           >
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                               <div>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
                                   Tên thuốc:
@@ -558,18 +645,30 @@ const InProgressManagement = () => {
                               </div>
                               <div>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                                  Liều lượng:
+                                  Tổng liều lượng:
                                 </span>
                                 <p className="text-sm text-gray-900 dark:text-gray-100">
-                                  {item.dosage}
+                                  {item.dosage} {item.dosageUnit || ""}
                                 </p>
                               </div>
                               <div>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                                  Tần suất:
+                                  Liều lượng mỗi lần:
                                 </span>
                                 <p className="text-sm text-gray-900 dark:text-gray-100">
-                                  {item.frequency}
+                                  {calculateDosagePerTime(
+                                    item.dosage,
+                                    item.frequency
+                                  )}{" "}
+                                  {item.dosageUnit || ""}/lần
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Tần suất uống:
+                                </span>
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {item.frequency} lần/ngày
                                 </p>
                               </div>
                             </div>
@@ -593,29 +692,50 @@ const InProgressManagement = () => {
                             </div>
 
                             <div>
-                              <span className="text-xs text-gray-500 dark:text-gray-400 mb-2 block">
+                              <span className="text-xs text-gray-500 dark:text-gray-400 mb-3 block">
                                 Chi tiết các buổi:
                               </span>
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                {frequencyOptions.map((freq) => (
-                                  <div
-                                    key={freq.value}
-                                    className={`px-3 py-2 rounded-lg text-center text-sm ${
-                                      administeredList.includes(freq.value)
-                                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                        : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-                                    }`}
-                                  >
-                                    <div className="flex items-center justify-center">
-                                      {administeredList.includes(freq.value) ? (
-                                        <FiCheck className="h-4 w-4 mr-1" />
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {frequencyOptions.map((freq) => {
+                                  const TimeIcon = getTimeIcon(freq.display);
+                                  const isAdministered =
+                                    administeredList.includes(freq.value);
+
+                                  return (
+                                    <div
+                                      key={freq.value}
+                                      className={`flex items-center p-3 rounded-lg border ${
+                                        isAdministered
+                                          ? "border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-900/30"
+                                          : "border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700"
+                                      }`}
+                                    >
+                                      <TimeIcon
+                                        className={`h-5 w-5 mr-3 ${
+                                          isAdministered
+                                            ? "text-green-600 dark:text-green-400"
+                                            : "text-gray-500 dark:text-gray-400"
+                                        }`}
+                                      />
+                                      <div className="flex-1">
+                                        <p
+                                          className={`text-sm font-medium ${
+                                            isAdministered
+                                              ? "text-green-900 dark:text-green-100"
+                                              : "text-gray-700 dark:text-gray-300"
+                                          }`}
+                                        >
+                                          {freq.display}
+                                        </p>
+                                      </div>
+                                      {isAdministered ? (
+                                        <FiCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                                       ) : (
-                                        <FiClock className="h-4 w-4 mr-1" />
+                                        <div className="h-5 w-5 rounded-full border-2 border-gray-300 dark:border-gray-500"></div>
                                       )}
-                                      {freq.display}
                                     </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           </div>
@@ -630,49 +750,162 @@ const InProgressManagement = () => {
         </div>
       )}
 
-      {/* Administer Modal */}
+      {/* Enhanced Administer Modal */}
       {showAdministerModal && selectedResult && selectedMedicineItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Ghi nhận cho uống thuốc
-              </h3>
-            </div>
-            <div className="px-6 py-4">
-              <div className="mb-4">
-                <p className="text-sm text-gray-900 dark:text-gray-100 mb-2">
-                  Học sinh: {selectedResult.request?.student?.firstName}{" "}
-                  {selectedResult.request?.student?.lastName}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  Thuốc: {selectedMedicineItem.medicineName}
-                </p>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Chọn buổi uống *
-                </label>
-                <select
-                  value={selectedFrequency}
-                  onChange={(e) => setSelectedFrequency(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-green-500 focus:border-green-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                  required
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                  Ghi nhận cho uống thuốc
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowAdministerModal(false);
+                    resetModalState();
+                  }}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
-                  <option value="">-- Chọn buổi --</option>
-                  {getFrequencyOptions(
-                    selectedMedicineItem.frequency,
-                    selectedMedicineItem.timeOfDay
-                  ).map((freq) => (
-                    <option key={freq.value} value={freq.value}>
-                      {freq.display}
-                    </option>
-                  ))}
-                </select>
+                  <FiX className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 space-y-6">
+              {/* Student and Medicine Info */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-blue-700 dark:text-blue-300">
+                      Học sinh
+                    </label>
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      {selectedResult.request?.student?.firstName}{" "}
+                      {selectedResult.request?.student?.lastName}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-blue-700 dark:text-blue-300">
+                      Thuốc
+                    </label>
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      {selectedMedicineItem.medicineName}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-blue-700 dark:text-blue-300">
+                      Liều lượng
+                    </label>
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      {calculateDosagePerTime(
+                        selectedMedicineItem.dosage,
+                        selectedMedicineItem.frequency
+                      )}{" "}
+                      {selectedMedicineItem.dosageUnit || ""}/lần
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-blue-700 dark:text-blue-300">
+                      Tần suất
+                    </label>
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      {selectedMedicineItem.frequency} lần/ngày
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div className="mb-4">
+              {/* Time Slots Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Chọn buổi uống thuốc *
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {getAvailableFrequencies(
+                    selectedMedicineItem,
+                    selectedResult.administeredFrequencies
+                  ).map((freq) => {
+                    const TimeIcon = getTimeIcon(freq.display);
+                    const isSelected = selectedFrequencies.includes(freq.value);
+
+                    return (
+                      <div
+                        key={freq.value}
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedFrequencies((prev) =>
+                              prev.filter((f) => f !== freq.value)
+                            );
+                          } else {
+                            setSelectedFrequencies((prev) => [
+                              ...prev,
+                              freq.value,
+                            ]);
+                          }
+                        }}
+                        className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                          isSelected
+                            ? "border-green-500 bg-green-50 dark:bg-green-900/20"
+                            : "border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500"
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <TimeIcon
+                            className={`h-5 w-5 ${
+                              isSelected
+                                ? "text-green-600 dark:text-green-400"
+                                : "text-gray-500 dark:text-gray-400"
+                            }`}
+                          />
+                          <div className="flex-1">
+                            <p
+                              className={`text-sm font-medium ${
+                                isSelected
+                                  ? "text-green-900 dark:text-green-100"
+                                  : "text-gray-900 dark:text-gray-100"
+                              }`}
+                            >
+                              {freq.display}
+                            </p>
+                          </div>
+                          {isSelected && (
+                            <FiCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Quick Select Actions */}
+                <div className="flex space-x-2 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const availableFreqs = getAvailableFrequencies(
+                        selectedMedicineItem,
+                        selectedResult.administeredFrequencies
+                      );
+                      setSelectedFrequencies(
+                        availableFreqs.map((f) => f.value)
+                      );
+                    }}
+                    className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
+                  >
+                    Chọn tất cả
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFrequencies([])}
+                    className="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500"
+                  >
+                    Bỏ chọn
+                  </button>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Ghi chú
                 </label>
@@ -685,24 +918,31 @@ const InProgressManagement = () => {
                 />
               </div>
 
-              <div className="flex justify-end space-x-3">
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-600">
                 <button
                   onClick={() => {
                     setShowAdministerModal(false);
-                    setSelectedFrequency("");
-                    setAdministerNotes("");
-                    setSelectedMedicineItem(null);
+                    resetModalState();
                   }}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500"
+                  disabled={isProcessing}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500 disabled:opacity-50"
                 >
                   Hủy
                 </button>
                 <button
-                  onClick={handleAdministerMedicine}
-                  disabled={!selectedFrequency}
-                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:bg-green-300"
+                  onClick={handleBatchAdministerMedicine}
+                  disabled={selectedFrequencies.length === 0 || isProcessing}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:bg-green-300 disabled:cursor-not-allowed flex items-center space-x-2"
                 >
-                  Ghi nhận
+                  {isProcessing && (
+                    <FiRefreshCw className="h-4 w-4 animate-spin" />
+                  )}
+                  <span>
+                    {isProcessing
+                      ? "Đang xử lý..."
+                      : `Ghi nhận (${selectedFrequencies.length} buổi)`}
+                  </span>
                 </button>
               </div>
             </div>
@@ -710,49 +950,162 @@ const InProgressManagement = () => {
         </div>
       )}
 
-      {/* Failure Modal */}
+      {/* Enhanced Failure Modal */}
       {showFailureModal && selectedResult && selectedMedicineItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Báo cáo thất bại
-              </h3>
-            </div>
-            <div className="px-6 py-4">
-              <div className="mb-4">
-                <p className="text-sm text-gray-900 dark:text-gray-100 mb-2">
-                  Học sinh: {selectedResult.request?.student?.firstName}{" "}
-                  {selectedResult.request?.student?.lastName}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  Thuốc: {selectedMedicineItem.medicineName}
-                </p>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Buổi thất bại *
-                </label>
-                <select
-                  value={selectedFrequency}
-                  onChange={(e) => setSelectedFrequency(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-red-500 focus:border-red-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                  required
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                  Báo cáo thất bại
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowFailureModal(false);
+                    resetModalState();
+                  }}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
-                  <option value="">-- Chọn buổi thất bại --</option>
-                  {getFrequencyOptions(
-                    selectedMedicineItem.frequency,
-                    selectedMedicineItem.timeOfDay
-                  ).map((freq) => (
-                    <option key={freq.value} value={freq.value}>
-                      {freq.display}
-                    </option>
-                  ))}
-                </select>
+                  <FiX className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 space-y-6">
+              {/* Student and Medicine Info */}
+              <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-red-700 dark:text-red-300">
+                      Học sinh
+                    </label>
+                    <p className="text-sm text-red-900 dark:text-red-100">
+                      {selectedResult.request?.student?.firstName}{" "}
+                      {selectedResult.request?.student?.lastName}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-red-700 dark:text-red-300">
+                      Thuốc
+                    </label>
+                    <p className="text-sm text-red-900 dark:text-red-100">
+                      {selectedMedicineItem.medicineName}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-red-700 dark:text-red-300">
+                      Liều lượng
+                    </label>
+                    <p className="text-sm text-red-900 dark:text-red-100">
+                      {calculateDosagePerTime(
+                        selectedMedicineItem.dosage,
+                        selectedMedicineItem.frequency
+                      )}{" "}
+                      {selectedMedicineItem.dosageUnit || ""}/lần
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-red-700 dark:text-red-300">
+                      Tần suất
+                    </label>
+                    <p className="text-sm text-red-900 dark:text-red-100">
+                      {selectedMedicineItem.frequency} lần/ngày
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div className="mb-4">
+              {/* Time Slots Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Chọn buổi thất bại *
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {getAvailableFrequencies(
+                    selectedMedicineItem,
+                    selectedResult.administeredFrequencies
+                  ).map((freq) => {
+                    const TimeIcon = getTimeIcon(freq.display);
+                    const isSelected = selectedFrequencies.includes(freq.value);
+
+                    return (
+                      <div
+                        key={freq.value}
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedFrequencies((prev) =>
+                              prev.filter((f) => f !== freq.value)
+                            );
+                          } else {
+                            setSelectedFrequencies((prev) => [
+                              ...prev,
+                              freq.value,
+                            ]);
+                          }
+                        }}
+                        className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                          isSelected
+                            ? "border-red-500 bg-red-50 dark:bg-red-900/20"
+                            : "border-gray-200 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-500"
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <TimeIcon
+                            className={`h-5 w-5 ${
+                              isSelected
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-gray-500 dark:text-gray-400"
+                            }`}
+                          />
+                          <div className="flex-1">
+                            <p
+                              className={`text-sm font-medium ${
+                                isSelected
+                                  ? "text-red-900 dark:text-red-100"
+                                  : "text-gray-900 dark:text-gray-100"
+                              }`}
+                            >
+                              {freq.display}
+                            </p>
+                          </div>
+                          {isSelected && (
+                            <FiXCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Quick Select Actions */}
+                <div className="flex space-x-2 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const availableFreqs = getAvailableFrequencies(
+                        selectedMedicineItem,
+                        selectedResult.administeredFrequencies
+                      );
+                      setSelectedFrequencies(
+                        availableFreqs.map((f) => f.value)
+                      );
+                    }}
+                    className="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+                  >
+                    Chọn tất cả
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFrequencies([])}
+                    className="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500"
+                  >
+                    Bỏ chọn
+                  </button>
+                </div>
+              </div>
+
+              {/* Failure Reason */}
+              <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Lý do thất bại *
                 </label>
@@ -766,31 +1119,50 @@ const InProgressManagement = () => {
                 />
               </div>
 
-              <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg mb-4">
-                <p className="text-sm text-red-800 dark:text-red-200">
-                  Báo cáo thất bại sẽ được ghi nhận và có thể tạo yêu cầu lại
-                  nếu cần.
-                </p>
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg">
+                <div className="flex">
+                  <FiAlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 mr-2 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                      Lưu ý quan trọng
+                    </h4>
+                    <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                      Báo cáo thất bại sẽ được ghi nhận vào hệ thống và có thể
+                      tạo yêu cầu lại nếu cần thiết.
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex justify-end space-x-3">
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-600">
                 <button
                   onClick={() => {
                     setShowFailureModal(false);
-                    setSelectedFrequency("");
-                    setFailureReason("");
-                    setSelectedMedicineItem(null);
+                    resetModalState();
                   }}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500"
+                  disabled={isProcessing}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500 disabled:opacity-50"
                 >
                   Hủy
                 </button>
                 <button
-                  onClick={handleReportFailure}
-                  disabled={!selectedFrequency || !failureReason.trim()}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-300"
+                  onClick={handleBatchReportFailure}
+                  disabled={
+                    selectedFrequencies.length === 0 ||
+                    !failureReason.trim() ||
+                    isProcessing
+                  }
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed flex items-center space-x-2"
                 >
-                  Báo cáo
+                  {isProcessing && (
+                    <FiRefreshCw className="h-4 w-4 animate-spin" />
+                  )}
+                  <span>
+                    {isProcessing
+                      ? "Đang xử lý..."
+                      : `Báo cáo (${selectedFrequencies.length} buổi)`}
+                  </span>
                 </button>
               </div>
             </div>

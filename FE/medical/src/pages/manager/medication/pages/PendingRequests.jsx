@@ -40,7 +40,6 @@ const PendingRequests = () => {
           status: "pending",
         }));
 
-        console.log("Pending requests loaded:", pendingRequests);
         setRequests(pendingRequests);
       } else {
         console.error("Error loading pending requests:", response.message);
@@ -61,7 +60,6 @@ const PendingRequests = () => {
 
   // Handle view detail
   const handleViewDetail = (request) => {
-    console.log("Opening modal for request:", request);
     setSelectedRequest(request);
     setShowDetailModal(true);
   };

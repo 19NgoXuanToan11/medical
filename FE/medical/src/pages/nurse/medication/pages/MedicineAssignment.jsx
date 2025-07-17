@@ -15,6 +15,35 @@ import {
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../../utils/auth/AuthContext";
+import { getMedicineUnit } from "../../../../utils/medicineUnits";
+import {
+  calculateDosagePerAdministration,
+  calculateDosagePerTime,
+  formatTotalDosage,
+  formatFrequencyDisplay,
+} from "../../../../utils/api/medication/medicationUtils";
+
+// Helper function to extract numeric dosage from calculateDosagePerTime result
+const getNumericDosagePerTime = (
+  dosage,
+  frequency,
+  dosageUnit,
+  medicineName
+) => {
+  if (!dosage || !frequency) return 1;
+
+  const dosageNumber = typeof dosage === "string" ? parseFloat(dosage) : dosage;
+  const frequencyNumber =
+    typeof frequency === "string" ? parseInt(frequency) : frequency;
+
+  if (isNaN(dosageNumber) || isNaN(frequencyNumber) || frequencyNumber <= 0) {
+    return 1;
+  }
+
+  // Calculate dosage per administration
+  const dosagePerTime = dosageNumber / frequencyNumber;
+  return dosagePerTime;
+};
 
 const MedicineAssignment = () => {
   const [verifiedRequests, setVerifiedRequests] = useState([]);
@@ -191,7 +220,7 @@ const MedicineAssignment = () => {
           </div>
         ))}
         {medicineRequestItems.length > 2 && (
-          <div className="text-xs text-blue-600 font-medium">
+          <div className="text-xs text-gray-500">
             +{medicineRequestItems.length - 2} thuốc khác
           </div>
         )}
@@ -561,36 +590,35 @@ const MedicineAssignment = () => {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                               <div>
                                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                                  Tổng liều lượng (viên)
+                                  Tổng liều lượng
                                 </span>
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1">
-                                  {item.dosage || "N/A"}
+                                  {formatTotalDosage(
+                                    item.dosage,
+                                    item.dosageUnit ||
+                                      getMedicineUnit(item.medicineName)
+                                  )}
                                 </p>
                               </div>
                               <div>
                                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                                  Tần suất uống (lần/ngày)
+                                  Tần suất uống
                                 </span>
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1">
-                                  {item.frequency || "N/A"}
+                                  {formatFrequencyDisplay(item.frequency)}
                                 </p>
                               </div>
                               <div>
                                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                                  Liều lượng mỗi lần (viên)
+                                  Liều lượng mỗi lần
                                 </span>
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1">
-                                  {(() => {
-                                    const totalDosage =
-                                      parseInt(item.dosage) || 0;
-                                    const frequency =
-                                      parseInt(item.frequency) || 1;
-                                    if (totalDosage === 0) return "N/A";
-                                    const dosagePerTime = Math.ceil(
-                                      totalDosage / frequency
-                                    );
-                                    return dosagePerTime;
-                                  })()}
+                                  {calculateDosagePerTime(
+                                    item.dosage,
+                                    item.dosageUnit ||
+                                      getMedicineUnit(item.medicineName),
+                                    item.frequency
+                                  )}
                                 </p>
                               </div>
                             </div>
@@ -605,11 +633,12 @@ const MedicineAssignment = () => {
                               </div>
                               {(() => {
                                 const frequency = parseInt(item.frequency) || 1;
-                                const totalDosage = parseInt(item.dosage) || 0;
-                                const dosagePerTime =
-                                  totalDosage > 0
-                                    ? Math.ceil(totalDosage / frequency)
-                                    : 1;
+                                const dosagePerTime = getNumericDosagePerTime(
+                                  item.dosage,
+                                  item.frequency,
+                                  item.dosageUnit,
+                                  item.medicineName
+                                );
 
                                 // Use timeOfDay from API if available
                                 if (
@@ -654,7 +683,12 @@ const MedicineAssignment = () => {
                                                 {timeLabel}
                                               </div>
                                               <div className="text-green-600 dark:text-green-400 text-xs">
-                                                {dosagePerTime} viên/lần
+                                                {dosagePerTime}{" "}
+                                                {item.dosageUnit ||
+                                                  getMedicineUnit(
+                                                    item.medicineName
+                                                  )}
+                                                /lần
                                               </div>
                                             </div>
                                           )
@@ -673,7 +707,10 @@ const MedicineAssignment = () => {
                                           Buổi sáng (6:00 - 11:00)
                                         </div>
                                         <div className="text-green-600 dark:text-green-400 text-xs">
-                                          {dosagePerTime} viên/lần
+                                          {dosagePerTime}{" "}
+                                          {item.dosageUnit ||
+                                            getMedicineUnit(item.medicineName)}
+                                          /lần
                                         </div>
                                       </div>
                                     </div>
@@ -686,7 +723,10 @@ const MedicineAssignment = () => {
                                           Buổi sáng (6:00 - 11:00)
                                         </div>
                                         <div className="text-green-600 dark:text-green-400 text-xs">
-                                          {dosagePerTime} viên/lần
+                                          {dosagePerTime}{" "}
+                                          {item.dosageUnit ||
+                                            getMedicineUnit(item.medicineName)}
+                                          /lần
                                         </div>
                                       </div>
                                       <div className="bg-green-100 dark:bg-green-800/40 p-2 rounded text-center">
@@ -694,7 +734,10 @@ const MedicineAssignment = () => {
                                           Buổi chiều (14:00 - 18:00)
                                         </div>
                                         <div className="text-green-600 dark:text-green-400 text-xs">
-                                          {dosagePerTime} viên/lần
+                                          {dosagePerTime}{" "}
+                                          {item.dosageUnit ||
+                                            getMedicineUnit(item.medicineName)}
+                                          /lần
                                         </div>
                                       </div>
                                     </div>
@@ -707,7 +750,10 @@ const MedicineAssignment = () => {
                                           Buổi sáng (6:00 - 11:00)
                                         </div>
                                         <div className="text-green-600 dark:text-green-400 text-xs">
-                                          {dosagePerTime} viên/lần
+                                          {dosagePerTime}{" "}
+                                          {item.dosageUnit ||
+                                            getMedicineUnit(item.medicineName)}
+                                          /lần
                                         </div>
                                       </div>
                                       <div className="bg-green-100 dark:bg-green-800/40 p-2 rounded text-center">
@@ -715,7 +761,10 @@ const MedicineAssignment = () => {
                                           Buổi trưa (11:00 - 14:00)
                                         </div>
                                         <div className="text-green-600 dark:text-green-400 text-xs">
-                                          {dosagePerTime} viên/lần
+                                          {dosagePerTime}{" "}
+                                          {item.dosageUnit ||
+                                            getMedicineUnit(item.medicineName)}
+                                          /lần
                                         </div>
                                       </div>
                                       <div className="bg-green-100 dark:bg-green-800/40 p-2 rounded text-center">
@@ -723,7 +772,10 @@ const MedicineAssignment = () => {
                                           Buổi chiều (14:00 - 18:00)
                                         </div>
                                         <div className="text-green-600 dark:text-green-400 text-xs">
-                                          {dosagePerTime} viên/lần
+                                          {dosagePerTime}{" "}
+                                          {item.dosageUnit ||
+                                            getMedicineUnit(item.medicineName)}
+                                          /lần
                                         </div>
                                       </div>
                                     </div>

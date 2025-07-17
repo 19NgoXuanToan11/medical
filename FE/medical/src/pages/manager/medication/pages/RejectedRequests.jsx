@@ -22,8 +22,6 @@ const RejectedRequests = () => {
       const response = await medicationService.getRejectedMedicationRequests();
 
       if (response.success) {
-        console.log("Refused API response:", response.data);
-
         const transformedRequests = transformRequestData(response.data);
 
         // Force status to rejected and add additional rejection data
@@ -32,7 +30,6 @@ const RejectedRequests = () => {
           status: "rejected",
         }));
 
-        console.log("Transformed rejected requests:", rejectedRequests);
         setRequests(rejectedRequests);
       } else {
         console.error("Error loading rejected requests:", response.message);
