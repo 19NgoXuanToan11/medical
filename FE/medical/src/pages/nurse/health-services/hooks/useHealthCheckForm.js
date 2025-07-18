@@ -160,11 +160,6 @@ export const useHealthCheckForm = () => {
     loadActiveClasses();
   }, []);
 
-  // Load grade blocks on component mount
-  useEffect(() => {
-    loadActiveClasses();
-  }, [loadActiveClasses]);
-
   // Calculated values
   const totalStudents = calculateTotalStudents(
     formData.targetGrades,

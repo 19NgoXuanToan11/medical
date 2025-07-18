@@ -35,13 +35,11 @@ import ReportsAnalytics from "../../pages/admin/report/ReportsAnalytics";
 import Dashboard from "../../pages/manager/dashboard/Dashboard";
 import MedicineInventory from "../../pages/manager/inventory/MedicineInventory";
 import SupplyInventory from "../../pages/manager/inventory/SupplyInventory";
-import ExcelImport from "../../pages/manager/inventory/ExcelImport";
 import ExcelManagement from "../../pages/manager/excel/ExcelManagement";
 import MedicationManagement from "../../pages/manager/medication/MedicationManagement";
 import HealthCheckManagement from "../../pages/manager/health-check/HealthCheckManagement";
 import VaccinationManagement from "../../pages/manager/vaccination/VaccinationManagement";
 import VaccinationDetailManager from "../../pages/manager/vaccination/VaccinationDetail";
-import HealthCheckDetailManager from "../../pages/manager/health-check/HealthCheckDetail";
 import ClassManagement from "../../pages/manager/manage/ClassManagement";
 import ClassDetail from "../../pages/manager/manage/ClassDetail";
 import ExaminationCategoryManagement from "../../pages/manager/manage/ExaminationCategoryManagement";
@@ -51,19 +49,11 @@ import ManagerHealthEventDetail from "../../pages/manager/health-events/HealthEv
 // nurse
 import NurseDashboard from "../../pages/nurse/dashboard/NurseDashboard";
 import NurseProfile from "../../pages/nurse/profile/NurseProfile";
-import NurseHealthCheck from "../../pages/nurse/health-check/NurseHealthCheck";
-import NurseHealthCheckCreate from "../../pages/nurse/health-check/NurseHealthCheckCreate";
-import NurseHealthCheckDetail from "../../pages/nurse/health-check/NurseHealthCheckDetail";
-import StudentHealthHistory from "../../pages/nurse/health-check/StudentHealthHistory";
 import HealthEventList from "../../pages/nurse/health-events/HealthEventList";
 import HealthEventDetail from "../../pages/nurse/health-events/HealthEventDetail";
 import HealthEventCreate from "../../pages/nurse/health-events/HealthEventCreate";
 import HealthEventEdit from "../../pages/nurse/health-events/HealthEventEdit";
-import VaccinationDetail from "../../pages/nurse/vaccination/VaccinationDetail";
-import VaccinationEdit from "../../pages/nurse/vaccination/VaccinationEdit";
-import VaccinationPlanCreate from "../../pages/nurse/vaccination/VaccinationPlanCreate";
 import NurseMedicationManagement from "../../pages/nurse/medication/MedicationManagement";
-import StudentHealthDetail from "../../pages/nurse/health-check/StudentHealthDetail";
 import NurseSchedule from "../../pages/nurse/schedule/NurseSchedule";
 import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealthRecords";
 import StudentHealthRecordDetail from "../../pages/nurse/health-records/StudentHealthRecordDetail";
@@ -91,6 +81,7 @@ import StudentDashboard from "../../pages/student/dashboard/StudentDashboard";
 import StudentMedication from "../../pages/student/medication/StudentMedication";
 import StudentHealthEvents from "../../pages/student/health-events/StudentHealthEvents";
 import StudentHealthResources from "../../pages/student/health-resources/StudentHealthResources";
+import HealthCheckCreate from "../../pages/nurse/health-services/HealthCheckCreate";
 
 function AppRoutes() {
   return (
@@ -140,8 +131,6 @@ function AppRoutes() {
         <Route path="/manager/vaccination" element={<VaccinationManagement />} />
         <Route path="/manager/vaccination/:id" element={<VaccinationDetailManager />} />
         
-        <Route path="/manager/health-check/:id" element={<HealthCheckDetailManager />} />
-        
         <Route path="/manager/health-events" element={<HealthEventsManagement />} />
         <Route path="/manager/health-events/:id" element={<ManagerHealthEventDetail />} />
         
@@ -154,9 +143,36 @@ function AppRoutes() {
         
         <Route path="/manager/supply-inventory" element={<SupplyInventory />} />
         
-        <Route path="/manager/upload" element={<ExcelImport />} />
-        
         <Route path="/manager/excel" element={<ExcelManagement />} />
+      </Route>
+
+      {/* Nurse Routes */}
+      <Route
+        element={
+          <NurseRoute>
+            <NurseLayout />
+          </NurseRoute>
+        }
+      >
+        <Route path="/nurse/dashboard" element={<NurseDashboard />} />
+
+        <Route path="/nurse/profile" element={<NurseProfile />} />
+
+        <Route path="/nurse/schedule" element={<NurseSchedule />} />
+
+        <Route path="/nurse/health-records" element={<StudentHealthRecords />} />
+        <Route path="/nurse/health-records/:studentId" element={<StudentHealthRecordDetail />} />
+
+        <Route path="/nurse/medication" element={<NurseMedicationManagement />} />
+
+        <Route path="/nurse/health-services" element={<HealthServicesManagement />} />
+        <Route path="/nurse/health-services/create/:serviceType" element={<HealthServiceCreate />} />
+        <Route path="/nurse/health-services/:id" element={<HealthServicesDetail />} />
+
+        <Route path="/nurse/health-events" element={<HealthEventList />} />
+        <Route path="/nurse/health-events/new" element={<HealthEventCreate />} />
+        <Route path="/nurse/health-events/:id" element={<HealthEventDetail />} />
+        <Route path="/nurse/health-events/:id/edit" element={<HealthEventEdit />} />
       </Route>
 
       {/* Parent Routes */}
@@ -188,47 +204,6 @@ function AppRoutes() {
         <Route path="/parent/notifications" element={<Notifications />} />
 
         <Route path="/parent/health-services" element={<HealthServices />} />
-      </Route>
-
-      {/* Nurse Routes */}
-      <Route
-        element={
-          <NurseRoute>
-            <NurseLayout />
-          </NurseRoute>
-        }
-      >
-        <Route path="/nurse/dashboard" element={<NurseDashboard />} />
-
-        <Route path="/nurse/profile" element={<NurseProfile />} />
-
-        <Route path="/nurse/schedule" element={<NurseSchedule />} />
-
-        <Route path="/nurse/health-records" element={<StudentHealthRecords />} />
-        <Route path="/nurse/health-records/:studentId" element={<StudentHealthRecordDetail />} />
-
-        <Route path="/nurse/medication" element={<NurseMedicationManagement />} />
-
-        <Route path="/nurse/health-services" element={<HealthServicesManagement />} />
-        <Route path="/nurse/health-services/create" element={<HealthServiceCreate />} />
-        <Route path="/nurse/health-services/create/:serviceType" element={<HealthServiceCreate />} />
-        <Route path="/nurse/health-services/:id" element={<HealthServicesDetail />} />
-
-        <Route path="/nurse/health-check" element={<NurseHealthCheck />} />
-        <Route path="/nurse/health-check/new" element={<NurseHealthCheckCreate />} />
-        <Route path="/nurse/health-check/:id" element={<NurseHealthCheckDetail />} />
-        <Route path="/nurse/health-check/:id/student/:studentId" element={<StudentHealthDetail />} />
-        <Route path="/nurse/student/:id/health-history" element={<StudentHealthHistory />} />
-
-        <Route path="/nurse/health-events" element={<HealthEventList />} />
-        <Route path="/nurse/health-events/new" element={<HealthEventCreate />} />
-        <Route path="/nurse/health-events/:id" element={<HealthEventDetail />} />
-        <Route path="/nurse/health-events/:id/edit" element={<HealthEventEdit />} />
-
-        <Route path="/nurse/vaccination" element={<VaccinationManagement />} />
-        <Route path="/nurse/vaccination/create" element={<VaccinationPlanCreate />} />
-        <Route path="/nurse/vaccination/:id" element={<VaccinationDetail />} />
-        <Route path="/nurse/vaccination/:id/edit" element={<VaccinationEdit />} />
       </Route>
 
       {/* Student Routes */}
