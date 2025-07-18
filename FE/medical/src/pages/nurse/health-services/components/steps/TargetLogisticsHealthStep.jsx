@@ -167,7 +167,7 @@ const TargetLogisticsHealthStep = ({
                           {grade.studentCount} học sinh
                         </p>
                         <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                          Lớp: {grade.classes ? grade.classes.join(", ") : "N/A"}
+                          Lớp: {grade.classes ? grade.classes.join(", ") : "Không có"}
                         </p>
                       </div>
                       <div className="text-xs text-neutral-500 dark:text-neutral-500">
@@ -193,7 +193,7 @@ const TargetLogisticsHealthStep = ({
                             {grade.name}
                           </span>
                           <span className="text-sm text-primary-700 dark:text-primary-300 ml-2">
-                            ({grade.classes ? grade.classes.join(", ") : "N/A"})
+                            ({grade.classes ? grade.classes.join(", ") : "Không có"})
                           </span>
                         </div>
                         <span className="text-sm text-primary-600 dark:text-primary-400">
