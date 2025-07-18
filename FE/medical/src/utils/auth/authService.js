@@ -46,22 +46,14 @@ class AuthService {
           }
         } catch (e) {
           // If response is not JSON, handle different status codes
-          if (response.status === 401) {
+          if (response.status === 400) {
+            errorMessage =
+              "Tài khoản của bạn không có quyền truy cập vai trò này. Vui lòng chọn đúng vai trò";
+          } else if (response.status === 401) {
             errorMessage = "Tên đăng nhập hoặc mật khẩu không đúng";
           } else if (response.status === 403) {
-            // Forbidden - likely a role permission issue
-            const roleLabels = {
-              admin: "quản trị viên",
-              manager: "quản lý",
-              nurse: "nhân viên y tế",
-              parent: "phụ huynh",
-              student: "học sinh",
-            };
-            const roleName =
-              roleLabels[loginData.Role.toLowerCase()] || loginData.Role;
-            errorMessage = `Tài khoản của bạn không có quyền được phép truy cập vai trò của ${roleName}`;
-          } else if (response.status === 400) {
-            errorMessage = "Thông tin đăng nhập không hợp lệ";
+            errorMessage =
+              "Tài khoản của bạn không có quyền truy cập vai trò này. Vui lòng chọn đúng vai trò";
           } else if (response.status >= 500) {
             errorMessage = "Lỗi server. Vui lòng thử lại sau";
           } else {
