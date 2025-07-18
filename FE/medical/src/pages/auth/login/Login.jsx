@@ -242,24 +242,6 @@ const Login = () => {
       // Call API login
       const userData = await login(loginData);
 
-      // Verify that the user's actual role matches the selected role
-      if (userData.role !== formData.role) {
-        const roleLabels = {
-          admin: "quản trị viên",
-          manager: "quản lý",
-          nurse: "nhân viên y tế",
-          parent: "phụ huynh",
-          student: "học sinh",
-        };
-
-        const selectedRoleLabel = roleLabels[formData.role] || formData.role;
-        const actualRoleLabel = roleLabels[userData.role] || userData.role;
-
-        throw new Error(
-          `Bạn đã chọn vai trò "${selectedRoleLabel}" nhưng tài khoản này là "${actualRoleLabel}". Vui lòng chọn đúng vai trò của tài khoản hoặc sử dụng tài khoản phù hợp.`
-        );
-      }
-
       // Navigation will be handled by useEffect when user state is updated
     } catch (err) {
       setError(err.message);
