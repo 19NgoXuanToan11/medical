@@ -4,6 +4,7 @@ import { medicationService } from "../../../utils/api/medication/medicationServi
 import { useAuth } from "../../../utils/auth/AuthContext";
 import {
   transformParentMedicationData,
+  transformFailedMedicationData,
   getStatusBadge,
   calculateMedicationStats,
   filterMedications,
@@ -33,9 +34,13 @@ const MedicationHistory = () => {
     try {
       let result;
 
-      // Use specific API for rejected requests when that filter is selected
+      // Use specific API based on filter status
       if (filterStatus === "rejected") {
         result = await medicationService.getRefusedMedicineRequestsByParent(
+          user.id
+        );
+      } else if (filterStatus === "failed") {
+        result = await medicationService.getFailedMedicationRequestsByParent(
           user.id
         );
       } else {
@@ -43,7 +48,12 @@ const MedicationHistory = () => {
       }
 
       if (result.success) {
-        const transformedData = transformParentMedicationData(result.data);
+        let transformedData;
+        if (filterStatus === "failed") {
+          transformedData = transformFailedMedicationData(result.data);
+        } else {
+          transformedData = transformParentMedicationData(result.data);
+        }
         setMedications(transformedData);
       } else {
         setError(result.message);
@@ -72,13 +82,13 @@ const MedicationHistory = () => {
   }, [searchParams]);
 
   const filteredMedications =
-    filterStatus === "rejected"
-      ? medications // For rejected tab, show all data from refused API directly
+    filterStatus === "rejected" || filterStatus === "failed"
+      ? medications // For rejected and failed tabs, show all data from specific APIs directly
       : filterMedications(medications, filterStatus, searchTerm);
 
   // Apply filtering logic
   const finalFilteredMedications =
-    filterStatus === "rejected"
+    filterStatus === "rejected" || filterStatus === "failed"
       ? medications.filter((med) => {
           if (!searchTerm) return true; // Show all if no search term
           const matchesSearch =
@@ -108,6 +118,16 @@ const MedicationHistory = () => {
           active: 0,
           completed: 0,
           rejected: medications.length, // All medications in rejected tab are rejected
+          failed: 0,
+          total: medications.length,
+        }
+      : filterStatus === "failed"
+      ? {
+          pending: 0,
+          active: 0,
+          completed: 0,
+          rejected: 0,
+          failed: medications.length, // All medications in failed tab are failed
           total: medications.length,
         }
       : calculateMedicationStats(medications);
@@ -134,7 +154,7 @@ const MedicationHistory = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
         <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
@@ -251,6 +271,34 @@ const MedicationHistory = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-600 dark:text-gray-400 text-xs">
+                Thất bại
+              </p>
+              <p className="text-xl font-bold mt-1 text-orange-600 dark:text-orange-400">
+                {stats.failed}
+              </p>
+            </div>
+            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
+              <svg
+                className="h-5 w-5 text-orange-600 dark:text-orange-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-600 dark:text-gray-400 text-xs">
                 Tổng yêu cầu
               </p>
               <p className="text-xl font-bold mt-1 text-gray-800 dark:text-gray-200">
@@ -328,6 +376,16 @@ const MedicationHistory = () => {
             }`}
           >
             Từ chối
+          </button>
+          <button
+            onClick={() => setFilterStatus("failed")}
+            className={`px-4 py-2 rounded-md whitespace-nowrap transition-colors duration-200 ${
+              filterStatus === "failed"
+                ? "bg-blue-600 dark:bg-blue-500 text-white"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
+            }`}
+          >
+            Thất bại
           </button>
         </div>
         <div className="flex w-full sm:w-auto">
@@ -472,12 +530,30 @@ const MedicationHistory = () => {
                     >
                       Ngày gửi yêu cầu
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Ngày uống thuốc
-                    </th>
+                    {filterStatus !== "failed" && (
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Ngày uống thuốc
+                      </th>
+                    )}
+                    {filterStatus === "failed" && (
+                      <>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Thời gian thất bại
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Số lần thử
+                        </th>
+                      </>
+                    )}
                     <th
                       scope="col"
                       className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
@@ -490,6 +566,14 @@ const MedicationHistory = () => {
                         className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
                         Lý do từ chối
+                      </th>
+                    )}
+                    {filterStatus === "failed" && (
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Lý do thất bại
                       </th>
                     )}
                     <th
@@ -542,13 +626,38 @@ const MedicationHistory = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="text-sm text-gray-900 dark:text-gray-100">
-                          {new Date(medication.startDate).toLocaleDateString(
-                            "vi-VN"
-                          )}
-                        </div>
-                      </td>
+                      {filterStatus !== "failed" && (
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="text-sm text-gray-900 dark:text-gray-100">
+                            {new Date(medication.startDate).toLocaleDateString(
+                              "vi-VN"
+                            )}
+                          </div>
+                        </td>
+                      )}
+                      {filterStatus === "failed" && (
+                        <>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <div className="text-sm text-gray-900 dark:text-gray-100">
+                              {medication.lastAttemptTime || "N/A"}
+                            </div>
+                            {medication.administeredTime && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Bắt đầu: {medication.administeredTime}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {medication.failedAttempts}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {medication.currentDayCount}/
+                              {medication.timesPerDay} lần
+                            </div>
+                          </td>
+                        </>
+                      )}
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         {renderStatusBadge(medication.status)}
                       </td>
@@ -561,6 +670,20 @@ const MedicationHistory = () => {
                             medication.staffName !== "N/A" && (
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Từ chối bởi: {medication.staffName}
+                              </div>
+                            )}
+                        </td>
+                      )}
+                      {filterStatus === "failed" && (
+                        <td className="px-6 py-4 text-center">
+                          <div className="text-sm text-gray-900 dark:text-gray-100 max-w-xs">
+                            {medication.failureReasons ||
+                              "Không có lý do cụ thể"}
+                          </div>
+                          {medication.staffName &&
+                            medication.staffName !== "N/A" && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Xử lý bởi: {medication.staffName}
                               </div>
                             )}
                         </td>

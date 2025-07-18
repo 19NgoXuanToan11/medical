@@ -27,7 +27,7 @@ import {
   getDosagePlaceholder,
   formatDosageWithUnit,
   extractDosageNumber,
-} from "../../../utils/medicineUnits";
+} from "../../../utils/medicine/medicineUnits";
 import { getStudentByCode } from "../../../utils/api/student/studentService";
 
 const HealthEventCreate = () => {
@@ -297,12 +297,8 @@ const HealthEventCreate = () => {
         medicalSupplies: mappedMedicalSupplies,
       });
 
-      console.log("Submitting health event with staff ID:", user.id, apiData);
-
       // Create health event via API
       const response = await createHealthEvent(apiData);
-
-      console.log("Health event created successfully:", response);
 
       // Show success message
       setSubmitStatus("success");
@@ -347,8 +343,6 @@ const HealthEventCreate = () => {
 
       // Send notification to parent
       await sendNotificationToParent(notificationData);
-
-      console.log("Parent notification sent successfully");
     } catch (error) {
       console.error("Error sending parent notification:", error);
       // Don't throw error here as the main event creation was successful

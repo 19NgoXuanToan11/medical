@@ -20,7 +20,10 @@ import {
 } from "../utils/requestResultUtils";
 import {
   calculateDosagePerAdministration,
+  calculateDosagePerTime,
   formatFrequency,
+  formatTotalDosage,
+  formatFrequencyDisplay,
 } from "../../../../utils/api/medication/medicationUtils";
 
 // Helper function to parse dosage and extract unit
@@ -209,16 +212,21 @@ const RequestResultTable = ({
                 <td className="px-6 py-4 text-center">
                   <div className="text-sm text-gray-900 dark:text-gray-100">
                     <div className="font-medium">
-                      Tổng: {formatDosageWithUnit(result.dosage)}
+                      Tổng:{" "}
+                      {formatTotalDosage(
+                        result.dosage,
+                        result.dosageUnit || "viên"
+                      )}
                     </div>
                     <div className="text-gray-500 dark:text-gray-400">
-                      {formatFrequency(result.frequency)}
+                      {formatFrequencyDisplay(result.frequency)}
                     </div>
                     {result.dosage && result.frequency && (
                       <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                         Mỗi lần:{" "}
-                        {calculateDosagePerAdministration(
-                          formatDosageWithUnit(result.dosage),
+                        {calculateDosagePerTime(
+                          result.dosage,
+                          result.dosageUnit || "viên",
                           result.frequency
                         )}
                       </div>

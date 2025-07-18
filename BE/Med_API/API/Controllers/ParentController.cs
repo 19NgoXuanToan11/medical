@@ -3,6 +3,7 @@ using API.DTOs;
 using AutoMapper;
 using DB;
 using Service;
+using Service.DTOs;
 
 namespace API.Controllers;
 
@@ -127,5 +128,21 @@ public class ParentController : ControllerBase
         var failedResults = await _parentService.GetFailedRequestResultsByParentIdAsync(parentId);
         var viewModels = _mapper.Map<IEnumerable<RequestResultDto.ViewModel>>(failedResults);
         return Ok(viewModels);
+    }
+
+    // GET: api/Parent/{parentId}/statistics
+    [HttpGet("{parentId}/statistics")]
+    public async Task<ActionResult<ParentDto.ParentStatistics>> GetParentStatistics(int parentId)
+    {
+        try
+        {
+            var statistics = await _parentService.GetParentStatisticsAsync(parentId);
+            var mappedStatistics = _mapper.Map<ParentDto.ParentStatistics>(statistics);
+            return Ok(mappedStatistics);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error retrieving parent statistics: {ex.Message}");
+        }
     }
 }

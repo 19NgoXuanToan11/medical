@@ -66,8 +66,6 @@ const HealthEventDetail = () => {
 
   const handleConsentSubmit = (e) => {
     e.preventDefault();
-    // In a real app, you would send this data to an API
-    console.log("Consent form submitted:", formData);
     setConsentGiven(true);
     setShowConsentForm(false);
   };

@@ -13,6 +13,8 @@ public partial class MedicineRequestItem
 
     public string Dosage { get; set; } = null!;
 
+    public string? DosageUnit { get; set; }
+
     public string Frequency { get; set; } = null!;
 
     public string? TimeOfDay { get; set; }

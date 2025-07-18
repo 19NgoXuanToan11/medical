@@ -30,7 +30,7 @@ const HealthEventResultDetail = () => {
       date: id === "3" ? "10/03/2023" : "15/02/2023",
       time: id === "3" ? "08:30 - 11:30" : "09:00 - 15:00",
       location: "Phòng Y tế trường học",
-      description:
+      description:  
         id === "3"
           ? "Khám răng miệng, phát hiện sâu răng và tư vấn chăm sóc răng miệng cho học sinh."
           : "Chương trình tiêm chủng bổ sung vắc-xin sởi-rubella cho học sinh.",

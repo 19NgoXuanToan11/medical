@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = 'https://localhost:7111/api';
+const API_URL = "https://localhost:7111/api";
 
 // Get token from localStorage
 const getToken = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem("user"));
   return user?.token;
 };
 
@@ -12,7 +12,7 @@ const getToken = () => {
 const apiClient = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -38,7 +38,7 @@ const parentService = {
       const response = await apiClient.get(`/Parent/${parentId}`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching parent:', error);
+      console.error("Error fetching parent:", error);
       throw error;
     }
   },
@@ -46,15 +46,15 @@ const parentService = {
   // Get current parent (using user ID from auth context)
   getCurrentParent: async () => {
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
+      const user = JSON.parse(localStorage.getItem("user"));
       if (!user || !user.id) {
-        throw new Error('No authenticated user found');
+        throw new Error("No authenticated user found");
       }
-      
+
       const response = await apiClient.get(`/Parent/${user.id}`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching current parent:', error);
+      console.error("Error fetching current parent:", error);
       throw error;
     }
   },
@@ -65,7 +65,7 @@ const parentService = {
       const response = await apiClient.put(`/Parent/${parentId}`, parentData);
       return response.data;
     } catch (error) {
-      console.error('Error updating parent:', error);
+      console.error("Error updating parent:", error);
       throw error;
     }
   },
@@ -76,10 +76,21 @@ const parentService = {
       const parentData = await parentService.getParentById(parentId);
       return parentData.students || [];
     } catch (error) {
-      console.error('Error fetching parent children:', error);
+      console.error("Error fetching parent children:", error);
+      throw error;
+    }
+  },
+
+  // Get parent statistics
+  getParentStatistics: async (parentId) => {
+    try {
+      const response = await apiClient.get(`/Parent/${parentId}/statistics`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching parent statistics:", error);
       throw error;
     }
   },
 };
 
-export default parentService; 
+export default parentService;

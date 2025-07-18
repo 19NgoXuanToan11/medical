@@ -25,14 +25,11 @@ const AssignedRequests = () => {
     try {
       const response = await medicationService.getAssignedMedicationRequests();
 
-      if (response.success) {
-        console.log("Raw assigned API response:", response.data);
-
+      if (response.success) { 
         const assignedOnly = filterByStatus(response.data, [
           "Assigned",
           "assigned",
         ]);
-        console.log("Filtered assigned requests:", assignedOnly);
 
         const transformedRequests = transformRequestData(assignedOnly);
 
@@ -42,7 +39,6 @@ const AssignedRequests = () => {
           status: "assigned",
         }));
 
-        console.log("Transformed assigned requests:", assignedRequests);
         setRequests(assignedRequests);
       } else {
         console.error("Error loading assigned requests:", response.message);
@@ -63,7 +59,6 @@ const AssignedRequests = () => {
 
   // Handle view detail
   const handleViewDetail = (request) => {
-    console.log("Opening modal for request:", request);
     setSelectedRequest(request);
     setShowDetailModal(true);
   };

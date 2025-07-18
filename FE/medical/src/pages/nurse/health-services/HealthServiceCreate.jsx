@@ -18,27 +18,11 @@ const HealthServiceCreate = () => {
 
   // Nếu đã chọn loại dịch vụ, hiển thị component tương ứng
   if (serviceType === "vaccination") {
-    return (
-      <VaccinationCreate
-        onBack={() =>
-          urlServiceType
-            ? navigate("/nurse/health-services")
-            : setServiceType("")
-        }
-      />
-    );
+    return <VaccinationCreate />;
   }
 
   if (serviceType === "health_check") {
-    return (
-      <HealthCheckCreate
-        onBack={() =>
-          urlServiceType
-            ? navigate("/nurse/health-services")
-            : setServiceType("")
-        }
-      />
-    );
+    return <HealthCheckCreate />;
   }
 
   // Hiển thị màn hình chọn loại dịch vụ

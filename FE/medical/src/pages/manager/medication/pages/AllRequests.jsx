@@ -22,11 +22,9 @@ const AllRequests = () => {
       const response = await medicationService.getAllMedicationRequests();
 
       if (response.success) {
-        console.log("Raw all requests API response:", response.data);
 
         const transformedRequests = transformRequestData(response.data);
 
-        console.log("All transformed requests:", transformedRequests);
         setRequests(transformedRequests);
       } else {
         console.error("Error loading all requests:", response.message);
@@ -47,7 +45,6 @@ const AllRequests = () => {
 
   // Handle view detail
   const handleViewDetail = (request) => {
-    console.log("Opening modal for request:", request);
     setSelectedRequest(request);
     setShowDetailModal(true);
   };

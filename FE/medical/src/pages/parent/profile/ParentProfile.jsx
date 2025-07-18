@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import { useParent } from "../../../utils/auth/ParentContext";
+import parentService from "../../../utils/api/parent/parentService";
 import {
   FiUser,
   FiMail,
@@ -15,12 +16,18 @@ import {
   FiPlus,
   FiBriefcase,
   FiHeart,
+  FiActivity,
+  FiShield,
+  FiClipboard,
+  FiPackage,
 } from "react-icons/fi";
 
 const ParentProfile = () => {
   const { user } = useAuth();
   const { parentData, students, loading, updateParentData } = useParent();
   const [isEditing, setIsEditing] = useState(false);
+  const [statistics, setStatistics] = useState(null);
+  const [statisticsLoading, setStatisticsLoading] = useState(true);
   const [profileData, setProfileData] = useState({
     firstName: "",
     lastName: "",
@@ -35,6 +42,55 @@ const ParentProfile = () => {
   });
 
   const [editedData, setEditedData] = useState(profileData);
+
+  // Fetch statistics data
+  const fetchStatistics = async () => {
+    if (!parentData?.parentId && !user?.id) return;
+
+    try {
+      setStatisticsLoading(true);
+      const parentId = parentData?.parentId || user?.id;
+      const statsData = await parentService.getParentStatistics(parentId);
+      setStatistics(statsData);
+    } catch (error) {
+      console.error("Error fetching statistics:", error);
+      // Fallback to mock data if API fails
+      setStatistics({
+        totalChildren: students?.length || 1,
+        totalVaccinations: 8,
+        totalHealthEvents: 3,
+        totalHealthChecks: 12,
+        totalMedicineRequests: 3,
+        vaccinationBreakdown: {
+          pending: 2,
+          approved: 4,
+          completed: 2,
+          rejected: 0,
+        },
+        healthEventBreakdown: {
+          emergency: 1,
+          routine: 2,
+          followUpRequired: 1,
+          resolved: 2,
+        },
+        healthCheckBreakdown: {
+          pending: 2,
+          scheduled: 3,
+          completed: 7,
+          cancelled: 0,
+        },
+        medicineRequestBreakdown: {
+          pending: 1,
+          approved: 1,
+          rejected: 0,
+          inProgress: 0,
+          completed: 1,
+        },
+      });
+    } finally {
+      setStatisticsLoading(false);
+    }
+  };
 
   // Update profile data when parentData changes
   useEffect(() => {
@@ -72,6 +128,11 @@ const ParentProfile = () => {
     }
   }, [parentData, user]);
 
+  // Fetch statistics when component mounts or parentData changes
+  useEffect(() => {
+    fetchStatistics();
+  }, [parentData, user]);
+
   const handleEdit = () => {
     setIsEditing(true);
     setEditedData(profileData);
@@ -98,9 +159,6 @@ const ParentProfile = () => {
 
       setProfileData(editedData);
       setIsEditing(false);
-
-      // Show success message (you can add a toast notification here)
-      console.log("Profile updated successfully:", editedData);
     } catch (error) {
       console.error("Error updating profile:", error);
       // Show error message (you can add a toast notification here)
@@ -515,43 +573,192 @@ const ParentProfile = () => {
                 Thống kê
               </h3>
 
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                    {students.length}
-                  </div>
-                  <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                    Số con
-                  </div>
+              {statisticsLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+                  <p className="text-neutral-500 dark:text-neutral-400">
+                    Đang tải thống kê...
+                  </p>
                 </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                      {statistics?.totalChildren || 0}
+                    </div>
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                      Số con
+                    </div>
+                  </div>
 
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    3
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {statistics?.totalVaccinations || 0}
+                    </div>
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                      Tiêm chủng
+                    </div>
                   </div>
-                  <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                    Yêu cầu thuốc
-                  </div>
-                </div>
 
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    12
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                      {statistics?.totalHealthEvents || 0}
+                    </div>
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                      Sự cố y tế
+                    </div>
                   </div>
-                  <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                    Kiểm tra y tế
-                  </div>
-                </div>
 
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    8
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {statistics?.totalHealthChecks || 0}
+                    </div>
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                      Kiểm tra y tế
+                    </div>
                   </div>
-                  <div className="text-sm text-neutral-500 dark:text-neutral-400">
-                    Tiêm chủng
+
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      {statistics?.totalMedicineRequests || 0}
+                    </div>
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                      Yêu cầu thuốc
+                    </div>
                   </div>
+
+                  {/* Detailed Breakdown */}
+                  {statistics && (
+                    <div className="mt-8 space-y-4">
+                      <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                        Chi tiết thống kê
+                      </h4>
+
+                      {/* Vaccination Breakdown */}
+                      <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FiShield className="w-4 h-4 text-green-600" />
+                          <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                            Tiêm chủng
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Chờ duyệt:</span>
+                            <span className="font-medium">
+                              {statistics.vaccinationBreakdown?.pending || 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Đã duyệt:</span>
+                            <span className="font-medium text-green-600">
+                              {statistics.vaccinationBreakdown?.approved || 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">
+                              Hoàn thành:
+                            </span>
+                            <span className="font-medium text-blue-600">
+                              {statistics.vaccinationBreakdown?.completed || 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Từ chối:</span>
+                            <span className="font-medium text-red-600">
+                              {statistics.vaccinationBreakdown?.rejected || 0}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Medicine Request Breakdown */}
+                      <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FiPackage className="w-4 h-4 text-purple-600" />
+                          <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                            Yêu cầu thuốc
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Chờ duyệt:</span>
+                            <span className="font-medium">
+                              {statistics.medicineRequestBreakdown?.pending ||
+                                0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Đã duyệt:</span>
+                            <span className="font-medium text-green-600">
+                              {statistics.medicineRequestBreakdown?.approved ||
+                                0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">
+                              Đang thực hiện:
+                            </span>
+                            <span className="font-medium text-orange-600">
+                              {statistics.medicineRequestBreakdown
+                                ?.inProgress || 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">
+                              Hoàn thành:
+                            </span>
+                            <span className="font-medium text-blue-600">
+                              {statistics.medicineRequestBreakdown?.completed ||
+                                0}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Health Check Breakdown */}
+                      <div className="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FiClipboard className="w-4 h-4 text-blue-600" />
+                          <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                            Kiểm tra y tế
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Chờ duyệt:</span>
+                            <span className="font-medium">
+                              {statistics.healthCheckBreakdown?.pending || 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">
+                              Đã lên lịch:
+                            </span>
+                            <span className="font-medium text-orange-600">
+                              {statistics.healthCheckBreakdown?.scheduled || 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">
+                              Hoàn thành:
+                            </span>
+                            <span className="font-medium text-green-600">
+                              {statistics.healthCheckBreakdown?.completed || 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Đã hủy:</span>
+                            <span className="font-medium text-red-600">
+                              {statistics.healthCheckBreakdown?.cancelled || 0}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

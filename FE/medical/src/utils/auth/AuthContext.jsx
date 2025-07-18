@@ -32,9 +32,7 @@ export const AuthProvider = ({ children }) => {
   // Hàm đăng nhập với API
   const login = async (loginData) => {
     try {
-      console.log("AuthContext login called with:", loginData);
       const response = await authService.login(loginData);
-      console.log("AuthService login response:", response);
 
       const userData = {
         id: response.id || response.Id, // API có thể trả về cả id hoặc Id
@@ -46,10 +44,8 @@ export const AuthProvider = ({ children }) => {
         token: response.token || response.Token,
       };
 
-      console.log("Setting user data:", userData);
       setUser(userData);
       localStorage.setItem("user", JSON.stringify(userData));
-      console.log("User data set successfully");
 
       return userData;
     } catch (error) {

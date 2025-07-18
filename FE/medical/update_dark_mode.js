@@ -49,5 +49,3 @@ updates.forEach(([searchText, replaceText]) => {
 
 // Write back to file
 fs.writeFileSync(filePath, content, "utf8");
-
-console.log("Dark mode updates applied successfully!");
