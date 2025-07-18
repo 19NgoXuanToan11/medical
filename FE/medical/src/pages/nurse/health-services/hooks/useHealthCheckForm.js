@@ -14,14 +14,14 @@ import {
   initialFormData,
   healthCheckItemsData,
 } from "../data/healthCheckData";
-import { createHealthCheck } from "../../../../utils/api/healthCheck/healthCheckService";
+import { createHealthCheck, getHealthCheckScheduleById, updateHealthCheckSchedule } from "../../../../utils/api/healthCheck/healthCheckService";
 import { checkEquipmentAvailability } from "../../../../utils/api/medicalSupply/medicalSupplyService";
 // Add import for health check items API
 import { healthCheckItemService } from "../../../../utils/api/healthCheckItem/healthCheckItemService";
 // Add import for class API
 import { getActiveClasses } from "../../../../utils/api/class/classService";
 
-export const useHealthCheckForm = () => {
+export const useHealthCheckForm = (editId = null) => {
   // State management
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -159,6 +159,58 @@ export const useHealthCheckForm = () => {
 
     loadActiveClasses();
   }, []);
+
+  // Load edit data if editId is provided
+  useEffect(() => {
+    const loadEditData = async () => {
+      if (!editId) return;
+      
+      console.log("🔄 Loading edit data for ID:", editId);
+      setLoading(true);
+      try {
+        const healthCheckData = await getHealthCheckScheduleById(editId);
+        console.log("📥 Received health check data:", healthCheckData);
+        
+        if (healthCheckData) {
+          // Map API data to form data
+          const mappedFormData = {
+            ...initialFormData,
+            formId: healthCheckData.formId,
+            title: healthCheckData.title || "",
+            scheduledDate: healthCheckData.scheduledDate ? 
+              new Date(healthCheckData.scheduledDate).toISOString().split('T')[0] : "",
+            startTime: healthCheckData.startTime || "",
+            estimatedDuration: healthCheckData.estimatedDuration || 60,
+            description: healthCheckData.description || "",
+            location: healthCheckData.location || "Phòng y tế trường",
+            totalStudents: healthCheckData.totalStudents || 0,
+            targetGrades: healthCheckData.grades || 
+              (healthCheckData.gradeIds ? JSON.parse(healthCheckData.gradeIds) : []),
+            checkItems: healthCheckData.selectedStations ? 
+              JSON.parse(healthCheckData.selectedStations) : [],
+            notifyParents: healthCheckData.notifyParents !== false,
+            autoAdvance: healthCheckData.autoAdvance !== false,
+            saveResults: healthCheckData.saveResults !== false,
+            generateReport: healthCheckData.generateReport !== false,
+            requireParentConfirmation: healthCheckData.requireParentConfirmation !== false,
+            // Reset status to pending for resubmission
+            confirmStatus: "pending",
+            status: "draft"
+          };
+          
+          console.log("🎯 Mapped form data:", mappedFormData);
+          setFormData(mappedFormData);
+        }
+      } catch (error) {
+        console.error("Error loading health check for edit:", error);
+        alert("Không thể tải dữ liệu để chỉnh sửa. Vui lòng thử lại.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEditData();
+  }, [editId]);
 
   // Calculated values
   const totalStudents = calculateTotalStudents(
@@ -751,13 +803,22 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         return { success: false, message: "Phải chọn một khối lớp" };
       }
 
-      const response = await createHealthCheck(submissionData);
+      let response;
+      if (editId) {
+        // Update existing health check
+        response = await updateHealthCheckSchedule(editId, submissionData);
+      } else {
+        // Create new health check
+        response = await createHealthCheck(submissionData);
+      }
 
       // Clear draft after successful submission
       localStorage.removeItem("healthcheck_draft");
 
       // Create success message based on equipment status
-      let successMessage = "Kế hoạch khám sức khỏe đã được gửi thành công!";
+      let successMessage = editId ? 
+        "Kế hoạch khám sức khỏe đã được cập nhật và gửi lại thành công!" :
+        "Kế hoạch khám sức khỏe đã được gửi thành công!";
       if (equipmentReport?.requiresAction) {
         successMessage +=
           " Lưu ý: Đã gửi thông báo về tình trạng thiết bị cho quản lý để xem xét.";
@@ -773,7 +834,9 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
       return {
         success: false,
         message:
-          error.message || "Có lỗi xảy ra khi gửi kế hoạch. Vui lòng thử lại.",
+          error.message || (editId ? 
+            "Có lỗi xảy ra khi cập nhật kế hoạch. Vui lòng thử lại." :
+            "Có lỗi xảy ra khi gửi kế hoạch. Vui lòng thử lại."),
       };
     } finally {
       setLoading(false);

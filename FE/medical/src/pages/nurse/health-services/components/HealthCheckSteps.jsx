@@ -133,6 +133,7 @@ export const NavigationControls = ({
   onCancel,
   onSubmit,
   loading,
+  isEditMode = false,
 }) => {
   const isFirstStep = currentStep === 1;
   const isLastStep = currentStep === 4;
@@ -183,12 +184,12 @@ export const NavigationControls = ({
             {loading ? (
               <>
                 <div className="animate-spin w-4 h-4 mr-2 border border-white border-t-transparent rounded-full" />
-                Đang gửi...
+                {isEditMode ? "Đang cập nhật..." : "Đang gửi..."}
               </>
             ) : (
               <>
                 <FiCheck className="w-4 h-4 mr-2" />
-                Gửi kế hoạch
+                {isEditMode ? "Cập nhật & Gửi lại" : "Gửi kế hoạch"}
               </>
             )}
           </button>
