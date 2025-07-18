@@ -42,7 +42,7 @@ public class AuthController : ControllerBase
             // Validate that the requested role is admin for the static admin account
             if (request.Role.ToLower() != "admin")
             {
-                return Unauthorized($"Tài khoản Admin chỉ có thể đăng nhập với vai trò 'Quản trị viên', không thể đăng nhập với vai trò '{request.Role}'.");
+                return BadRequest(new { message = "Tài khoản của bạn không có quyền truy cập vai trò này. Vui lòng chọn đúng vai trò" });
             }
             
             return Ok(new
@@ -77,7 +77,7 @@ public class AuthController : ControllerBase
                     
                     if (!roleMatches)
                     {
-                        return Unauthorized($"Tài khoản của bạn có vai trò '{staff.Role.RoleName}' nhưng bạn đang cố gắng đăng nhập với vai trò '{request.Role}'. Vui lòng chọn đúng vai trò của tài khoản.");
+                        return BadRequest(new { message = "Tài khoản của bạn không có quyền truy cập vai trò này. Vui lòng chọn đúng vai trò" });
                     }
                     
                     return Ok(new
