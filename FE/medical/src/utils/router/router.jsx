@@ -59,6 +59,7 @@ import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealth
 import StudentHealthRecordDetail from "../../pages/nurse/health-records/StudentHealthRecordDetail";
 import HealthServicesManagement from "../../pages/nurse/health-services/HealthServicesManagement";
 import HealthServiceCreate from "../../pages/nurse/health-services/HealthServiceCreate";
+import HealthCheckCreate from "../../pages/nurse/health-services/HealthCheckCreate";
 import HealthServicesDetail from "../../pages/nurse/health-services/HealthServicesDetail";
 
 // parent
@@ -167,6 +168,7 @@ function AppRoutes() {
 
         <Route path="/nurse/health-services" element={<HealthServicesManagement />} />
         <Route path="/nurse/health-services/create/:serviceType" element={<HealthServiceCreate />} />
+        <Route path="/nurse/health-services/edit/:id" element={<HealthCheckCreate />} />
         <Route path="/nurse/health-services/:id" element={<HealthServicesDetail />} />
 
         <Route path="/nurse/health-events" element={<HealthEventList />} />
