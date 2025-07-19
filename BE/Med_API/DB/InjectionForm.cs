@@ -31,9 +31,14 @@ public partial class InjectionForm
 
     public DateTime? ConfirmedDate { get; set; }
 
+    public int? VaccineId { get; set; } // Liên kết với Vaccine
+
+    public string? Status { get; set; } // Trạng thái duyệt: pending, approved, rejected, etc
+
     // Navigation properties
     public virtual Student? Student { get; set; }
     public virtual Parent? Parent { get; set; }
     public virtual Staff? ConfirmedByStaff { get; set; }
+    public virtual Vaccine? Vaccine { get; set; }
     public virtual ICollection<InjectionResult> InjectionResults { get; set; } = new List<InjectionResult>();
 }

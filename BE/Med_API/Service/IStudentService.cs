@@ -10,4 +10,5 @@ public interface IStudentService
     Task<bool> UpdateStudentAsync(Student student);
     Task<bool> DeleteStudentAsync(int id);
     Task<Student?> GetStudentByCodeAsync(string studentCode);
+    Task<IEnumerable<Student>> GetEligibleStudentsForVaccineAsync(int vaccineId, DateTime injectionDate, IEnumerable<int> studentIds);
 } 
