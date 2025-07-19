@@ -40,6 +40,7 @@ import MedicationManagement from "../../pages/manager/medication/MedicationManag
 import HealthCheckManagement from "../../pages/manager/health-check/HealthCheckManagement";
 import VaccinationManagement from "../../pages/manager/vaccination/VaccinationManagement";
 import VaccinationDetailManager from "../../pages/manager/vaccination/VaccinationDetail";
+import VaccineManagement from "../../pages/manager/vaccination/VaccineManagement";
 import ClassManagement from "../../pages/manager/manage/ClassManagement";
 import ClassDetail from "../../pages/manager/manage/ClassDetail";
 import ExaminationCategoryManagement from "../../pages/manager/manage/ExaminationCategoryManagement";
@@ -130,6 +131,8 @@ function AppRoutes() {
         
         <Route path="/manager/vaccination" element={<VaccinationManagement />} />
         <Route path="/manager/vaccination/:id" element={<VaccinationDetailManager />} />
+        
+        <Route path="/manager/vaccines" element={<VaccineManagement />} />
         
         <Route path="/manager/health-events" element={<HealthEventsManagement />} />
         <Route path="/manager/health-events/:id" element={<ManagerHealthEventDetail />} />

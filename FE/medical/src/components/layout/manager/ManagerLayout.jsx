@@ -77,6 +77,11 @@ const ManagerLayout = () => {
       icon: <FiPackage className="w-5 h-5" />,
     },
     {
+      path: "/manager/vaccines",
+      name: "Quản lý Vaccine",
+      icon: <FiShield className="w-5 h-5" />,
+    },
+    {
       path: "/manager/excel",
       name: "Quản lý Excel",
       icon: <FiFileText className="w-5 h-5" />,

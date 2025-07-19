@@ -521,12 +521,23 @@ const VaccinationManagement = () => {
     <div className="container mx-auto px-4 py-6">
       {/* Main Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-          Quản lý tiêm chủng
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Quản lý các chương trình tiêm chủng và duyệt yêu cầu từ y tá
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+              Quản lý tiêm chủng
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Quản lý các chương trình tiêm chủng và duyệt yêu cầu từ y tá
+            </p>
+          </div>
+          <button
+            onClick={() => navigate("/manager/vaccines")}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+          >
+            <FiShield className="h-4 w-4" />
+            Quản lý Vaccine
+          </button>
+        </div>
       </div>
 
       {/* Tab Navigation */}
