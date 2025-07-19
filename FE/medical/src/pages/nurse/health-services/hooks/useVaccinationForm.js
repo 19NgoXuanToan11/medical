@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   calculateTotalStudents,
   validateFormStep,
+  validateCompleteForm,
   checkScheduleConflicts,
 } from "../utils/vaccinationHelpers";
 import { initialFormData } from "../data/vaccinationData";
@@ -255,11 +256,18 @@ export const useVaccinationForm = () => {
 
   // Submit form
   const handleSubmit = useCallback(async () => {
-    // Final validation
-    const errors = validateFormStep(currentStep, formData);
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
-      throw new Error("Validation failed");
+    // Complete form validation before submission
+    const completeValidationErrors = validateCompleteForm(formData);
+    if (Object.keys(completeValidationErrors).length > 0) {
+      setValidationErrors(completeValidationErrors);
+      throw new Error("Vui lòng kiểm tra và sửa các lỗi trong form");
+    }
+
+    // Final step validation
+    const stepErrors = validateFormStep(currentStep, formData);
+    if (Object.keys(stepErrors).length > 0) {
+      setValidationErrors(stepErrors);
+      throw new Error("Vui lòng hoàn thành thông tin ở bước hiện tại");
     }
 
     // Check for high severity conflicts
@@ -267,19 +275,82 @@ export const useVaccinationForm = () => {
       (conflict) => conflict.severity === "error"
     );
     if (highSeverityConflicts.length > 0) {
-      throw new Error("Schedule conflicts must be resolved");
+      throw new Error(
+        "Cần giải quyết các xung đột lịch trình nghiêm trọng trước khi gửi"
+      );
     }
 
     setLoading(true);
 
     try {
-      // Prepare vaccination data for API submission
+      // Clear any previous validation errors
+      setValidationErrors({});
+
+      // Enhanced data mapping for API submission
       const vaccinationData = {
-        ...formData,
+        // Basic information
+        title: formData.title?.trim(),
+        description: formData.description?.trim() || "",
+        scheduledDateTime: formData.scheduledDateTime,
+        location: formData.location?.trim(),
+
+        // Vaccine information
+        vaccineId: parseInt(formData.vaccineId),
+        vaccineName:
+          formData.vaccineName ||
+          formData.vaccineInfo?.name ||
+          `Vaccine ${formData.vaccineId}`,
+
+        // Target classes - ensure it's an array of valid IDs
+        targetGrades: Array.isArray(formData.targetGrades)
+          ? formData.targetGrades.filter((id) => id && !isNaN(id))
+          : [],
+
+        // Additional metadata
         totalStudents,
         submittedAt: new Date().toISOString(),
         status: "pending_approval",
+
+        // Requirements and approvals
+        requiresConsent: formData.requiresConsent !== false, // default true
+        requiresApproval: formData.requiresApproval === true, // default false
+        approvalLevel: formData.approvalLevel || "nurse_supervisor",
+
+        // Communication
+        parentNotificationMessage:
+          formData.parentNotificationMessage?.trim() || "",
+        teacherInstructions: formData.teacherInstructions?.trim() || "",
+        notes: formData.notes?.trim() || "",
       };
+
+      // Final data validation before API call
+      if (!vaccinationData.title) {
+        throw new Error("Tiêu đề không được để trống");
+      }
+
+      if (!vaccinationData.scheduledDateTime) {
+        throw new Error("Thời gian thực hiện không được để trống");
+      }
+
+      if (!vaccinationData.location) {
+        throw new Error("Địa điểm không được để trống");
+      }
+
+      if (!vaccinationData.vaccineId || vaccinationData.vaccineId <= 0) {
+        throw new Error("ID vaccine không hợp lệ");
+      }
+
+      if (!vaccinationData.targetGrades.length) {
+        throw new Error("Phải chọn ít nhất một lớp học");
+      }
+
+      // Log data for debugging (remove in production)
+      console.log("Sending vaccination data to API:", {
+        ...vaccinationData,
+        targetGrades: vaccinationData.targetGrades,
+        vaccineId: vaccinationData.vaccineId,
+        totalStudents,
+      });
 
       // Call real API to create vaccination schedule
       const result = await injectionFormService.createVaccinationSchedule(
@@ -297,14 +368,52 @@ export const useVaccinationForm = () => {
           data: result.data,
         };
       } else {
-        throw new Error(result.message || "Không thể tạo kế hoạch tiêm chủng");
+        // Handle specific API errors
+        let errorMessage =
+          result.message || "Không thể tạo kế hoạch tiêm chủng";
+
+        // Check for specific error cases
+        if (result.message?.includes("Student not found")) {
+          errorMessage = "Một số học sinh không tồn tại trong hệ thống";
+        } else if (result.message?.includes("StudentId is required")) {
+          errorMessage = "Thiếu thông tin ID học sinh";
+        } else if (result.message?.includes("Parent not found")) {
+          errorMessage = "Không tìm thấy thông tin phụ huynh";
+        } else if (result.message?.includes("Invalid consent status")) {
+          errorMessage = "Trạng thái đồng ý không hợp lệ";
+        } else if (result.message?.includes("Không tìm thấy học sinh nào")) {
+          errorMessage =
+            "Không tìm thấy học sinh nào trong các lớp đã chọn. Vui lòng kiểm tra lại danh sách lớp.";
+        } else if (result.message?.includes("Cần chọn ít nhất một lớp học")) {
+          errorMessage = "Vui lòng chọn ít nhất một lớp học để tiêm chủng";
+        }
+
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error("Error submitting vaccination schedule:", error);
+
+      // Enhanced error handling with specific messages
+      let errorMessage = "Có lỗi xảy ra khi tạo kế hoạch. Vui lòng thử lại.";
+
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.status === 400) {
+        errorMessage =
+          "Dữ liệu gửi không hợp lệ. Vui lòng kiểm tra lại thông tin.";
+      } else if (error.response?.status === 500) {
+        errorMessage = "Lỗi hệ thống. Vui lòng liên hệ quản trị viên.";
+      } else if (error.response?.status === 401) {
+        errorMessage = "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.";
+      } else if (error.response?.status === 403) {
+        errorMessage = "Bạn không có quyền thực hiện chức năng này.";
+      }
+
       return {
         success: false,
-        message:
-          error.message || "Có lỗi xảy ra khi tạo kế hoạch. Vui lòng thử lại.",
+        message: errorMessage,
         error: error,
       };
     } finally {

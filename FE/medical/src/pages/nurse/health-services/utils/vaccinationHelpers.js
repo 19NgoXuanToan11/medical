@@ -270,31 +270,119 @@ export const validateFormStep = (step, formData) => {
     case 1: // Basic Info (Time and Location)
       if (!formData.title?.trim()) {
         errors.title = "Vui lòng nhập tiêu đề kế hoạch";
+      } else if (formData.title.trim().length < 5) {
+        errors.title = "Tiêu đề phải có ít nhất 5 ký tự";
       }
+
       if (!formData.scheduledDateTime) {
         errors.scheduledDateTime = "Vui lòng chọn ngày và giờ thực hiện";
-      } else if (!isFutureDateTime(formData.scheduledDateTime)) {
-        errors.scheduledDateTime = "Thời gian thực hiện phải trong tương lai";
+      } else {
+        const selectedDate = new Date(formData.scheduledDateTime);
+        const now = new Date();
+        const minFutureDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+
+        if (selectedDate < now) {
+          errors.scheduledDateTime = "Thời gian thực hiện phải trong tương lai";
+        } else if (selectedDate < minFutureDate) {
+          errors.scheduledDateTime =
+            "Thời gian thực hiện phải ít nhất 24 giờ sau hiện tại";
+        }
       }
+
       if (!formData.location?.trim()) {
         errors.location = "Vui lòng nhập địa điểm thực hiện";
+      } else if (formData.location.trim().length < 3) {
+        errors.location = "Địa điểm phải có ít nhất 3 ký tự";
       }
       break;
 
     case 2: // Vaccine Selection
       if (!formData.vaccineId) {
         errors.vaccineId = "Vui lòng chọn vaccine để tiêm chủng";
+      } else if (isNaN(formData.vaccineId) || formData.vaccineId <= 0) {
+        errors.vaccineId = "ID vaccine không hợp lệ";
+      }
+
+      // Optional vaccine name validation
+      if (formData.vaccineName && formData.vaccineName.trim().length < 2) {
+        errors.vaccineName = "Tên vaccine phải có ít nhất 2 ký tự";
       }
       break;
 
     case 3: // Target Classes
-      if (formData.targetGrades.length === 0) {
+      if (!formData.targetGrades || !Array.isArray(formData.targetGrades)) {
+        errors.targetGrades = "Dữ liệu lớp học không hợp lệ";
+      } else if (formData.targetGrades.length === 0) {
         errors.targetGrades = "Vui lòng chọn ít nhất một lớp học";
+      } else {
+        // Validate each grade ID
+        const invalidGrades = formData.targetGrades.filter(
+          (gradeId) => !gradeId || isNaN(gradeId) || gradeId <= 0
+        );
+        if (invalidGrades.length > 0) {
+          errors.targetGrades = "Một số ID lớp học không hợp lệ";
+        }
+      }
+      break;
+
+    case 4: // Additional Settings (optional step)
+      // Validate description if provided
+      if (formData.description && formData.description.length > 500) {
+        errors.description = "Mô tả không được vượt quá 500 ký tự";
+      }
+
+      // Validate estimated duration if provided
+      if (formData.estimatedDuration) {
+        if (
+          isNaN(formData.estimatedDuration) ||
+          formData.estimatedDuration < 30
+        ) {
+          errors.estimatedDuration = "Thời gian ước tính phải ít nhất 30 phút";
+        } else if (formData.estimatedDuration > 480) {
+          errors.estimatedDuration =
+            "Thời gian ước tính không được vượt quá 8 giờ";
+        }
       }
       break;
 
     default:
       break;
+  }
+
+  return errors;
+};
+
+/**
+ * Validate complete form data before submission
+ */
+export const validateCompleteForm = (formData) => {
+  const errors = {};
+
+  // Validate all critical fields
+  if (!formData.title?.trim()) {
+    errors.title = "Tiêu đề là bắt buộc";
+  }
+
+  if (!formData.vaccineId || formData.vaccineId <= 0) {
+    errors.vaccineId = "Phải chọn vaccine hợp lệ";
+  }
+
+  if (!formData.targetGrades || formData.targetGrades.length === 0) {
+    errors.targetGrades = "Phải chọn ít nhất một lớp học";
+  }
+
+  if (!formData.scheduledDateTime) {
+    errors.scheduledDateTime = "Phải chọn thời gian thực hiện";
+  } else {
+    const selectedDate = new Date(formData.scheduledDateTime);
+    const now = new Date();
+    if (selectedDate <= now) {
+      errors.scheduledDateTime = "Thời gian thực hiện phải trong tương lai";
+    }
+  }
+
+  if (!formData.location?.trim()) {
+    errors.location = "Địa điểm là bắt buộc";
   }
 
   return errors;

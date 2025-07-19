@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getStudentsByGrade } from "../student/studentService";
 
 const API_URL = "https://localhost:7111/api";
 
@@ -32,52 +33,101 @@ export const injectionFormService = {
   // Create vaccination schedule with injection forms
   createVaccinationSchedule: async (vaccinationData) => {
     try {
-      // Create multiple injection forms for each student in each class
-      const injectionForms = [];
+      // Validate required data
+      if (
+        !vaccinationData.targetGrades ||
+        vaccinationData.targetGrades.length === 0
+      ) {
+        throw new Error("Cần chọn ít nhất một lớp học");
+      }
 
-      // For each selected grade/class, create injection forms for all students
+      if (!vaccinationData.vaccineId) {
+        throw new Error("Cần chọn vaccine để tiêm chủng");
+      }
+
+      if (!vaccinationData.title) {
+        throw new Error("Tiêu đề là bắt buộc");
+      }
+
+      // Get all students from selected grades
+      const allStudents = [];
+
       for (const gradeId of vaccinationData.targetGrades) {
-        // This would need to get students from the selected grade
-        // For now, we'll create a single form per grade as a placeholder
+        try {
+          const gradeStudents = await getStudentsByGrade(gradeId);
+          allStudents.push(...gradeStudents);
+        } catch (error) {
+          console.warn(
+            `Không thể lấy danh sách học sinh lớp ${gradeId}:`,
+            error
+          );
+        }
+      }
+
+      if (allStudents.length === 0) {
+        throw new Error("Không tìm thấy học sinh nào trong các lớp đã chọn");
+      }
+
+      // Create injection forms for each student
+      const injectionForms = [];
+      const createdForms = [];
+
+      for (const student of allStudents) {
         const injectionForm = {
-          studentId: 0, // Will be filled with actual student IDs
-          parentId: null,
+          studentId: student.studentId,
+          parentId:
+            student.parents && student.parents.length > 0
+              ? student.parents[0].parentId
+              : null,
           createdDate: new Date().toISOString(),
-          injectionName: vaccinationData.vaccineName || "Tiêm chủng",
+          injectionName:
+            vaccinationData.vaccineName ||
+            `Vaccine ID ${vaccinationData.vaccineId}`,
           description: `${vaccinationData.title} - ${
             vaccinationData.description || ""
           }`.trim(),
           consentStatus: "Pending",
           consentDate: null,
-          className: `Grade-${gradeId}`, // Placeholder
+          className: student.className,
           confirmStatus: "Pending",
           confirmedDate: null,
           vaccineId: vaccinationData.vaccineId,
           status: "Pending",
         };
 
-        injectionForms.push(injectionForm);
+        try {
+          const response = await api.post("/InjectionForm", injectionForm);
+          createdForms.push(response.data);
+        } catch (error) {
+          console.error(
+            `Lỗi khi tạo injection form cho học sinh ${student.fullName}:`,
+            error
+          );
+          // Continue creating forms for other students
+        }
       }
 
-      // In a real implementation, you would:
-      // 1. Get all students for the selected grades
-      // 2. Create individual injection forms for each student
-      // 3. Handle parent consent requirements
-
-      const response = await api.post("/InjectionForm", injectionForms[0]); // Create one form for demo
+      if (createdForms.length === 0) {
+        throw new Error(
+          "Không thể tạo phiếu tiêm chủng cho bất kỳ học sinh nào"
+        );
+      }
 
       return {
         success: true,
-        data: response.data,
-        message: "Kế hoạch tiêm chủng đã được tạo thành công",
+        data: {
+          totalFormsCreated: createdForms.length,
+          totalStudents: allStudents.length,
+          forms: createdForms,
+        },
+        message: `Đã tạo thành công ${createdForms.length} phiếu tiêm chủng cho ${createdForms.length} học sinh`,
       };
     } catch (error) {
       console.error("Error creating vaccination schedule:", error);
       return {
         success: false,
         data: null,
-        message:
-          error.response?.data?.message || "Không thể tạo kế hoạch tiêm chủng",
+        message: error.message || "Không thể tạo kế hoạch tiêm chủng",
         error: error.response?.data || error.message,
       };
     }
