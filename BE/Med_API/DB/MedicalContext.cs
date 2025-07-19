@@ -869,6 +869,11 @@ public partial class MedicalContext : DbContext
             entity.HasIndex(e => e.MedicalSupplyId);
         });
 
+        modelBuilder.Entity<Vaccine>(entity =>
+        {
+            entity.ToTable("Vaccine");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 
