@@ -4,8 +4,19 @@
  * Calculate total number of students across selected grades
  */
 export const calculateTotalStudents = (selectedGrades, availableGrades) => {
+  if (
+    !selectedGrades ||
+    !Array.isArray(selectedGrades) ||
+    !availableGrades ||
+    !Array.isArray(availableGrades)
+  ) {
+    return 0;
+  }
+
   return selectedGrades.reduce((total, gradeId) => {
-    const grade = availableGrades.find((g) => g.id === gradeId);
+    const grade = availableGrades.find(
+      (g) => g.id === gradeId || g.classId === gradeId
+    );
     return total + (grade?.studentCount || 0);
   }, 0);
 };
@@ -256,7 +267,7 @@ export const validateFormStep = (step, formData) => {
   const errors = {};
 
   switch (step) {
-    case 1: // Basic Info
+    case 1: // Basic Info (Time and Location)
       if (!formData.title?.trim()) {
         errors.title = "Vui lòng nhập tiêu đề kế hoạch";
       }
@@ -270,7 +281,13 @@ export const validateFormStep = (step, formData) => {
       }
       break;
 
-    case 2: // Target Classes
+    case 2: // Vaccine Selection
+      if (!formData.vaccineId) {
+        errors.vaccineId = "Vui lòng chọn vaccine để tiêm chủng";
+      }
+      break;
+
+    case 3: // Target Classes
       if (formData.targetGrades.length === 0) {
         errors.targetGrades = "Vui lòng chọn ít nhất một lớp học";
       }

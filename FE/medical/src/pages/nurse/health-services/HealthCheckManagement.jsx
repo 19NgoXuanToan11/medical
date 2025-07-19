@@ -140,15 +140,11 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
 
 
   const handleStartHealthCheck = (healthCheckId) => {
-    // TODO: Update API to change status to active
-    console.log("Starting health check:", healthCheckId);
     // Refresh data after action
     fetchHealthCheckSchedules();
   };
 
   const handleCompleteHealthCheck = (healthCheckId) => {
-    // TODO: Update API to change status to completed  
-    console.log("Completing health check:", healthCheckId);
     // Refresh data after action
     fetchHealthCheckSchedules();
   };

@@ -13,6 +13,7 @@ import {
   FiPlus,
   FiCheck,
   FiArrowLeft,
+  FiClipboard,
 } from "react-icons/fi";
 import { useVaccinationForm } from "./hooks/useVaccinationForm";
 import {
@@ -21,6 +22,7 @@ import {
   ProgressBar,
   StepHeader,
 } from "./components/VaccinationSteps";
+import VaccineSelectionStep from "./components/steps/VaccineSelectionStep";
 import BasicInfoStep from "./components/steps/BasicInfoStep";
 import TargetLogisticsStep from "./components/steps/TargetLogisticsStep";
 import PreviewStep from "./components/steps/PreviewStep";
@@ -36,6 +38,8 @@ const VaccinationCreate = ({ onBack }) => {
     validationErrors,
     scheduleConflicts,
     availableGrades,
+    loadingGrades,
+    gradesError,
 
     // Calculated values
     totalStudents,
@@ -50,32 +54,11 @@ const VaccinationCreate = ({ onBack }) => {
     loadDraft,
     handleSubmit,
     resetForm,
+    retryLoadGrades,
   } = useVaccinationForm();
 
-  // Steps configuration for vaccination (updated to 3 steps)
-  const steps = [
-    {
-      id: 1,
-      title: "Thông tin cơ bản",
-      description: "Thời gian, địa điểm và mục tiêu",
-      icon: FiCalendar,
-      required: true,
-    },
-    {
-      id: 2,
-      title: "Đối tượng tiêm",
-      description: "Lớp học",
-      icon: FiUsers,
-      required: true,
-    },
-    {
-      id: 3,
-      title: "Kiểm tra & Xác nhận",
-      description: "Xem trước và hoàn tất",
-      icon: FiCheckCircle,
-      required: true,
-    },
-  ];
+  // Use steps configuration from data file
+  const steps = vaccinationStepsConfig;
 
   // Auto-save draft every 30 seconds
   useEffect(() => {
@@ -94,6 +77,7 @@ const VaccinationCreate = ({ onBack }) => {
 
     switch (stepId) {
       case 1:
+        // Basic information validation (Time and Location)
         if (!formData.title?.trim()) {
           errors.title = "Tiêu đề là bắt buộc";
         }
@@ -113,6 +97,14 @@ const VaccinationCreate = ({ onBack }) => {
         break;
 
       case 2:
+        // Vaccine selection validation
+        if (!formData.vaccineId) {
+          errors.vaccineId = "Vui lòng chọn vaccine để tiêm chủng";
+        }
+        break;
+
+      case 3:
+        // Target grades validation
         if (!formData.targetGrades || formData.targetGrades.length === 0) {
           errors.targetGrades = "Cần chọn ít nhất một lớp học";
         }
@@ -151,6 +143,14 @@ const VaccinationCreate = ({ onBack }) => {
         );
       case 2:
         return (
+          <VaccineSelectionStep
+            formData={formData}
+            validationErrors={validationErrors}
+            onInputChange={handleInputChange}
+          />
+        );
+      case 3:
+        return (
           <TargetLogisticsStep
             formData={formData}
             validationErrors={validationErrors}
@@ -158,9 +158,12 @@ const VaccinationCreate = ({ onBack }) => {
             onGradeSelection={handleGradeSelection}
             availableGrades={availableGrades}
             totalStudents={totalStudents}
+            loadingGrades={loadingGrades}
+            gradesError={gradesError}
+            onRetryLoadGrades={retryLoadGrades}
           />
         );
-      case 3:
+      case 4:
         return (
           <PreviewStep
             formData={formData}
@@ -238,6 +241,8 @@ const VaccinationCreate = ({ onBack }) => {
                   return "warning";
                 return max;
               }, null)}
+              totalSteps={steps.length}
+              onCancel={() => onBack?.() || navigate("/nurse/health-services")}
             />
           </div>
         </div>

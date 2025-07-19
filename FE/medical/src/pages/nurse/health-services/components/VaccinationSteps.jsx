@@ -132,9 +132,10 @@ export const NavigationControls = ({
   onSubmit,
   hasErrors = false,
   conflictSeverity = null,
+  totalSteps = 4, // Updated to 4 steps
 }) => {
   const isFirstStep = currentStep === 1;
-  const isLastStep = currentStep === 3;
+  const isLastStep = currentStep === totalSteps; // Dynamic based on totalSteps
 
   return (
     <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-neutral-200 dark:border-neutral-700">
@@ -198,7 +199,7 @@ export const NavigationControls = ({
   );
 };
 
-export const ProgressBar = ({ currentStep, totalSteps = 3 }) => {
+export const ProgressBar = ({ currentStep, totalSteps = 4 }) => {
   const progress = (currentStep / totalSteps) * 100;
 
   return (

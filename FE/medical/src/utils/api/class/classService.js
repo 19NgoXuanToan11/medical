@@ -2,10 +2,48 @@ import axios from "axios";
 
 const API_URL = "https://localhost:7111/api";
 
+// Create axios instance with default config
+const api = axios.create({
+  baseURL: API_URL,
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
+
+// Request interceptor for authentication
+api.interceptors.request.use(
+  (config) => {
+    // Add auth token if available
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (user.token) {
+      config.headers.Authorization = `Bearer ${user.token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor for consistent error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle unauthorized access
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Get all classes
 export const getAllClasses = async () => {
   try {
-    const response = await axios.get(`${API_URL}/Class`);
+    const response = await api.get("/Class");
     return response.data;
   } catch (error) {
     console.error("Error fetching classes:", error);
@@ -16,7 +54,7 @@ export const getAllClasses = async () => {
 // Get active classes only
 export const getActiveClasses = async () => {
   try {
-    const response = await axios.get(`${API_URL}/Class/active`);
+    const response = await api.get("/Class/active");
     return response.data;
   } catch (error) {
     console.error("Error fetching active classes:", error);
@@ -27,7 +65,7 @@ export const getActiveClasses = async () => {
 // Get class by ID with detailed information including students and parents
 export const getClassById = async (id) => {
   try {
-    const response = await axios.get(`${API_URL}/Class/${id}`);
+    const response = await api.get(`/Class/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching class details:", error);
@@ -38,7 +76,7 @@ export const getClassById = async (id) => {
 // Get classes by grade level
 export const getClassesByGrade = async (gradeLevel) => {
   try {
-    const response = await axios.get(`${API_URL}/Class/grade/${gradeLevel}`);
+    const response = await api.get(`/Class/grade/${gradeLevel}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching classes by grade:", error);
@@ -49,7 +87,7 @@ export const getClassesByGrade = async (gradeLevel) => {
 // Get students in a specific class
 export const getClassStudents = async (classId) => {
   try {
-    const response = await axios.get(`${API_URL}/Class/${classId}/students`);
+    const response = await api.get(`/Class/${classId}/students`);
     return response.data;
   } catch (error) {
     console.error("Error fetching class students:", error);
@@ -60,7 +98,7 @@ export const getClassStudents = async (classId) => {
 // Create a new class
 export const createClass = async (classData) => {
   try {
-    const response = await axios.post(`${API_URL}/Class`, classData);
+    const response = await api.post("/Class", classData);
     return response.data;
   } catch (error) {
     console.error("Error creating class:", error);
@@ -71,7 +109,7 @@ export const createClass = async (classData) => {
 // Update an existing class
 export const updateClass = async (id, classData) => {
   try {
-    const response = await axios.put(`${API_URL}/Class/${id}`, {
+    const response = await api.put(`/Class/${id}`, {
       ...classData,
       classId: id,
     });
@@ -85,7 +123,7 @@ export const updateClass = async (id, classData) => {
 // Delete a class
 export const deleteClass = async (id) => {
   try {
-    const response = await axios.delete(`${API_URL}/Class/${id}`);
+    const response = await api.delete(`/Class/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting class:", error);
@@ -96,7 +134,7 @@ export const deleteClass = async (id) => {
 // Assign a student to a class
 export const assignStudentToClass = async (studentId, classId) => {
   try {
-    const response = await axios.post(`${API_URL}/Class/assign-student`, {
+    const response = await api.post("/Class/assign-student", {
       studentId,
       classId,
     });
@@ -110,9 +148,7 @@ export const assignStudentToClass = async (studentId, classId) => {
 // Remove a student from their current class
 export const removeStudentFromClass = async (studentId) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/Class/remove-student/${studentId}`
-    );
+    const response = await api.post(`/Class/remove-student/${studentId}`);
     return response.data;
   } catch (error) {
     console.error("Error removing student from class:", error);
@@ -123,7 +159,7 @@ export const removeStudentFromClass = async (studentId) => {
 // Get class summary statistics
 export const getClassSummary = async () => {
   try {
-    const response = await axios.get(`${API_URL}/Class/summary`);
+    const response = await api.get("/Class/summary");
     return response.data;
   } catch (error) {
     console.error("Error fetching class summary:", error);

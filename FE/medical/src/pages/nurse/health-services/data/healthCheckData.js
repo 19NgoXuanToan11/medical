@@ -46,7 +46,7 @@ export const healthCheckStepsConfig = [
   {
     step: 1,
     title: "Thông tin cơ bản",
-    description: "Thời gian, địa điểm và mục tiêu",
+    description: "Thời gian và địa điểm",
     required: true,
   },
   {

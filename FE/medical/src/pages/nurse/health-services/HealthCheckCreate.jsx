@@ -35,8 +35,6 @@ const HealthCheckCreate = () => {
   const { id } = useParams();
   const isEditMode = Boolean(id);
   
-  console.log("🔧 HealthCheckCreate - ID:", id, "IsEditMode:", isEditMode);
-
   // Use the custom hook for form management
   const {
     loading,

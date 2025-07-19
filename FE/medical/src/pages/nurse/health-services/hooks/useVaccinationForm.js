@@ -4,7 +4,9 @@ import {
   validateFormStep,
   checkScheduleConflicts,
 } from "../utils/vaccinationHelpers";
-import { availableGradesData, initialFormData } from "../data/vaccinationData";
+import { initialFormData } from "../data/vaccinationData";
+import { injectionFormService } from "../../../../utils/api/injection/injectionService";
+import { getActiveClasses } from "../../../../utils/api/class/classService";
 
 export const useVaccinationForm = () => {
   // State management
@@ -13,7 +15,50 @@ export const useVaccinationForm = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [validationErrors, setValidationErrors] = useState({});
   const [scheduleConflicts, setScheduleConflicts] = useState([]);
-  const [availableGrades] = useState(availableGradesData);
+  const [availableGrades, setAvailableGrades] = useState([]);
+  const [loadingGrades, setLoadingGrades] = useState(true);
+  const [gradesError, setGradesError] = useState(null);
+
+  // Load active classes on component mount
+  useEffect(() => {
+    const loadActiveClasses = async () => {
+      setLoadingGrades(true);
+      setGradesError(null);
+      try {
+        const classesData = await getActiveClasses();
+
+        // Transform API data to match our expected format
+        const transformedData = classesData.map((classItem) => {
+          // Check different possible fields for student count
+          const studentCount =
+            classItem.currentStudentCount ||
+            classItem.studentCount ||
+            (classItem.students ? classItem.students.length : 0) ||
+            0;
+
+          return {
+            id: classItem.classId || classItem.id,
+            name: classItem.className || classItem.name,
+            studentCount: studentCount,
+            ageRange:
+              classItem.ageRange || `Khối ${classItem.gradeLevel || "N/A"}`,
+            gradeLevel: classItem.gradeLevel,
+            classes: 1,
+          };
+        });
+        setAvailableGrades(transformedData);
+      } catch (error) {
+        console.error("Error loading active classes:", error);
+        setGradesError("Không thể tải danh sách lớp học. Vui lòng thử lại.");
+        // Fallback to empty array on error
+        setAvailableGrades([]);
+      } finally {
+        setLoadingGrades(false);
+      }
+    };
+
+    loadActiveClasses();
+  }, []);
 
   // Calculated values
   const totalStudents = calculateTotalStudents(
@@ -136,7 +181,7 @@ export const useVaccinationForm = () => {
     }
 
     setValidationErrors({});
-    setCurrentStep((prev) => Math.min(prev + 1, 3)); // Max 3 steps now
+    setCurrentStep((prev) => Math.min(prev + 1, 5)); // Max 5 steps now
     return true;
   }, [currentStep, formData]);
 
@@ -228,29 +273,39 @@ export const useVaccinationForm = () => {
     setLoading(true);
 
     try {
-      // Mock API call - in real app, submit to backend
-      const submissionData = {
+      // Prepare vaccination data for API submission
+      const vaccinationData = {
         ...formData,
         totalStudents,
         submittedAt: new Date().toISOString(),
         status: "pending_approval",
       };
 
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Call real API to create vaccination schedule
+      const result = await injectionFormService.createVaccinationSchedule(
+        vaccinationData
+      );
 
-      // Clear draft after successful submission
-      localStorage.removeItem("vaccination_draft");
+      if (result.success) {
+        // Clear draft after successful submission
+        localStorage.removeItem("vaccination_draft");
 
-      return {
-        success: true,
-        message: "Kế hoạch tiêm chủng đã được gửi thành công!",
-        data: submissionData,
-      };
+        return {
+          success: true,
+          message:
+            result.message || "Kế hoạch tiêm chủng đã được tạo thành công!",
+          data: result.data,
+        };
+      } else {
+        throw new Error(result.message || "Không thể tạo kế hoạch tiêm chủng");
+      }
     } catch (error) {
+      console.error("Error submitting vaccination schedule:", error);
       return {
         success: false,
-        message: "Có lỗi xảy ra khi gửi kế hoạch. Vui lòng thử lại.",
+        message:
+          error.message || "Có lỗi xảy ra khi tạo kế hoạch. Vui lòng thử lại.",
+        error: error,
       };
     } finally {
       setLoading(false);
@@ -266,6 +321,43 @@ export const useVaccinationForm = () => {
     localStorage.removeItem("vaccination_draft");
   }, []);
 
+  // Retry loading grades function
+  const retryLoadGrades = useCallback(async () => {
+    setLoadingGrades(true);
+    setGradesError(null);
+    try {
+      const classesData = await getActiveClasses();
+
+      // Transform API data to match our expected format
+      const transformedData = classesData.map((classItem) => {
+        // Check different possible fields for student count
+        const studentCount =
+          classItem.currentStudentCount ||
+          classItem.studentCount ||
+          (classItem.students ? classItem.students.length : 0) ||
+          0;
+
+        return {
+          id: classItem.classId || classItem.id,
+          name: classItem.className || classItem.name,
+          studentCount: studentCount,
+          ageRange:
+            classItem.ageRange || `Khối ${classItem.gradeLevel || "N/A"}`,
+          gradeLevel: classItem.gradeLevel,
+          classes: 1,
+        };
+      });
+
+      setAvailableGrades(transformedData);
+    } catch (error) {
+      console.error("Error retrying to load active classes:", error);
+      setGradesError("Không thể tải danh sách lớp học. Vui lòng thử lại.");
+      setAvailableGrades([]);
+    } finally {
+      setLoadingGrades(false);
+    }
+  }, []);
+
   return {
     // State
     loading,
@@ -274,6 +366,8 @@ export const useVaccinationForm = () => {
     validationErrors,
     scheduleConflicts,
     availableGrades,
+    loadingGrades,
+    gradesError,
 
     // Calculated values
     totalStudents,
@@ -288,5 +382,6 @@ export const useVaccinationForm = () => {
     loadDraft,
     handleSubmit,
     resetForm,
+    retryLoadGrades,
   };
 };

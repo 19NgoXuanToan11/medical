@@ -165,11 +165,9 @@ export const useHealthCheckForm = (editId = null) => {
     const loadEditData = async () => {
       if (!editId) return;
       
-      console.log("🔄 Loading edit data for ID:", editId);
       setLoading(true);
       try {
         const healthCheckData = await getHealthCheckScheduleById(editId);
-        console.log("📥 Received health check data:", healthCheckData);
         
         if (healthCheckData) {
           // Map API data to form data
@@ -198,7 +196,6 @@ export const useHealthCheckForm = (editId = null) => {
             status: "draft"
           };
           
-          console.log("🎯 Mapped form data:", mappedFormData);
           setFormData(mappedFormData);
         }
       } catch (error) {

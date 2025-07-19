@@ -5,6 +5,7 @@ import {
   FiUsers,
   FiAlertCircle,
   FiCheckCircle,
+  FiActivity,
 } from "react-icons/fi";
 
 const PreviewStep = ({
@@ -80,7 +81,77 @@ const PreviewStep = ({
       </div>
 
       {/* Main Information Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Vaccine Information */}
+        <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+            <FiActivity className="w-5 h-5 mr-2 text-green-500 dark:text-green-400" />
+            Thông tin vaccine
+          </h3>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-400">
+                Tên vaccine:
+              </span>
+              <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
+                {formData.vaccineName || "Chưa chọn"}
+              </span>
+            </div>
+            {formData.vaccineInfo && (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Nhà sản xuất:
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
+                    {formData.vaccineInfo.manufacturer || "Chưa xác định"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Liều lượng:
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
+                    {formData.vaccineInfo.dose || "Theo hướng dẫn"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Cách tiêm:
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
+                    {formData.vaccineInfo.administrationMethod || "Tiêm bắp"}
+                  </span>
+                </div>
+                {formData.vaccineInfo.batchNumber && (
+                  <div className="pt-2 border-t border-gray-200 dark:border-neutral-600">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Lô sản xuất:
+                      </span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {formData.vaccineInfo.batchNumber}
+                      </span>
+                    </div>
+                    {formData.vaccineInfo.expiryDate && (
+                      <div className="flex justify-between mt-1">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Hạn sử dụng:
+                        </span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                          {new Date(
+                            formData.vaccineInfo.expiryDate
+                          ).toLocaleDateString("vi-VN")}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
         {/* Basic Information */}
         <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
