@@ -117,6 +117,7 @@ builder.Services.AddScoped<IStudentParentRepository, StudentParentRepository>();
 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IHealthCheckItemRepository, HealthCheckItemRepository>();
+builder.Services.AddScoped<IVaccineRepository, VaccineRepository>();
 
 // Register Services
 builder.Services.AddScoped<IStudentService, StudentService>();
@@ -140,6 +141,7 @@ builder.Services.AddScoped<IStudentParentService, StudentParentService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<IHealthCheckItemService, HealthCheckItemService>();
+builder.Services.AddScoped<IVaccineService, VaccineService>();
 
 // Register Background Services
 builder.Services.AddHostedService<TimeBasedStatusService>();
