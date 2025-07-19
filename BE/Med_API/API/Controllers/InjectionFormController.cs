@@ -153,4 +153,49 @@ public class InjectionFormController : ControllerBase
         }
         return Ok("Phụ huynh đã xác nhận đồng ý tiêm chủng thành công");
     }
+
+    // API cho manager duyệt phiếu tiêm chủng
+    [HttpPost("approve/{formId}")]
+    public async Task<IActionResult> ApproveInjectionForm(int formId)
+    {
+        var form = await _injectionFormService.GetInjectionFormByIdAsync(formId);
+        if (form == null)
+        {
+            return NotFound("Không tìm thấy phiếu tiêm chủng");
+        }
+        if (form.Status == "approved")
+        {
+            return BadRequest("Phiếu đã được duyệt trước đó");
+        }
+        form.Status = "approved";
+        var result = await _injectionFormService.UpdateInjectionFormAsync(form);
+        if (!result)
+        {
+            return StatusCode(500, "Lỗi duyệt phiếu tiêm chủng");
+        }
+        // TODO: Gửi thông báo xác nhận cho phụ huynh ở đây
+        return Ok("Phiếu tiêm chủng đã được duyệt và gửi thông báo xác nhận cho phụ huynh");
+    }
+
+    // API cho manager từ chối phiếu tiêm chủng
+    [HttpPost("reject/{formId}")]
+    public async Task<IActionResult> RejectInjectionForm(int formId)
+    {
+        var form = await _injectionFormService.GetInjectionFormByIdAsync(formId);
+        if (form == null)
+        {
+            return NotFound("Không tìm thấy phiếu tiêm chủng");
+        }
+        if (form.Status == "rejected")
+        {
+            return BadRequest("Phiếu đã bị từ chối trước đó");
+        }
+        form.Status = "rejected";
+        var result = await _injectionFormService.UpdateInjectionFormAsync(form);
+        if (!result)
+        {
+            return StatusCode(500, "Lỗi từ chối phiếu tiêm chủng");
+        }
+        return Ok("Phiếu tiêm chủng đã bị từ chối");
+    }
 } 
