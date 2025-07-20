@@ -4,6 +4,7 @@ using DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(MedicalContext))]
-    partial class MedicalContextModelSnapshot : ModelSnapshot
+    [Migration("20250720044339_SeedGradeNurseData")]
+    partial class SeedGradeNurseData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1642,7 +1645,7 @@ namespace DB.Migrations
             modelBuilder.Entity("DB.GradeNurse", b =>
                 {
                     b.HasOne("DB.Staff", "Nurse")
-                        .WithMany("GradeNurses")
+                        .WithMany()
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2021,8 +2024,6 @@ namespace DB.Migrations
                     b.Navigation("ActionedRequestResults");
 
                     b.Navigation("AdministeredRequestResults");
-
-                    b.Navigation("GradeNurses");
 
                     b.Navigation("HealthEvents");
 

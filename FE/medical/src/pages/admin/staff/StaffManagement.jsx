@@ -35,12 +35,14 @@ import {
 const StaffManagement = () => {
   // States for staff list
   const [staffList, setStaffList] = useState([]);
+  const [gradeNurses, setGradeNurses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   // Filter and search states
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("all");
+  const [filterGrade, setFilterGrade] = useState("all");
   const [sortBy, setSortBy] = useState("firstName");
   const [sortOrder, setSortOrder] = useState("asc");
 
@@ -92,6 +94,18 @@ const StaffManagement = () => {
       } else {
         showNotification(result.message, "error");
       }
+
+      // Fetch grade-nurse assignments
+      try {
+        const gradeNurseResult = await staffService.getAllGradeNurses();
+        console.log("Grade nurse result:", gradeNurseResult);
+        if (gradeNurseResult.success) {
+          setGradeNurses(gradeNurseResult.data);
+          console.log("Grade nurses set:", gradeNurseResult.data);
+        }
+      } catch (gradeError) {
+        console.error("Error fetching grade assignments:", gradeError);
+      }
     } catch (error) {
       showNotification("Có lỗi xảy ra khi tải danh sách nhân viên", "error");
     } finally {
@@ -110,6 +124,43 @@ const StaffManagement = () => {
   const showNotification = (message, type = "info") => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 5000);
+  };
+
+  // Get assigned grades for a nurse
+  const getAssignedGrades = (staffId) => {
+    if (!gradeNurses || gradeNurses.length === 0) return [];
+    const assignments = gradeNurses.filter((gn) => gn.staffId === staffId);
+    return assignments.map((assignment) => assignment.grade).sort();
+  };
+
+  // Format assigned grades display
+  const formatAssignedGrades = (grades) => {
+    if (!grades || grades.length === 0) {
+      return <span className="text-gray-400 text-sm">Chưa phân công</span>;
+    }
+
+    return (
+      <div className="flex flex-wrap gap-1 justify-center">
+        {grades.map((grade) => (
+          <span
+            key={grade}
+            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+              grade === 1
+                ? "bg-blue-100 text-blue-800"
+                : grade === 2
+                ? "bg-green-100 text-green-800"
+                : grade === 3
+                ? "bg-yellow-100 text-yellow-800"
+                : grade === 4
+                ? "bg-purple-100 text-purple-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            Khối {grade}
+          </span>
+        ))}
+      </div>
+    );
   };
 
   // Handle form input changes
@@ -332,6 +383,23 @@ const StaffManagement = () => {
       }
     }
 
+    // Apply grade filter (only for nurses)
+    if (filterGrade !== "all") {
+      filtered = filtered.filter((staff) => {
+        if (staff.roleId !== 3) {
+          // For non-nurses, show them only if filter is "none"
+          return filterGrade === "none";
+        }
+
+        const assignedGrades = getAssignedGrades(staff.staffId);
+        if (filterGrade === "none") {
+          return assignedGrades.length === 0;
+        }
+
+        return assignedGrades.includes(parseInt(filterGrade));
+      });
+    }
+
     // Apply sorting
     filtered.sort((a, b) => {
       let aVal = a[sortBy];
@@ -465,12 +533,32 @@ const StaffManagement = () => {
               }}
               className="border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
-              <option value="all">Tất cả</option>
+              <option value="all">Tất cả vai trò</option>
               {Object.values(MANAGEABLE_ROLES).map((role) => (
                 <option key={role.id} value={role.id}>
                   {role.label}
                 </option>
               ))}
+            </select>
+          </div>
+
+          {/* Grade Filter */}
+          <div className="flex items-center gap-2">
+            <select
+              value={filterGrade}
+              onChange={(e) => {
+                setFilterGrade(e.target.value);
+                setCurrentPage(1); // Reset to first page when filter changes
+              }}
+              className="border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+              <option value="all">Tất cả khối</option>
+              <option value="1">Khối 1</option>
+              <option value="2">Khối 2</option>
+              <option value="3">Khối 3</option>
+              <option value="4">Khối 4</option>
+              <option value="5">Khối 5</option>
+              <option value="none">Chưa phân công</option>
             </select>
           </div>
 
@@ -566,6 +654,11 @@ const StaffManagement = () => {
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider align-middle">
                   <div className="flex items-center justify-center h-full">
+                    Khối phụ trách
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider align-middle">
+                  <div className="flex items-center justify-center h-full">
                     Số điện thoại
                   </div>
                 </th>
@@ -616,6 +709,26 @@ const StaffManagement = () => {
                         >
                           {roleInfo.label}
                         </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap align-middle text-center">
+                      <div className="flex items-center justify-center h-full">
+                        {staff.roleId === 3 ? (
+                          (() => {
+                            const grades = getAssignedGrades(staff.staffId);
+                            console.log(
+                              `Staff ${staff.staffId} (${staff.firstName} ${staff.lastName}) grades:`,
+                              grades,
+                              "from gradeNurses:",
+                              gradeNurses
+                            );
+                            return formatAssignedGrades(grades);
+                          })()
+                        ) : (
+                          <span className="text-gray-400 text-sm">
+                            Không áp dụng
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100 align-middle text-center">

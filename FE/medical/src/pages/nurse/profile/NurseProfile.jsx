@@ -36,6 +36,7 @@ const NurseProfile = () => {
     healthEventCount: 0,
     parentCount: 0,
     medicineRequestCount: 0,
+    assignedGrades: [],
   });
 
   const [editedData, setEditedData] = useState(profileData);
@@ -71,6 +72,7 @@ const NurseProfile = () => {
             healthEventCount: apiData.healthEventCount || 0,
             parentCount: apiData.parentCount || 0,
             medicineRequestCount: apiData.medicineRequestCount || 0,
+            assignedGrades: apiData.assignedGrades || [],
           };
 
           setProfileData(updatedProfile);
@@ -414,6 +416,33 @@ const NurseProfile = () => {
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200">
                       {currentData.roleName}
                     </span>
+                  </div>
+                </div>
+
+                {/* Assigned Grades */}
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                    Khối được phân công
+                  </label>
+                  <div className="flex items-center gap-2 text-neutral-900 dark:text-neutral-100">
+                    <FiShield className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
+                    {currentData.assignedGrades &&
+                    currentData.assignedGrades.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {currentData.assignedGrades.map((grade) => (
+                          <span
+                            key={grade}
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          >
+                            Khối {grade}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-neutral-500 dark:text-neutral-400">
+                        Chưa được phân công khối nào
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

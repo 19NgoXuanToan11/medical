@@ -106,6 +106,32 @@ public class StaffController : ControllerBase
         return CreatedAtAction(nameof(GetGradeNurseById), new { id = result.GradeNurseId }, result);
     }
 
+    // GET: api/Staff/my-assigned-grades - Get current nurse's assigned grade levels
+    [HttpGet("my-assigned-grades")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<ActionResult<IEnumerable<int>>> GetMyAssignedGrades()
+    {
+        // Get current user ID from JWT token
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int staffId))
+        {
+            return Unauthorized("Invalid token or user ID not found");
+        }
+
+        // Get current user role from JWT token
+        var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+        if (roleClaim == null || roleClaim.Value.ToLower() != "nurse")
+        {
+            return Forbid("Only nurses can access their assigned grades");
+        }
+
+        // Get nurse's assigned grades
+        var gradeNurses = await _staffService.GetGradeNursesByStaffIdAsync(staffId);
+        var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
+        
+        return Ok(assignedGrades);
+    }
+
     [HttpDelete("grade-nurse/{id}")]
     public async Task<IActionResult> DeleteGradeNurse(int id)
     {

@@ -29,4 +29,5 @@ public partial class Staff
     public virtual ICollection<MedicineRequest> MedicineRequests { get; set; } = new List<MedicineRequest>();
     public virtual ICollection<RequestResult> AdministeredRequestResults { get; set; } = new List<RequestResult>();
     public virtual ICollection<RequestResult> ActionedRequestResults { get; set; } = new List<RequestResult>();
+    public virtual ICollection<GradeNurse> GradeNurses { get; set; } = new List<GradeNurse>();
 }

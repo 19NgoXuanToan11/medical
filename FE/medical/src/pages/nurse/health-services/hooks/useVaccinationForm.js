@@ -9,6 +9,25 @@ import { initialFormData } from "../data/vaccinationData";
 import { injectionFormService } from "../../../../utils/api/injection/injectionService";
 import { getActiveClasses } from "../../../../utils/api/class/classService";
 
+// Helper function to get age range by grade level
+const getAgeRangeByGrade = (gradeLevel) => {
+  const ageRanges = {
+    1: "6-7 tuổi",
+    2: "7-8 tuổi",
+    3: "8-9 tuổi",
+    4: "9-10 tuổi",
+    5: "10-11 tuổi",
+    6: "11-12 tuổi",
+    7: "12-13 tuổi",
+    8: "13-14 tuổi",
+    9: "14-15 tuổi",
+    10: "15-16 tuổi",
+    11: "16-17 tuổi",
+    12: "17-18 tuổi",
+  };
+  return ageRanges[gradeLevel] || `${gradeLevel + 5}-${gradeLevel + 6} tuổi`;
+};
+
 export const useVaccinationForm = () => {
   // State management
   const [loading, setLoading] = useState(false);
@@ -28,25 +47,40 @@ export const useVaccinationForm = () => {
       try {
         const classesData = await getActiveClasses();
 
-        // Transform API data to match our expected format
-        const transformedData = classesData.map((classItem) => {
-          // Check different possible fields for student count
+        // Group classes by grade level to match HealthCheck pattern
+        const gradeGroups = {};
+
+        classesData.forEach((classItem) => {
+          const gradeLevel = classItem.gradeLevel;
           const studentCount =
             classItem.currentStudentCount ||
             classItem.studentCount ||
             (classItem.students ? classItem.students.length : 0) ||
             0;
 
-          return {
-            id: classItem.classId || classItem.id,
-            name: classItem.className || classItem.name,
-            studentCount: studentCount,
-            ageRange:
-              classItem.ageRange || `Khối ${classItem.gradeLevel || "N/A"}`,
-            gradeLevel: classItem.gradeLevel,
-            classes: 1,
-          };
+          if (!gradeGroups[gradeLevel]) {
+            gradeGroups[gradeLevel] = {
+              id: `grade-${gradeLevel}`,
+              name: `Khối ${gradeLevel}`,
+              gradeLevel: gradeLevel,
+              studentCount: 0,
+              ageRange: getAgeRangeByGrade(gradeLevel),
+              classes: [],
+              classCount: 0,
+            };
+          }
+
+          gradeGroups[gradeLevel].studentCount += studentCount;
+          gradeGroups[gradeLevel].classes.push(
+            classItem.className || classItem.name
+          );
+          gradeGroups[gradeLevel].classCount += 1;
         });
+
+        // Convert to array and sort by grade level
+        const transformedData = Object.values(gradeGroups).sort(
+          (a, b) => a.gradeLevel - b.gradeLevel
+        );
         setAvailableGrades(transformedData);
       } catch (error) {
         console.error("Error loading active classes:", error);
@@ -303,7 +337,9 @@ export const useVaccinationForm = () => {
 
         // Target classes - ensure it's an array of valid IDs
         targetGrades: Array.isArray(formData.targetGrades)
-          ? formData.targetGrades.filter((id) => id && !isNaN(id))
+          ? formData.targetGrades.filter(
+              (id) => id && typeof id === "string" && id.trim() !== ""
+            )
           : [],
 
         // Additional metadata
@@ -343,14 +379,6 @@ export const useVaccinationForm = () => {
       if (!vaccinationData.targetGrades.length) {
         throw new Error("Phải chọn ít nhất một lớp học");
       }
-
-      // Log data for debugging (remove in production)
-      console.log("Sending vaccination data to API:", {
-        ...vaccinationData,
-        targetGrades: vaccinationData.targetGrades,
-        vaccineId: vaccinationData.vaccineId,
-        totalStudents,
-      });
 
       // Call real API to create vaccination schedule
       const result = await injectionFormService.createVaccinationSchedule(
@@ -437,26 +465,40 @@ export const useVaccinationForm = () => {
     try {
       const classesData = await getActiveClasses();
 
-      // Transform API data to match our expected format
-      const transformedData = classesData.map((classItem) => {
-        // Check different possible fields for student count
+      // Group classes by grade level to match HealthCheck pattern
+      const gradeGroups = {};
+
+      classesData.forEach((classItem) => {
+        const gradeLevel = classItem.gradeLevel;
         const studentCount =
           classItem.currentStudentCount ||
           classItem.studentCount ||
           (classItem.students ? classItem.students.length : 0) ||
           0;
 
-        return {
-          id: classItem.classId || classItem.id,
-          name: classItem.className || classItem.name,
-          studentCount: studentCount,
-          ageRange:
-            classItem.ageRange || `Khối ${classItem.gradeLevel || "N/A"}`,
-          gradeLevel: classItem.gradeLevel,
-          classes: 1,
-        };
+        if (!gradeGroups[gradeLevel]) {
+          gradeGroups[gradeLevel] = {
+            id: `grade-${gradeLevel}`,
+            name: `Khối ${gradeLevel}`,
+            gradeLevel: gradeLevel,
+            studentCount: 0,
+            ageRange: getAgeRangeByGrade(gradeLevel),
+            classes: [],
+            classCount: 0,
+          };
+        }
+
+        gradeGroups[gradeLevel].studentCount += studentCount;
+        gradeGroups[gradeLevel].classes.push(
+          classItem.className || classItem.name
+        );
+        gradeGroups[gradeLevel].classCount += 1;
       });
 
+      // Convert to array and sort by grade level
+      const transformedData = Object.values(gradeGroups).sort(
+        (a, b) => a.gradeLevel - b.gradeLevel
+      );
       setAvailableGrades(transformedData);
     } catch (error) {
       console.error("Error retrying to load active classes:", error);

@@ -14,12 +14,18 @@ import {
   initialFormData,
   healthCheckItemsData,
 } from "../data/healthCheckData";
-import { createHealthCheck, getHealthCheckScheduleById, updateHealthCheckSchedule } from "../../../../utils/api/healthCheck/healthCheckService";
+import {
+  createHealthCheck,
+  getHealthCheckScheduleById,
+  updateHealthCheckSchedule,
+} from "../../../../utils/api/healthCheck/healthCheckService";
 import { checkEquipmentAvailability } from "../../../../utils/api/medicalSupply/medicalSupplyService";
 // Add import for health check items API
 import { healthCheckItemService } from "../../../../utils/api/healthCheckItem/healthCheckItemService";
 // Add import for class API
 import { getActiveClasses } from "../../../../utils/api/class/classService";
+import { useAuth } from "../../../../utils/auth/AuthContext";
+import { staffService } from "../../../../utils/staff/staffService";
 
 export const useHealthCheckForm = (editId = null) => {
   // State management
@@ -112,27 +118,18 @@ export const useHealthCheckForm = (editId = null) => {
     loadHealthCheckItems();
   }, []);
 
-  // Load active classes from API on component mount
+  // Load classes assigned to current nurse from API on component mount
   useEffect(() => {
-    const loadActiveClasses = async () => {
+    const loadAssignedClasses = async () => {
       setLoadingGrades(true);
       try {
-        const result = await getActiveClasses();
+        // Only nurses can access assigned classes - check will be done by API
 
-        // Handle different response structures
-        let classesArray = null;
+        const result = await staffService.getMyAssignedClasses();
 
-        if (result?.success && result?.data) {
-          classesArray = result.data;
-        } else if (result?.data) {
-          classesArray = result.data;
-        } else if (Array.isArray(result)) {
-          classesArray = result;
-        }
-
-        if (classesArray && Array.isArray(classesArray)) {
+        if (result?.success && result?.data && Array.isArray(result.data)) {
           // Transform API data to match expected UI format
-          const transformedClasses = classesArray.map((classItem) => ({
+          const transformedClasses = result.data.map((classItem) => ({
             id: classItem.classId || classItem.id,
             name: classItem.className || classItem.name,
             gradeLevel: classItem.gradeLevel,
@@ -141,61 +138,71 @@ export const useHealthCheckForm = (editId = null) => {
               classItem.totalStudents ||
               classItem.studentCount ||
               0,
-            isActive: classItem.isActive !== false, // Default to true if not specified
+            classTeacher: classItem.classTeacher || null,
+            isActive: classItem.isActive !== false,
           }));
 
           setAvailableGrades(transformedClasses);
         } else {
-          console.warn("No valid classes data found in API response");
+          console.warn("No assigned classes found for this nurse");
           setAvailableGrades([]);
         }
       } catch (error) {
-        console.error("Error loading active classes:", error);
+        console.error("Error loading assigned classes:", error);
+        // Fallback to empty array for nurses with no assigned grades
         setAvailableGrades([]);
       } finally {
         setLoadingGrades(false);
       }
     };
 
-    loadActiveClasses();
+    loadAssignedClasses();
   }, []);
 
   // Load edit data if editId is provided
   useEffect(() => {
     const loadEditData = async () => {
       if (!editId) return;
-      
+
       setLoading(true);
       try {
         const healthCheckData = await getHealthCheckScheduleById(editId);
-        
+
         if (healthCheckData) {
           // Map API data to form data
           const mappedFormData = {
             ...initialFormData,
             formId: healthCheckData.formId,
             title: healthCheckData.title || "",
-            scheduledDate: healthCheckData.scheduledDate ? 
-              new Date(healthCheckData.scheduledDate).toISOString().split('T')[0] : "",
+            scheduledDate: healthCheckData.scheduledDate
+              ? new Date(healthCheckData.scheduledDate)
+                  .toISOString()
+                  .split("T")[0]
+              : "",
             startTime: healthCheckData.startTime || "",
             estimatedDuration: healthCheckData.estimatedDuration || 60,
             description: healthCheckData.description || "",
             location: healthCheckData.location || "Phòng y tế trường",
             totalStudents: healthCheckData.totalStudents || 0,
-            targetGrades: healthCheckData.grades || 
-              (healthCheckData.gradeIds ? JSON.parse(healthCheckData.gradeIds) : []),
-            checkItems: healthCheckData.selectedStations ? 
-              JSON.parse(healthCheckData.selectedStations) : [],
+            targetGrades:
+              healthCheckData.grades ||
+              (healthCheckData.gradeIds
+                ? JSON.parse(healthCheckData.gradeIds)
+                : []),
+            checkItems: healthCheckData.selectedStations
+              ? JSON.parse(healthCheckData.selectedStations)
+              : [],
             notifyParents: healthCheckData.notifyParents !== false,
             autoAdvance: healthCheckData.autoAdvance !== false,
             saveResults: healthCheckData.saveResults !== false,
             generateReport: healthCheckData.generateReport !== false,
-            requireParentConfirmation: healthCheckData.requireParentConfirmation !== false,
+            requireParentConfirmation:
+              healthCheckData.requireParentConfirmation !== false,
             // Reset status to pending for resubmission
             confirmStatus: "pending",
-            status: "draft"
+            status: "draft",
           };
-          
+
           setFormData(mappedFormData);
         }
       } catch (error) {
@@ -813,9 +820,9 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
       localStorage.removeItem("healthcheck_draft");
 
       // Create success message based on equipment status
-      let successMessage = editId ? 
-        "Kế hoạch khám sức khỏe đã được cập nhật và gửi lại thành công!" :
-        "Kế hoạch khám sức khỏe đã được gửi thành công!";
+      let successMessage = editId
+        ? "Kế hoạch khám sức khỏe đã được cập nhật và gửi lại thành công!"
+        : "Kế hoạch khám sức khỏe đã được gửi thành công!";
       if (equipmentReport?.requiresAction) {
         successMessage +=
           " Lưu ý: Đã gửi thông báo về tình trạng thiết bị cho quản lý để xem xét.";
@@ -831,9 +838,10 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
       return {
         success: false,
         message:
-          error.message || (editId ? 
-            "Có lỗi xảy ra khi cập nhật kế hoạch. Vui lòng thử lại." :
-            "Có lỗi xảy ra khi gửi kế hoạch. Vui lòng thử lại."),
+          error.message ||
+          (editId
+            ? "Có lỗi xảy ra khi cập nhật kế hoạch. Vui lòng thử lại."
+            : "Có lỗi xảy ra khi gửi kế hoạch. Vui lòng thử lại."),
       };
     } finally {
       setLoading(false);

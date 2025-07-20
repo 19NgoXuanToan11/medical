@@ -50,10 +50,13 @@ const TargetLogisticsHealthStep = ({
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Khối lớp đã chọn
+                Lớp học đã chọn
               </p>
               <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {formData.targetGrades.length}
+                {formData.targetGrades.reduce((total, gradeId) => {
+                  const grade = availableGrades.find((g) => g.id === gradeId);
+                  return total + (grade?.classCount || 0);
+                }, 0)}
               </p>
             </div>
           </div>
@@ -112,11 +115,8 @@ const TargetLogisticsHealthStep = ({
         <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
           <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 flex items-center">
             <FiTarget className="mr-2" />
-            Chọn khối lớp tham gia
+            Chọn lớp tham gia
           </h3>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-            Chọn một khối lớp sẽ tham gia kế hoạch khám sức khỏe (chỉ được chọn 1 khối)
-          </p>
         </div>
 
         <div className="p-6">
@@ -124,12 +124,12 @@ const TargetLogisticsHealthStep = ({
             <div className="text-center py-12">
               <FiInfo className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                Chưa có dữ liệu khối lớp
+                Chưa có khối lớp được phân công
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Hiện tại chưa có dữ liệu khối lớp nào được tải.
+                Bạn chưa được phân công phụ trách khối lớp nào.
                 <br />
-                Vui lòng thử lại hoặc liên hệ quản trị viên.
+                Vui lòng liên hệ quản trị viên để được phân công khối lớp.
               </p>
             </div>
           ) : (
@@ -167,7 +167,10 @@ const TargetLogisticsHealthStep = ({
                           {grade.studentCount} học sinh
                         </p>
                         <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                          Lớp: {grade.classes ? grade.classes.join(", ") : "Không có"}
+                          Khối: {grade.gradeLevel || "Không có"}
+                        </p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                          GVCN: {grade.classTeacher || "Chưa có thông tin"}
                         </p>
                       </div>
                       <div className="text-xs text-neutral-500 dark:text-neutral-500">
@@ -177,7 +180,7 @@ const TargetLogisticsHealthStep = ({
                   </div>
                 ))}
               </div>
-              
+
               {/* Selected Grade Summary */}
               {formData.targetGrades.length > 0 && (
                 <div className="mt-6 bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
@@ -187,18 +190,28 @@ const TargetLogisticsHealthStep = ({
                   {formData.targetGrades.map((gradeId) => {
                     const grade = availableGrades.find((g) => g.id === gradeId);
                     return grade ? (
-                      <div key={gradeId} className="flex items-center justify-between py-2 px-3 bg-primary-50 dark:bg-primary-900/20 rounded border border-primary-200 dark:border-primary-800">
-                        <div>
-                          <span className="font-medium text-primary-900 dark:text-primary-200">
-                            {grade.name}
-                          </span>
-                          <span className="text-sm text-primary-700 dark:text-primary-300 ml-2">
-                            ({grade.classes ? grade.classes.join(", ") : "Không có"})
+                      <div
+                        key={gradeId}
+                        className="py-2 px-3 bg-primary-50 dark:bg-primary-900/20 rounded border border-primary-200 dark:border-primary-800"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="font-medium text-primary-900 dark:text-primary-200">
+                              {grade.name}
+                            </span>
+                            <span className="text-sm text-primary-700 dark:text-primary-300 ml-2">
+                              (Khối {grade.gradeLevel || "Không có"})
+                            </span>
+                          </div>
+                          <span className="text-sm text-primary-600 dark:text-primary-400">
+                            {grade.studentCount} học sinh
                           </span>
                         </div>
-                        <span className="text-sm text-primary-600 dark:text-primary-400">
-                          {grade.studentCount} học sinh
-                        </span>
+                        {grade.classTeacher && (
+                          <div className="mt-1 text-xs text-primary-600 dark:text-primary-400">
+                            GVCN: {grade.classTeacher}
+                          </div>
+                        )}
                       </div>
                     ) : null;
                   })}

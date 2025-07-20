@@ -46,7 +46,7 @@ const PreviewStep = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
               {totalStudents}
@@ -57,24 +57,13 @@ const PreviewStep = ({
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-              {formData.targetGrades.length}
+              {formData.targetGrades.reduce((total, gradeId) => {
+                const grade = availableGrades.find((g) => g.id === gradeId);
+                return total + (grade?.classCount || 0);
+              }, 0)}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Lớp học
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-              {formData.targetGrades.reduce(
-                (sum, gradeId) =>
-                  sum +
-                  (availableGrades.find((grade) => grade.id === gradeId)
-                    ?.classes || 1),
-                0
-              )}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Ca tiêm
             </div>
           </div>
         </div>
@@ -216,6 +205,9 @@ const PreviewStep = ({
                       {grade.studentCount} học sinh
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-500 block">
+                      {grade.classes ? grade.classes.join(", ") : "Không có"}
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-500 block">
                       {grade.ageRange}
                     </span>
                   </div>
@@ -299,59 +291,6 @@ const PreviewStep = ({
               </p>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Schedule Conflicts */}
-      {scheduleConflicts.length > 0 && (
-        <div
-          className={`border rounded-lg p-6 ${
-            hasHighSeverityConflicts
-              ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700"
-              : "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700"
-          }`}
-        >
-          <h4
-            className={`font-medium mb-3 flex items-center ${
-              hasHighSeverityConflicts
-                ? "text-red-800 dark:text-red-200"
-                : "text-yellow-800 dark:text-yellow-200"
-            }`}
-          >
-            <FiAlertCircle className="w-5 h-5 mr-2" />
-            {hasHighSeverityConflicts
-              ? "Xung đột nghiêm trọng"
-              : "Cảnh báo xung đột"}
-          </h4>
-          <ul className="space-y-2">
-            {scheduleConflicts.map((conflict, index) => (
-              <li
-                key={index}
-                className={`text-sm flex items-start ${
-                  conflict.severity === "error"
-                    ? "text-red-700 dark:text-red-300"
-                    : "text-yellow-700 dark:text-yellow-300"
-                }`}
-              >
-                <span
-                  className={`w-2 h-2 rounded-full mt-1.5 mr-2 flex-shrink-0 ${
-                    conflict.severity === "error"
-                      ? "bg-red-500 dark:bg-red-400"
-                      : "bg-yellow-500 dark:bg-yellow-400"
-                  }`}
-                />
-                {conflict.message}
-              </li>
-            ))}
-          </ul>
-          {hasHighSeverityConflicts && (
-            <div className="mt-3 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-600 rounded">
-              <p className="text-sm text-red-800 dark:text-red-200 font-medium">
-                ⚠️ Vui lòng giải quyết các xung đột nghiêm trọng trước khi tiếp
-                tục.
-              </p>
-            </div>
-          )}
         </div>
       )}
     </div>

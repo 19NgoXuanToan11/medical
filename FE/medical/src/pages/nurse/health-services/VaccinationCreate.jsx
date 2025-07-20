@@ -158,7 +158,7 @@ const VaccinationCreate = ({ onBack }) => {
       case 3:
         // Target grades validation
         if (!formData.targetGrades || formData.targetGrades.length === 0) {
-          errors.targetGrades = "Cần chọn ít nhất một lớp học";
+          errors.targetGrades = "Cần chọn ít nhất một khối học";
         }
         break;
 
@@ -284,18 +284,20 @@ const VaccinationCreate = ({ onBack }) => {
   return (
     <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 text-white">
+      <div className="px-6 py-4 text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <button
               onClick={() => navigate("/nurse/health-services")}
-              className="p-2 hover:bg-blue-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-700 dark:text-gray-300"
             >
               <FiArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-xl font-semibold">Tạo kế hoạch tiêm chủng</h1>
-              <p className="text-blue-100 text-sm">
+              <h1 className="text-gray-900 dark:text-gray-100 font-semibold">
+                Tạo kế hoạch tiêm chủng
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
                 Bước {currentStep} của {steps.length}:{" "}
                 {steps[currentStep - 1]?.title}
               </p>
@@ -304,14 +306,6 @@ const VaccinationCreate = ({ onBack }) => {
 
           {/* Action buttons */}
           <div className="flex items-center space-x-2">
-            <button
-              onClick={saveDraft}
-              disabled={loading}
-              className="flex items-center space-x-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-            >
-              <FiSave className="w-4 h-4" />
-              <span>Lưu nháp</span>
-            </button>
             <button
               onClick={resetForm}
               className="flex items-center space-x-2 px-3 py-2 bg-gray-500 hover:bg-gray-600 rounded-lg transition-colors"

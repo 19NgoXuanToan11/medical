@@ -89,20 +89,7 @@ const BasicInfoStep = ({
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
-          <div className="flex items-center">
-            <FiUsers className="w-8 h-8 text-primary-600 dark:text-primary-400" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Tổng học sinh
-              </p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {totalStudents}
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
           <div className="flex items-center">
             <FiCalendar className="w-8 h-8 text-primary-600 dark:text-primary-400" />

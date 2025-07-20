@@ -194,7 +194,7 @@ export const vaccinationStepsConfig = [
   {
     id: 3,
     title: "Đối tượng tiêm",
-    description: "Lớp học",
+    description: "Khối học",
     required: true,
   },
   {

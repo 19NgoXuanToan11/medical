@@ -30,7 +30,7 @@ api.interceptors.request.use(
 
 // Injection Form API Service
 export const injectionFormService = {
-  // Create vaccination schedule with injection forms
+  // Create vaccination schedule (single API call like HealthCheckForm)
   createVaccinationSchedule: async (vaccinationData) => {
     try {
       // Validate required data
@@ -49,85 +49,97 @@ export const injectionFormService = {
         throw new Error("Tiêu đề là bắt buộc");
       }
 
-      // Get all students from selected grades
-      const allStudents = [];
+      // Map vaccination data to HealthCheckForm-like structure
+      const vaccinationSchedule = {
+        FormId: 0, // Always 0 for new forms
+        Title: vaccinationData.title?.trim(),
+        ScheduledDate: vaccinationData.scheduledDateTime ? 
+          new Date(vaccinationData.scheduledDateTime).toISOString().split('T')[0] : null,
+        StartTime: vaccinationData.scheduledDateTime ? 
+          new Date(vaccinationData.scheduledDateTime).toTimeString().split(' ')[0] : "08:00:00",
+        EstimatedDuration: 60, // Default duration for vaccination
+        Description: vaccinationData.description?.trim() || "",
+        Location: vaccinationData.location?.trim() || "Phòng y tế trường",
+        StudentId: null,
+        ParentId: null,
+        CreatedDate: new Date().toISOString(),
+        ConsentStatus: "đang chờ",
+        ConsentDate: null,
+        ConfirmStatus: "đang chờ",
+        ConfirmedBy: null,
+        ConfirmedDate: null,
+        ClassName: null,
+        GradeIds: JSON.stringify(vaccinationData.targetGrades.map(g => String(g))),
+        TotalStudents: vaccinationData.totalStudents || 0,
+        NotifyParents: true,
+        AutoAdvance: true,
+        SaveResults: true,
+        GenerateReport: true,
+        RequireParentConfirmation: true,
+        SelectedStations: JSON.stringify([`vaccination-${vaccinationData.vaccineId}`]),
+        StaffAssigned: null,
+        Status: "đang chờ",
+        EstimatedEndTime: null,
+        Student: null,
+        Parent: null,
+        ConfirmedByStaff: null,
+        Results: null,
+        
+        // Vaccination-specific fields (stored in description or notes)
+        VaccineId: vaccinationData.vaccineId,
+        VaccineName: vaccinationData.vaccineName,
+        VaccinationType: "vaccination"
+      };
 
-      for (const gradeId of vaccinationData.targetGrades) {
-        try {
-          const gradeStudents = await getStudentsByGrade(gradeId);
-          allStudents.push(...gradeStudents);
-        } catch (error) {
-          console.warn(
-            `Không thể lấy danh sách học sinh lớp ${gradeId}:`,
-            error
-          );
-        }
-      }
-
-      if (allStudents.length === 0) {
-        throw new Error("Không tìm thấy học sinh nào trong các lớp đã chọn");
-      }
-
-      // Create injection forms for each student
-      const injectionForms = [];
-      const createdForms = [];
-
-      for (const student of allStudents) {
-        const injectionForm = {
-          studentId: student.studentId,
-          parentId:
-            student.parents && student.parents.length > 0
-              ? student.parents[0].parentId
-              : null,
-          createdDate: new Date().toISOString(),
-          injectionName:
-            vaccinationData.vaccineName ||
-            `Vaccine ID ${vaccinationData.vaccineId}`,
-          description: `${vaccinationData.title} - ${
-            vaccinationData.description || ""
-          }`.trim(),
-          consentStatus: "Pending",
-          consentDate: null,
-          className: student.className,
-          confirmStatus: "Pending",
-          confirmedDate: null,
-          vaccineId: vaccinationData.vaccineId,
-          status: "Pending",
-        };
-
-        try {
-          const response = await api.post("/InjectionForm", injectionForm);
-          createdForms.push(response.data);
-        } catch (error) {
-          console.error(
-            `Lỗi khi tạo injection form cho học sinh ${student.fullName}:`,
-            error
-          );
-          // Continue creating forms for other students
-        }
-      }
-
-      if (createdForms.length === 0) {
-        throw new Error(
-          "Không thể tạo phiếu tiêm chủng cho bất kỳ học sinh nào"
-        );
-      }
+      // Create single vaccination schedule using HealthCheckForm API
+      const response = await api.post("/HealthCheckForm/schedules", vaccinationSchedule);
 
       return {
         success: true,
         data: {
-          totalFormsCreated: createdForms.length,
-          totalStudents: allStudents.length,
-          forms: createdForms,
+          formId: response.data.formId,
+          title: response.data.title,
+          scheduledDate: response.data.scheduledDate,
+          totalStudents: response.data.totalStudents,
+          status: response.data.status
         },
-        message: `Đã tạo thành công ${createdForms.length} phiếu tiêm chủng cho ${createdForms.length} học sinh`,
+        message: "Kế hoạch tiêm chủng đã được tạo thành công!",
       };
     } catch (error) {
       console.error("Error creating vaccination schedule:", error);
       return {
         success: false,
         data: null,
-        message: error.message || "Không thể tạo kế hoạch tiêm chủng",
+        message: error.response?.data?.error || error.message || "Không thể tạo kế hoạch tiêm chủng",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get vaccination schedules (using HealthCheckForm API with vaccination filter)
+  getVaccinationSchedules: async () => {
+    try {
+      const response = await api.get("/HealthCheckForm/schedules");
+      
+      // Filter for vaccination schedules (those that contain vaccination info)
+      const vaccinationSchedules = response.data.filter(schedule => 
+        schedule.selectedStations && 
+        (schedule.selectedStations.includes('vaccination') || 
+         schedule.description?.includes('tiêm chủng') ||
+         schedule.title?.includes('tiêm chủng'))
+      );
+
+      return {
+        success: true,
+        data: vaccinationSchedules,
+        message: "Lấy danh sách kế hoạch tiêm chủng thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching vaccination schedules:", error);
+      return {
+        success: false,
+        data: [],
+        message: error.response?.data?.error || "Không thể lấy danh sách kế hoạch tiêm chủng",
         error: error.response?.data || error.message,
       };
     }
@@ -324,6 +336,74 @@ export const injectionFormService = {
         data: null,
         message:
           error.response?.data?.message || "Không thể xóa phiếu tiêm chủng",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get pending injection forms for approval
+  getPendingInjectionForms: async () => {
+    try {
+      const response = await api.get("/InjectionForm/status/pending");
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách phiếu tiêm chủng chờ duyệt thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching pending injection forms:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách phiếu tiêm chủng chờ duyệt",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Approve injection form
+  approveInjectionForm: async (formId, notes = "") => {
+    try {
+      const response = await api.post(`/InjectionForm/approve/${formId}`, {
+        notes: notes,
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Phiếu tiêm chủng đã được duyệt thành công",
+      };
+    } catch (error) {
+      console.error("Error approving injection form:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể duyệt phiếu tiêm chủng",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Reject injection form
+  rejectInjectionForm: async (formId, notes = "") => {
+    try {
+      const response = await api.post(`/InjectionForm/reject/${formId}`, {
+        notes: notes,
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Phiếu tiêm chủng đã bị từ chối",
+      };
+    } catch (error) {
+      console.error("Error rejecting injection form:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể từ chối phiếu tiêm chủng",
         error: error.response?.data || error.message,
       };
     }

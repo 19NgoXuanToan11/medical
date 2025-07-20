@@ -183,11 +183,6 @@ const VaccineSelectionStep = ({
                         {vaccine.manufacturer || "Chưa xác định"}
                       </div>
                       <div>
-                        <span className="font-medium">Loại:</span>
-                        <br />
-                        {vaccine.type || "Vaccine"}
-                      </div>
-                      <div>
                         <span className="font-medium">Liều lượng:</span>
                         <br />
                         {vaccine.dose || "Theo hướng dẫn"}
@@ -196,6 +191,11 @@ const VaccineSelectionStep = ({
                         <span className="font-medium">Cách tiêm:</span>
                         <br />
                         {vaccine.administrationMethod || "Tiêm bắp"}
+                      </div>
+                      <div>
+                        <span className="font-medium">Mô tả: </span>
+                        <br />
+                        {vaccine.description || "Không có mô tả"}
                       </div>
                     </div>
 

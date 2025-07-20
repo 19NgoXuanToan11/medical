@@ -29,6 +29,7 @@ import Login from "../../pages/auth/login/Login";
 // admin
 import AdminDashboard from "../../pages/admin/dashboard/AdminDashboard";
 import StaffManagement from "../../pages/admin/staff/StaffManagement";
+import NurseGradeManagement from "../../pages/admin/staff/NurseGradeManagement";
 import ReportsAnalytics from "../../pages/admin/report/ReportsAnalytics";
 
 // manager
@@ -111,6 +112,7 @@ function AppRoutes() {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
         <Route path="/admin/staff" element={<StaffManagement />} />
+        <Route path="/admin/nurse-grades" element={<NurseGradeManagement />} />
         
         <Route path="/admin/reports" element={<ReportsAnalytics />} />
       </Route>

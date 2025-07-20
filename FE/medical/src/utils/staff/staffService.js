@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const API_URL = "https://localhost:7111/api";
+const API_BASE_URL = "https://localhost:7111";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -286,6 +287,169 @@ export const staffService = {
         data: null,
         message: error.response?.data?.message || "Đăng nhập thất bại",
         error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // NEW: Get current nurse's assigned grade levels
+  getMyAssignedGrades: async () => {
+    try {
+      // Get token from localStorage (where authService stores it)
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const token = user.token;
+
+      if (!token) {
+        console.error("No authentication token found");
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/Staff/my-assigned-grades`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Unauthorized - please login again");
+        }
+        if (response.status === 403) {
+          throw new Error(
+            "Access forbidden - only nurses can access assigned grades"
+          );
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const assignedGrades = await response.json();
+      return {
+        success: true,
+        data: assignedGrades,
+      };
+    } catch (error) {
+      console.error("Error fetching assigned grades:", error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  },
+
+  // Get all grade-nurse assignments
+  getAllGradeNurses: async () => {
+    try {
+      console.log("Calling API:", `${API_URL}/Staff/grade-nurse`);
+      const response = await api.get("/Staff/grade-nurse");
+      console.log("API Response:", response.data);
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách phân công thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching grade nurse assignments:", error);
+      console.error("Error details:", error.response?.data, error.message);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message || "Không thể lấy danh sách phân công",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Create grade-nurse assignment
+  createGradeNurseAssignment: async (staffId, grade) => {
+    try {
+      const response = await api.post("/Staff/grade-nurse", {
+        staffId: parseInt(staffId),
+        grade: parseInt(grade),
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Phân công y tá thành công",
+      };
+    } catch (error) {
+      console.error("Error creating grade nurse assignment:", error);
+      return {
+        success: false,
+        data: null,
+        message: error.response?.data?.message || "Không thể phân công y tá",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Delete grade-nurse assignment
+  deleteGradeNurseAssignment: async (gradeNurseId) => {
+    try {
+      await api.delete(`/Staff/grade-nurse/${gradeNurseId}`);
+      return {
+        success: true,
+        message: "Hủy phân công thành công",
+      };
+    } catch (error) {
+      console.error("Error deleting grade nurse assignment:", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || "Không thể hủy phân công",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // NEW: Get classes filtered by current nurse's assigned grade levels
+  getMyAssignedClasses: async () => {
+    try {
+      // Get token from localStorage (where authService stores it)
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const token = user.token;
+
+      if (!token) {
+        console.error("No authentication token found for assigned classes");
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/Class/my-assigned-classes`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Unauthorized - please login again");
+        }
+        if (response.status === 403) {
+          throw new Error(
+            "Access forbidden - only nurses can access assigned classes"
+          );
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const assignedClasses = await response.json();
+      return {
+        success: true,
+        data: assignedClasses,
+      };
+    } catch (error) {
+      console.error("Error fetching assigned classes:", error);
+      return {
+        success: false,
+        error: error.message,
       };
     }
   },

@@ -117,6 +117,10 @@ const TargetLogisticsStep = ({
                       {grade.studentCount} học sinh
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                      Khối:{" "}
+                      {grade.classes ? grade.classes.join(", ") : "Không có"}
+                    </p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       {grade.ageRange}
                     </p>
                   </div>
@@ -180,8 +184,11 @@ const TargetLogisticsStep = ({
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                  {/* This is the actual number of classes selected */}
-                  {formData.targetGrades.length}
+                  {/* Calculate total number of classes across all selected grades */}
+                  {formData.targetGrades.reduce((total, gradeId) => {
+                    const grade = availableGrades.find((g) => g.id === gradeId);
+                    return total + (grade?.classCount || 0);
+                  }, 0)}
                 </p>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400">
                   Lớp học
@@ -191,7 +198,7 @@ const TargetLogisticsStep = ({
 
             {showDetails && (
               <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   {formData.targetGrades.map((gradeId) => {
                     const grade = availableGrades.find(
                       (grade) => grade.id === gradeId
@@ -199,13 +206,13 @@ const TargetLogisticsStep = ({
                     return grade ? (
                       <div
                         key={gradeId}
-                        className="flex justify-between items-center py-2"
+                        className="flex justify-between items-center py-1.5 px-3 bg-neutral-50 dark:bg-neutral-800 rounded-md"
                       >
-                        <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                        <span className="font-medium text-neutral-900 dark:text-neutral-100 text-sm">
                           {grade.name}
                         </span>
-                        <span className="text-neutral-600 dark:text-neutral-400">
-                          {grade.studentCount} HS - {grade.classes || 1} lớp
+                        <span className="text-neutral-600 dark:text-neutral-400 text-xs">
+                          {grade.studentCount} học sinh
                         </span>
                       </div>
                     ) : null;

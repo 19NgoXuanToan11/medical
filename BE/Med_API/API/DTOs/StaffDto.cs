@@ -40,6 +40,9 @@ public static class StaffDto
         public int HealthEventCount { get; set; }
         public int ParentCount { get; set; }
         public int MedicineRequestCount { get; set; }
+        
+        // Grade assignments for nurses
+        public List<int> AssignedGrades { get; set; } = new List<int>();
     }
 
     public class Create

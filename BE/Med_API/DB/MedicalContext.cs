@@ -776,7 +776,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.StaffId).IsRequired();
             entity.Property(e => e.Grade).IsRequired();
             entity.HasOne(e => e.Nurse)
-                .WithMany()
+                .WithMany(s => s.GradeNurses)
                 .HasForeignKey(e => e.StaffId)
                 .OnDelete(DeleteBehavior.Cascade);
         });

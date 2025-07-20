@@ -313,11 +313,12 @@ export const validateFormStep = (step, formData) => {
       if (!formData.targetGrades || !Array.isArray(formData.targetGrades)) {
         errors.targetGrades = "Dữ liệu lớp học không hợp lệ";
       } else if (formData.targetGrades.length === 0) {
-        errors.targetGrades = "Vui lòng chọn ít nhất một lớp học";
+        errors.targetGrades = "Vui lòng chọn ít nhất một khối học";
       } else {
-        // Validate each grade ID
+        // Validate each grade ID (should be non-empty strings)
         const invalidGrades = formData.targetGrades.filter(
-          (gradeId) => !gradeId || isNaN(gradeId) || gradeId <= 0
+          (gradeId) =>
+            !gradeId || typeof gradeId !== "string" || gradeId.trim() === ""
         );
         if (invalidGrades.length > 0) {
           errors.targetGrades = "Một số ID lớp học không hợp lệ";
