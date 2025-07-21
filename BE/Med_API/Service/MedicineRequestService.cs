@@ -1,6 +1,7 @@
 using DB;
 using Repo;
 using System.Text.Json;
+using System.Linq;
 
 namespace Service;
 
@@ -268,6 +269,71 @@ public class MedicineRequestService : IMedicineRequestService
     public async Task<IEnumerable<MedicineRequest>> GetRefusedRequestsAsync()
     {
         return await _medicineRequestRepository.GetMedicineRequestsByStatusAsync("Refused");
+    }
+
+    public async Task<bool> VerifyMedicineRequestItemAsync(int itemId)
+    {
+        return await _medicineRequestRepository.UpdateMedicineRequestItemVerificationStatus(itemId, "Verified");
+    }
+    public async Task<bool> RefuseMedicineRequestItemAsync(int itemId)
+    {
+        return await _medicineRequestRepository.UpdateMedicineRequestItemVerificationStatus(itemId, "Refused");
+    }
+
+    public async Task<MedicineRequestItem?> GetMedicineRequestItemByIdAsync(int itemId)
+    {
+        return await _medicineRequestRepository.GetMedicineRequestItemByIdAsync(itemId);
+    }
+
+    public async Task<bool> UpdateMedicineRequestItemAsync(MedicineRequestItem item)
+    {
+        var result = await _medicineRequestRepository.UpdateMedicineRequestItemAsync(item);
+        // After updating the item, update the main status
+        await UpdateMedicineRequestMainStatus(item.MedicineRequestId);
+        return result;
+    }
+
+    // Helper to update the main status of a MedicineRequest
+    private async Task UpdateMedicineRequestMainStatus(int medicineRequestId)
+    {
+        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(medicineRequestId);
+        if (request == null) return;
+
+        var allLatestStatuses = request.MedicineRequestItems
+            .SelectMany(item =>
+            {
+                var periodStatus = new Dictionary<string, object>();
+                try
+                {
+                    periodStatus = JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
+                }
+                catch { }
+                // For each period, get the last status
+                return periodStatus.Values
+                    .Select(val =>
+                    {
+                        if (val is string strVal && strVal.StartsWith("{"))
+                            return JsonSerializer.Deserialize<JsonElement>(strVal).GetProperty("Status").GetString();
+                        if (val is JsonElement elem && elem.ValueKind == JsonValueKind.Object && elem.TryGetProperty("Status", out var statusProp))
+                            return statusProp.GetString();
+                        return val?.ToString();
+                    })
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .ToList();
+            })
+            .SelectMany(x => x)
+            .ToList();
+
+        if (allLatestStatuses.Count == 0 || allLatestStatuses.All(s => new List<string> { "Pending", "Refused" }.Contains(Convert.ToString(s))))
+            request.Status = "Pending";
+        else if (allLatestStatuses.All(s => new List<string> { "Completed", "Failed", "Refused" }.Contains(Convert.ToString(s))))
+            request.Status = "Done";
+        else if (allLatestStatuses.Any(s => Convert.ToString(s) == "Verified"))
+            request.Status = "In-Progress";
+        else
+            request.Status = "Pending"; // fallback
+
+        await _medicineRequestRepository.UpdateMedicineRequestAsync(request);
     }
 }
 

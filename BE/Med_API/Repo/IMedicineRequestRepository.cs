@@ -40,6 +40,9 @@ public interface IMedicineRequestRepository
     Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId);
     Task<IEnumerable<MedicineRequest>> GetRequestsWithFrequencyMoreThanOneAsync();
     Task<IEnumerable<MedicineRequest>> GetRequestsNeedingTimeOfDayAsync(string timeOfDay);
+    Task<bool> UpdateMedicineRequestItemVerificationStatus(int itemId, string status);
+    Task<MedicineRequestItem?> GetMedicineRequestItemByIdAsync(int itemId);
+    Task<bool> UpdateMedicineRequestItemAsync(MedicineRequestItem item);
     
     // Public parsing methods for debugging
     int ParseFrequencyToTimesPerDay(string? frequency);

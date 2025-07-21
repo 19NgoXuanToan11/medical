@@ -12,11 +12,65 @@ public class ParentController : ControllerBase
 {
     private readonly IMapper _mapper;
     private readonly IParentService _parentService;
+    private readonly ILogger<ParentController> _logger;
 
-    public ParentController(IMapper mapper, IParentService parentService)
+    public ParentController(IMapper mapper, IParentService parentService, ILogger<ParentController> logger)
     {
         _mapper = mapper;
         _parentService = parentService;
+        _logger = logger;
+    }
+
+    private static bool IsRefusedStatus(object val)
+    {
+        if (val is string s)
+        {
+            if (s == "Refused") return true;
+            if (s.StartsWith("{") && s.Contains("Status"))
+            {
+                try
+                {
+                    var jsonElem = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(s);
+                    if (jsonElem.ValueKind == System.Text.Json.JsonValueKind.Object &&
+                        jsonElem.TryGetProperty("Status", out var statusPropInner) &&
+                        statusPropInner.GetString() == "Refused")
+                        return true;
+                }
+                catch { }
+            }
+        }
+        if (val is System.Text.Json.JsonElement elem &&
+            elem.ValueKind == System.Text.Json.JsonValueKind.Object &&
+            elem.TryGetProperty("Status", out var statusProp) &&
+            statusProp.GetString() == "Refused")
+            return true;
+        return false;
+    }
+
+    private static bool IsFailedStatus(object val)
+    {
+        if (val is string s)
+        {
+            if (s == "Failed") return true;
+            if (s.StartsWith("{") && s.Contains("Status"))
+            {
+                try
+                {
+                    var jsonElem = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(s);
+                    if (jsonElem.ValueKind == System.Text.Json.JsonValueKind.Object &&
+                        jsonElem.TryGetProperty("Status", out var statusPropInner) &&
+                        statusPropInner.GetString() == "Failed")
+                        return true;
+                }
+                catch { }
+            }
+        }
+        if (val is System.Text.Json.JsonElement elem &&
+            elem.ValueKind == System.Text.Json.JsonValueKind.Object &&
+            elem.TryGetProperty("Status", out var statusProp) &&
+            statusProp.GetString() == "Failed")
+            return true;
+        return false;
     }
 
     // GET: api/Parent
@@ -115,17 +169,99 @@ public class ParentController : ControllerBase
     [HttpGet("{parentId}/refused-medicine-requests")]
     public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetRefusedMedicineRequestsByParent(int parentId)
     {
-        var refusedRequests = await _parentService.GetRefusedMedicineRequestsByParentIdAsync(parentId);
-        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(refusedRequests);
+        // Get all requests for the parent
+        var allRequests = await _parentService.GetMedicineRequestProgressAsync(parentId);
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(allRequests);
+        // Only keep items with at least one period whose latest status is 'Refused'
+        foreach (var req in viewModels)
+        {
+            req.MedicineRequestItems = req.MedicineRequestItems
+                .Where(item => item.PeriodVerificationStatus != null &&
+                    item.PeriodVerificationStatus.Values.Any(val => IsRefusedStatus(val))
+                ).ToList();
+        }
+        viewModels = viewModels.Where(r => r.MedicineRequestItems.Any()).ToList();
         return Ok(viewModels);
     }
 
     // GET: api/Parent/{parentId}/failed-request-results
     [HttpGet("{parentId}/failed-request-results")]
-    public async Task<ActionResult<IEnumerable<RequestResultDto.ViewModel>>> GetFailedRequestResultsByParent(int parentId)
+    public async Task<ActionResult<IEnumerable<object>>> GetFailedRequestResultsByParent(int parentId)
     {
-        var failedResults = await _parentService.GetFailedRequestResultsByParentIdAsync(parentId);
-        var viewModels = _mapper.Map<IEnumerable<RequestResultDto.ViewModel>>(failedResults);
-        return Ok(viewModels);
+        var allRequests = await _parentService.GetMedicineRequestProgressAsync(parentId);
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(allRequests);
+        var failedPeriods = new List<object>();
+        foreach (var req in viewModels)
+        {
+            foreach (var item in req.MedicineRequestItems)
+            {
+                if (item.PeriodVerificationStatus == null) continue;
+                foreach (var kv in item.PeriodVerificationStatus)
+                {
+                    var period = kv.Key;
+                    var val = kv.Value;
+                    _logger.LogInformation("Period: {Period}, Value: {Value}", period, val);
+                    var history = GetStatusHistory(item.PeriodVerificationStatus, period);
+                    _logger.LogInformation("Parsed history for period {Period}: {History}", period, System.Text.Json.JsonSerializer.Serialize(history));
+                    // Include if any status in the history is Failed
+                    bool hasFailed = history.Any(h => h.ContainsKey("Status") && h["Status"]?.ToString() == "Failed");
+                    _logger.LogInformation("Has any failed for period {Period}: {HasFailed}", period, hasFailed);
+                    if (hasFailed)
+                    {
+                        failedPeriods.Add(new {
+                            studentCode = req.StudentCode,
+                            studentName = req.Student != null ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim() : null,
+                            className = req.ClassName,
+                            parentId = req.ParentId,
+                            parentName = req.Parent != null ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim() : null,
+                            medicineRequestItemId = item.MedicineRequestItemId,
+                            medicineName = item.MedicineName,
+                            dosage = item.Dosage,
+                            frequency = item.Frequency,
+                            timeOfDay = item.TimeOfDay,
+                            instructions = item.Instructions,
+                            period = period,
+                            history = history
+                        });
+                    }
+                }
+            }
+        }
+        return Ok(failedPeriods);
+    }
+
+    // Helper to get or create a status history array for a period
+    private static List<Dictionary<string, object>> GetStatusHistory(Dictionary<string, object> periodStatus, string period)
+    {
+        if (periodStatus.TryGetValue(period, out var val))
+        {
+            if (val is string strVal)
+            {
+                if (strVal.StartsWith("["))
+                {
+                    // Stringified array
+                    return System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string, object>>>(strVal) ?? new List<Dictionary<string, object>>();
+                }
+                else if (strVal.StartsWith("{"))
+                {
+                    // Stringified object
+                    var obj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(strVal);
+                    return obj != null ? new List<Dictionary<string, object>> { obj } : new List<Dictionary<string, object>>();
+                }
+            }
+            else if (val is System.Text.Json.JsonElement elem)
+            {
+                if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    return System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string, object>>>(elem.GetRawText()) ?? new List<Dictionary<string, object>>();
+                }
+                else if (elem.ValueKind == System.Text.Json.JsonValueKind.Object)
+                {
+                    var obj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(elem.GetRawText());
+                    return obj != null ? new List<Dictionary<string, object>> { obj } : new List<Dictionary<string, object>>();
+                }
+            }
+        }
+        return new List<Dictionary<string, object>>();
     }
 }

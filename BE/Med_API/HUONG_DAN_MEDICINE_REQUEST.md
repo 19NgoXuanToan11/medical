@@ -27,9 +27,19 @@ Hệ thống Medicine Request quản lý việc yêu cầu thuốc từ phụ hu
       "medicineRequestItemId": 1,
       "medicineName": "Paracetamol",
       "dosage": "500mg",
-      "frequency": "sáng 2 lần, trưa 1 lần",
+      "frequency": "Sáng 2 lần, Trưa 1 lần",
       "timeOfDay": "sáng, trưa",
-      "instructions": "Uống sau khi ăn"
+      "instructions": "Uống sau khi ăn",
+      "verificationStatus": "Pending" // Trạng thái xác thực: Pending, Verified, Refused
+    },
+    {
+      "medicineRequestItemId": 2,
+      "medicineName": "Ibuprofen",
+      "dosage": "200mg",
+      "frequency": "Trưa 1 lần, Chiều 1 lần",
+      "timeOfDay": "trưa, chiều",
+      "instructions": "Uống sau khi ăn trưa",
+      "verificationStatus": "Pending"
     }
   ]
 }
@@ -154,9 +164,18 @@ POST /api/MedicineRequest
     {
       "medicineName": "Paracetamol",
       "dosage": "500mg",
-      "frequency": "sáng 2 lần, trưa 1 lần",
+      "frequency": "Sáng 2 lần, Trưa 1 lần",
       "timeOfDay": "sáng, trưa",
-      "instructions": "Uống sau khi ăn"
+      "instructions": "Uống sau khi ăn",
+      "verificationStatus": "Pending"
+    },
+    {
+      "medicineName": "Ibuprofen",
+      "dosage": "200mg",
+      "frequency": "Trưa 1 lần, Chiều 1 lần",
+      "timeOfDay": "trưa, chiều",
+      "instructions": "Uống sau khi ăn trưa",
+      "verificationStatus": "Pending"
     }
   ]
 }
@@ -180,9 +199,19 @@ PUT /api/MedicineRequest/{id}
       "medicineRequestItemId": 1,
       "medicineName": "Paracetamol",
       "dosage": "500mg",
-      "frequency": "sáng 2 lần, trưa 1 lần",
+      "frequency": "Sáng 2 lần, Trưa 1 lần",
       "timeOfDay": "sáng, trưa",
-      "instructions": "Uống sau khi ăn"
+      "instructions": "Uống sau khi ăn",
+      "verificationStatus": "Pending"
+    },
+    {
+      "medicineRequestItemId": 2,
+      "medicineName": "Ibuprofen",
+      "dosage": "200mg",
+      "frequency": "Trưa 1 lần, Chiều 1 lần",
+      "timeOfDay": "trưa, chiều",
+      "instructions": "Uống sau khi ăn trưa",
+      "verificationStatus": "Pending"
     }
   ]
 }
@@ -471,10 +500,15 @@ DELETE /api/RequestResult/{id}
 
 ### Validation
 - Yêu cầu thuốc phải có ít nhất 1 mục thuốc
-- Tần suất phải theo định dạng: "sáng 2 lần, trưa 1 lần"
+- Tần suất phải theo định dạng: "Sáng 2 lần, Trưa 1 lần"
 - Y tá chỉ được phân công tối đa 5 yêu cầu đang chờ
 - Chỉ yêu cầu "Pending" mới có thể xác thực/từ chối
 - Chỉ yêu cầu "Pending" hoặc "Verified" mới có thể phân công
+- Mỗi mục thuốc (MedicineRequestItem) có thể có nhiều buổi và số lần uống trong ngày, được mô tả trong trường frequency (VD: "Sáng 2 lần, Trưa 1 lần").
+- Backend sẽ tự động phân tích frequency để xác định số lần và buổi cần cho uống, và kiểm tra tiến độ từng buổi.
+- Y tá xác thực từng mục thuốc (không cần tách từng buổi thành nhiều item).
+- Khi cho uống, nurse chọn buổi (period) và hệ thống sẽ kiểm tra số lần đã cho uống cho từng buổi.
+- Chỉ các mục thuốc có verificationStatus == "Verified" mới được phép cho uống.
 
 ### Error Handling
 - 400 Bad Request: Dữ liệu không hợp lệ
@@ -501,9 +535,18 @@ curl -X POST "https://api.example.com/api/MedicineRequest" \
       {
         "medicineName": "Paracetamol",
         "dosage": "500mg",
-        "frequency": "sáng 2 lần, trưa 1 lần",
+        "frequency": "Sáng 2 lần, Trưa 1 lần",
         "timeOfDay": "sáng, trưa",
-        "instructions": "Uống sau khi ăn"
+        "instructions": "Uống sau khi ăn",
+        "verificationStatus": "Pending"
+      },
+      {
+        "medicineName": "Ibuprofen",
+        "dosage": "200mg",
+        "frequency": "Trưa 1 lần, Chiều 1 lần",
+        "timeOfDay": "trưa, chiều",
+        "instructions": "Uống sau khi ăn trưa",
+        "verificationStatus": "Pending"
       }
     ]
   }'
