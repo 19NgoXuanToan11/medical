@@ -83,7 +83,6 @@ import StudentDashboard from "../../pages/student/dashboard/StudentDashboard";
 import StudentMedication from "../../pages/student/medication/StudentMedication";
 import StudentHealthEvents from "../../pages/student/health-events/StudentHealthEvents";
 import StudentHealthResources from "../../pages/student/health-resources/StudentHealthResources";
-import HealthCheckCreate from "../../pages/nurse/health-services/HealthCheckCreate";
 
 function AppRoutes() {
   return (
