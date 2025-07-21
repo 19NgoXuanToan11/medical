@@ -23,11 +23,24 @@ public class StaffRepository : IStaffRepository
 
     public async Task<Staff?> GetStaffByIdAsync(int id)
     {
-        return await _context.Staff
+        var staff = await _context.Staff
             .Include(s => s.Role)
             .Include(s => s.HealthEvents)
             .Include(s => s.MedicineRequests)
+            .Include(s => s.GradeNurses)
             .FirstOrDefaultAsync(s => s.StaffId == id);
+            
+        // Debug logging
+        if (staff != null && staff.GradeNurses != null)
+        {
+            Console.WriteLine($"Staff {staff.StaffId} has {staff.GradeNurses.Count} grade assignments");
+            foreach (var grade in staff.GradeNurses)
+            {
+                Console.WriteLine($"  - Grade: {grade.Grade}");
+            }
+        }
+        
+        return staff;
     }
 
     public async Task<Staff> CreateStaffAsync(Staff staff)

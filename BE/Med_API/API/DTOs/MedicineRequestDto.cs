@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace API.DTOs;
 
@@ -18,7 +19,6 @@ public static class MedicineRequestDto
         public ParentDto.ViewModel? Parent { get; set; }
         public StaffDto.ViewModel? Staff { get; set; }
         public ICollection<MedicineRequestItemDto.ViewModel> MedicineRequestItems { get; set; } = new List<MedicineRequestItemDto.ViewModel>();
-        public string? RefusalReason { get; set; }
     }
 
     public class Create
@@ -75,6 +75,10 @@ public static class MedicineRequestItemDto
         public string Frequency { get; set; } = null!;
         public string? TimeOfDay { get; set; }
         public string? Instructions { get; set; }
+        public string? Period { get; set; } // e.g., 'Morning', 'Lunch', 'Afternoon'
+        [JsonIgnore]
+        public string VerificationStatus { get; set; } = "Pending"; // 'Pending', 'Verified', 'Refused'
+        public Dictionary<string, object>? PeriodVerificationStatus { get; set; } // period => status or object
     }
 
     public class Create
@@ -99,6 +103,9 @@ public static class MedicineRequestItemDto
 
         [StringLength(500)]
         public string? Instructions { get; set; }
+
+        public string? Period { get; set; } // e.g., 'Morning', 'Lunch', 'Afternoon'
+        public string VerificationStatus { get; set; } = "Pending"; // 'Pending', 'Verified', 'Refused'
     }
 
     public class Update
@@ -122,5 +129,15 @@ public static class MedicineRequestItemDto
 
         [StringLength(500)]
         public string? Instructions { get; set; }
+
+        public string? Period { get; set; } // e.g., 'Morning', 'Lunch', 'Afternoon'
+        public string? VerificationStatus { get; set; } = "Pending"; // 'Pending', 'Verified', 'Refused'
     }
+}
+
+public class PeriodActionDto
+{
+    public string Period { get; set; } = null!;
+    public int? StaffId { get; set; }
+    public string? RefusalReason { get; set; }
 } 

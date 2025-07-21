@@ -33,7 +33,12 @@ const AdminLayout = () => {
     },
     {
       path: "/admin/staff",
-      name: "Nhân viên",
+      name: "Quản lý nhân viên",
+      icon: <FiUsers className="w-5 h-5" />,
+    },
+    {
+      path: "/admin/nurse-grades",
+      name: "Phân công Y tá",
       icon: <FiUsers className="w-5 h-5" />,
     },
     {

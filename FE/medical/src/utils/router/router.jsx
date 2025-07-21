@@ -29,6 +29,7 @@ import Login from "../../pages/auth/login/Login";
 // admin
 import AdminDashboard from "../../pages/admin/dashboard/AdminDashboard";
 import StaffManagement from "../../pages/admin/staff/StaffManagement";
+import NurseGradeManagement from "../../pages/admin/staff/NurseGradeManagement";
 import ReportsAnalytics from "../../pages/admin/report/ReportsAnalytics";
 
 // manager
@@ -40,6 +41,7 @@ import MedicationManagement from "../../pages/manager/medication/MedicationManag
 import HealthCheckManagement from "../../pages/manager/health-check/HealthCheckManagement";
 import VaccinationManagement from "../../pages/manager/vaccination/VaccinationManagement";
 import VaccinationDetailManager from "../../pages/manager/vaccination/VaccinationDetail";
+import VaccineManagement from "../../pages/manager/vaccination/VaccineManagement";
 import ClassManagement from "../../pages/manager/manage/ClassManagement";
 import ClassDetail from "../../pages/manager/manage/ClassDetail";
 import ExaminationCategoryManagement from "../../pages/manager/manage/ExaminationCategoryManagement";
@@ -59,7 +61,6 @@ import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealth
 import StudentHealthRecordDetail from "../../pages/nurse/health-records/StudentHealthRecordDetail";
 import HealthServicesManagement from "../../pages/nurse/health-services/HealthServicesManagement";
 import HealthServiceCreate from "../../pages/nurse/health-services/HealthServiceCreate";
-import HealthCheckCreate from "../../pages/nurse/health-services/HealthCheckCreate";
 import HealthServicesDetail from "../../pages/nurse/health-services/HealthServicesDetail";
 
 // parent
@@ -110,6 +111,7 @@ function AppRoutes() {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
         <Route path="/admin/staff" element={<StaffManagement />} />
+        <Route path="/admin/nurse-grades" element={<NurseGradeManagement />} />
         
         <Route path="/admin/reports" element={<ReportsAnalytics />} />
       </Route>
@@ -130,6 +132,8 @@ function AppRoutes() {
         
         <Route path="/manager/vaccination" element={<VaccinationManagement />} />
         <Route path="/manager/vaccination/:id" element={<VaccinationDetailManager />} />
+        
+        <Route path="/manager/vaccines" element={<VaccineManagement />} />
         
         <Route path="/manager/health-events" element={<HealthEventsManagement />} />
         <Route path="/manager/health-events/:id" element={<ManagerHealthEventDetail />} />

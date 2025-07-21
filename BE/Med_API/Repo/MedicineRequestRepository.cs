@@ -343,9 +343,9 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         var medicineItem = requestResult.Request?.MedicineRequestItems
             .FirstOrDefault(i => i.MedicineRequestItemId == medicineRequestItemId);
 
-        if (medicineItem == null)
+        if (medicineItem == null || medicineItem.VerificationStatus != "Verified")
         {
-            return false;
+            return false; // Not allowed to administer if not verified
         }
 
         // Parse current administered frequencies
@@ -970,6 +970,29 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         var administeredFrequencies = ParseAdministeredFrequencies(requestResult.AdministeredFrequencies);
 
         return administeredFrequencies.Count >= timesPerDay;
+    }
+
+    public async Task<bool> UpdateMedicineRequestItemVerificationStatus(int itemId, string status)
+    {
+        var item = await _context.MedicineRequestItems.FindAsync(itemId);
+        if (item == null) return false;
+        item.VerificationStatus = status;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<MedicineRequestItem?> GetMedicineRequestItemByIdAsync(int itemId)
+    {
+        return await _context.MedicineRequestItems.FindAsync(itemId);
+    }
+
+    public async Task<bool> UpdateMedicineRequestItemAsync(MedicineRequestItem item)
+    {
+        var existing = await _context.MedicineRequestItems.FindAsync(item.MedicineRequestItemId);
+        if (existing == null) return false;
+        _context.Entry(existing).CurrentValues.SetValues(item);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }
 

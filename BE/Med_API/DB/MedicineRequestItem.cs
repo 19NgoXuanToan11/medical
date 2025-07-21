@@ -21,6 +21,9 @@ public partial class MedicineRequestItem
 
     public string? Instructions { get; set; }
 
+    public string? Period { get; set; } // Optional: for UI display only, not used for backend logic
+    public string VerificationStatus { get; set; } = "Pending"; // 'Pending', 'Verified', 'Refused'
+
     // Navigation property
     public virtual MedicineRequest MedicineRequest { get; set; } = null!;
 } 

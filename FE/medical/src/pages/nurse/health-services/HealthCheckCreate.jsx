@@ -34,8 +34,6 @@ const HealthCheckCreate = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = Boolean(id);
-  
-  console.log("🔧 HealthCheckCreate - ID:", id, "IsEditMode:", isEditMode);
 
   // Use the custom hook for form management
   const {
@@ -74,10 +72,12 @@ const HealthCheckCreate = () => {
   // Handle save draft (only in create mode)
   const handleSaveDraft = async () => {
     if (isEditMode) {
-      alert("Không thể lưu nháp khi đang chỉnh sửa. Vui lòng submit để cập nhật.");
+      alert(
+        "Không thể lưu nháp khi đang chỉnh sửa. Vui lòng submit để cập nhật."
+      );
       return;
     }
-    
+
     const result = await saveDraft();
     if (result.success) {
       alert(result.message);
@@ -92,7 +92,7 @@ const HealthCheckCreate = () => {
       window.confirm("Bạn có chắc chắn muốn hủy? Tất cả thay đổi sẽ bị mất.")
     ) {
       resetForm();
-      navigate("/nurse/health-services");
+      navigate("/nurse/health-services?tab=health_check");
     }
   };
 
@@ -101,7 +101,7 @@ const HealthCheckCreate = () => {
     const result = await handleSubmit();
     if (result.success) {
       alert(result.message);
-      navigate("/nurse/health-services");
+      navigate("/nurse/health-services?tab=health_check#success");
     } else {
       alert(result.message);
     }
@@ -194,10 +194,14 @@ const HealthCheckCreate = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {isEditMode ? "Chỉnh sửa kế hoạch khám sức khỏe" : "Lập kế hoạch khám sức khỏe"}
+                {isEditMode
+                  ? "Chỉnh sửa kế hoạch khám sức khỏe"
+                  : "Lập kế hoạch khám sức khỏe"}
               </h1>
               <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-                {isEditMode ? "Chỉnh sửa và gửi lại yêu cầu khám sức khỏe đã bị từ chối" : "Tạo kế hoạch khám sức khỏe định kỳ cho học sinh"}
+                {isEditMode
+                  ? "Chỉnh sửa và gửi lại yêu cầu khám sức khỏe đã bị từ chối"
+                  : "Tạo kế hoạch khám sức khỏe định kỳ cho học sinh"}
               </p>
               {isEditMode && (
                 <div className="mt-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -210,7 +214,8 @@ const HealthCheckCreate = () => {
                         Đang chỉnh sửa lịch khám
                       </h4>
                       <p className="text-sm text-blue-700 dark:text-blue-300">
-                        Bạn đang chỉnh sửa lịch khám hiện có. Sau khi cập nhật, lịch khám sẽ được gửi lại cho quản lý để xem xét duyệt.
+                        Bạn đang chỉnh sửa lịch khám hiện có. Sau khi cập nhật,
+                        lịch khám sẽ được gửi lại cho quản lý để xem xét duyệt.
                       </p>
                     </div>
                   </div>
@@ -244,7 +249,9 @@ const HealthCheckCreate = () => {
           {isEditMode && loading ? (
             <div className="p-6 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">Đang tải dữ liệu để chỉnh sửa...</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Đang tải dữ liệu để chỉnh sửa...
+              </p>
             </div>
           ) : (
             <div className="p-6">{renderCurrentStep()}</div>

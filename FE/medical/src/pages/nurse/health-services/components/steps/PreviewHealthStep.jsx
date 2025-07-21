@@ -214,7 +214,7 @@ const PreviewHealthStep = ({
                         {grade.name}
                       </h4>
                       <p className="text-sm text-primary-700 dark:text-primary-300 mt-1">
-                        Lớp: {grade.classes ? grade.classes.join(", ") : "N/A"}
+                        Khối: {grade.classes ? grade.classes.join(", ") : "N/A"}
                       </p>
                       <p className="text-sm text-primary-600 dark:text-primary-400 mt-1">
                         Độ tuổi: {grade.ageRange}

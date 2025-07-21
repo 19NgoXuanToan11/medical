@@ -89,4 +89,50 @@ public class StudentRepository : IStudentRepository
             .Include(s => s.InjectionResults)
             .FirstOrDefaultAsync(s => s.StudentCode == studentCode);
     }
+
+    public async Task<IEnumerable<Student>> GetEligibleStudentsForVaccineAsync(int vaccineId, DateTime injectionDate, IEnumerable<int> studentIds)
+    {
+        var students = await _context.Students
+            .Where(s => studentIds.Contains(s.StudentId))
+            .Include(s => s.HealthProfiles)
+            .Include(s => s.InjectionForms)
+                .ThenInclude(f => f.InjectionResults)
+            .ToListAsync();
+
+        var eligible = new List<Student>();
+        foreach (var student in students)
+        {
+            var profile = student.HealthProfiles.FirstOrDefault();
+            // 1. Bệnh nền nguy hiểm/chronic disease
+            if (profile != null && profile.HasChronicDiseases == true && !string.IsNullOrEmpty(profile.ChronicDetails))
+                continue;
+            // 2. Dị ứng vaccine/thành phần vaccine
+            if (profile != null && profile.HasAllergies == true && !string.IsNullOrEmpty(profile.AllergyDetails))
+                continue;
+            // 3. Đang mắc bệnh cấp tính/đang sốt (dựa vào HealthCheckResult gần nhất)
+            var lastCheck = await _context.HealthCheckResults
+                .Where(r => r.StudentId == student.StudentId)
+                .OrderByDescending(r => r.ExaminedDate)
+                .FirstOrDefaultAsync();
+            if (lastCheck != null && !string.IsNullOrEmpty(lastCheck.GeneralFindings) && lastCheck.GeneralFindings.ToLower().Contains("sốt"))
+                continue;
+            // 4. Đã tiêm vaccine này gần đây (giả sử chống chỉ định 180 ngày)
+            var lastInjection = student.InjectionForms
+                .Where(f => f.VaccineId == vaccineId && f.ConsentStatus == "Approved")
+                .SelectMany(f => f.InjectionResults)
+                .OrderByDescending(r => r.AdministeredDate)
+                .FirstOrDefault();
+            if (lastInjection != null && (injectionDate - lastInjection.AdministeredDate).TotalDays < 180)
+                continue;
+            // 5. Đang theo dõi sau tiêm vaccine khác
+            if (lastInjection != null && lastInjection.FollowUpRequired == true)
+                continue;
+            // 6. Đang điều trị bệnh đặc biệt
+            if (profile != null && profile.HasPreviousTreatment == true && !string.IsNullOrEmpty(profile.TreatmentDetails))
+                continue;
+            // 7. Các điều kiện khác có thể bổ sung ở đây
+            eligible.Add(student);
+        }
+        return eligible;
+    }
 } 
