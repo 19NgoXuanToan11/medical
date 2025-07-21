@@ -125,6 +125,8 @@ public class ParentRepository : IParentRepository
         return await _context.MedicineRequests
             .Where(r => r.ParentId == parentId)
             .Include(r => r.Student)
+            .Include(r => r.Parent) // Ensure parent is included
+            .Include(r => r.Staff)  // Ensure staff is included
             .Include(r => r.MedicineRequestItems)
             .Include(r => r.RequestResults)
             .ToListAsync();

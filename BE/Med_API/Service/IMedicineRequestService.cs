@@ -44,4 +44,8 @@ public interface IMedicineRequestService
     Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId);
     Task<IEnumerable<MedicineRequest>> GetRequestsWithFrequencyMoreThanOneAsync();
     Task<IEnumerable<MedicineRequest>> GetRequestsNeedingTimeOfDayAsync(string timeOfDay);
+    Task<bool> VerifyMedicineRequestItemAsync(int itemId);
+    Task<bool> RefuseMedicineRequestItemAsync(int itemId);
+    Task<MedicineRequestItem?> GetMedicineRequestItemByIdAsync(int itemId);
+    Task<bool> UpdateMedicineRequestItemAsync(MedicineRequestItem item);
 } 

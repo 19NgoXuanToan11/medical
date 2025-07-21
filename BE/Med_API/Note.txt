@@ -1,0 +1,51 @@
+-Bỏ trang chủ đi vào thẳng login luôn
+
+- Khi tạo mới MedicineRequest, status mặc định là pending
+
+- Quy trình xác thực và cho uống thuốc theo từng buổi (period) và từng loại thuốc (per-item/period):
+  - Mỗi MedicineRequestItem (thuốc + buổi) có VerificationStatus là một mảng lịch sử trạng thái (status history array)
+  - Các trạng thái có thể: Pending, Verified, Refused, Assigned, Completed, Failed, Redo (re-request)
+  - Nurse xác thực/refuse từng item/period:
+    - POST /api/MedicineRequest/item/{itemId}/verify?period=... (Xác thực đủ thuốc cho từng buổi)
+    - POST /api/MedicineRequest/item/{itemId}/refuse?period=... (Từ chối thuốc cho từng buổi)
+  - Chỉ những item/period có trạng thái cuối cùng là Verified mới được phép cho uống
+
+- Để xem các request pending:
+GET /api/MedicineRequest/pending
+
+- Để xem kết quả:
+GET /api/MedicineRequest/refused (các item/period bị từ chối)
+GET /api/MedicineRequest/verified (các item/period đã xác thực)
+
+- Nurse tự assigned các request đã được verify:
+POST /api/MedicineRequest/{id}/assign-nurse/{staffId}
+
+- Để xem list assigned:
+GET /api/MedicineRequest/assigned
+
+- Cho uống xong từng buổi thì complete từng item/period:
+POST /api/MedicineRequest/{medicineRequestItemId}/complete/{staffId}?period=...
+
+- Để xem các item/period đã completed:
+GET /api/MedicineRequest/completed
+
+- Nếu thất bại buổi nào:
+POST /api/MedicineRequest/period/{period}/history
+
+
+
+- Xem lịch sử trạng thái của từng item/period:
+GET /api/MedicineRequest/item/{medicineRequestItemId}/period/{period}/history
+
+- Nếu muốn re-request (làm lại) một buổi đã failed (trước 5pm):
+POST /api/MedicineRequest/item/{medicineRequestItemId}/rerequest?period=...&staffId=...
+
+- Kiểm tra có thể re-request không và lấy full info:
+GET /api/MedicineRequest/item/{medicineRequestItemId}/period/{period}/re-request-info
+
+
+Tóm lại:
+- Mỗi thuốc + buổi là một item/period, có status history array
+- Chỉ item/period đã verified mới được administer/complete
+- Các thao tác verify/refuse, assign, complete, fail, re-request đều có endpoint riêng rõ ràng
+- Lịch sử trạng thái cho từng item/period được lưu lại đầy đủ để audit và hiển thị

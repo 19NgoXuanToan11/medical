@@ -171,4 +171,47 @@ public class ClassService : IClassService
 
         return true;
     }
+
+    // Automatically promote students to the next class at the start of a new school year
+    public async Task<int> PromoteStudentsToNextClassIfNewYearAsync()
+    {
+        // Define the promotion date (e.g., September 1st)
+        var now = DateTime.Now;
+        var promotionMonth = 8; // September
+        var promotionDay = 1;
+        var promotionDate = new DateTime(now.Year, promotionMonth, promotionDay);
+        if (now < promotionDate)
+        {
+            // Not time to promote yet this year
+            return 0;
+        }
+
+        // Get all active classes
+        var classes = (await _classRepository.GetActiveClassesAsync()).ToList();
+        var maxGrade = classes.Max(c => c.GradeLevel);
+        int promotedCount = 0;
+
+        foreach (var currentClass in classes)
+        {
+            if (currentClass.GradeLevel >= maxGrade) continue; // Skip highest grade
+            // Find next grade's class with the same section (if section is used)
+            var nextClass = classes.FirstOrDefault(c =>
+                c.GradeLevel == currentClass.GradeLevel + 1 &&
+                (string.IsNullOrEmpty(c.Section) || c.Section == currentClass.Section));
+            if (nextClass == null) continue;
+
+            // Get students in this class
+            var students = currentClass.Students.ToList();
+            foreach (var student in students)
+            {
+                student.ClassId = nextClass.ClassId;
+                promotedCount++;
+                await _studentRepository.UpdateStudentAsync(student);
+            }
+            // Update student counts for both classes
+            await _classRepository.UpdateStudentCountAsync(currentClass.ClassId);
+            await _classRepository.UpdateStudentCountAsync(nextClass.ClassId);
+        }
+        return promotedCount;
+    }
 } 
