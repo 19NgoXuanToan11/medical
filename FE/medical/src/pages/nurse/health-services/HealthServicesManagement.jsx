@@ -1,12 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiShield, FiActivity, FiPlus, FiSearch } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import VaccinationManagement from "./VaccinationManagement";
 import HealthCheckManagement from "./HealthCheckManagement";
 
 const HealthServicesManagement = () => {
-  const [activeMainTab, setActiveMainTab] = useState("health_check"); // vaccination, health_check
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check for URL parameter to set initial tab
+  const getInitialTab = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get("tab");
+    return tabParam === "vaccination" ? "vaccination" : "health_check";
+  };
+
+  const [activeMainTab, setActiveMainTab] = useState(getInitialTab());
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Update URL when tab changes
+  const handleTabChange = (tabId) => {
+    setActiveMainTab(tabId);
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set("tab", tabId);
+    navigate(`${location.pathname}?${searchParams.toString()}`, {
+      replace: true,
+    });
+  };
+
+  // Update tab when URL changes (e.g., browser back/forward)
+  useEffect(() => {
+    const newTab = getInitialTab();
+    if (newTab !== activeMainTab) {
+      setActiveMainTab(newTab);
+    }
+  }, [location.search]);
 
   return (
     <div className="space-y-6">
@@ -61,7 +89,7 @@ const HealthServicesManagement = () => {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveMainTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`flex items-center py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeMainTab === tab.id
                   ? "border-blue-500 text-blue-600 dark:text-blue-400"

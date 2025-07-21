@@ -183,7 +183,7 @@ const VaccinationCreate = ({ onBack }) => {
           : `✅ ${result.message}`;
 
         alert(successMessage);
-        navigate("/nurse/health-services#success");
+        navigate("/nurse/health-services?tab=vaccination#success");
       } else {
         // Show specific error message
         alert(`❌ ${result.message}`);

@@ -343,9 +343,7 @@ export const staffService = {
   // Get all grade-nurse assignments
   getAllGradeNurses: async () => {
     try {
-      console.log("Calling API:", `${API_URL}/Staff/grade-nurse`);
       const response = await api.get("/Staff/grade-nurse");
-      console.log("API Response:", response.data);
       return {
         success: true,
         data: response.data,
