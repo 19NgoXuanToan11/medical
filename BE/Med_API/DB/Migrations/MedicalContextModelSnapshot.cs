@@ -941,9 +941,15 @@ namespace DB.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ParentID");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("StudentId")
                         .HasColumnType("int")
                         .HasColumnName("StudentID");
+
+                    b.Property<int?>("VaccineId")
+                        .HasColumnType("int");
 
                     b.HasKey("FormId")
                         .HasName("PK__Injectio__FB05B7BDEC6DF4D0");
@@ -953,6 +959,8 @@ namespace DB.Migrations
                     b.HasIndex("ParentId");
 
                     b.HasIndex("StudentId");
+
+                    b.HasIndex("VaccineId");
 
                     b.ToTable("Injection_Form", (string)null);
                 });
@@ -1112,15 +1120,6 @@ namespace DB.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
-                    b.Property<string>("FailureReason")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsResent")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("OriginalRequestId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("ParentId")
                         .HasColumnType("int")
                         .HasColumnName("ParentID");
@@ -1175,6 +1174,10 @@ namespace DB.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DosageUnit")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Frequency")
                         .IsRequired()
@@ -1556,6 +1559,50 @@ namespace DB.Migrations
                     b.ToTable("Student_Parent", (string)null);
                 });
 
+            modelBuilder.Entity("DB.Vaccine", b =>
+                {
+                    b.Property<int>("VaccineId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VaccineId"));
+
+                    b.Property<string>("AdministrationMethod")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("BatchNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Dose")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Manufacturer")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("VaccineId");
+
+                    b.ToTable("Vaccine", (string)null);
+                });
+
             modelBuilder.Entity("DB.Appointment", b =>
                 {
                     b.HasOne("DB.Parent", "Parent")
@@ -1602,7 +1649,7 @@ namespace DB.Migrations
             modelBuilder.Entity("DB.GradeNurse", b =>
                 {
                     b.HasOne("DB.Staff", "Nurse")
-                        .WithMany()
+                        .WithMany("GradeNurses")
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1771,11 +1818,19 @@ namespace DB.Migrations
                         .HasForeignKey("StudentId")
                         .HasConstraintName("FK__Injection_Form__StudentID");
 
+                    b.HasOne("DB.Vaccine", "Vaccine")
+                        .WithMany()
+                        .HasForeignKey("VaccineId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_InjectionForm_Vaccine");
+
                     b.Navigation("ConfirmedByStaff");
 
                     b.Navigation("Parent");
 
                     b.Navigation("Student");
+
+                    b.Navigation("Vaccine");
                 });
 
             modelBuilder.Entity("DB.InjectionResult", b =>
@@ -1973,6 +2028,8 @@ namespace DB.Migrations
                     b.Navigation("ActionedRequestResults");
 
                     b.Navigation("AdministeredRequestResults");
+
+                    b.Navigation("GradeNurses");
 
                     b.Navigation("HealthEvents");
 

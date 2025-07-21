@@ -15,7 +15,7 @@ export const ParentProvider = ({ children }) => {
 
   // Fetch parent data from API
   const fetchParentData = async () => {
-    if (!user || !user.id) return;
+    if (!user || !user.id || user.role !== "parent") return;
 
     try {
       setLoading(true);
@@ -93,7 +93,7 @@ export const ParentProvider = ({ children }) => {
 
   // Initial fetch when user changes
   useEffect(() => {
-    if (user && user.id) {
+    if (user && user.id && user.role === "parent") {
       fetchParentData();
     } else {
       setParentData(null);

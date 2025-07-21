@@ -225,9 +225,6 @@ export const medicationService = {
           (req) => req.status === "Assigned" || req.status === "assigned"
         );
 
-        console.log("All requests from API:", response.data);
-        console.log("Filtered assigned requests:", assignedRequests);
-
         // For any requests missing medicineRequestItems, fetch them individually
         const requestsWithCompleteData = await Promise.all(
           assignedRequests.map(async (request) => {
@@ -236,17 +233,10 @@ export const medicationService = {
               request.medicineRequestItems.length === 0
             ) {
               try {
-                console.log(
-                  `Fetching complete data for assigned request ${request.requestId}`
-                );
                 const detailResponse = await api.get(
                   `/MedicineRequest/${request.requestId}`
                 );
                 if (detailResponse.data) {
-                  console.log(
-                    `Complete data for request ${request.requestId}:`,
-                    detailResponse.data
-                  );
                   return { ...request, ...detailResponse.data };
                 }
               } catch (error) {
@@ -297,9 +287,6 @@ export const medicationService = {
           (req) => req.status === "Completed" || req.status === "completed"
         );
 
-        console.log("All requests from API:", response.data);
-        console.log("Filtered completed requests:", completedRequests);
-
         // For any requests missing medicineRequestItems, fetch them individually
         const requestsWithCompleteData = await Promise.all(
           completedRequests.map(async (request) => {
@@ -308,17 +295,10 @@ export const medicationService = {
               request.medicineRequestItems.length === 0
             ) {
               try {
-                console.log(
-                  `Fetching complete data for completed request ${request.requestId}`
-                );
                 const detailResponse = await api.get(
                   `/MedicineRequest/${request.requestId}`
                 );
                 if (detailResponse.data) {
-                  console.log(
-                    `Complete data for request ${request.requestId}:`,
-                    detailResponse.data
-                  );
                   return { ...request, ...detailResponse.data };
                 }
               } catch (error) {
@@ -397,8 +377,6 @@ export const medicationService = {
       const response = await api.get("/MedicineRequest/failed-requests");
 
       if (response.data) {
-        console.log("Failed requests from API:", response.data);
-
         // For any requests missing medicineRequestItems, fetch them individually
         const requestsWithCompleteData = await Promise.all(
           response.data.map(async (request) => {
@@ -407,17 +385,10 @@ export const medicationService = {
               request.medicineRequestItems.length === 0
             ) {
               try {
-                console.log(
-                  `Fetching complete data for failed request ${request.requestId}`
-                );
                 const detailResponse = await api.get(
                   `/MedicineRequest/${request.requestId}`
                 );
                 if (detailResponse.data) {
-                  console.log(
-                    `Complete data for request ${request.requestId}:`,
-                    detailResponse.data
-                  );
                   return { ...request, ...detailResponse.data };
                 }
               } catch (error) {
@@ -463,8 +434,6 @@ export const medicationService = {
       const response = await api.get("/MedicineRequest/refused");
 
       if (response.data) {
-        console.log("Refused requests from API:", response.data);
-
         // For any requests missing medicineRequestItems, fetch them individually
         const requestsWithCompleteData = await Promise.all(
           response.data.map(async (request) => {
@@ -473,17 +442,10 @@ export const medicationService = {
               request.medicineRequestItems.length === 0
             ) {
               try {
-                console.log(
-                  `Fetching complete data for refused request ${request.requestId}`
-                );
                 const detailResponse = await api.get(
                   `/MedicineRequest/${request.requestId}`
                 );
                 if (detailResponse.data) {
-                  console.log(
-                    `Complete data for request ${request.requestId}:`,
-                    detailResponse.data
-                  );
                   return { ...request, ...detailResponse.data };
                 }
               } catch (error) {
@@ -646,8 +608,6 @@ export const medicationService = {
 
       // Fallback to the old method if the new endpoint doesn't exist
       try {
-        console.log("Assignment endpoint failed, trying fallback method");
-
         // First get the current request data to preserve all fields
         const currentRequest = await api.get(`/MedicineRequest/${id}`);
 
@@ -708,8 +668,6 @@ export const medicationService = {
 
       // Fallback to the old method if the new endpoint doesn't exist
       try {
-        console.log("Completion endpoint failed, trying fallback method");
-
         // First get the current request data to preserve all fields
         const currentRequest = await api.get(`/MedicineRequest/${id}`);
 
@@ -1367,11 +1325,11 @@ export const medicationService = {
     }
   },
 
-  // Add new method for getting failed medicine requests by parent
-  getFailedMedicineRequestsByParent: async (parentId) => {
+  // Get failed medication requests by parent
+  getFailedMedicationRequestsByParent: async (parentId) => {
     try {
       const response = await api.get(
-        `/Parent/${parentId}/failed-medicine-requests`
+        `/Parent/${parentId}/failed-request-results`
       );
       return {
         success: true,
@@ -1379,7 +1337,7 @@ export const medicationService = {
         message: "Lấy danh sách yêu cầu thuốc thất bại thành công",
       };
     } catch (error) {
-      console.error("Error fetching failed medicine requests:", error);
+      console.error("Error fetching failed medication requests:", error);
       return {
         success: false,
         data: [],

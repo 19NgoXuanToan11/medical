@@ -133,6 +133,7 @@ export const NavigationControls = ({
   onCancel,
   onSubmit,
   loading,
+  isEditMode = false,
 }) => {
   const isFirstStep = currentStep === 1;
   const isLastStep = currentStep === 4;
@@ -183,12 +184,12 @@ export const NavigationControls = ({
             {loading ? (
               <>
                 <div className="animate-spin w-4 h-4 mr-2 border border-white border-t-transparent rounded-full" />
-                Đang gửi...
+                {isEditMode ? "Đang cập nhật..." : "Đang gửi..."}
               </>
             ) : (
               <>
                 <FiCheck className="w-4 h-4 mr-2" />
-                Gửi kế hoạch
+                {isEditMode ? "Cập nhật & Gửi lại" : "Gửi kế hoạch"}
               </>
             )}
           </button>
@@ -270,73 +271,6 @@ export const StepHeader = ({
                 <ul className="list-disc pl-5 space-y-1">
                   {Object.values(validationErrors).map((error, index) => (
                     <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Schedule Conflicts */}
-      {scheduleConflicts.length > 0 && (
-        <div
-          className={`border rounded-lg p-4 mb-4 max-w-2xl mx-auto text-left ${
-            hasCriticalConflicts
-              ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700"
-              : "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700"
-          }`}
-        >
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg
-                className={`h-5 w-5 ${
-                  hasCriticalConflicts
-                    ? "text-red-400 dark:text-red-500"
-                    : "text-yellow-400 dark:text-yellow-500"
-                }`}
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3
-                className={`text-sm font-medium ${
-                  hasCriticalConflicts
-                    ? "text-red-800 dark:text-red-200"
-                    : "text-yellow-800 dark:text-yellow-200"
-                }`}
-              >
-                {hasCriticalConflicts
-                  ? "Xung đột nghiêm trọng"
-                  : "Cảnh báo xung đột"}
-              </h3>
-              <div className="mt-2">
-                <ul className="space-y-1">
-                  {scheduleConflicts.map((conflict, index) => (
-                    <li
-                      key={index}
-                      className={`text-sm flex items-start ${
-                        conflict.severity === "error"
-                          ? "text-red-700 dark:text-red-300"
-                          : "text-yellow-700 dark:text-yellow-300"
-                      }`}
-                    >
-                      <span
-                        className={`w-2 h-2 rounded-full mt-1.5 mr-2 flex-shrink-0 ${
-                          conflict.severity === "error"
-                            ? "bg-red-500 dark:bg-red-400"
-                            : "bg-yellow-500 dark:bg-yellow-400"
-                        }`}
-                      />
-                      {conflict.message}
-                    </li>
                   ))}
                 </ul>
               </div>

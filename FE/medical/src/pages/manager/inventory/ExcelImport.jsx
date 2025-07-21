@@ -194,7 +194,6 @@ const ExcelImport = () => {
           window.location.protocol === "https:"
         ) {
           // If HTTPS failed, try HTTP as fallback
-          console.log("HTTPS request failed, trying HTTP...");
           response = await axios({
             url: `http://localhost:7111/api/ExcelImport/template`,
             method: "GET",
@@ -290,7 +289,6 @@ const ExcelImport = () => {
           window.location.protocol === "https:"
         ) {
           // If HTTPS failed, try HTTP as fallback
-          console.log("HTTPS upload failed, trying HTTP...");
           response = await axios.post(
             `http://localhost:7111/api/ExcelImport/import`,
             formData,

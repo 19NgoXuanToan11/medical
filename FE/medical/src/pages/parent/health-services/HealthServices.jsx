@@ -27,126 +27,19 @@ const HealthServices = () => {
     const loadHealthServices = async () => {
       setLoading(true);
 
-      // Simulate API call
-      setTimeout(() => {
-        // Upcoming services (both vaccination and health check)
-        setUpcomingServices([
-          {
-            id: 1,
-            type: "vaccination",
-            title: "Tiêm vắc-xin cúm mùa",
-            studentName: "Nguyễn Văn An",
-            studentId: "HS12345",
-            class: "2A",
-            date: "2023-07-20",
-            time: "09:00",
-            location: "Phòng y tế trường",
-            status: "scheduled",
-            description:
-              "Vaccine phòng bệnh cúm mùa cho trẻ em trong độ tuổi tiểu học",
-            requiresConsent: true,
-            consentStatus: "pending",
-            notes: "Cần đảm bảo con không bị sốt trong 48h trước khi tiêm",
-          },
-          {
-            id: 2,
-            type: "health_check",
-            title: "Khám sức khỏe định kỳ",
-            studentName: "Nguyễn Văn An",
-            studentId: "HS12345",
-            class: "2A",
-            date: "2023-07-15",
-            time: "08:30",
-            location: "Phòng y tế trường",
-            status: "scheduled",
-            description: "Khám sức khỏe định kỳ học kỳ 1 năm học 2023-2024",
-            requiresConsent: true,
-            consentStatus: "confirmed",
-            checkItems: [
-              "Chiều cao",
-              "Cân nặng",
-              "Thị lực",
-              "Răng miệng",
-              "Tim mạch",
-            ],
-          },
-          {
-            id: 3,
-            type: "vaccination",
-            title: "Tiêm nhắc vắc-xin MMR",
-            studentName: "Nguyễn Minh Cường",
-            studentId: "HS12347",
-            class: "3C",
-            date: "2023-07-25",
-            time: "10:30",
-            location: "Phòng y tế trường",
-            status: "scheduled",
-            description: "Tiêm nhắc mũi 2 vắc-xin MMR cho học sinh khối lớp 3",
-            requiresConsent: true,
-            consentStatus: "pending",
-          },
-        ]);
-
-        // Service history
-        setServiceHistory([
-          {
-            id: 10,
-            type: "vaccination",
-            title: "Tiêm vắc-xin Viêm gan B",
-            studentName: "Nguyễn Văn An",
-            studentId: "HS12345",
-            class: "2A",
-            date: "2023-05-20",
-            status: "completed",
-            result: "Thành công",
-            notes: "Không có phản ứng phụ",
-          },
-          {
-            id: 11,
-            type: "health_check",
-            title: "Khám sức khỏe học kỳ 2",
-            studentName: "Nguyễn Văn An",
-            studentId: "HS12345",
-            class: "2A",
-            date: "2023-04-15",
-            status: "completed",
-            result: "Có dấu hiệu bất thường",
-            findings: [
-              "Thị lực mắt trái giảm nhẹ (8/10)",
-              "Cần theo dõi tình trạng cận thị",
-            ],
-            recommendations: [
-              "Hạn chế thời gian sử dụng thiết bị điện tử",
-              "Tái khám mắt sau 3 tháng",
-            ],
-          },
-          {
-            id: 12,
-            type: "vaccination",
-            title: "Tiêm vắc-xin HPV",
-            studentName: "Nguyễn Minh Cường",
-            studentId: "HS12347",
-            class: "3C",
-            date: "2023-03-10",
-            status: "completed",
-            result: "Thành công",
-          },
-        ]);
-
-        // Pending consents
-        setPendingConsents([
-          {
-            id: 1,
-            type: "vaccination",
-            title: "Tiêm vắc-xin cúm mùa",
-            studentName: "Nguyễn Văn An",
-            dueDate: "2023-07-18",
-            urgency: "medium",
-          },
-        ]);
-
+      try {
+        // For now, set empty arrays
+        setUpcomingServices([]);
+        setServiceHistory([]);
+        setPendingConsents([]);
+      } catch (error) {
+        console.error("Error loading health services:", error);
+        setUpcomingServices([]);
+        setServiceHistory([]);
+        setPendingConsents([]);
+      } finally {
         setLoading(false);
-      }, 1000);
+      }
     };
 
     loadHealthServices();
@@ -207,9 +100,6 @@ const HealthServices = () => {
   };
 
   const handleConsent = (serviceId, action) => {
-    // Handle consent approval/rejection
-    console.log(`Consent ${action} for service ${serviceId}`);
-
     if (action === "approve") {
       // Update the service consent status
       setUpcomingServices((prev) =>

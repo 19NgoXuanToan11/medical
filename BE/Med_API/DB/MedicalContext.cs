@@ -65,6 +65,8 @@ public partial class MedicalContext : DbContext
 
     public virtual DbSet<HealthCheckItemMedicalSupply> HealthCheckItemMedicalSupplies { get; set; }
 
+    public virtual DbSet<Vaccine> Vaccines { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=(local);Database=Medical;User Id=sa;Password=123456;TrustServerCertificate=True;");
@@ -379,6 +381,12 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.InjectionName).HasMaxLength(100);
             entity.Property(e => e.ParentId).HasColumnName("ParentID");
             entity.Property(e => e.StudentId).HasColumnName("StudentID");
+            entity.Property(e => e.VaccineId);
+            entity.HasOne(e => e.Vaccine)
+                .WithMany()
+                .HasForeignKey(e => e.VaccineId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_InjectionForm_Vaccine");
 
             entity.HasOne(d => d.Student)
                 .WithMany(p => p.InjectionForms)
@@ -516,6 +524,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.MedicineRequestId).HasColumnName("MedicineRequestID");
             entity.Property(e => e.MedicineName).HasMaxLength(100).IsRequired();
             entity.Property(e => e.Dosage).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.DosageUnit).HasMaxLength(50);
             entity.Property(e => e.Frequency).HasMaxLength(100).IsRequired();
             entity.Property(e => e.TimeOfDay).HasMaxLength(100);
             entity.Property(e => e.Instructions).HasMaxLength(500);
@@ -767,7 +776,7 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.StaffId).IsRequired();
             entity.Property(e => e.Grade).IsRequired();
             entity.HasOne(e => e.Nurse)
-                .WithMany()
+                .WithMany(s => s.GradeNurses)
                 .HasForeignKey(e => e.StaffId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
@@ -858,6 +867,11 @@ public partial class MedicalContext : DbContext
 
             entity.HasIndex(e => e.HealthCheckItemId);
             entity.HasIndex(e => e.MedicalSupplyId);
+        });
+
+        modelBuilder.Entity<Vaccine>(entity =>
+        {
+            entity.ToTable("Vaccine");
         });
 
         OnModelCreatingPartial(modelBuilder);

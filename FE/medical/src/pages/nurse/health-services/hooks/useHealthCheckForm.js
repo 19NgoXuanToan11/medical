@@ -10,18 +10,24 @@ import {
   getSeasonText,
 } from "../utils/healthCheckHelpers";
 import {
-  // availableGradesData, // Remove mock data import for classes
+  availableGradesData, // Import mock data for fallback
   initialFormData,
   healthCheckItemsData,
 } from "../data/healthCheckData";
-import { createHealthCheck } from "../../../../utils/api/healthCheck/healthCheckService";
+import {
+  createHealthCheck,
+  getHealthCheckScheduleById,
+  updateHealthCheckSchedule,
+} from "../../../../utils/api/healthCheck/healthCheckService";
 import { checkEquipmentAvailability } from "../../../../utils/api/medicalSupply/medicalSupplyService";
 // Add import for health check items API
 import { healthCheckItemService } from "../../../../utils/api/healthCheckItem/healthCheckItemService";
 // Add import for class API
 import { getActiveClasses } from "../../../../utils/api/class/classService";
+import { useAuth } from "../../../../utils/auth/AuthContext";
+import { staffService } from "../../../../utils/staff/staffService";
 
-export const useHealthCheckForm = () => {
+export const useHealthCheckForm = (editId = null) => {
   // State management
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -43,8 +49,6 @@ export const useHealthCheckForm = () => {
         const result =
           await healthCheckItemService.getHealthCheckItemsWithMedicalSupplies();
 
-        console.log("Full API Result:", result);
-
         // Handle different response structures
         let dataArray = null;
 
@@ -56,19 +60,11 @@ export const useHealthCheckForm = () => {
           dataArray = result;
         }
 
-        console.log("Data array:", dataArray);
-
         if (dataArray && Array.isArray(dataArray) && dataArray.length > 0) {
           // Transform API data to match expected UI format
           const transformedItems = dataArray.map((item) => {
             // Create equipment array from requiredMedicalSupplies
             let equipment = [];
-
-            console.log(`Processing item: ${item.name}`);
-            console.log(
-              `RequiredMedicalSupplies:`,
-              item.requiredMedicalSupplies
-            );
 
             if (
               item.requiredMedicalSupplies &&
@@ -76,27 +72,16 @@ export const useHealthCheckForm = () => {
             ) {
               equipment = item.requiredMedicalSupplies
                 .map((supply) => {
-                  console.log(`Processing supply:`, supply);
-
                   // Handle different possible structures
                   if (supply.medicalSupply && supply.medicalSupply.name) {
-                    console.log(
-                      `Found equipment: ${supply.medicalSupply.name}`
-                    );
                     return supply.medicalSupply.name;
                   } else if (supply.medicalSupplyName) {
-                    console.log(
-                      `Found equipment (alt1): ${supply.medicalSupplyName}`
-                    );
                     return supply.medicalSupplyName;
                   } else if (supply.name) {
-                    console.log(`Found equipment (alt2): ${supply.name}`);
                     return supply.name;
                   } else if (typeof supply === "string") {
-                    console.log(`Found equipment (string): ${supply}`);
                     return supply;
                   } else {
-                    console.log(`No equipment name found for supply:`, supply);
                     return null;
                   }
                 })
@@ -105,8 +90,6 @@ export const useHealthCheckForm = () => {
                     name !== null && name !== undefined && name.trim() !== ""
                 ); // Remove null/empty values
             }
-
-            console.log(`Final equipment for ${item.name}:`, equipment);
 
             return {
               id: item.itemId || item.id,
@@ -121,20 +104,11 @@ export const useHealthCheckForm = () => {
             };
           });
 
-          console.log("Final transformed items:", transformedItems);
-          console.log(
-            "Items with equipment:",
-            transformedItems.filter((item) => item.equipment.length > 0)
-          );
-
           setHealthCheckItems(transformedItems);
         } else {
-          console.warn("No valid data found in API response, using mock data");
           setHealthCheckItems(healthCheckItemsData);
         }
       } catch (error) {
-        console.error("Error loading health check items:", error);
-        console.log("Using fallback mock data");
         setHealthCheckItems(healthCheckItemsData);
       } finally {
         setLoadingItems(false);
@@ -144,29 +118,18 @@ export const useHealthCheckForm = () => {
     loadHealthCheckItems();
   }, []);
 
-  // Load active classes from API on component mount
+  // Load classes assigned to current nurse from API on component mount
   useEffect(() => {
-    const loadActiveClasses = async () => {
+    const loadAssignedClasses = async () => {
       setLoadingGrades(true);
       try {
-        const result = await getActiveClasses();
+        // Only nurses can access assigned classes - check will be done by API
 
-        console.log("Classes API Result:", result);
+        const result = await staffService.getMyAssignedClasses();
 
-        // Handle different response structures
-        let classesArray = null;
-
-        if (result?.success && result?.data) {
-          classesArray = result.data;
-        } else if (result?.data) {
-          classesArray = result.data;
-        } else if (Array.isArray(result)) {
-          classesArray = result;
-        }
-
-        if (classesArray && Array.isArray(classesArray)) {
+        if (result?.success && result?.data && Array.isArray(result.data)) {
           // Transform API data to match expected UI format
-          const transformedClasses = classesArray.map((classItem) => ({
+          const transformedClasses = result.data.map((classItem) => ({
             id: classItem.classId || classItem.id,
             name: classItem.className || classItem.name,
             gradeLevel: classItem.gradeLevel,
@@ -175,25 +138,83 @@ export const useHealthCheckForm = () => {
               classItem.totalStudents ||
               classItem.studentCount ||
               0,
-            isActive: classItem.isActive !== false, // Default to true if not specified
+            classTeacher: classItem.classTeacher || null,
+            isActive: classItem.isActive !== false,
           }));
 
-          console.log("Transformed classes:", transformedClasses);
           setAvailableGrades(transformedClasses);
         } else {
-          console.warn("No valid classes data found in API response");
+          console.warn("No assigned classes found for this nurse");
           setAvailableGrades([]);
         }
       } catch (error) {
-        console.error("Error loading active classes:", error);
+        console.error("Error loading assigned classes:", error);
+        // Fallback to empty array for nurses with no assigned grades
         setAvailableGrades([]);
       } finally {
         setLoadingGrades(false);
       }
     };
 
-    loadActiveClasses();
+    loadAssignedClasses();
   }, []);
+
+  // Load edit data if editId is provided
+  useEffect(() => {
+    const loadEditData = async () => {
+      if (!editId) return;
+
+      setLoading(true);
+      try {
+        const healthCheckData = await getHealthCheckScheduleById(editId);
+
+        if (healthCheckData) {
+          // Map API data to form data
+          const mappedFormData = {
+            ...initialFormData,
+            formId: healthCheckData.formId,
+            title: healthCheckData.title || "",
+            scheduledDate: healthCheckData.scheduledDate
+              ? new Date(healthCheckData.scheduledDate)
+                  .toISOString()
+                  .split("T")[0]
+              : "",
+            startTime: healthCheckData.startTime || "",
+            estimatedDuration: healthCheckData.estimatedDuration || 60,
+            description: healthCheckData.description || "",
+            location: healthCheckData.location || "Phòng y tế trường",
+            totalStudents: healthCheckData.totalStudents || 0,
+            targetGrades:
+              healthCheckData.grades ||
+              (healthCheckData.gradeIds
+                ? JSON.parse(healthCheckData.gradeIds)
+                : []),
+            checkItems: healthCheckData.selectedStations
+              ? JSON.parse(healthCheckData.selectedStations)
+              : [],
+            notifyParents: healthCheckData.notifyParents !== false,
+            autoAdvance: healthCheckData.autoAdvance !== false,
+            saveResults: healthCheckData.saveResults !== false,
+            generateReport: healthCheckData.generateReport !== false,
+            requireParentConfirmation:
+              healthCheckData.requireParentConfirmation !== false,
+            // Reset status to pending for resubmission
+            confirmStatus: "pending",
+            status: "draft",
+          };
+
+          setFormData(mappedFormData);
+        }
+      } catch (error) {
+        console.error("Error loading health check for edit:", error);
+        alert("Không thể tải dữ liệu để chỉnh sửa. Vui lòng thử lại.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEditData();
+  }, [editId]);
 
   // Calculated values
   const totalStudents = calculateTotalStudents(
@@ -213,18 +234,8 @@ export const useHealthCheckForm = () => {
   // Helper function to get selected equipment with medical supplies data
   const getSelectedEquipment = useCallback(() => {
     const equipment = new Set();
-    console.log("🔍 getSelectedEquipment called:");
-    console.log("  formData.checkItems:", formData.checkItems);
-    console.log("  healthCheckItems:", healthCheckItems);
 
     formData.checkItems.forEach((itemId) => {
-      console.log(
-        "  Looking for item with ID:",
-        itemId,
-        "Type:",
-        typeof itemId
-      );
-
       // Convert itemId to both string and number for comparison
       const numId = typeof itemId === "string" ? parseInt(itemId) : itemId;
       const strId = String(itemId);
@@ -241,8 +252,6 @@ export const useHealthCheckForm = () => {
         );
       });
 
-      console.log("  Found item:", item?.name || "NOT FOUND");
-
       if (item?.requiredMedicalSupplies) {
         // Use medical supplies data from API
         item.requiredMedicalSupplies.forEach((supplyItem) => {
@@ -256,13 +265,11 @@ export const useHealthCheckForm = () => {
         });
       } else if (item?.equipment) {
         // Fallback to equipment array for compatibility
-        console.log("  Adding equipment:", item.equipment);
         item.equipment.forEach((eq) => equipment.add(eq));
       }
     });
 
     const result = Array.from(equipment);
-    console.log("🎯 Final selected equipment:", result);
     return result;
   }, [formData.checkItems, healthCheckItems]);
 
@@ -336,15 +343,7 @@ export const useHealthCheckForm = () => {
   // Check equipment availability when check items change
   useEffect(() => {
     const checkEquipment = async () => {
-      console.log(
-        "🎯 Equipment check triggered by formData.checkItems:",
-        formData.checkItems
-      );
-
       if (formData.checkItems.length === 0) {
-        console.log(
-          "❌ No equipment selected, setting equipmentStatus to null"
-        );
         setEquipmentStatus(null);
         return;
       }
@@ -355,14 +354,9 @@ export const useHealthCheckForm = () => {
           createEquipmentStatusFromHealthCheckData();
 
         if (statusFromHealthCheckData.equipment.length > 0) {
-          console.log(
-            "✅ Equipment status created from health check data:",
-            statusFromHealthCheckData
-          );
           setEquipmentStatus(statusFromHealthCheckData);
         } else {
           // Fallback to old method for compatibility
-          console.log("🔄 Falling back to equipment availability check...");
           const selectedEquipment = getSelectedEquipment();
 
           if (selectedEquipment.length === 0) {
@@ -370,13 +364,10 @@ export const useHealthCheckForm = () => {
             return;
           }
 
-          console.log("🔍 Checking equipment availability...");
           const status = await checkEquipmentAvailability(selectedEquipment);
-          console.log("✅ Equipment status received:", status);
           setEquipmentStatus(status);
         }
       } catch (error) {
-        console.error("❌ Error checking equipment:", error);
         setEquipmentStatus({
           equipment: getSelectedEquipment().map((eq) => ({
             name: eq,
@@ -402,19 +393,6 @@ export const useHealthCheckForm = () => {
     getSelectedEquipment,
     createEquipmentStatusFromHealthCheckData,
   ]);
-
-  // Auto-calculate end time when start time or duration changes
-  useEffect(() => {
-    if (formData.scheduledTime && formData.estimatedDuration) {
-      const endTime = calculateEndTime(
-        formData.scheduledTime,
-        formData.estimatedDuration
-      );
-      if (endTime && endTime !== formData.endTime) {
-        setFormData((prev) => ({ ...prev, endTime }));
-      }
-    }
-  }, [formData.scheduledTime, formData.estimatedDuration]);
 
   // Auto-update health check details when check items change
   useEffect(() => {
@@ -464,7 +442,6 @@ export const useHealthCheckForm = () => {
   }, [
     formData.scheduledDate,
     formData.scheduledTime,
-    formData.endTime,
     formData.location,
     formData.equipmentNeeded,
   ]);
@@ -501,18 +478,15 @@ export const useHealthCheckForm = () => {
     [validationErrors]
   );
 
-  // Handle grade selection
+  // Handle grade selection (single selection only)
   const handleGradeSelection = useCallback(
     (gradeId) => {
       setFormData((prev) => {
-        const newTargetGrades = prev.targetGrades.includes(gradeId)
-          ? prev.targetGrades.filter((id) => id !== gradeId)
-          : [...prev.targetGrades, gradeId];
+        // Single selection - replace current selection
+        const newTargetGrades = [gradeId];
 
-        const totalStudents = newTargetGrades.reduce((total, id) => {
-          const grade = availableGrades.find((g) => g.id === id);
-          return total + (grade?.studentCount || 0);
-        }, 0);
+        const grade = availableGrades.find((g) => g.id === gradeId);
+        const totalStudents = grade?.studentCount || 0;
 
         return {
           ...prev,
@@ -683,12 +657,12 @@ export const useHealthCheckForm = () => {
     }
 
     if (Object.keys(allErrors).length > 0) {
-      console.error("Validation errors found:", allErrors);
-      console.log("Form data when validation failed:", formData);
       setValidationErrors(allErrors);
-      return { 
-        success: false, 
-        message: `Vui lòng kiểm tra lại thông tin: ${Object.keys(allErrors).join(", ")}` 
+      return {
+        success: false,
+        message: `Vui lòng kiểm tra lại thông tin: ${Object.keys(
+          allErrors
+        ).join(", ")}`,
       };
     }
 
@@ -778,9 +752,9 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         StudentId: null,
         ParentId: null,
         CreatedDate: new Date().toISOString(),
-        ConsentStatus: "pending",
+        ConsentStatus: "đang chờ",
         ConsentDate: null,
-        ConfirmStatus: "pending",
+        ConfirmStatus: "đang chờ",
         ConfirmedBy: null,
         ConfirmedDate: null,
         ClassName: null,
@@ -793,8 +767,8 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         RequireParentConfirmation: formData.requireParentConfirmation === true,
         SelectedStations: JSON.stringify(formData.checkItems || []),
         StaffAssigned: null,
-        Status: "pending",
-        EstimatedEndTime: formData.endTime || null,
+        Status: "đang chờ",
+        EstimatedEndTime: null, // Not used with session-based scheduling
         Student: null,
         Parent: null,
         ConfirmedByStaff: null,
@@ -806,12 +780,15 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         console.warn("No checkItems selected, using default");
         formData.checkItems = ["general"]; // Default check item
       }
-      
-      if (!formData.maxStudentsPerSession || formData.maxStudentsPerSession < 1) {
+
+      if (
+        !formData.maxStudentsPerSession ||
+        formData.maxStudentsPerSession < 1
+      ) {
         console.warn("maxStudentsPerSession missing, using default");
         formData.maxStudentsPerSession = 50;
       }
-      
+
       if (!formData.estimatedDuration || formData.estimatedDuration < 30) {
         console.warn("estimatedDuration missing, using default");
         formData.estimatedDuration = 60;
@@ -827,36 +804,25 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
       }
 
       if (!submissionData.GradeIds || submissionData.GradeIds === "[]") {
-        return { success: false, message: "Phải chọn ít nhất một lớp học" };
+        return { success: false, message: "Phải chọn một khối lớp" };
       }
 
-      console.log("Submitting health check data:", submissionData);
-      console.log("Date formatting:", {
-        originalDate: formData.scheduledDate,
-        formattedDate: scheduledDateISO,
-        originalTime: formData.scheduledTime,
-        formattedTime: startTimeFormatted,
-      });
-      console.log("Grade formatting:", {
-        originalGrades: formData.targetGrades,
-        formattedGradeIds: gradeIdsFormatted,
-      });
-      console.log("Data validation check:", {
-        hasTitle: !!submissionData.Title,
-        titleLength: submissionData.Title?.length,
-        hasScheduledDate: !!submissionData.ScheduledDate,
-        hasGradeIds: !!submissionData.GradeIds,
-        gradeIdsContent: submissionData.GradeIds,
-      });
-
-      const response = await createHealthCheck(submissionData);
-      console.log("API response:", response);
+      let response;
+      if (editId) {
+        // Update existing health check
+        response = await updateHealthCheckSchedule(editId, submissionData);
+      } else {
+        // Create new health check
+        response = await createHealthCheck(submissionData);
+      }
 
       // Clear draft after successful submission
       localStorage.removeItem("healthcheck_draft");
 
       // Create success message based on equipment status
-      let successMessage = "Kế hoạch khám sức khỏe đã được gửi thành công!";
+      let successMessage = editId
+        ? "Kế hoạch khám sức khỏe đã được cập nhật và gửi lại thành công!"
+        : "Kế hoạch khám sức khỏe đã được gửi thành công!";
       if (equipmentReport?.requiresAction) {
         successMessage +=
           " Lưu ý: Đã gửi thông báo về tình trạng thiết bị cho quản lý để xem xét.";
@@ -869,11 +835,13 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         equipmentWarning: equipmentReport?.requiresAction || false,
       };
     } catch (error) {
-      console.error("Error creating health check schedule:", error);
       return {
         success: false,
         message:
-          error.message || "Có lỗi xảy ra khi gửi kế hoạch. Vui lòng thử lại.",
+          error.message ||
+          (editId
+            ? "Có lỗi xảy ra khi cập nhật kế hoạch. Vui lòng thử lại."
+            : "Có lỗi xảy ra khi gửi kế hoạch. Vui lòng thử lại."),
       };
     } finally {
       setLoading(false);

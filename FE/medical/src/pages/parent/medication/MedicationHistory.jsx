@@ -4,6 +4,7 @@ import { medicationService } from "../../../utils/api/medication/medicationServi
 import { useAuth } from "../../../utils/auth/AuthContext";
 import {
   transformParentMedicationData,
+  transformFailedMedicationData,
   getStatusBadge,
   calculateMedicationStats,
   filterMedications,
@@ -33,13 +34,13 @@ const MedicationHistory = () => {
     try {
       let result;
 
-      // Use specific API for rejected or failed requests when those filters are selected
+      // Use specific API based on filter status
       if (filterStatus === "rejected") {
         result = await medicationService.getRefusedMedicineRequestsByParent(
           user.id
         );
       } else if (filterStatus === "failed") {
-        result = await medicationService.getFailedMedicineRequestsByParent(
+        result = await medicationService.getFailedMedicationRequestsByParent(
           user.id
         );
       } else {
@@ -47,7 +48,12 @@ const MedicationHistory = () => {
       }
 
       if (result.success) {
-        const transformedData = transformParentMedicationData(result.data);
+        let transformedData;
+        if (filterStatus === "failed") {
+          transformedData = transformFailedMedicationData(result.data);
+        } else {
+          transformedData = transformParentMedicationData(result.data);
+        }
         setMedications(transformedData);
       } else {
         setError(result.message);
@@ -77,7 +83,7 @@ const MedicationHistory = () => {
 
   const filteredMedications =
     filterStatus === "rejected" || filterStatus === "failed"
-      ? medications // For rejected and failed tabs, show all data from specific API directly
+      ? medications // For rejected and failed tabs, show all data from specific APIs directly
       : filterMedications(medications, filterStatus, searchTerm);
 
   // Apply filtering logic
@@ -268,7 +274,7 @@ const MedicationHistory = () => {
                 Thất bại
               </p>
               <p className="text-xl font-bold mt-1 text-orange-600 dark:text-orange-400">
-                {stats.failed || 0}
+                {stats.failed}
               </p>
             </div>
             <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
@@ -282,7 +288,7 @@ const MedicationHistory = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L5.082 15.5c-.77.833.192 2.5 1.732 2.5z"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
                 />
               </svg>
             </div>
@@ -524,12 +530,30 @@ const MedicationHistory = () => {
                     >
                       Ngày gửi yêu cầu
                     </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Ngày uống thuốc
-                    </th>
+                    {filterStatus !== "failed" && (
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Ngày uống thuốc
+                      </th>
+                    )}
+                    {filterStatus === "failed" && (
+                      <>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Thời gian thất bại
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Số lần thử
+                        </th>
+                      </>
+                    )}
                     <th
                       scope="col"
                       className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
@@ -542,6 +566,14 @@ const MedicationHistory = () => {
                         className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
                         Lý do từ chối
+                      </th>
+                    )}
+                    {filterStatus === "failed" && (
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Lý do thất bại
                       </th>
                     )}
                     <th
@@ -594,13 +626,38 @@ const MedicationHistory = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="text-sm text-gray-900 dark:text-gray-100">
-                          {new Date(medication.startDate).toLocaleDateString(
-                            "vi-VN"
-                          )}
-                        </div>
-                      </td>
+                      {filterStatus !== "failed" && (
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="text-sm text-gray-900 dark:text-gray-100">
+                            {new Date(medication.startDate).toLocaleDateString(
+                              "vi-VN"
+                            )}
+                          </div>
+                        </td>
+                      )}
+                      {filterStatus === "failed" && (
+                        <>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <div className="text-sm text-gray-900 dark:text-gray-100">
+                              {medication.lastAttemptTime || "N/A"}
+                            </div>
+                            {medication.administeredTime && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Bắt đầu: {medication.administeredTime}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {medication.failedAttempts}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {medication.currentDayCount}/
+                              {medication.timesPerDay} lần
+                            </div>
+                          </td>
+                        </>
+                      )}
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         {renderStatusBadge(medication.status)}
                       </td>
@@ -613,6 +670,20 @@ const MedicationHistory = () => {
                             medication.staffName !== "N/A" && (
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Từ chối bởi: {medication.staffName}
+                              </div>
+                            )}
+                        </td>
+                      )}
+                      {filterStatus === "failed" && (
+                        <td className="px-6 py-4 text-center">
+                          <div className="text-sm text-gray-900 dark:text-gray-100 max-w-xs">
+                            {medication.failureReasons ||
+                              "Không có lý do cụ thể"}
+                          </div>
+                          {medication.staffName &&
+                            medication.staffName !== "N/A" && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Xử lý bởi: {medication.staffName}
                               </div>
                             )}
                         </td>

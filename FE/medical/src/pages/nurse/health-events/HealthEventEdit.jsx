@@ -31,7 +31,7 @@ import {
   getDosagePlaceholder,
   formatDosageWithUnit,
   extractDosageNumber,
-} from "../../../utils/medicineUnits";
+} from "../../../utils/medicine/medicineUnits";
 
 const HealthEventEdit = () => {
   const { id } = useParams();
@@ -325,12 +325,8 @@ const HealthEventEdit = () => {
         medicalSupplies: mappedMedicalSupplies,
       });
 
-      console.log("Updating health event with staff ID:", user.id, apiData);
-
       // Update health event via API
       const response = await updateHealthEvent(id, apiData);
-
-      console.log("Health event updated successfully:", response);
 
       // Show success message
       setSubmitStatus("success");
@@ -377,8 +373,6 @@ const HealthEventEdit = () => {
 
       // Send notification to parent
       await sendNotificationToParent(notificationData);
-
-      console.log("Parent notification sent successfully");
     } catch (error) {
       console.error("Error sending parent notification:", error);
       // Don't throw error here as the main event update was successful

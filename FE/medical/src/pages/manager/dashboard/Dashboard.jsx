@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import {
   FiPackage,
   FiClipboard,
@@ -26,135 +25,160 @@ const Dashboard = () => {
   const [lowStockItems, setLowStockItems] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
 
-  const API_URL = "http://localhost:7111/api";
+  // Static mock data
+  const mockMedicines = [
+    {
+      medicineId: 1,
+      name: "Paracetamol 500mg",
+      stockQuantity: 200,
+      isActive: true,
+    },
+    {
+      medicineId: 2,
+      name: "Amoxicillin 250mg",
+      stockQuantity: 45,
+      isActive: true,
+    },
+    {
+      medicineId: 3,
+      name: "Ibuprofen 400mg",
+      stockQuantity: 150,
+      isActive: true,
+    },
+    { medicineId: 4, name: "Aspirin 100mg", stockQuantity: 30, isActive: true },
+    { medicineId: 5, name: "Vitamin C", stockQuantity: 80, isActive: true },
+    {
+      medicineId: 6,
+      name: "Antibiotics Old",
+      stockQuantity: 20,
+      isActive: false,
+    },
+  ];
 
-  // Fetch data from API
+  const mockSupplies = [
+    {
+      supplyId: 1,
+      name: "Băng gạc vô trùng",
+      stockQuantity: 150,
+      isActive: true,
+    },
+    {
+      supplyId: 2,
+      name: "Khẩu trang phẫu thuật",
+      stockQuantity: 300,
+      isActive: true,
+    },
+    { supplyId: 3, name: "Ống tiêm 5ml", stockQuantity: 25, isActive: true },
+    { supplyId: 4, name: "Găng tay y tế", stockQuantity: 180, isActive: true },
+    { supplyId: 5, name: "Cồn y tế", stockQuantity: 20, isActive: true },
+    { supplyId: 6, name: "Bông y tế cũ", stockQuantity: 10, isActive: false },
+  ];
+
+  const mockActivities = [
+    {
+      id: 1,
+      action: "Thêm thuốc",
+      item: "Paracetamol 500mg",
+      quantity: 200,
+      user: "Nguyễn Văn A",
+      timestamp: "06/07/2025 09:15",
+    },
+    {
+      id: 2,
+      action: "Cập nhật vật tư",
+      item: "Băng gạc vô trùng",
+      quantity: 150,
+      user: "Trần Thị B",
+      timestamp: "06/07/2025 10:30",
+    },
+    {
+      id: 3,
+      action: "Đã ngưng sử dụng",
+      item: "Ống tiêm 5ml",
+      quantity: "N/A",
+      user: "Lê Văn C",
+      timestamp: "06/07/2025 11:45",
+    },
+    {
+      id: 4,
+      action: "Thêm vật tư",
+      item: "Khẩu trang phẫu thuật",
+      quantity: 300,
+      user: "Phạm Thị D",
+      timestamp: "05/07/2025 15:20",
+    },
+    {
+      id: 5,
+      action: "Cập nhật số lượng",
+      item: "Amoxicillin",
+      quantity: 180,
+      user: "Hoàng Văn E",
+      timestamp: "05/07/2025 16:10",
+    },
+  ];
+
+  // Load mock data
   useEffect(() => {
-    Promise.all([fetchMedicines(), fetchSupplies(), fetchRecentActivities()])
-      .then(() => setLoading(false))
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        setLoading(false);
-      });
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      loadMockData();
+      setLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  const fetchMedicines = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/Medicine`);
-      const medicines = response.data;
+  const loadMockData = () => {
+    // Process medicines
+    const total = mockMedicines.length;
+    const inactive = mockMedicines.filter((med) => !med.isActive).length;
+    const lowStock = mockMedicines.filter(
+      (med) => med.stockQuantity < 50
+    ).length;
 
-      // Calculate stats
-      const total = medicines.length;
-      const inactive = medicines.filter((med) => !med.isActive).length;
-      const lowStock = medicines.filter((med) => med.stockQuantity < 50).length;
+    // Find low stock medicines
+    const lowStockMeds = mockMedicines
+      .filter((med) => med.stockQuantity < 50 && med.isActive)
+      .map((med) => ({
+        id: med.medicineId,
+        name: med.name,
+        quantity: med.stockQuantity,
+        type: "medicine",
+        threshold: 50,
+      }))
+      .slice(0, 3);
 
-      // Find low stock medicines
-      const lowStockMeds = medicines
-        .filter((med) => med.stockQuantity < 50 && med.isActive)
-        .map((med) => ({
-          id: med.medicineId,
-          name: med.name,
-          quantity: med.stockQuantity,
-          type: "medicine",
-          threshold: 50,
-        }))
-        .slice(0, 3);
+    // Process supplies
+    const totalSupplies = mockSupplies.length;
+    const inactiveSupplies = mockSupplies.filter(
+      (supply) => !supply.isActive
+    ).length;
+    const lowStockSupplies = mockSupplies.filter(
+      (supply) => supply.stockQuantity < 30
+    ).length;
 
-      setInventoryStats((prev) => ({
-        ...prev,
-        totalMedicines: total,
-        inactiveMedicines: inactive,
-        lowStockMedicines: lowStock,
-      }));
+    // Find low stock supplies
+    const lowStockSupp = mockSupplies
+      .filter((supply) => supply.stockQuantity < 30 && supply.isActive)
+      .map((supply) => ({
+        id: supply.supplyId,
+        name: supply.name,
+        quantity: supply.stockQuantity,
+        type: "supply",
+        threshold: 30,
+      }))
+      .slice(0, 3);
 
-      setLowStockItems((prev) => [...lowStockMeds, ...prev]);
-    } catch (error) {
-      console.error("Error fetching medicines:", error);
-    }
-  };
+    setInventoryStats({
+      totalMedicines: total,
+      totalSupplies: totalSupplies,
+      inactiveMedicines: inactive,
+      inactiveSupplies: inactiveSupplies,
+      lowStockMedicines: lowStock,
+      lowStockSupplies: lowStockSupplies,
+    });
 
-  const fetchSupplies = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/MedicalSupply`);
-      const supplies = response.data;
-
-      // Calculate stats
-      const total = supplies.length;
-      const inactive = supplies.filter((supply) => !supply.isActive).length;
-      const lowStock = supplies.filter(
-        (supply) => supply.stockQuantity < 30
-      ).length;
-
-      // Find low stock supplies
-      const lowStockSupp = supplies
-        .filter((supply) => supply.stockQuantity < 30 && supply.isActive)
-        .map((supply) => ({
-          id: supply.supplyId,
-          name: supply.name,
-          quantity: supply.stockQuantity,
-          type: "supply",
-          threshold: 30,
-        }))
-        .slice(0, 3);
-
-      setInventoryStats((prev) => ({
-        ...prev,
-        totalSupplies: total,
-        inactiveSupplies: inactive,
-        lowStockSupplies: lowStock,
-      }));
-
-      setLowStockItems((prev) => [...prev, ...lowStockSupp]);
-    } catch (error) {
-      console.error("Error fetching supplies:", error);
-    }
-  };
-
-  const fetchRecentActivities = async () => {
-    // Simulated data - would be replaced with a real API call
-    const mockActivities = [
-      {
-        id: 1,
-        action: "Thêm thuốc",
-        item: "Paracetamol 500mg",
-        quantity: 200,
-        user: "Nguyễn Văn A",
-        timestamp: "06/07/2025 09:15",
-      },
-      {
-        id: 2,
-        action: "Cập nhật vật tư",
-        item: "Băng gạc vô trùng",
-        quantity: 150,
-        user: "Trần Thị B",
-        timestamp: "06/07/2025 10:30",
-      },
-      {
-        id: 3,
-        action: "Đã ngưng sử dụng",
-        item: "Ống tiêm 5ml",
-        quantity: "N/A",
-        user: "Lê Văn C",
-        timestamp: "06/07/2025 11:45",
-      },
-      {
-        id: 4,
-        action: "Thêm vật tư",
-        item: "Khẩu trang phẫu thuật",
-        quantity: 300,
-        user: "Phạm Thị D",
-        timestamp: "05/07/2025 15:20",
-      },
-      {
-        id: 5,
-        action: "Cập nhật số lượng",
-        item: "Amoxicillin",
-        quantity: 180,
-        user: "Hoàng Văn E",
-        timestamp: "05/07/2025 16:10",
-      },
-    ];
-
+    setLowStockItems([...lowStockMeds, ...lowStockSupp]);
     setRecentActivities(mockActivities);
   };
 

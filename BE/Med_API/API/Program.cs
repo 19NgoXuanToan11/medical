@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Http;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,23 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 
 // Add JWT Authentication
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 
 // Configure Swagger with JWT support
@@ -117,6 +136,7 @@ builder.Services.AddScoped<IStudentParentRepository, StudentParentRepository>();
 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IHealthCheckItemRepository, HealthCheckItemRepository>();
+builder.Services.AddScoped<IVaccineRepository, VaccineRepository>();
 
 // Register Services
 builder.Services.AddScoped<IStudentService, StudentService>();
@@ -140,6 +160,7 @@ builder.Services.AddScoped<IStudentParentService, StudentParentService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<IHealthCheckItemService, HealthCheckItemService>();
+builder.Services.AddScoped<IVaccineService, VaccineService>();
 
 // Register Background Services
 builder.Services.AddHostedService<TimeBasedStatusService>();

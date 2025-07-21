@@ -182,17 +182,23 @@ export const vaccinationStepsConfig = [
   {
     id: 1,
     title: "Thông tin cơ bản",
-    description: "Thời gian, địa điểm và mục tiêu",
+    description: "Thời gian và địa điểm",
     required: true,
   },
   {
     id: 2,
-    title: "Đối tượng tiêm",
-    description: "Lớp học",
+    title: "Chọn vaccine",
+    description: "Loại vaccine tiêm chủng",
     required: true,
   },
   {
     id: 3,
+    title: "Đối tượng tiêm",
+    description: "Khối học",
+    required: true,
+  },
+  {
+    id: 4,
     title: "Kiểm tra & Xác nhận",
     description: "Xem trước và hoàn tất",
     required: true,
@@ -200,11 +206,18 @@ export const vaccinationStepsConfig = [
 ];
 
 export const initialFormData = {
-  // Basic Information
+  // Basic Information (Step 1)
   title: "",
   description: "",
   scheduledDateTime: "",
   location: "Phòng y tế trường",
+
+  // Vaccine Selection (Step 2)
+  vaccineId: null,
+  vaccineName: "",
+  vaccineInfo: null,
+
+  // Target Selection (Step 3)
   targetGrades: [],
 
   // Workflow & Approval
@@ -217,6 +230,6 @@ export const initialFormData = {
   teacherInstructions: "",
   notes: "",
 
-  // Vaccination specific fields - simplified
+  // Legacy field - kept for backward compatibility
   vaccineType: "",
 };

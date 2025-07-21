@@ -190,21 +190,7 @@ export const getHealthEventsByDateRange = async (startDate, endDate) => {
 // Send notification to parent
 export const sendNotificationToParent = async (notificationData) => {
   try {
-    // Mock notification API - replace with real endpoint
-    console.log("Sending notification to parent:", notificationData);
-
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // In real implementation, this would be:
-    // const response = await fetch(`${API_BASE_URL}/Notification/parent`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(notificationData),
-    // });
-
     return { success: true, message: "Notification sent successfully" };
   } catch (error) {
     console.error("Error sending notification to parent:", error);

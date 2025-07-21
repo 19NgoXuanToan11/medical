@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   FiActivity,
   FiCalendar,
@@ -15,6 +15,7 @@ import {
   FiCheck,
   FiArrowLeft,
   FiArrowRight,
+  FiInfo,
 } from "react-icons/fi";
 import { useHealthCheckForm } from "./hooks/useHealthCheckForm";
 import {
@@ -31,7 +32,9 @@ import { healthCheckStepsConfig } from "./data/healthCheckData";
 
 const HealthCheckCreate = () => {
   const navigate = useNavigate();
-
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+  
   // Use the custom hook for form management
   const {
     loading,
@@ -57,15 +60,22 @@ const HealthCheckCreate = () => {
     loadDraft,
     handleSubmit,
     resetForm,
-  } = useHealthCheckForm();
+  } = useHealthCheckForm(id);
 
-  // Load draft on component mount
+  // Load draft on component mount (only for create mode, not edit mode)
   useEffect(() => {
-    loadDraft();
-  }, [loadDraft]);
+    if (!isEditMode) {
+      loadDraft();
+    }
+  }, [loadDraft, isEditMode]);
 
-  // Handle save draft
+  // Handle save draft (only in create mode)
   const handleSaveDraft = async () => {
+    if (isEditMode) {
+      alert("Không thể lưu nháp khi đang chỉnh sửa. Vui lòng submit để cập nhật.");
+      return;
+    }
+    
     const result = await saveDraft();
     if (result.success) {
       alert(result.message);
@@ -182,11 +192,28 @@ const HealthCheckCreate = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                Lập kế hoạch khám sức khỏe
+                {isEditMode ? "Chỉnh sửa kế hoạch khám sức khỏe" : "Lập kế hoạch khám sức khỏe"}
               </h1>
               <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-                Tạo kế hoạch khám sức khỏe định kỳ cho học sinh
+                {isEditMode ? "Chỉnh sửa và gửi lại yêu cầu khám sức khỏe đã bị từ chối" : "Tạo kế hoạch khám sức khỏe định kỳ cho học sinh"}
               </p>
+              {isEditMode && (
+                <div className="mt-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <FiInfo className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
+                        Đang chỉnh sửa lịch khám
+                      </h4>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        Bạn đang chỉnh sửa lịch khám hiện có. Sau khi cập nhật, lịch khám sẽ được gửi lại cho quản lý để xem xét duyệt.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <button
               onClick={handleCancel}
@@ -212,7 +239,14 @@ const HealthCheckCreate = () => {
 
         {/* Main Content */}
         <div className="bg-white dark:bg-neutral-800 shadow-lg rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700">
-          <div className="p-6">{renderCurrentStep()}</div>
+          {isEditMode && loading ? (
+            <div className="p-6 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">Đang tải dữ liệu để chỉnh sửa...</p>
+            </div>
+          ) : (
+            <div className="p-6">{renderCurrentStep()}</div>
+          )}
 
           {/* Navigation Controls */}
           <div className="px-6 py-4 bg-neutral-50 dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-700">
@@ -224,6 +258,7 @@ const HealthCheckCreate = () => {
               onCancel={handleCancel}
               onSubmit={handleFormSubmit}
               loading={loading}
+              isEditMode={isEditMode}
             />
           </div>
         </div>

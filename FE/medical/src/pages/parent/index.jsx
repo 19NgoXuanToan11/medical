@@ -3,7 +3,4 @@ import ParentProfile from "./profile/ParentProfile";
 
 export { ParentDashboard, ParentProfile };
 
-export default {
-  ParentDashboard,
-  ParentProfile,
-};
+export default { ParentDashboard, ParentProfile };

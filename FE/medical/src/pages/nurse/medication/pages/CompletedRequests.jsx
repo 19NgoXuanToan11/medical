@@ -35,13 +35,10 @@ const CompletedRequests = () => {
       const response = await medicationService.getCompletedMedicationRequests();
 
       if (response.success) {
-        console.log("Raw completed API response:", response.data);
-
         const completedOnly = filterByStatus(response.data, [
           "Completed",
           "completed",
         ]);
-        console.log("Filtered completed requests:", completedOnly);
 
         const transformedRequests = transformRequestData(completedOnly);
 
@@ -51,10 +48,8 @@ const CompletedRequests = () => {
           status: "completed",
         }));
 
-        console.log("Transformed completed requests:", completedRequests);
         setRequests(completedRequests);
       } else {
-        console.error("Error loading completed requests:", response.message);
         setRequests([]);
       }
     } catch (error) {
@@ -72,7 +67,6 @@ const CompletedRequests = () => {
 
   // Handle view detail
   const handleViewDetail = (request) => {
-    console.log("Opening modal for request:", request);
     setSelectedRequest(request);
     setShowDetailModal(true);
   };

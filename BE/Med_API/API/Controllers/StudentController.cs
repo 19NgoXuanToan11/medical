@@ -128,4 +128,35 @@ public class StudentController : ControllerBase
         var studentViewModel = _mapper.Map<StudentDto.ViewModel>(student);
         return Ok(studentViewModel);
     }
+
+    // GET: api/Student/eligible-for-vaccine
+    [HttpGet("eligible-for-vaccine")]
+    public async Task<ActionResult<IEnumerable<StudentDto.ViewModel>>> GetEligibleStudentsForVaccine(
+        [FromQuery] int vaccineId,
+        [FromQuery] DateTime injectionDate,
+        [FromQuery] int? classId,
+        [FromQuery] List<int>? studentIds)
+    {
+        // Lấy danh sách học sinh theo classId hoặc theo list id truyền vào
+        IEnumerable<Student> students;
+        if (classId.HasValue)
+        {
+            students = (await _studentService.GetAllStudentsAsync()).Where(s => s.Class != null && s.Class.ClassId == classId.Value);
+        }
+        else if (studentIds != null && studentIds.Count > 0)
+        {
+            students = (await _studentService.GetAllStudentsAsync()).Where(s => studentIds.Contains(s.StudentId));
+        }
+        else
+        {
+            return BadRequest("Phải truyền classId hoặc danh sách studentIds");
+        }
+        var eligible = await _studentService.GetEligibleStudentsForVaccineAsync(
+            vaccineId,
+            injectionDate,
+            students.Select(s => s.StudentId)
+        );
+        var viewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(eligible);
+        return Ok(viewModels);
+    }
 } 

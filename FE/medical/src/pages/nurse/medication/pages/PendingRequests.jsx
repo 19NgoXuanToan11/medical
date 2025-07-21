@@ -50,7 +50,6 @@ const PendingRequests = () => {
           status: "pending",
         }));
 
-        console.log("Pending requests loaded:", pendingRequests);
         setRequests(pendingRequests);
       } else {
         console.error("Error loading pending requests:", response.message);
@@ -71,10 +70,7 @@ const PendingRequests = () => {
         return;
       }
 
-      console.log("Assigning request:", { requestId, staffId, notes });
-
       const currentRequest = requests.find((req) => req.id === requestId);
-      console.log("Current request data before assignment:", currentRequest);
 
       const response = await medicationService.updateMedicationRequestWithStaff(
         requestId,
@@ -82,8 +78,6 @@ const PendingRequests = () => {
         "approved",
         notes
       );
-
-      console.log("Assignment response:", response);
 
       if (response.success) {
         // Send notification to parent
@@ -123,7 +117,6 @@ const PendingRequests = () => {
 
   // Handle view detail
   const handleViewDetail = (request) => {
-    console.log("Opening modal for request:", request);
     setSelectedRequest(request);
     setShowDetailModal(true);
   };

@@ -11,11 +11,15 @@ import {
 } from "react-icons/fi";
 import { getVietnameseStatusText } from "../utils/medicationUtils";
 import { calculateDosagePerAdministration } from "../../../../utils/api/medication/medicationUtils";
+import { getMedicineUnit } from "../../../../utils/medicine/medicineUnits";
 
 // Helper function to format dosage with units
-const formatDosageWithUnit = (dosage, dosageUnit = "viên") => {
+const formatDosageWithUnit = (dosage, dosageUnit, medicineName) => {
   if (!dosage || dosage === "N/A") return "Chưa xác định";
-  return `${dosage} ${dosageUnit}`;
+
+  // Use dosageUnit if available, otherwise get from medicine name
+  const unit = dosageUnit || getMedicineUnit(medicineName);
+  return `${dosage} ${unit}`;
 };
 
 // Helper function to format frequency
@@ -357,7 +361,8 @@ const MedicationDetailModal = ({ show, request, onClose }) => {
                             <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-center">
                               {formatDosageWithUnit(
                                 item.dosage,
-                                item.dosageUnit
+                                item.dosageUnit,
+                                item.medicineName
                               )}
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-center">
@@ -371,7 +376,8 @@ const MedicationDetailModal = ({ show, request, onClose }) => {
                                 ? calculateDosagePerAdministration(
                                     formatDosageWithUnit(
                                       item.dosage,
-                                      item.dosageUnit
+                                      item.dosageUnit,
+                                      item.medicineName
                                     ),
                                     item.frequency
                                   )
@@ -475,7 +481,8 @@ const MedicationDetailModal = ({ show, request, onClose }) => {
                                             ? calculateDosagePerAdministration(
                                                 formatDosageWithUnit(
                                                   item.dosage,
-                                                  item.dosageUnit
+                                                  item.dosageUnit,
+                                                  item.medicineName
                                                 ),
                                                 item.frequency
                                               )

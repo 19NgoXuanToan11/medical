@@ -60,6 +60,43 @@ public class ClassController : ControllerBase
         return Ok(viewModels);
     }
 
+    // GET: api/Class/my-assigned-classes - Get classes for current nurse's assigned grade levels
+    [HttpGet("my-assigned-classes")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<ActionResult<IEnumerable<ClassDto.ViewModel>>> GetMyAssignedClasses(
+        [FromServices] IStaffService staffService)
+    {
+        // Get current user ID from JWT token
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int staffId))
+        {
+            return Unauthorized("Invalid token or user ID not found");
+        }
+
+        // Get current user role from JWT token
+        var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+        if (roleClaim == null || roleClaim.Value.ToLower() != "nurse")
+        {
+            return Forbid("Only nurses can access their assigned classes");
+        }
+
+        // Get nurse's assigned grades
+        var gradeNurses = await staffService.GetGradeNursesByStaffIdAsync(staffId);
+        var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
+
+        if (!assignedGrades.Any())
+        {
+            return Ok(new List<ClassDto.ViewModel>()); // Return empty list if no grades assigned
+        }
+
+        // Get all classes and filter by assigned grades
+        var allClasses = await _classService.GetActiveClassesAsync();
+        var assignedClasses = allClasses.Where(c => assignedGrades.Contains(c.GradeLevel));
+        var viewModels = _mapper.Map<IEnumerable<ClassDto.ViewModel>>(assignedClasses);
+        
+        return Ok(viewModels);
+    }
+
     // GET: api/Class/5/students
     [HttpGet("{id}/students")]
     public async Task<ActionResult<IEnumerable<ClassDto.StudentWithParents>>> GetClassStudents(int id)

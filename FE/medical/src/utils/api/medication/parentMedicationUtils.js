@@ -19,19 +19,21 @@ export const transformParentMedicationData = (requests) => {
 
     // Map status from API to UI
     const getUIStatus = (apiStatus) => {
-      const normalizedStatus = normalizeStatus(apiStatus);
-
-      // Map normalized status to UI status
-      const uiStatusMap = {
-        pending: "pending",
-        assigned: "active",
-        completed: "completed",
-        rejected: "rejected",
-        refused: "rejected",
-        failed: "rejected",
-      };
-
-      return uiStatusMap[normalizedStatus] || "pending";
+      switch (apiStatus?.toLowerCase()) {
+        case "pending":
+          return "pending";
+        case "assigned":
+          return "active";
+        case "completed":
+        case "done":
+          return "completed";
+        case "failed":
+        case "rejected":
+        case "refused":
+          return "rejected";
+        default:
+          return "pending";
+      }
     };
 
     // Get the latest progress entry for last administered time
@@ -91,56 +93,9 @@ export const transformParentMedicationData = (requests) => {
   });
 };
 
-// Normalize status values from API to consistent lowercase format
-const normalizeStatus = (status) => {
-  if (!status) return "pending";
-
-  const statusMap = {
-    Pending: "pending",
-    pending: "pending",
-    Assigned: "assigned",
-    assigned: "assigned",
-    Completed: "completed",
-    completed: "completed",
-    Rejected: "rejected",
-    rejected: "rejected",
-    Approved: "approved",
-    approved: "approved",
-    Done: "completed", // Map "Done" to "completed"
-    done: "completed",
-    Failed: "failed",
-    failed: "failed",
-    Refused: "refused",
-    refused: "refused",
-  };
-
-  return statusMap[status] || status.toLowerCase();
-};
-
-// Convert API status to UI status for display
-const getUIStatus = (apiStatus) => {
-  const normalizedStatus = normalizeStatus(apiStatus);
-
-  // Map normalized status to UI status
-  const uiStatusMap = {
-    pending: "pending",
-    assigned: "active",
-    completed: "completed",
-    rejected: "rejected",
-    refused: "rejected",
-    failed: "rejected",
-  };
-
-  return uiStatusMap[normalizedStatus] || "pending";
-};
-
 // Get status badge configuration
 export const getStatusBadge = (status) => {
-  // Normalize status first to handle variations
-  const normalizedStatus = normalizeStatus(status);
-  const uiStatus = getUIStatus(normalizedStatus);
-
-  switch (uiStatus) {
+  switch (status) {
     case "active":
       return {
         className:
@@ -163,12 +118,13 @@ export const getStatusBadge = (status) => {
       return {
         className:
           "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 ring-1 ring-red-600/20 dark:ring-red-400/20",
-        text:
-          normalizedStatus === "refused"
-            ? "Từ chối"
-            : normalizedStatus === "failed"
-            ? "Thất bại"
-            : "Từ chối",
+        text: "Từ chối",
+      };
+    case "failed":
+      return {
+        className:
+          "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 ring-1 ring-orange-600/20 dark:ring-orange-400/20",
+        text: "Thất bại",
       };
     default:
       return {
@@ -211,6 +167,78 @@ export const calculateMedicationStats = (medications) => {
   });
 
   return stats;
+};
+
+// Transform failed medication request data
+export const transformFailedMedicationData = (failedResults) => {
+  return failedResults.map((result) => {
+    const request = result.request || {};
+    const student = request.student || {};
+    const medicineItems = request.medicineRequestItems || [];
+    const firstMedicine = medicineItems[0] || {};
+
+    // Get all medication names for display
+    const allMedicationNames = medicineItems
+      .map((item) => item.medicineName)
+      .filter((name) => name);
+    const medicationDisplay =
+      allMedicationNames.length > 0 ? allMedicationNames : ["N/A"];
+
+    // Get failed frequencies and reasons
+    const failedFrequencies = result.failedFrequencies || [];
+    const failureReasons = result.failureReasons || {};
+    const failedReasonsDisplay =
+      Object.values(failureReasons).join("; ") || "Không có lý do cụ thể";
+
+    return {
+      id: `MED${request.requestId}`,
+      requestId: request.requestId,
+      resultId: result.resultId,
+      studentName:
+        student.firstName && student.lastName
+          ? `${student.firstName} ${student.lastName}`
+          : request.studentCode,
+      studentCode: request.studentCode,
+      class: request.className || student.className,
+      medicationName: firstMedicine.medicineName || "N/A",
+      medicationNames: allMedicationNames,
+      medicationDisplay: medicationDisplay,
+      medicationCount: medicineItems.length,
+      requestDate: request.requestDate
+        ? new Date(request.requestDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      startDate: request.date || new Date().toISOString().split("T")[0],
+      administeredTime: result.administeredTime
+        ? new Date(result.administeredTime).toLocaleString("vi-VN")
+        : null,
+      submittedAt: result.submittedAt
+        ? new Date(result.submittedAt).toLocaleString("vi-VN")
+        : null,
+      lastAttemptTime: result.lastAttemptTime
+        ? new Date(result.lastAttemptTime).toLocaleString("vi-VN")
+        : null,
+      status: "failed",
+      frequency: result.frequency || firstMedicine.frequency || "N/A",
+      timesPerDay: result.timesPerDay || 0,
+      currentDayCount: result.currentDayCount || 0,
+      failedAttempts: result.failedAttempts || 0,
+      failedFrequencies: failedFrequencies,
+      failureReasons: failedReasonsDisplay,
+      reRequestReason: result.reRequestReason || null,
+      isReRequest: result.isReRequest || false,
+      originalRequestResultId: result.originalRequestResultId || null,
+      // Staff information
+      administeredByStaff: result.administeredByStaff || null,
+      actionByStaff: result.actionByStaff || null,
+      staffName: result.actionByStaff
+        ? `${result.actionByStaff.firstName || ""} ${
+            result.actionByStaff.lastName || ""
+          }`.trim()
+        : "N/A",
+      // Keep all original data for reference
+      originalData: result,
+    };
+  });
 };
 
 // Filter medications by status and search term

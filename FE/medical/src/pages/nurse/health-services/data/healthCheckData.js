@@ -1,25 +1,52 @@
 // Mock data for health check management
 export const availableGradesData = [
-  { id: "1A", name: "Lớp 1A", studentCount: 25, ageRange: "6-7 tuổi" },
-  { id: "1B", name: "Lớp 1B", studentCount: 24, ageRange: "6-7 tuổi" },
-  { id: "1C", name: "Lớp 1C", studentCount: 26, ageRange: "6-7 tuổi" },
-  { id: "2A", name: "Lớp 2A", studentCount: 28, ageRange: "7-8 tuổi" },
-  { id: "2B", name: "Lớp 2B", studentCount: 27, ageRange: "7-8 tuổi" },
-  { id: "2C", name: "Lớp 2C", studentCount: 25, ageRange: "7-8 tuổi" },
-  { id: "3A", name: "Lớp 3A", studentCount: 30, ageRange: "8-9 tuổi" },
-  { id: "3B", name: "Lớp 3B", studentCount: 29, ageRange: "8-9 tuổi" },
-  { id: "3C", name: "Lớp 3C", studentCount: 28, ageRange: "8-9 tuổi" },
-  { id: "4A", name: "Lớp 4A", studentCount: 27, ageRange: "9-10 tuổi" },
-  { id: "4B", name: "Lớp 4B", studentCount: 26, ageRange: "9-10 tuổi" },
-  { id: "5A", name: "Lớp 5A", studentCount: 24, ageRange: "10-11 tuổi" },
-  { id: "5B", name: "Lớp 5B", studentCount: 25, ageRange: "10-11 tuổi" },
+  { 
+    id: "grade-1", 
+    name: "Khối 1", 
+    studentCount: 75, // Total students across all classes in grade 1
+    ageRange: "6-7 tuổi",
+    classes: ["1A", "1B", "1C"],
+    gradeLevel: 1
+  },
+  { 
+    id: "grade-2", 
+    name: "Khối 2", 
+    studentCount: 80, // Total students across all classes in grade 2
+    ageRange: "7-8 tuổi",
+    classes: ["2A", "2B", "2C"],
+    gradeLevel: 2
+  },
+  { 
+    id: "grade-3", 
+    name: "Khối 3", 
+    studentCount: 87, // Total students across all classes in grade 3
+    ageRange: "8-9 tuổi",
+    classes: ["3A", "3B", "3C"],
+    gradeLevel: 3
+  },
+  { 
+    id: "grade-4", 
+    name: "Khối 4", 
+    studentCount: 53, // Total students across all classes in grade 4
+    ageRange: "9-10 tuổi",
+    classes: ["4A", "4B"],
+    gradeLevel: 4
+  },
+  { 
+    id: "grade-5", 
+    name: "Khối 5", 
+    studentCount: 49, // Total students across all classes in grade 5
+    ageRange: "10-11 tuổi",
+    classes: ["5A", "5B"],
+    gradeLevel: 5
+  }
 ];
 
 export const healthCheckStepsConfig = [
   {
     step: 1,
     title: "Thông tin cơ bản",
-    description: "Thời gian, địa điểm và mục tiêu",
+    description: "Thời gian và địa điểm",
     required: true,
   },
   {
@@ -147,9 +174,9 @@ export const initialFormData = {
   studentId: 0,
   parentId: 0,
   createdDate: "",
-  consentStatus: "pending",
+  consentStatus: "đang chờ",
   consentDate: "",
-  confirmStatus: "pending",
+  confirmStatus: "đang chờ",
   confirmedBy: 0,
   confirmedDate: "",
   className: "",
@@ -166,10 +193,9 @@ export const initialFormData = {
   estimatedEndTime: "",
 
   // UI-specific fields (will be mapped to API fields)
-  targetGrades: [], // Maps to gradeIds (JSON string)
+  targetGrades: [], // Maps to gradeIds (JSON string) - single selection for grade blocks
   checkItems: [], // Maps to selectedStations (JSON string)
-  scheduledTime: "", // Maps to startTime
-  endTime: "", // Maps to estimatedEndTime
+  scheduledTime: "", // Maps to startTime - session periods (morning/afternoon)
 
   // Student Selection (for single student forms)
   selectedStudent: null,

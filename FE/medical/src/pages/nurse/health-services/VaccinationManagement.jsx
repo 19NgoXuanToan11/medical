@@ -8,7 +8,6 @@ import {
   FiShield,
   FiEye,
   FiEdit,
-  FiPlay,
   FiMapPin,
   FiInfo,
 } from "react-icons/fi";
@@ -23,63 +22,53 @@ const VaccinationManagement = ({ searchTerm: parentSearchTerm = "" }) => {
     const loadVaccinations = async () => {
       setLoading(true);
 
-      // Simulate API call
-      setTimeout(() => {
-        setVaccinations([
-          // Scheduled Vaccinations
-          {
-            id: 1,
-            type: "vaccination",
-            title: "Tiêm vắc-xin cúm mùa",
-            scheduledDate: "2023-07-20",
-            scheduledTime: "09:00",
-            status: "scheduled",
-            grades: ["1A", "1B", "1C"],
-            totalStudents: 75,
-            confirmedParents: 68,
-            location: "Phòng y tế trường",
-            vaccineInfo: "Vắc-xin cúm mùa 2023",
-            description: "Tiêm phòng cúm mùa cho học sinh khối lớp 1",
-            requiresConsent: true,
-            estimatedDuration: 120,
-          },
-          {
-            id: 3,
-            type: "vaccination",
-            title: "Tiêm nhắc vắc-xin MMR",
-            scheduledDate: "2023-07-25",
-            scheduledTime: "10:00",
-            status: "scheduled",
-            grades: ["5A", "5B"],
-            totalStudents: 52,
-            confirmedParents: 45,
-            location: "Phòng y tế trường",
-            vaccineInfo: "Vắc-xin MMR (Sởi - Quai bị - Rubella)",
-            description: "Tiêm nhắc mũi 2 vắc-xin MMR cho học sinh khối lớp 5",
-            requiresConsent: true,
-            estimatedDuration: 90,
-          },
+      try {
+        // Import injectionService dynamically to avoid circular dependency
+        const { injectionFormService } = await import(
+          "../../../utils/api/injection/injectionService"
+        );
+        const result = await injectionFormService.getVaccinationSchedules();
 
-          // Completed Vaccinations
-          {
-            id: 5,
-            type: "vaccination",
-            title: "Tiêm vắc-xin Viêm gan B",
-            scheduledDate: "2023-06-20",
-            status: "completed",
-            grades: ["4A", "4B", "4C"],
-            totalStudents: 85,
-            vaccinatedStudents: 78,
-            location: "Phòng y tế trường",
-            vaccineInfo: "Vắc-xin Viêm gan B",
-            description: "Tiêm nhắc vắc-xin Viêm gan B cho học sinh khối lớp 4",
-            completedDate: "2023-06-20",
-            notes: "Có 7 học sinh vắng mặt",
-          },
-        ]);
+        if (result.success) {
+          // Transform data to match UI expectations
+          const transformedVaccinations = result.data.map((schedule) => ({
+            id: schedule.formId,
+            title: schedule.title,
+            description: schedule.description,
+            scheduledDate: schedule.scheduledDate
+              ? new Date(schedule.scheduledDate).toLocaleDateString("vi-VN")
+              : "Chưa xác định",
+            scheduledTime: schedule.startTime || "08:00",
+            location: schedule.location,
+            status:
+              schedule.status === "đang chờ"
+                ? "scheduled"
+                : schedule.status === "đã duyệt"
+                ? "active"
+                : schedule.status === "hoàn thành"
+                ? "completed"
+                : "scheduled",
+            totalStudents: schedule.totalStudents || 0,
+            grades:
+              schedule.grades ||
+              (schedule.gradeIds
+                ? JSON.parse(schedule.gradeIds).map(
+                    (gradeId) => `Khối ${gradeId.replace("grade-", "")}`
+                  )
+                : []),
+          }));
 
+          setVaccinations(transformedVaccinations);
+        } else {
+          console.warn("Failed to load vaccinations:", result.message);
+          setVaccinations([]);
+        }
+      } catch (error) {
+        console.error("Error loading vaccinations:", error);
+        setVaccinations([]);
+      } finally {
         setLoading(false);
-      }, 1000);
+      }
     };
 
     loadVaccinations();
@@ -137,20 +126,6 @@ const VaccinationManagement = ({ searchTerm: parentSearchTerm = "" }) => {
       .reduce((sum, v) => sum + v.totalStudents, 0),
   };
 
-  const handleStartVaccination = (vaccinationId) => {
-    setVaccinations((prev) =>
-      prev.map((vaccination) =>
-        vaccination.id === vaccinationId
-          ? {
-              ...vaccination,
-              status: "active",
-              startTime: new Date().toISOString(),
-            }
-          : vaccination
-      )
-    );
-  };
-
   const handleCompleteVaccination = (vaccinationId) => {
     setVaccinations((prev) =>
       prev.map((vaccination) =>
@@ -180,11 +155,11 @@ const VaccinationManagement = ({ searchTerm: parentSearchTerm = "" }) => {
             <h3 className="font-medium text-gray-900 dark:text-white">
               {vaccination.title}
             </h3>
-            <span className={getStatusBadge(vaccination.status)}>
-              {getStatusLabel(vaccination.status)}
-            </span>
           </div>
         </div>
+        <span className={getStatusBadge(vaccination.status)}>
+          {getStatusLabel(vaccination.status)}
+        </span>
       </div>
 
       {/* Basic Info */}
@@ -199,7 +174,7 @@ const VaccinationManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         </div>
         <div className="flex items-center">
           <FiUsers className="w-4 h-4 mr-2" />
-          <span>Lớp: {vaccination.grades.join(", ")}</span>
+          <span>Khối: {vaccination.grades.join(", ")}</span>
         </div>
         <div className="flex items-center">
           <FiMapPin className="w-4 h-4 mr-2" />
@@ -221,29 +196,6 @@ const VaccinationManagement = ({ searchTerm: parentSearchTerm = "" }) => {
           <span className="text-xs text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
             {vaccination.vaccineInfo}
           </span>
-        </div>
-      )}
-
-      {/* Progress */}
-      {vaccination.status === "scheduled" && (
-        <div className="mb-3">
-          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
-            <span>Phụ huynh xác nhận</span>
-            <span>
-              {vaccination.confirmedParents}/{vaccination.totalStudents}
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full"
-              style={{
-                width: `${Math.round(
-                  (vaccination.confirmedParents / vaccination.totalStudents) *
-                    100
-                )}%`,
-              }}
-            />
-          </div>
         </div>
       )}
 
@@ -316,15 +268,6 @@ const VaccinationManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         </div>
 
         <div className="flex space-x-2">
-          {vaccination.status === "scheduled" && (
-            <button
-              onClick={() => handleStartVaccination(vaccination.id)}
-              className="text-xs px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
-            >
-              <FiPlay className="w-3 h-3 mr-1 inline" />
-              Bắt đầu
-            </button>
-          )}
           {vaccination.status === "active" && (
             <button
               onClick={() => handleCompleteVaccination(vaccination.id)}

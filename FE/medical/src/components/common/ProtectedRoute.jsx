@@ -11,17 +11,6 @@ const ProtectedRoute = ({
   const { user, loading, isAuthenticated, hasAnyRole } = useAuth();
   const location = useLocation();
 
-  // Debug logs
-  console.log("ProtectedRoute debug:", {
-    user,
-    loading,
-    isAuthenticated: isAuthenticated(),
-    allowedRoles,
-    currentPath: location.pathname,
-    hasAnyRole:
-      allowedRoles.length > 0 ? hasAnyRole(allowedRoles) : "not checked",
-  });
-
   // Hiển thị loading trong khi kiểm tra auth
   if (loading) {
     return (

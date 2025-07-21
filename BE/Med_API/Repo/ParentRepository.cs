@@ -150,7 +150,7 @@ public class ParentRepository : IParentRepository
     {
         // Only return requests where the main status is Failed or Partially Failed
         return await _context.MedicineRequests
-            .Where(r => r.ParentId == parentId && (r.Status == "Failed" || r.Status == "Partially Failed"))
+        .Where(r => r.ParentId == parentId && (r.Status == "Failed" || r.Status == "Partially Failed"))
             .Include(r => r.Student)
             .ThenInclude(s => s.Class)
             .Include(r => r.Parent)
@@ -174,7 +174,6 @@ public class ParentRepository : IParentRepository
             .Include(r => r.Request)
                 .ThenInclude(rq => rq.Staff)
             .Where(r => (r.Status == "Failed" || r.Status == "Partially Failed") && r.Request.ParentId == parentId)
-            .OrderByDescending(r => r.SubmittedAt)
-            .ToListAsync();
+            .OrderByDescending(r => r.SubmittedAt).ToListAsync();
     }
 } 

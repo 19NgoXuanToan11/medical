@@ -37,10 +37,14 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         // Check for static admin login first
-        if (request.Role.ToLower() == "admin" && 
-            request.Username == ADMIN_USERNAME && 
-            request.Password == ADMIN_PASSWORD)
+        if (request.Username == ADMIN_USERNAME && request.Password == ADMIN_PASSWORD)
         {
+            // Validate that the requested role is admin for the static admin account
+            if (request.Role.ToLower() != "admin")
+            {
+                return BadRequest(new { message = "Tài khoản của bạn không có quyền truy cập vai trò này. Vui lòng chọn đúng vai trò" });
+            }
+            
             return Ok(new
             {
                 Token = GenerateJwtToken(0, ADMIN_USERNAME, "admin@school.com", "Admin"),
@@ -63,6 +67,19 @@ public class AuthController : ControllerBase
                 var staff = await _staffService.GetStaffByUsernameAsync(request.Username);
                 if (staff != null && staff.PasswordHash == HashPassword(request.Password))
                 {
+                    // Validate that the requested role matches the user's actual role
+                    var requestedRole = request.Role.ToLower();
+                    var userActualRole = staff.Role.RoleName.ToLower();
+                    
+                    // Allow "staff" as a generic role that matches any staff role
+                    bool roleMatches = requestedRole == "staff" || 
+                                     requestedRole == userActualRole;
+                    
+                    if (!roleMatches)
+                    {
+                        return BadRequest(new { message = "Tài khoản của bạn không có quyền truy cập vai trò này. Vui lòng chọn đúng vai trò" });
+                    }
+                    
                     return Ok(new
                     {
                         Token = GenerateJwtToken(staff.StaffId, request.Username, staff.Email, staff.Role.RoleName),

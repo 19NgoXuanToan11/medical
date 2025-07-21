@@ -36,13 +36,10 @@ const AssignedRequests = () => {
       const response = await medicationService.getAssignedMedicationRequests();
 
       if (response.success) {
-        console.log("Raw assigned API response:", response.data);
-
         const assignedOnly = filterByStatus(response.data, [
           "Assigned",
           "assigned",
         ]);
-        console.log("Filtered assigned requests:", assignedOnly);
 
         const transformedRequests = transformRequestData(assignedOnly);
 
@@ -52,14 +49,11 @@ const AssignedRequests = () => {
           status: "assigned",
         }));
 
-        console.log("Transformed assigned requests:", assignedRequests);
         setRequests(assignedRequests);
       } else {
-        console.error("Error loading assigned requests:", response.message);
         setRequests([]);
       }
     } catch (error) {
-      console.error("Error loading assigned medication requests:", error);
       setRequests([]);
     }
     setLoading(false);
@@ -80,19 +74,11 @@ const AssignedRequests = () => {
         return;
       }
 
-      console.log("Completing request:", {
-        requestId: request.id,
-        staffId,
-        notes,
-      });
-
       const response = await medicationService.completeMedicationRequest(
         request.id,
         staffId,
         notes
       );
-
-      console.log("Completion response:", response);
 
       if (response.success) {
         // Send notification to parent
@@ -109,7 +95,6 @@ const AssignedRequests = () => {
         alert(response.message || "Có lỗi xảy ra khi hoàn thành yêu cầu!");
       }
     } catch (error) {
-      console.error("Error in handleCompleteRequest:", error);
       alert("Có lỗi xảy ra khi hoàn thành yêu cầu thuốc!");
     }
   };
@@ -122,7 +107,6 @@ const AssignedRequests = () => {
 
   // Handle view detail
   const handleViewDetail = (request) => {
-    console.log("Opening modal for request:", request);
     setSelectedRequest(request);
     setShowDetailModal(true);
   };

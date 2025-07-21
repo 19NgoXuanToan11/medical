@@ -1,6 +1,7 @@
 using DB;
 using Repo;
 using Microsoft.EntityFrameworkCore;
+using Service.DTOs;
 
 namespace Service;
 
@@ -8,11 +9,13 @@ public class ParentService : IParentService
 {
     private readonly IParentRepository _parentRepository;
     private readonly IStudentRepository _studentRepository;
+    private readonly MedicalContext _context;
 
-    public ParentService(IParentRepository parentRepository, IStudentRepository studentRepository)
+    public ParentService(IParentRepository parentRepository, IStudentRepository studentRepository, MedicalContext context)
     {
         _parentRepository = parentRepository;
         _studentRepository = studentRepository;
+        _context = context;
     }
 
     public async Task<IEnumerable<Parent>> GetAllParentsAsync()
@@ -121,13 +124,126 @@ public class ParentService : IParentService
         return await _parentRepository.GetRefusedMedicineRequestsByParentIdAsync(parentId);
     }
 
-    public async Task<IEnumerable<DB.MedicineRequest>> GetFailedMedicineRequestsByParentIdAsync(int parentId)
-    {
-        return await _parentRepository.GetFailedMedicineRequestsByParentIdAsync(parentId);
-    }
-
     public async Task<IEnumerable<RequestResult>> GetFailedRequestResultsByParentIdAsync(int parentId)
     {
         return await _parentRepository.GetFailedRequestResultsByParentIdAsync(parentId);
+    }
+
+    public async Task<ParentStatisticsDto> GetParentStatisticsAsync(int parentId)
+    {
+        // Get all students related to this parent
+        var studentParents = await _context.StudentParents
+            .Where(sp => sp.ParentId == parentId)
+            .Include(sp => sp.Student)
+                .ThenInclude(s => s.Class)
+            .ToListAsync();
+
+        var studentCodes = studentParents.Select(sp => sp.StudentCode).ToList();
+        var studentIds = studentParents.Select(sp => sp.Student?.StudentId).Where(id => id.HasValue).Select(id => id.Value).ToList();
+
+        // Get vaccination statistics
+        var vaccinations = await _context.InjectionForms
+            .Where(vf => studentIds.Contains(vf.StudentId ?? 0))
+            .ToListAsync();
+
+        var vaccinationStats = new VaccinationStats
+        {
+            Pending = vaccinations.Count(v => v.ConsentStatus == "Pending"),
+            Approved = vaccinations.Count(v => v.ConsentStatus == "Approved"),
+            Completed = vaccinations.Count(v => v.ConsentStatus == "Completed"),
+            Rejected = vaccinations.Count(v => v.ConsentStatus == "Rejected")
+        };
+
+        // Get health events statistics
+        var healthEvents = await _context.HealthEvents
+            .Where(he => studentCodes.Contains(he.StudentCode))
+            .ToListAsync();
+
+        var healthEventStats = new HealthEventStats
+        {
+            Emergency = healthEvents.Count(he => he.EventType?.ToLower() == "emergency"),
+            Routine = healthEvents.Count(he => he.EventType?.ToLower() == "routine"),
+            FollowUpRequired = healthEvents.Count(he => he.FollowUpRequired == true),
+            Resolved = healthEvents.Count(he => he.FollowUpRequired == false)
+        };
+
+        // Get health check statistics
+        var healthChecks = await _context.HealthCheckForms
+            .Where(hcf => studentIds.Contains(hcf.StudentId ?? 0))
+            .ToListAsync();
+
+        var healthCheckStats = new HealthCheckStats
+        {
+            Pending = healthChecks.Count(hc => hc.ConsentStatus == "Pending"),
+            Scheduled = healthChecks.Count(hc => hc.Status == "scheduled"),
+            Completed = healthChecks.Count(hc => hc.Status == "completed"),
+            Cancelled = healthChecks.Count(hc => hc.Status == "cancelled")
+        };
+
+        // Get medicine request statistics
+        var medicineRequests = await _context.MedicineRequests
+            .Where(mr => studentCodes.Contains(mr.StudentCode))
+            .ToListAsync();
+
+        var medicineRequestStats = new MedicineRequestStats
+        {
+            Pending = medicineRequests.Count(mr => mr.Status == "Pending"),
+            Approved = medicineRequests.Count(mr => mr.Status == "Approved"),
+            Rejected = medicineRequests.Count(mr => mr.Status == "Rejected"),
+            InProgress = medicineRequests.Count(mr => mr.Status == "InProgress"),
+            Completed = medicineRequests.Count(mr => mr.Status == "Completed")
+        };
+
+        // Create children details
+        var childrenDetails = new List<ChildStatistic>();
+        foreach (var sp in studentParents)
+        {
+            if (sp.Student == null) continue;
+
+            var student = sp.Student;
+            var studentCode = sp.StudentCode;
+            var studentId = student.StudentId;
+
+            var lastHealthCheck = await _context.HealthCheckResults
+                .Where(hcr => hcr.StudentId == studentId)
+                .OrderByDescending(hcr => hcr.ExaminedDate)
+                .Select(hcr => hcr.ExaminedDate)
+                .FirstOrDefaultAsync();
+
+            var lastHealthEvent = await _context.HealthEvents
+                .Where(he => he.StudentCode == studentCode)
+                .OrderByDescending(he => he.EventDate)
+                .Select(he => he.EventDate)
+                .FirstOrDefaultAsync();
+
+            childrenDetails.Add(new ChildStatistic
+            {
+                StudentId = studentId,
+                StudentCode = studentCode,
+                StudentName = $"{student.FirstName} {student.LastName}",
+                ClassName = student.Class?.ClassName,
+                GradeLevel = student.Class?.GradeLevel ?? 1,
+                VaccinationCount = vaccinations.Count(v => v.StudentId == studentId),
+                HealthEventCount = healthEvents.Count(he => he.StudentCode == studentCode),
+                HealthCheckCount = healthChecks.Count(hc => hc.StudentId == studentId),
+                MedicineRequestCount = medicineRequests.Count(mr => mr.StudentCode == studentCode),
+                LastHealthCheck = lastHealthCheck,
+                LastHealthEvent = lastHealthEvent
+            });
+        }
+
+        return new ParentStatisticsDto
+        {
+            TotalChildren = studentParents.Count,
+            TotalVaccinations = vaccinations.Count,
+            TotalHealthEvents = healthEvents.Count,
+            TotalHealthChecks = healthChecks.Count,
+            TotalMedicineRequests = medicineRequests.Count,
+            VaccinationBreakdown = vaccinationStats,
+            HealthEventBreakdown = healthEventStats,
+            HealthCheckBreakdown = healthCheckStats,
+            MedicineRequestBreakdown = medicineRequestStats,
+            ChildrenDetails = childrenDetails
+        };
     }
 } 

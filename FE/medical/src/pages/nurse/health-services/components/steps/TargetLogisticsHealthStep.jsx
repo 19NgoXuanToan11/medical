@@ -50,10 +50,13 @@ const TargetLogisticsHealthStep = ({
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Số ca khám
+                Lớp học đã chọn
               </p>
               <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {sessions}
+                {formData.targetGrades.reduce((total, gradeId) => {
+                  const grade = availableGrades.find((g) => g.id === gradeId);
+                  return total + (grade?.classCount || 0);
+                }, 0)}
               </p>
             </div>
           </div>
@@ -112,44 +115,110 @@ const TargetLogisticsHealthStep = ({
         <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
           <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 flex items-center">
             <FiTarget className="mr-2" />
-            Chọn khối lớp tham gia
+            Chọn lớp tham gia
           </h3>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-            Chọn các khối lớp sẽ tham gia kế hoạch khám sức khỏe
-          </p>
         </div>
 
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {availableGrades.map((grade) => (
-              <div
-                key={grade.id}
-                className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                  formData.targetGrades.includes(grade.id)
-                    ? "border-primary-500 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20"
-                    : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 bg-white dark:bg-neutral-800"
-                }`}
-                onClick={() => onGradeSelection(grade.id)}
-              >
-                <div className="flex items-start">
-                  <input
-                    type="checkbox"
-                    checked={formData.targetGrades.includes(grade.id)}
-                    onChange={() => onGradeSelection(grade.id)}
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 rounded mt-1 bg-white dark:bg-neutral-900"
-                  />
-                  <div className="ml-3 flex-1">
-                    <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                      {grade.name}
-                    </h4>
-                    <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-                      {grade.studentCount} học sinh
-                    </p>
+          {!availableGrades || availableGrades.length === 0 ? (
+            <div className="text-center py-12">
+              <FiInfo className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Chưa có khối lớp được phân công
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Bạn chưa được phân công phụ trách khối lớp nào.
+                <br />
+                Vui lòng liên hệ quản trị viên để được phân công khối lớp.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {availableGrades.map((grade) => (
+                  <div
+                    key={grade.id}
+                    className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                      formData.targetGrades.includes(grade.id)
+                        ? "border-primary-500 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 ring-2 ring-primary-200 dark:ring-primary-800"
+                        : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 bg-white dark:bg-neutral-800"
+                    }`}
+                    onClick={() => {
+                      // Single selection logic - replace current selection
+                      onInputChange("targetGrades", [grade.id]);
+                    }}
+                  >
+                    <div className="flex items-start">
+                      <input
+                        type="radio"
+                        name="gradeSelection"
+                        checked={formData.targetGrades.includes(grade.id)}
+                        onChange={() => {
+                          // Single selection logic - replace current selection
+                          onInputChange("targetGrades", [grade.id]);
+                        }}
+                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 mt-1 bg-white dark:bg-neutral-900"
+                      />
+                      <div className="ml-3 flex-1">
+                        <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                          {grade.name}
+                        </h4>
+                        <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+                          {grade.studentCount} học sinh
+                        </p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                          Khối: {grade.gradeLevel || "Không có"}
+                        </p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                          GVCN: {grade.classTeacher || "Chưa có thông tin"}
+                        </p>
+                      </div>
+                      <div className="text-xs text-neutral-500 dark:text-neutral-500">
+                        {grade.ageRange}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+
+              {/* Selected Grade Summary */}
+              {formData.targetGrades.length > 0 && (
+                <div className="mt-6 bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                  <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-3">
+                    Khối lớp đã chọn
+                  </h4>
+                  {formData.targetGrades.map((gradeId) => {
+                    const grade = availableGrades.find((g) => g.id === gradeId);
+                    return grade ? (
+                      <div
+                        key={gradeId}
+                        className="py-2 px-3 bg-primary-50 dark:bg-primary-900/20 rounded border border-primary-200 dark:border-primary-800"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="font-medium text-primary-900 dark:text-primary-200">
+                              {grade.name}
+                            </span>
+                            <span className="text-sm text-primary-700 dark:text-primary-300 ml-2">
+                              (Khối {grade.gradeLevel || "Không có"})
+                            </span>
+                          </div>
+                          <span className="text-sm text-primary-600 dark:text-primary-400">
+                            {grade.studentCount} học sinh
+                          </span>
+                        </div>
+                        {grade.classTeacher && (
+                          <div className="mt-1 text-xs text-primary-600 dark:text-primary-400">
+                            GVCN: {grade.classTeacher}
+                          </div>
+                        )}
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 

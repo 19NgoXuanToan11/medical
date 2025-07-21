@@ -22,14 +22,6 @@ const FailedRequests = () => {
       const response = await medicationService.getFailedMedicationRequests();
 
       if (response.success) {
-        console.log("Failed API response:", response.data);
-
-        // Debug: Log first item to see actual structure
-        if (response.data && response.data.length > 0) {
-          console.log("First failed request sample:", response.data[0]);
-          console.log("Available fields:", Object.keys(response.data[0]));
-        }
-
         const transformedRequests = transformRequestData(response.data);
 
         // Force status to failed and add additional failure data
@@ -38,20 +30,11 @@ const FailedRequests = () => {
           status: "failed",
         }));
 
-        console.log("Transformed failed requests:", failedRequests);
-
-        // Debug: Log first transformed item
-        if (failedRequests.length > 0) {
-          console.log("First transformed request sample:", failedRequests[0]);
-        }
-
         setRequests(failedRequests);
       } else {
-        console.error("Error loading failed requests:", response.message);
         setRequests([]);
       }
     } catch (error) {
-      console.error("Error loading failed medication requests:", error);
       setRequests([]);
     }
     setLoading(false);

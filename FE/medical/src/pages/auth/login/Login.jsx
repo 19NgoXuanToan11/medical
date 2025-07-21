@@ -41,7 +41,6 @@ const Login = () => {
   // Auto-redirect when user is authenticated (only from login page)
   useEffect(() => {
     if (user && isAuthenticated() && location.pathname === "/login") {
-      console.log("User authenticated, redirecting from login page...", user);
       const redirectMap = {
         admin: "/admin/dashboard",
         staff: "/nurse/dashboard",
@@ -52,7 +51,6 @@ const Login = () => {
       };
 
       const redirectPath = redirectMap[user.role] || "/";
-      console.log("Auto-redirecting to:", redirectPath);
       navigate(redirectPath, { replace: true });
     }
   }, [user, isAuthenticated, navigate, location.pathname]);
@@ -60,7 +58,6 @@ const Login = () => {
   // Early redirect if already authenticated (when page loads)
   useEffect(() => {
     if (user && isAuthenticated()) {
-      console.log("Already authenticated on page load, redirecting...", user);
       const redirectMap = {
         admin: "/admin/dashboard",
         staff: "/nurse/dashboard",
@@ -244,28 +241,8 @@ const Login = () => {
 
       // Call API login
       const userData = await login(loginData);
-      console.log("Login successful, userData:", userData);
-
-      // Verify that the user's actual role matches the selected role
-      if (userData.role !== formData.role) {
-        const roleLabels = {
-          admin: "quản trị viên",
-          manager: "quản lý",
-          nurse: "nhân viên y tế",
-          parent: "phụ huynh",
-          student: "học sinh",
-        };
-
-        const selectedRoleLabel = roleLabels[formData.role] || formData.role;
-        const actualRoleLabel = roleLabels[userData.role] || userData.role;
-
-        throw new Error(
-          `Bạn đã chọn vai trò "${selectedRoleLabel}" nhưng tài khoản này là "${actualRoleLabel}". Vui lòng chọn đúng vai trò của tài khoản hoặc sử dụng tài khoản phù hợp.`
-        );
-      }
 
       // Navigation will be handled by useEffect when user state is updated
-      console.log("Login completed, waiting for auto-redirect...");
     } catch (err) {
       setError(err.message);
     } finally {

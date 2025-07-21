@@ -65,4 +65,9 @@ public class StudentService : IStudentService
     {
         return await _studentRepository.GetStudentByCodeAsync(studentCode);
     }
+
+    public async Task<IEnumerable<Student>> GetEligibleStudentsForVaccineAsync(int vaccineId, DateTime injectionDate, IEnumerable<int> studentIds)
+    {
+        return await _studentRepository.GetEligibleStudentsForVaccineAsync(vaccineId, injectionDate, studentIds);
+    }
 } 
