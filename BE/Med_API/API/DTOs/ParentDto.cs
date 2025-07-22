@@ -138,6 +138,7 @@ public static class ParentDto
     {
         public string MedicineName { get; set; } = null!;
         public string Dosage { get; set; } = null!;
+        public string? DosageUnit { get; set; } // Added for displaying dosage unit
         public string Frequency { get; set; } = null!;
         public string? TimeOfDay { get; set; }
         public string? Instructions { get; set; }
