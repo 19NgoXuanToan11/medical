@@ -63,7 +63,6 @@ export const useMedicationRequests = () => {
           inProgressCount = inProgressResponse.data.length;
         }
       } catch (error) {
-        console.log("In-progress data not available");
         inProgressCount = 0;
       }
 

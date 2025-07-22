@@ -187,13 +187,123 @@ export const getHealthEventsByDateRange = async (startDate, endDate) => {
   }
 };
 
-// Send notification to parent
+// Get health events by nurse grade - only events for students in grades that the nurse manages
+export const getHealthEventsByNurseGrade = async (staffId) => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/HealthEvent/nurse/${staffId}/grade`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching health events by nurse grade:", error);
+    throw error;
+  }
+};
+
+// Send notification to parent - Improved real notification system
 export const sendNotificationToParent = async (notificationData) => {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return { success: true, message: "Notification sent successfully" };
+    // Create a comprehensive notification object
+    const notification = {
+      id: `health-event-${Date.now()}-${Math.random()
+        .toString(36)
+        .substr(2, 9)}`,
+      type: notificationData.type || "health_event",
+      title: notificationData.title,
+      message: notificationData.message,
+      studentCode: notificationData.studentCode,
+      eventDetails: notificationData.eventDetails,
+      timestamp: notificationData.timestamp || new Date().toISOString(),
+      priority: notificationData.priority || "medium",
+      isRead: false,
+      status: "sent",
+      createdBy: "nurse",
+      targetRole: "parent",
+    };
+
+    // Store notification in localStorage for parent to see
+    // In a real system, this would be sent to a notification service/database
+    const existingNotifications = JSON.parse(
+      localStorage.getItem("parentNotifications") || "[]"
+    );
+
+    // Add new notification to the beginning of the array
+    existingNotifications.unshift(notification);
+
+    // Keep only the last 50 notifications to prevent localStorage bloat
+    if (existingNotifications.length > 50) {
+      existingNotifications.splice(50);
+    }
+
+    localStorage.setItem(
+      "parentNotifications",
+      JSON.stringify(existingNotifications)
+    );
+
+    // Also store in a general notifications store for system-wide tracking
+    const systemNotifications = JSON.parse(
+      localStorage.getItem("systemNotifications") || "[]"
+    );
+    systemNotifications.unshift({
+      ...notification,
+      recipientType: "parent",
+      studentCode: notificationData.studentCode,
+    });
+
+    // Keep only last 100 system notifications
+    if (systemNotifications.length > 100) {
+      systemNotifications.splice(100);
+    }
+
+    localStorage.setItem(
+      "systemNotifications",
+      JSON.stringify(systemNotifications)
+    );
+
+    // Simulate API call delay for realism
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    return {
+      success: true,
+      message: "Thông báo đã được gửi đến phụ huynh thành công",
+      notificationId: notification.id,
+      timestamp: notification.timestamp,
+    };
   } catch (error) {
     console.error("Error sending notification to parent:", error);
+
+    // In case of error, still try to log the attempt
+    const failedNotification = {
+      id: `failed-${Date.now()}`,
+      type: "health_event_failed",
+      title: "Thông báo gửi thất bại",
+      message: `Không thể gửi thông báo về sự cố y tế của học sinh ${notificationData.studentCode}`,
+      studentCode: notificationData.studentCode,
+      timestamp: new Date().toISOString(),
+      status: "failed",
+      error: error.message,
+    };
+
+    const failedNotifications = JSON.parse(
+      localStorage.getItem("failedNotifications") || "[]"
+    );
+    failedNotifications.unshift(failedNotification);
+    localStorage.setItem(
+      "failedNotifications",
+      JSON.stringify(failedNotifications)
+    );
+
     throw error;
   }
 };
@@ -292,4 +402,74 @@ export const mapHealthEventToAPI = (frontendData) => {
             }))
         : [],
   };
+};
+
+// Check if current nurse can create health event for a student
+export const checkNurseGradePermission = async (studentCode) => {
+  try {
+    // Get student grade
+    const gradeResponse = await fetch(
+      `${API_BASE_URL}/MedicineRequest/student/${studentCode}/grade`
+    );
+    if (!gradeResponse.ok) {
+      if (gradeResponse.status === 404) {
+        return {
+          success: false,
+          error: "Không tìm thấy thông tin khối học của học sinh này",
+          canCreate: false,
+        };
+      }
+      throw new Error(`HTTP error! status: ${gradeResponse.status}`);
+    }
+    const gradeData = await gradeResponse.json();
+
+    // Get current nurse's assigned grades
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const token = user.token;
+
+    if (!token) {
+      return {
+        success: false,
+        error: "Không tìm thấy token xác thực",
+        canCreate: false,
+      };
+    }
+
+    const assignedGradesResponse = await fetch(
+      `${API_BASE_URL}/Staff/my-assigned-grades`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!assignedGradesResponse.ok) {
+      throw new Error(`HTTP error! status: ${assignedGradesResponse.status}`);
+    }
+
+    const assignedGrades = await assignedGradesResponse.json();
+    const studentGrade = gradeData.grade;
+    const canCreate = assignedGrades.includes(studentGrade);
+
+    return {
+      success: true,
+      studentGrade,
+      assignedGrades,
+      canCreate,
+      error: canCreate
+        ? null
+        : `Nurse chỉ được tạo sự cố y tế cho học sinh thuộc khối mình phụ trách. Học sinh thuộc khối ${studentGrade}, nhưng bạn chỉ phụ trách khối: ${assignedGrades.join(
+            ", "
+          )}`,
+    };
+  } catch (error) {
+    console.error("Error checking nurse grade permission:", error);
+    return {
+      success: false,
+      error: "Có lỗi xảy ra khi kiểm tra quyền tạo sự cố y tế",
+      canCreate: false,
+    };
+  }
 };

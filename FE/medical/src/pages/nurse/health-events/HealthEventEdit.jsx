@@ -19,6 +19,7 @@ import {
   updateHealthEvent,
   mapHealthEventToAPI,
   sendNotificationToParent,
+  checkNurseGradePermission,
 } from "../../../utils/api/health-events/healthEventService";
 import {
   medicineInventoryService,
@@ -277,6 +278,21 @@ const HealthEventEdit = () => {
         throw new Error(
           "Không thể xác định thông tin người dùng. Vui lòng đăng nhập lại."
         );
+      }
+
+      // CRITICAL: Check grade permission before submitting
+      const permissionCheck = await checkNurseGradePermission(
+        formData.studentCode
+      );
+      if (
+        !permissionCheck ||
+        !permissionCheck.success ||
+        !permissionCheck.canCreate
+      ) {
+        const errorMsg =
+          permissionCheck?.error ||
+          "Không có quyền cập nhật sự cố y tế cho học sinh này";
+        throw new Error(errorMsg);
       }
 
       // Map medications with correct IDs based on selected names

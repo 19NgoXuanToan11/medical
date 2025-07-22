@@ -61,6 +61,30 @@ public class HealthEventService : IHealthEventService
             throw new InvalidOperationException("EventType is required");
         }
 
+        // CRITICAL BUSINESS RULE VALIDATION: Nurse can only create health events for students in their assigned grades
+        var studentGrade = await GetGradeByStudentCodeAsync(healthEvent.StudentCode);
+        if (studentGrade.HasValue)
+        {
+            var nurseAssignedGrades = await _staffRepository.GetGradeNursesByStaffIdAsync(healthEvent.StaffId.Value);
+            var assignedGradeNumbers = nurseAssignedGrades.Select(gn => gn.Grade).ToList();
+            
+            if (!assignedGradeNumbers.Contains(studentGrade.Value))
+            {
+                var assignedGradesStr = assignedGradeNumbers.Any() 
+                    ? string.Join(", ", assignedGradeNumbers.OrderBy(g => g))
+                    : "không có khối nào";
+                    
+                throw new InvalidOperationException(
+                    $"Nurse chỉ được tạo sự cố y tế cho học sinh thuộc khối mình phụ trách. " +
+                    $"Học sinh {healthEvent.StudentCode} thuộc khối {studentGrade.Value}, " +
+                    $"nhưng nurse hiện tại chỉ phụ trách khối: {assignedGradesStr}");
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException($"Không thể xác định khối học của học sinh {healthEvent.StudentCode}");
+        }
+
         // Set default values with Vietnam timezone (UTC+7)
         var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
         healthEvent.EventDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
@@ -126,6 +150,30 @@ public class HealthEventService : IHealthEventService
         {
             throw new InvalidOperationException("EventType is required");
         }
+
+        // CRITICAL BUSINESS RULE VALIDATION: Nurse can only update health events for students in their assigned grades
+        var studentGrade = await GetGradeByStudentCodeAsync(healthEvent.StudentCode);
+        if (studentGrade.HasValue)
+        {
+            var nurseAssignedGrades = await _staffRepository.GetGradeNursesByStaffIdAsync(healthEvent.StaffId.Value);
+            var assignedGradeNumbers = nurseAssignedGrades.Select(gn => gn.Grade).ToList();
+            
+            if (!assignedGradeNumbers.Contains(studentGrade.Value))
+            {
+                var assignedGradesStr = assignedGradeNumbers.Any() 
+                    ? string.Join(", ", assignedGradeNumbers.OrderBy(g => g))
+                    : "không có khối nào";
+                    
+                throw new InvalidOperationException(
+                    $"Nurse chỉ được cập nhật sự cố y tế cho học sinh thuộc khối mình phụ trách. " +
+                    $"Học sinh {healthEvent.StudentCode} thuộc khối {studentGrade.Value}, " +
+                    $"nhưng nurse hiện tại chỉ phụ trách khối: {assignedGradesStr}");
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException($"Không thể xác định khối học của học sinh {healthEvent.StudentCode}");
+        }
         
         // The repository now handles the complex update logic for nested collections.
         // We pass the incoming healthEvent object, and the repository will reconcile it with existing data.
@@ -155,5 +203,47 @@ public class HealthEventService : IHealthEventService
         }
 
         return await _healthEventRepository.GetHealthEventsByDateRangeAsync(startDate, endDate);
+    }
+
+    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByNurseGradeAsync(int staffId)
+    {
+        // Validate that the staff exists and is a nurse
+        var staff = await _staffRepository.GetStaffByIdAsync(staffId);
+        if (staff == null)
+        {
+            throw new InvalidOperationException("Staff not found");
+        }
+
+        // Optional: Validate that the staff is a nurse (if you have role validation)
+        // This depends on your role system structure
+        
+        return await _healthEventRepository.GetHealthEventsByNurseGradeAsync(staffId);
+    }
+
+    // Helper method to get grade by student code (similar to MedicineRequestService)
+    private async Task<int?> GetGradeByStudentCodeAsync(string studentCode)
+    {
+        try
+        {
+            var student = await _studentRepository.GetStudentByCodeAsync(studentCode);
+            
+            if (student == null)
+            {
+                return null;
+            }
+            
+            if (student.Class == null)
+            {
+                return null;
+            }
+            
+            return student.Class.GradeLevel;
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't throw to allow proper error handling upstream
+            Console.WriteLine($"ERROR: Error getting grade for student {studentCode}: {ex.Message}");
+            return null;
+        }
     }
 } 

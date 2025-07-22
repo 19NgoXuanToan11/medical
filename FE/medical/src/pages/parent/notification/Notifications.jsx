@@ -11,10 +11,69 @@ const Notifications = () => {
   useEffect(() => {
     // Load notifications from localStorage and combine with mock data
     const loadNotifications = () => {
-      // Get medication response notifications from localStorage
-      const parentNotifications = JSON.parse(
-        localStorage.getItem("parentNotifications") || "[]"
-      );
+      // Get all parent notifications from localStorage (including health events)
+      let parentNotifications = [];
+      try {
+        const stored = localStorage.getItem("parentNotifications");
+        parentNotifications = stored ? JSON.parse(stored) : [];
+
+        // Ensure it's an array
+        if (!Array.isArray(parentNotifications)) {
+          console.warn(
+            "Invalid parentNotifications format, resetting to empty array"
+          );
+          parentNotifications = [];
+          localStorage.setItem("parentNotifications", "[]");
+        }
+      } catch (error) {
+        console.error(
+          "Error parsing parentNotifications from localStorage:",
+          error
+        );
+        parentNotifications = [];
+        localStorage.setItem("parentNotifications", "[]");
+      }
+
+      // Process health event notifications
+      const processedNotifications = parentNotifications
+        .filter((notification) => notification && notification.id) // Filter out invalid notifications
+        .map((notification) => {
+          // Safely parse timestamp
+          let notificationDate;
+          try {
+            notificationDate = notification.timestamp
+              ? new Date(notification.timestamp)
+              : new Date();
+
+            // Check if date is valid
+            if (isNaN(notificationDate.getTime())) {
+              notificationDate = new Date();
+            }
+          } catch (error) {
+            console.warn(
+              "Invalid timestamp in notification:",
+              notification.timestamp
+            );
+            notificationDate = new Date();
+          }
+
+          return {
+            id: notification.id,
+            type: notification.type || "general",
+            title: notification.title || "Thông báo",
+            message: notification.message || "",
+            date: notificationDate,
+            read: notification.isRead || false,
+            actionRequired: notification.type === "health_event",
+            actionLink:
+              notification.type === "health_event"
+                ? "/parent/health-events"
+                : notification.actionLink,
+            priority: notification.priority || "medium",
+            studentCode: notification.studentCode,
+            eventDetails: notification.eventDetails,
+          };
+        });
 
       // Mock data for other notifications
       const mockNotifications = [
@@ -53,24 +112,9 @@ const Notifications = () => {
         },
       ];
 
-      // Convert localStorage notifications to component format
-      const formattedParentNotifications = parentNotifications.map(
-        (notif, index) => ({
-          id: `parent_${index}`,
-          type: notif.type || "medication",
-          title: notif.title,
-          message: notif.message,
-          date: new Date(notif.createdAt),
-          read: notif.isRead || false,
-          actionRequired: false,
-          medicationRequestId: notif.medicationRequestId,
-          studentId: notif.studentId,
-        })
-      );
-
       // Combine and sort by date (newest first)
       const allNotifications = [
-        ...formattedParentNotifications,
+        ...processedNotifications,
         ...mockNotifications,
       ].sort((a, b) => b.date - a.date);
 
@@ -251,17 +295,32 @@ const Notifications = () => {
   };
 
   const formatDate = (date) => {
-    const now = new Date();
-    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+    try {
+      // Ensure date is a valid Date object
+      const dateObj = date instanceof Date ? date : new Date(date);
 
-    if (diffDays === 0) {
-      return `Hôm nay, ${format(date, "HH:mm", { locale: vi })}`;
-    } else if (diffDays === 1) {
-      return `Hôm qua, ${format(date, "HH:mm", { locale: vi })}`;
-    } else if (diffDays < 7) {
-      return `${diffDays} ngày trước, ${format(date, "HH:mm", { locale: vi })}`;
-    } else {
-      return format(date, "dd/MM/yyyy, HH:mm", { locale: vi });
+      // Check if date is valid
+      if (isNaN(dateObj.getTime())) {
+        return "Không xác định";
+      }
+
+      const now = new Date();
+      const diffDays = Math.floor((now - dateObj) / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) {
+        return `Hôm nay, ${format(dateObj, "HH:mm", { locale: vi })}`;
+      } else if (diffDays === 1) {
+        return `Hôm qua, ${format(dateObj, "HH:mm", { locale: vi })}`;
+      } else if (diffDays < 7) {
+        return `${diffDays} ngày trước, ${format(dateObj, "HH:mm", {
+          locale: vi,
+        })}`;
+      } else {
+        return format(dateObj, "dd/MM/yyyy, HH:mm", { locale: vi });
+      }
+    } catch (error) {
+      console.warn("Error formatting date:", error, date);
+      return "Không xác định";
     }
   };
 
