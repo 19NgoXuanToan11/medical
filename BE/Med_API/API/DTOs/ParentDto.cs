@@ -142,6 +142,7 @@ public static class ParentDto
         public string Frequency { get; set; } = null!;
         public string? TimeOfDay { get; set; }
         public string? Instructions { get; set; }
+        public Dictionary<string, object>? VerifiedStatus { get; set; } // Changed to structured object
     }
 
     public class ParentStatistics

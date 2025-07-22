@@ -5,6 +5,8 @@ using Service.DTOs;
 using System.Security.Cryptography;
 using System.Text;
 using System.Linq;
+using System.Collections.Generic;
+using System.Text.Json;
 
 namespace API.MappingProfiles;
 
@@ -61,9 +63,11 @@ public class ParentProfile : Profile
         CreateMap<MedicineRequestItem, ParentDto.MedicineRequestItemProgress>()
             .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.MedicineName))
             .ForMember(dest => dest.Dosage, opt => opt.MapFrom(src => src.Dosage))
+            .ForMember(dest => dest.DosageUnit, opt => opt.MapFrom(src => src.DosageUnit)) // Map DosageUnit
             .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency))
             .ForMember(dest => dest.TimeOfDay, opt => opt.MapFrom(src => src.TimeOfDay))
-            .ForMember(dest => dest.Instructions, opt => opt.MapFrom(src => src.Instructions));
+            .ForMember(dest => dest.Instructions, opt => opt.MapFrom(src => src.Instructions))
+            .ForMember(dest => dest.VerifiedStatus, opt => opt.MapFrom(src => DeserializeAndParseVerifiedStatus(src.VerificationStatus)));
 
         // Map from Service DTOs to API DTOs
         CreateMap<ParentStatisticsDto, ParentDto.ParentStatistics>();
@@ -72,6 +76,57 @@ public class ParentProfile : Profile
         CreateMap<HealthCheckStats, ParentDto.HealthCheckStats>();
         CreateMap<MedicineRequestStats, ParentDto.MedicineRequestStats>();
         CreateMap<ChildStatistic, ParentDto.ChildStatistic>();
+    }
+
+    private Dictionary<string, object> DeserializeAndParseVerifiedStatus(string? verificationStatus)
+    {
+        if (string.IsNullOrEmpty(verificationStatus))
+        {
+            return new Dictionary<string, object>();
+        }
+        try
+        {
+            var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(verificationStatus);
+            if (dict == null) return new Dictionary<string, object>();
+
+            var formattedDict = new Dictionary<string, object>();
+            foreach(var kvp in dict)
+            {
+                if(kvp.Value.ValueKind == JsonValueKind.String)
+                {
+                    var stringVal = kvp.Value.GetString();
+                    if (!string.IsNullOrEmpty(stringVal) && (stringVal.StartsWith("{") || stringVal.StartsWith("[")))
+                    {
+                        try
+                        {
+                            // It's a stringified JSON object or array, parse it.
+                            formattedDict[kvp.Key] = JsonSerializer.Deserialize<JsonElement>(stringVal);
+                        }
+                        catch
+                        {
+                            // Not valid JSON, keep it as a string.
+                            formattedDict[kvp.Key] = stringVal;
+                        }
+                    }
+                    else
+                    {
+                        // Just a regular string.
+                        formattedDict[kvp.Key] = stringVal;
+                    }
+                }
+                else
+                {
+                    // Already an object/array/primitive.
+                    formattedDict[kvp.Key] = kvp.Value;
+                }
+            }
+            return formattedDict;
+        }
+        catch (JsonException)
+        {
+            // The whole thing is not a JSON object, maybe just a simple status string
+            return new Dictionary<string, object> { { "status", verificationStatus } };
+        }
     }
 
     private string HashPassword(string password)
