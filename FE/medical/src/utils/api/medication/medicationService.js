@@ -1016,6 +1016,33 @@ export const medicationService = {
     }
   },
 
+  // Verify medication request item with period
+  verifyRequestItem: async (itemId, period, staffId) => {
+    try {
+      const response = await api.post(
+        `/MedicineRequest/item/${itemId}/verify`,
+        {
+          period,
+          staffId,
+        }
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Xác nhận mục thuốc thành công",
+      };
+    } catch (error) {
+      console.error("Error verifying request item:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể xác nhận mục thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
   // Refuse medication request
   refuseRequest: async (id, staffId, refusalReason) => {
     try {
@@ -1035,6 +1062,33 @@ export const medicationService = {
         data: null,
         message:
           error.response?.data?.message || "Không thể từ chối yêu cầu thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Refuse medication request item with period
+  refuseRequestItem: async (itemId, period, staffId, refusalReason) => {
+    try {
+      const response = await api.post(
+        `/MedicineRequest/item/${itemId}/refuse`,
+        {
+          period,
+          staffId,
+          refusalReason,
+        }
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Từ chối mục thuốc thành công",
+      };
+    } catch (error) {
+      console.error("Error refusing request item:", error);
+      return {
+        success: false,
+        data: null,
+        message: error.response?.data?.message || "Không thể từ chối mục thuốc",
         error: error.response?.data || error.message,
       };
     }

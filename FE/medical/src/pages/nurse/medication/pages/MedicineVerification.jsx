@@ -35,10 +35,53 @@ const MedicineVerification = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showRefuseModal, setShowRefuseModal] = useState(false);
-  const [refusalReason, setRefusalReason] = useState("");
+  const [periodReasons, setPeriodReasons] = useState({});
+  const [selectedPeriods, setSelectedPeriods] = useState([]);
 
   const { user } = useAuth();
   const currentStaffId = user?.id || 1; // Fallback to 1 if no user
+
+  // Available periods for selection
+  const availablePeriods = [
+    { value: "Sáng", label: "Sáng" },
+    { value: "Trưa", label: "Trưa" },
+    { value: "Chiều", label: "Chiều" },
+    { value: "Tối", label: "Tối" },
+  ];
+
+  // Handle period selection (checkbox toggle)
+  const handlePeriodToggle = (period) => {
+    setSelectedPeriods((prev) => {
+      if (prev.includes(period)) {
+        // Remove period and its reason
+        setPeriodReasons((prevReasons) => {
+          const newReasons = { ...prevReasons };
+          delete newReasons[period];
+          return newReasons;
+        });
+        return prev.filter((p) => p !== period);
+      } else {
+        // Add period
+        return [...prev, period];
+      }
+    });
+  };
+
+  // Handle reason input for specific period
+  const handleReasonChange = (period, reason) => {
+    setPeriodReasons((prev) => ({
+      ...prev,
+      [period]: reason,
+    }));
+  };
+
+  // Check if all selected periods have reasons
+  const areAllReasonsProvided = () => {
+    return selectedPeriods.every(
+      (period) =>
+        periodReasons[period] && periodReasons[period].trim().length > 0
+    );
+  };
 
   useEffect(() => {
     loadAllData();
@@ -101,44 +144,107 @@ const MedicineVerification = () => {
   };
 
   const handleVerifyRequest = async (request) => {
+    if (selectedPeriods.length === 0) {
+      alert("Vui lòng chọn ít nhất một buổi");
+      return;
+    }
+
     try {
-      const response = await medicationService.verifyRequest(
-        request.requestId,
-        currentStaffId
-      );
-      if (response.success) {
-        alert("Xác nhận yêu cầu thuốc thành công!");
+      // Verify each medicine item in the request for all selected periods
+      const verifyPromises = [];
+
+      for (const period of selectedPeriods) {
+        for (const item of request.medicineRequestItems || []) {
+          verifyPromises.push(
+            medicationService.verifyRequestItem(
+              item.medicineRequestItemId,
+              period,
+              currentStaffId
+            )
+          );
+        }
+      }
+
+      const responses = await Promise.all(verifyPromises);
+
+      // Check if all verifications were successful
+      const allSuccessful = responses.every((response) => response.success);
+
+      if (allSuccessful) {
+        const periodsText = selectedPeriods.join(", ");
+        alert(`Xác nhận yêu cầu thuốc cho các buổi ${periodsText} thành công!`);
         setShowVerifyModal(false);
+        setSelectedPeriods([]);
         loadAllData();
       } else {
-        alert(response.message);
+        const failedResponses = responses.filter(
+          (response) => !response.success
+        );
+        alert(
+          `Có lỗi khi xác nhận: ${failedResponses
+            .map((r) => r.message)
+            .join(", ")}`
+        );
       }
     } catch (error) {
+      console.error("Error verifying request:", error);
       alert("Có lỗi xảy ra khi xác nhận yêu cầu thuốc");
     }
   };
 
   const handleRefuseRequest = async (request) => {
-    if (!refusalReason.trim()) {
-      alert("Vui lòng nhập lý do từ chối");
+    if (selectedPeriods.length === 0) {
+      alert("Vui lòng chọn ít nhất một buổi");
+      return;
+    }
+
+    if (!areAllReasonsProvided()) {
+      alert("Vui lòng nhập lý do từ chối cho tất cả các buổi đã chọn");
       return;
     }
 
     try {
-      const response = await medicationService.refuseRequest(
-        request.requestId,
-        currentStaffId,
-        refusalReason
-      );
-      if (response.success) {
-        alert("Từ chối yêu cầu thuốc thành công!");
+      // Refuse each medicine item in the request for all selected periods
+      const refusePromises = [];
+
+      for (const period of selectedPeriods) {
+        const reasonForPeriod = periodReasons[period];
+        for (const item of request.medicineRequestItems || []) {
+          refusePromises.push(
+            medicationService.refuseRequestItem(
+              item.medicineRequestItemId,
+              period,
+              currentStaffId,
+              reasonForPeriod
+            )
+          );
+        }
+      }
+
+      const responses = await Promise.all(refusePromises);
+
+      // Check if all refusals were successful
+      const allSuccessful = responses.every((response) => response.success);
+
+      if (allSuccessful) {
+        const periodsText = selectedPeriods.join(", ");
+        alert(`Từ chối yêu cầu thuốc cho các buổi ${periodsText} thành công!`);
         setShowRefuseModal(false);
-        setRefusalReason("");
+        setPeriodReasons({});
+        setSelectedPeriods([]);
         loadAllData();
       } else {
-        alert(response.message);
+        const failedResponses = responses.filter(
+          (response) => !response.success
+        );
+        alert(
+          `Có lỗi khi từ chối: ${failedResponses
+            .map((r) => r.message)
+            .join(", ")}`
+        );
       }
     } catch (error) {
+      console.error("Error refusing request:", error);
       alert("Có lỗi xảy ra khi từ chối yêu cầu thuốc");
     }
   };
@@ -839,23 +945,59 @@ const MedicineVerification = () => {
                   </p>
                 </div>
               </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Chọn buổi cần xác nhận *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {availablePeriods.map((period) => (
+                    <label
+                      key={period.value}
+                      className="flex items-center space-x-2 p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPeriods.includes(period.value)}
+                        onChange={() => handlePeriodToggle(period.value)}
+                        className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {period.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {selectedPeriods.length > 0 && (
+                  <div className="mt-2 text-sm text-green-600 dark:text-green-400">
+                    Đã chọn: {selectedPeriods.join(", ")}
+                  </div>
+                )}
+              </div>
               <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg mb-4">
                 <p className="text-sm text-green-800 dark:text-green-200">
-                  Bạn xác nhận rằng có đủ thuốc để thực hiện yêu cầu này?
+                  {selectedPeriods.length > 0
+                    ? `Bạn xác nhận rằng có đủ thuốc để thực hiện yêu cầu này cho ${
+                        selectedPeriods.length > 1 ? "các buổi" : "buổi"
+                      } ${selectedPeriods.join(", ")}?`
+                    : "Vui lòng chọn ít nhất một buổi để xác nhận."}
                 </p>
               </div>
               <div className="flex justify-end space-x-3">
                 <button
-                  onClick={() => setShowVerifyModal(false)}
+                  onClick={() => {
+                    setShowVerifyModal(false);
+                    setSelectedPeriods([]);
+                  }}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={() => handleVerifyRequest(selectedRequest)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                  disabled={selectedPeriods.length === 0}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                  Xác nhận
+                  Xác nhận ({selectedPeriods.length} buổi)
                 </button>
               </div>
             </div>
@@ -901,23 +1043,85 @@ const MedicineVerification = () => {
                 </div>
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Lý do từ chối *
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Chọn buổi cần từ chối *
                 </label>
-                <textarea
-                  value={refusalReason}
-                  onChange={(e) => setRefusalReason(e.target.value)}
-                  placeholder="Nhập lý do từ chối (ví dụ: thiếu thuốc, hết hạn sử dụng...)"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:ring-red-500 focus:border-red-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
-                  rows="3"
-                  required
-                />
+                <div className="grid grid-cols-2 gap-3">
+                  {availablePeriods.map((period) => (
+                    <label
+                      key={period.value}
+                      className="flex items-center space-x-2 p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPeriods.includes(period.value)}
+                        onChange={() => handlePeriodToggle(period.value)}
+                        className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {period.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {selectedPeriods.length > 0 && (
+                  <div className="mt-2 text-sm text-red-600 dark:text-red-400">
+                    Đã chọn: {selectedPeriods.join(", ")}
+                  </div>
+                )}
               </div>
+              {/* Dynamic reason fields for each selected period */}
+              {selectedPeriods.length > 0 && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                    Lý do từ chối cho từng buổi *
+                  </label>
+                  <div className="space-y-4">
+                    {selectedPeriods.map((period) => {
+                      const hasReason =
+                        periodReasons[period] &&
+                        periodReasons[period].trim().length > 0;
+                      return (
+                        <div
+                          key={period}
+                          className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-neutral-700"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                              Buổi {period}
+                            </label>
+                            {hasReason && (
+                              <span className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                                ✓ Đã nhập
+                              </span>
+                            )}
+                          </div>
+                          <textarea
+                            value={periodReasons[period] || ""}
+                            onChange={(e) =>
+                              handleReasonChange(period, e.target.value)
+                            }
+                            placeholder={`Nhập lý do từ chối cho buổi ${period} (ví dụ: thiếu thuốc, hết hạn sử dụng...)`}
+                            className={`w-full px-3 py-2 border rounded-md text-sm bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100 ${
+                              hasReason
+                                ? "border-green-300 dark:border-green-600 focus:ring-green-500 focus:border-green-500"
+                                : "border-gray-300 dark:border-gray-600 focus:ring-red-500 focus:border-red-500"
+                            }`}
+                            rows="3"
+                            required
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => {
                     setShowRefuseModal(false);
-                    setRefusalReason("");
+                    setPeriodReasons({});
+                    setSelectedPeriods([]);
                   }}
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500"
                 >
@@ -925,9 +1129,12 @@ const MedicineVerification = () => {
                 </button>
                 <button
                   onClick={() => handleRefuseRequest(selectedRequest)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                  disabled={
+                    selectedPeriods.length === 0 || !areAllReasonsProvided()
+                  }
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                  Từ chối
+                  Từ chối ({selectedPeriods.length} buổi)
                 </button>
               </div>
             </div>
