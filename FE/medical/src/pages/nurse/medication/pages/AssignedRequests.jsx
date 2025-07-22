@@ -29,19 +29,17 @@ const AssignedRequests = () => {
     loadAllStats,
   } = useMedicationRequests();
 
-  // Load assigned requests
+  // Load assigned requests filtered by nurse's assigned grades
   const loadAssignedRequests = async () => {
     setLoading(true);
     try {
-      const response = await medicationService.getAssignedMedicationRequests();
+      // Use new API that automatically filters by nurse's assigned grades
+      const response = await medicationService.getMyAssignedMedicationRequests(
+        "assigned"
+      );
 
       if (response.success) {
-        const assignedOnly = filterByStatus(response.data, [
-          "Assigned",
-          "assigned",
-        ]);
-
-        const transformedRequests = transformRequestData(assignedOnly);
+        const transformedRequests = transformRequestData(response.data);
 
         // Force status to assigned and add additional assignment data
         const assignedRequests = transformedRequests.map((req) => ({

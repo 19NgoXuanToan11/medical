@@ -29,22 +29,16 @@ public interface IMedicineRequestRepository
     // New failure handling methods
     Task<bool> ReportMedicineFailureAsync(int requestResultId, int medicineRequestItemId, string frequency, string failureReason, int staffId, string? notes = null);
     Task<RequestResult?> CreateReRequestAsync(int originalRequestResultId, string reRequestReason, int staffId);
-    Task<bool> UpdateTimeBasedStatusAsync();
     Task<IEnumerable<RequestResult>> GetFailedRequestsAsync();
     Task<IEnumerable<RequestResult>> GetReRequestsAsync(int originalRequestResultId);
-    Task<bool> IsRequestEligibleForReRequestAsync(int requestResultId);
-    Task<string> GetReRequestReasonAsync(int requestResultId);
-    Task<bool> MarkRequestAsFailedAsync(int requestResultId, string reason);
-    Task<RequestResult?> GetRequestResultByIdAsync(int requestResultId);
+    Task<bool> CanReRequestAsync(int requestResultId);
+    Task<bool> UpdateTimeBasedStatusAsync();
+    Task<bool> MarkAsFailedAsync(int requestResultId, string reason);
     Task<(bool isCompleted, IEnumerable<string> pendingFrequencies)> GetProgressInfoAsync(int requestResultId, int medicineRequestItemId);
-    Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId);
-    Task<IEnumerable<MedicineRequest>> GetRequestsWithFrequencyMoreThanOneAsync();
-    Task<IEnumerable<MedicineRequest>> GetRequestsNeedingTimeOfDayAsync(string timeOfDay);
-    Task<bool> UpdateMedicineRequestItemVerificationStatus(int itemId, string status);
+
+    // Additional methods
     Task<MedicineRequestItem?> GetMedicineRequestItemByIdAsync(int itemId);
     Task<bool> UpdateMedicineRequestItemAsync(MedicineRequestItem item);
-    
-    // Public parsing methods for debugging
-    int ParseFrequencyToTimesPerDay(string? frequency);
-    List<string> ParseFrequencyToFrequencies(string? frequency);
+    Task<RequestResult?> GetRequestResultByIdAsync(int resultId);
+    Task<bool> UpdateMedicineRequestItemVerificationStatus(int itemId, string status);
 } 

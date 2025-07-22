@@ -3,7 +3,6 @@ import { medicationService } from "../../../../utils/api/medication/medicationSe
 
 export const useMedicationRequests = () => {
   const [loading, setLoading] = useState(true);
-  const [availableNurses, setAvailableNurses] = useState([]);
   const [selectedNurse, setSelectedNurse] = useState("");
   const [showActionDropdown, setShowActionDropdown] = useState({});
   const [stats, setStats] = useState({
@@ -15,26 +14,14 @@ export const useMedicationRequests = () => {
     total: 0,
   });
 
-  // Load available nurses
-  const loadAvailableNurses = async () => {
-    try {
-      const response = await medicationService.getAvailableNurses();
-      if (response.success) {
-        setAvailableNurses(response.data);
-      }
-    } catch (error) {
-      console.error("Error loading available nurses:", error);
-    }
-  };
-
-  // Load stats for all tabs
+  // Load stats for all tabs (filtered by nurse's assigned grades)
   const loadAllStats = async () => {
     try {
       const [pendingResponse, assignedResponse, completedResponse] =
         await Promise.all([
-          medicationService.getPendingMedicationRequests(),
-          medicationService.getAssignedMedicationRequests(),
-          medicationService.getCompletedMedicationRequests(),
+          medicationService.getMyAssignedMedicationRequests("pending"),
+          medicationService.getMyAssignedMedicationRequests("assigned"),
+          medicationService.getMyAssignedMedicationRequests("completed"),
         ]);
 
       let pendingCount = 0;
@@ -128,7 +115,6 @@ export const useMedicationRequests = () => {
         "parentNotifications",
         JSON.stringify(existingNotifications)
       );
-
     } catch (error) {
       console.error("Error sending parent notification:", error);
     }
@@ -159,13 +145,11 @@ export const useMedicationRequests = () => {
   // Load initial data
   useEffect(() => {
     loadAllStats();
-    loadAvailableNurses();
   }, []);
 
   return {
     loading,
     setLoading,
-    availableNurses,
     selectedNurse,
     setSelectedNurse,
     showActionDropdown,
@@ -173,7 +157,6 @@ export const useMedicationRequests = () => {
     stats,
     setStats,
     loadAllStats,
-    loadAvailableNurses,
     sendParentNotification,
     toggleActionDropdown,
   };

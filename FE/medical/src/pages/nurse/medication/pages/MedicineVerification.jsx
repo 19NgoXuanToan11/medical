@@ -60,34 +60,43 @@ const MedicineVerification = () => {
 
   const loadPendingRequests = async () => {
     try {
-      const response = await medicationService.getPendingMedicationRequests();
+      // Use new API that filters by nurse's assigned grades
+      const response = await medicationService.getMyAssignedMedicationRequests(
+        "pending"
+      );
       if (response.success) {
         setPendingRequests(response.data);
       }
     } catch (error) {
-      console.error("Error loading pending requests:", error);
+      console.error("Error loading assigned pending requests:", error);
     }
   };
 
   const loadVerifiedRequests = async () => {
     try {
-      const response = await medicationService.getVerifiedMedicationRequests();
+      // Use new API that filters by nurse's assigned grades
+      const response = await medicationService.getMyAssignedMedicationRequests(
+        "verified"
+      );
       if (response.success) {
         setVerifiedRequests(response.data);
       }
     } catch (error) {
-      console.error("Error loading verified requests:", error);
+      console.error("Error loading assigned verified requests:", error);
     }
   };
 
   const loadRefusedRequests = async () => {
     try {
-      const response = await medicationService.getRefusedMedicationRequests();
+      // Use new API that filters by nurse's assigned grades
+      const response = await medicationService.getMyAssignedMedicationRequests(
+        "refused"
+      );
       if (response.success) {
         setRefusedRequests(response.data);
       }
     } catch (error) {
-      console.error("Error loading refused requests:", error);
+      console.error("Error loading assigned refused requests:", error);
     }
   };
 

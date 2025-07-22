@@ -18,6 +18,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     {
         return await _context.MedicineRequests
             .Include(m => m.Student)
+                .ThenInclude(s => s.Class)
             .Include(m => m.Parent)
                 .ThenInclude(p => p.StudentParents)
                     .ThenInclude(sp => sp.Student)
@@ -33,6 +34,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     {
         return await _context.MedicineRequests
             .Include(m => m.Student)
+                .ThenInclude(s => s.Class)
             .Include(m => m.Parent)
                 .ThenInclude(p => p.StudentParents)
                     .ThenInclude(sp => sp.Student)
@@ -510,66 +512,29 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return totalCount;
     }
 
-    public List<string> ParseFrequencyToFrequencies(string? frequency)
+    // Helper method for parsing frequency
+    private List<string> ParseFrequencyToFrequencies(string? frequency)
     {
         if (string.IsNullOrEmpty(frequency))
             return new List<string>();
 
-        var result = new List<string>();
-        var segments = frequency.Split(',', StringSplitOptions.RemoveEmptyEntries);
-        foreach (var segment in segments)
-        {
-            var part = segment.Trim().ToLower();
-            // Match patterns like 'sáng 2 lần', 'trưa 1 lần', etc.
-            var match = Regex.Match(part, @"(sáng|trưa|chiều|tối)\s*(\d+)?\s*lần?");
-            if (match.Success)
-            {
-                var timeOfDay = match.Groups[1].Value;
-                var countStr = match.Groups[2].Value;
-                int count = 1;
-                if (!string.IsNullOrEmpty(countStr) && int.TryParse(countStr, out var parsed))
-                    count = parsed;
-                for (int i = 0; i < count; i++)
-                    result.Add(CapitalizeFirstLetter(timeOfDay));
-            }
-            else
-            {
-                // Fallback: if just 'sáng', 'trưa', etc. (old format)
-                if (part == "sáng" || part == "trưa" || part == "chiều" || part == "tối")
-                    result.Add(CapitalizeFirstLetter(part));
-                else
-                {
-                    // Handle simple count-based frequencies like "2 lần", "3 lần", etc.
-                    var countMatch = Regex.Match(part, @"(\d+)\s*lần?");
-                    if (countMatch.Success && int.TryParse(countMatch.Groups[1].Value, out var count))
-                    {
-                        // For simple count-based frequencies, map to Sáng and Trưa, each repeated 'count' times
-                        var slots = new[] { "Sáng", "Trưa" };
-                        foreach (var slot in slots)
-                        {
-                            for (int i = 0; i < count; i++)
-                            {
-                                result.Add(slot);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // If we can't parse it, assume it's a single administration
-                        result.Add("Sáng");
-                    }
-                }
-            }
-        }
-        return result;
-    }
+        var frequencies = new List<string>();
+        var parts = frequency.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-    private string CapitalizeFirstLetter(string input)
-    {
-        if (string.IsNullOrEmpty(input))
-            return input;
-        
-        return char.ToUpper(input[0]) + input.Substring(1);
+        foreach (var part in parts)
+        {
+            var trimmed = part.Trim().ToLowerInvariant();
+            if (trimmed.Contains("sáng"))
+                frequencies.Add("sáng");
+            else if (trimmed.Contains("trưa"))
+                frequencies.Add("trưa");
+            else if (trimmed.Contains("chiều"))
+                frequencies.Add("chiều");
+            else if (trimmed.Contains("tối"))
+                frequencies.Add("tối");
+        }
+
+        return frequencies.Distinct().ToList();
     }
 
     private List<string> ParseAdministeredFrequencies(string? administeredFrequenciesJson)
@@ -645,33 +610,36 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return true;
     }
 
+    // Add missing methods to implement the interface
+    public async Task<bool> CanReRequestAsync(int requestResultId)
+    {
+        var requestResult = await _context.RequestResults.FindAsync(requestResultId);
+        if (requestResult == null || requestResult.Status != "Failed")
+        {
+            return false;
+        }
+
+        // Check if it's before 5 PM
+        return DateTime.UtcNow.Hour < 17;
+    }
+
     public async Task<RequestResult?> CreateReRequestAsync(int originalRequestResultId, string reRequestReason, int staffId)
     {
-        var originalRequestResult = await _context.RequestResults
-            .Include(r => r.Request)
-            .ThenInclude(r => r!.MedicineRequestItems)
-            .FirstOrDefaultAsync(r => r.ResultId == originalRequestResultId);
-
-        if (originalRequestResult == null)
+        var originalResult = await _context.RequestResults.FindAsync(originalRequestResultId);
+        if (originalResult == null || !await CanReRequestAsync(originalRequestResultId))
         {
             return null;
         }
 
-        // Check if it's past 5 PM
-        var currentTime = DateTime.Now;
-        if (currentTime.Hour >= 17)
-        {
-            return null; // Cannot create re-request after 5 PM
-        }
-
-        // Create new request result for re-request
         var reRequest = new RequestResult
         {
-            RequestId = originalRequestResult.RequestId,
+            RequestId = originalResult.RequestId,
             Status = "In Progress",
             SubmittedAt = DateTime.UtcNow,
+            AdministeredBy = staffId,
             ActionBy = staffId,
-            TimesPerDay = originalRequestResult.TimesPerDay,
+            Frequency = originalResult.Frequency,
+            TimesPerDay = originalResult.TimesPerDay,
             CurrentDayCount = 0,
             CurrentDate = DateOnly.FromDateTime(DateTime.Today),
             AdministeredFrequencies = "[]",
@@ -680,6 +648,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             IsReRequest = true,
             OriginalRequestResultId = originalRequestResultId,
             ReRequestReason = reRequestReason,
+            LastAttemptTime = DateTime.UtcNow,
             FailedAttempts = 0
         };
 
@@ -688,221 +657,124 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         return reRequest;
     }
 
-    public async Task<bool> UpdateTimeBasedStatusAsync()
-    {
-        var currentTime = DateTime.Now;
-        var currentDate = DateOnly.FromDateTime(currentTime.Date);
-
-        // Mark as failed if the day has changed and request is still in progress
-        var expiredRequests = await _context.RequestResults
-            .Where(r => r.Status == "In Progress" && r.CurrentDate < currentDate)
-            .ToListAsync();
-
-        foreach (var request in expiredRequests)
-        {
-            request.Status = "Failed";
-            request.ReRequestReason = "Time Expired - Day Changed";
-        }
-
-        // Existing logic: mark as failed if still in progress and past 5 PM today
-        var lateTodayRequests = await _context.RequestResults
-            .Where(r => r.Status == "In Progress" &&
-                       r.CurrentDate == currentDate &&
-                       r.LastAttemptTime.HasValue &&
-                       r.LastAttemptTime.Value.Hour >= 17)
-            .ToListAsync();
-
-        foreach (var request in lateTodayRequests)
-        {
-            request.Status = "Failed";
-            request.ReRequestReason = "Time Expired - Past 5 PM";
-        }
-
-        if (expiredRequests.Any() || lateTodayRequests.Any())
-        {
-            await _context.SaveChangesAsync();
-        }
-
-        return true;
-    }
-
     public async Task<IEnumerable<RequestResult>> GetFailedRequestsAsync()
     {
         return await _context.RequestResults
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Student)
-                    .ThenInclude(s => s.Class)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.MedicineRequestItems)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.Staff)
-            .Include(r => r.AdministeredByStaff)
-            .Include(r => r.ActionByStaff)
+                .ThenInclude(m => m.Student)
             .Where(r => r.Status == "Failed" || r.Status == "Partially Failed")
-            .OrderByDescending(r => r.SubmittedAt)
             .ToListAsync();
     }
 
     public async Task<IEnumerable<RequestResult>> GetReRequestsAsync(int originalRequestResultId)
     {
         return await _context.RequestResults
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.Student)
-                    .ThenInclude(s => s.Class)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.MedicineRequestItems)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.Staff)
-            .Include(r => r.AdministeredByStaff)
-            .Include(r => r.ActionByStaff)
-            .Where(r => r.OriginalRequestResultId == originalRequestResultId && r.IsReRequest)
-            .OrderByDescending(r => r.SubmittedAt)
+            .Where(r => r.OriginalRequestResultId == originalRequestResultId && r.IsReRequest == true)
             .ToListAsync();
     }
 
-    public async Task<bool> IsRequestEligibleForReRequestAsync(int requestResultId)
+    public async Task<bool> MarkAsFailedAsync(int requestResultId, string reason)
     {
-        var requestResult = await _context.RequestResults
-            .FirstOrDefaultAsync(r => r.ResultId == requestResultId);
-
-        if (requestResult == null)
-        {
-            return false;
-        }
-
-        // Check if it's past 5 PM
-        var currentTime = DateTime.Now;
-        if (currentTime.Hour >= 17)
-        {
-            return false;
-        }
-
-        // Check if request is failed or partially failed
-        return requestResult.Status == "Failed" || requestResult.Status == "Partially Failed";
-    }
-
-    public async Task<string> GetReRequestReasonAsync(int requestResultId)
-    {
-        var requestResult = await _context.RequestResults
-            .FirstOrDefaultAsync(r => r.ResultId == requestResultId);
-
-        if (requestResult == null)
-        {
-            return string.Empty;
-        }
-
-        if (requestResult.Status == "Failed")
-        {
-            return "Complete Failure";
-        }
-        else if (requestResult.Status == "Partially Failed")
-        {
-            return "Partial Failure";
-        }
-        else if (requestResult.Status == "Failed" && requestResult.ReRequestReason?.Contains("Time Expired") == true)
-        {
-            return "Time Expired";
-        }
-
-        return string.Empty;
-    }
-
-    public async Task<bool> MarkRequestAsFailedAsync(int requestResultId, string reason)
-    {
-        var requestResult = await _context.RequestResults
-            .FirstOrDefaultAsync(r => r.ResultId == requestResultId);
-
+        var requestResult = await _context.RequestResults.FindAsync(requestResultId);
         if (requestResult == null)
         {
             return false;
         }
 
         requestResult.Status = "Failed";
-        requestResult.ReRequestReason = reason;
         requestResult.LastAttemptTime = DateTime.UtcNow;
+        requestResult.FailedAttempts++;
+        
+        // Update failure reasons
+        var failureReasons = new Dictionary<string, string>();
+        if (!string.IsNullOrEmpty(requestResult.FailureReasons))
+        {
+            try
+            {
+                failureReasons = JsonSerializer.Deserialize<Dictionary<string, string>>(requestResult.FailureReasons) ?? new Dictionary<string, string>();
+            }
+            catch { }
+        }
+        failureReasons["general"] = reason;
+        requestResult.FailureReasons = JsonSerializer.Serialize(failureReasons);
 
         await _context.SaveChangesAsync();
         return true;
     }
 
-    public async Task<RequestResult?> GetRequestResultByIdAsync(int requestResultId)
+    public async Task<bool> UpdateTimeBasedStatusAsync()
     {
-        return await _context.RequestResults
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.Student)
-                    .ThenInclude(s => s.Class)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.MedicineRequestItems)
-            .Include(r => r.AdministeredByStaff)
-            .Include(r => r.ActionByStaff)
-            .Include(r => r.OriginalRequestResult)
-            .Include(r => r.ReRequests)
-            .FirstOrDefaultAsync(r => r.ResultId == requestResultId);
-    }
+        var now = DateTime.UtcNow;
+        var cutoffTime = DateTime.Today.AddHours(17); // 5 PM today
+        var today = DateOnly.FromDateTime(DateTime.Today);
 
-    private Dictionary<string, string> ParseFailureReasons(string? failureReasonsJson)
-    {
-        if (string.IsNullOrEmpty(failureReasonsJson))
-            return new Dictionary<string, string>();
+        // Get all in-progress requests that are past cutoff time or from previous days
+        var expiredRequests = await _context.RequestResults
+            .Where(r => r.Status == "In Progress" && 
+                       (r.CurrentDate < today || now > cutoffTime))
+            .ToListAsync();
 
-        try
+        foreach (var request in expiredRequests)
         {
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(failureReasonsJson) ?? new Dictionary<string, string>();
+            request.Status = "Failed";
+            request.LastAttemptTime = now;
+            request.FailedAttempts++;
+            
+            var failureReasons = new Dictionary<string, string>
+            {
+                ["timeout"] = "Request expired due to time limit"
+            };
+            request.FailureReasons = JsonSerializer.Serialize(failureReasons);
         }
-        catch
+
+        if (expiredRequests.Any())
         {
-            return new Dictionary<string, string>();
+            await _context.SaveChangesAsync();
+            return true;
         }
+
+        return false;
     }
 
     public async Task<(bool isCompleted, IEnumerable<string> pendingFrequencies)> GetProgressInfoAsync(int requestResultId, int medicineRequestItemId)
     {
         var requestResult = await _context.RequestResults
             .Include(r => r.Request)
-                .ThenInclude(r => r!.MedicineRequestItems)
+                .ThenInclude(m => m.MedicineRequestItems)
             .FirstOrDefaultAsync(r => r.ResultId == requestResultId);
+
         if (requestResult == null)
+        {
             return (false, new List<string>());
+        }
+
         var medicineItem = requestResult.Request?.MedicineRequestItems
             .FirstOrDefault(i => i.MedicineRequestItemId == medicineRequestItemId);
+
         if (medicineItem == null)
+        {
             return (false, new List<string>());
-
-        // Check if we're on a new day and need to reset
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var administeredFrequencies = ParseAdministeredFrequencies(requestResult.AdministeredFrequencies);
-        
-        if (requestResult.CurrentDate != today)
-        {
-            // New day, reset progress
-            administeredFrequencies.Clear();
         }
 
-        // Parse frequency to determine required frequencies
-        var allFrequencies = ParseFrequencyToFrequencies(medicineItem.Frequency);
-        
-        var pendingFrequencies = new List<string>();
-        
-        // Check which frequencies are still pending
-        var pending = allFrequencies.Except(administeredFrequencies).ToList();
-        bool allDone = pending.Count == 0;
-
-        if (!allDone)
+        // Parse administered frequencies
+        var administeredFrequencies = new List<string>();
+        if (!string.IsNullOrEmpty(requestResult.AdministeredFrequencies))
         {
-            // Add pending frequencies to the list with proper format
-            foreach (var freq in pending)
+            try
             {
-                pendingFrequencies.Add($"{freq}: còn 1 lần nữa");
+                administeredFrequencies = JsonSerializer.Deserialize<List<string>>(requestResult.AdministeredFrequencies) ?? new List<string>();
             }
+            catch { }
         }
 
-        return (allDone, pendingFrequencies);
+        // Parse expected frequencies from medicine item
+        var expectedFrequencies = ParseFrequencyToFrequencies(medicineItem.Frequency);
+        
+        // Calculate pending frequencies
+        var pendingFrequencies = expectedFrequencies.Except(administeredFrequencies).ToList();
+        var isCompleted = !pendingFrequencies.Any();
+
+        return (isCompleted, pendingFrequencies);
     }
 
     public async Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId)
@@ -983,16 +855,42 @@ public class MedicineRequestRepository : IMedicineRequestRepository
 
     public async Task<MedicineRequestItem?> GetMedicineRequestItemByIdAsync(int itemId)
     {
-        return await _context.MedicineRequestItems.FindAsync(itemId);
+        return await _context.MedicineRequestItems
+            .Include(i => i.MedicineRequest)
+                .ThenInclude(m => m.Student)
+            .FirstOrDefaultAsync(i => i.MedicineRequestItemId == itemId);
     }
 
     public async Task<bool> UpdateMedicineRequestItemAsync(MedicineRequestItem item)
     {
-        var existing = await _context.MedicineRequestItems.FindAsync(item.MedicineRequestItemId);
-        if (existing == null) return false;
-        _context.Entry(existing).CurrentValues.SetValues(item);
+        _context.MedicineRequestItems.Update(item);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<RequestResult?> GetRequestResultByIdAsync(int resultId)
+    {
+        return await _context.RequestResults
+            .Include(r => r.Request)
+                .ThenInclude(m => m.Student)
+            .Include(r => r.Request)
+                .ThenInclude(m => m.MedicineRequestItems)
+            .FirstOrDefaultAsync(r => r.ResultId == resultId);
+    }
+
+    private Dictionary<string, string> ParseFailureReasons(string? failureReasonsJson)
+    {
+        if (string.IsNullOrEmpty(failureReasonsJson))
+            return new Dictionary<string, string>();
+
+        try
+        {
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(failureReasonsJson) ?? new Dictionary<string, string>();
+        }
+        catch
+        {
+            return new Dictionary<string, string>();
+        }
     }
 }
 

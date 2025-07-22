@@ -77,18 +77,24 @@ const MedicineAssignment = () => {
 
   const loadVerifiedRequests = async () => {
     try {
-      const response = await medicationService.getVerifiedMedicationRequests();
+      // Use new API that filters by nurse's assigned grades
+      const response = await medicationService.getMyAssignedMedicationRequests(
+        "verified"
+      );
       if (response.success) {
         setVerifiedRequests(response.data);
       }
     } catch (error) {
-      console.error("Error loading verified requests:", error);
+      console.error("Error loading assigned verified requests:", error);
     }
   };
 
   const loadAssignedRequests = async () => {
     try {
-      const response = await medicationService.getAssignedMedicationRequests();
+      // Use new API that filters by nurse's assigned grades
+      const response = await medicationService.getMyAssignedMedicationRequests(
+        "assigned"
+      );
       if (response.success) {
         setAssignedRequests(response.data);
       }

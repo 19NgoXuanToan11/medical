@@ -21,10 +21,10 @@ import {
 } from "react-icons/fi";
 import { useNurseHealthCheckData } from "./hooks/useNurseHealthCheckData";
 import { formatDate } from "../../../utils/report/reportUtils";
-import { 
-  uploadHealthCheckResults, 
-  downloadHealthCheckTemplate, 
-  markHealthCheckCompleted 
+import {
+  uploadHealthCheckResults,
+  downloadHealthCheckTemplate,
+  markHealthCheckCompleted,
 } from "../../../utils/api/healthCheck/healthCheckService";
 
 const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
@@ -65,7 +65,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
 
       // Các trạm nâng cao
       "blood-pressure": "Đo huyết áp",
-      "blood_pressure": "Đo huyết áp",
+      blood_pressure: "Đo huyết áp",
       cardiovascular: "Tim mạch",
       respiratory: "Hô hấp",
       general: "Khám tổng quát",
@@ -191,127 +191,6 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
     return titleMatch || descriptionMatch || gradesMatch;
   });
 
-<<<<<<< HEAD
-  // Calculate health check specific statistics
-  const calculateHealthCheckStats = () => {
-    const allHealthChecks = [
-      ...pendingHealthChecks,
-      ...upcomingHealthChecks,
-      ...completedHealthChecks,
-      ...rejectedHealthChecks
-    ];
-
-    // Count active (ongoing) health checks
-    const activeCount = allHealthChecks.filter(hc => 
-      hc.status?.toLowerCase() === 'active' || 
-      hc.status?.toLowerCase() === 'đang tiến hành'
-    ).length;
-
-    // Count scheduled (approved and ready) health checks
-    const readyCount = allHealthChecks.filter(hc => 
-      hc.confirmStatus?.toLowerCase() === 'approved' && 
-      hc.status?.toLowerCase() !== 'active' &&
-      hc.status?.toLowerCase() !== 'completed'
-    ).length;
-
-    // Count completed health checks
-    const completedCount = completedHealthChecks.length;
-
-    // Count pending approval health checks
-    const pendingCount = pendingHealthChecks.length;
-
-    // Calculate total participating students
-    const totalStudents = allHealthChecks.reduce((sum, hc) => {
-      return sum + (hc.totalStudents || 0);
-    }, 0);
-
-    return {
-      pending: pendingCount,
-      ready: readyCount,
-      active: activeCount,
-      completed: completedCount,
-      totalStudents: totalStudents
-    };
-  };
-
-  const healthCheckStats = calculateHealthCheckStats();
-
-
-
-  const handleCompleteHealthCheck = (healthCheck) => {
-    setSelectedHealthCheck(healthCheck);
-    setShowUploadModal(true);
-    setUploadFile(null);
-    setUploadError("");
-  };
-
-  const handleFileSelect = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      // Validate file type
-      if (!file.name.toLowerCase().endsWith('.xlsx') && !file.name.toLowerCase().endsWith('.xls')) {
-        setUploadError("Vui lòng chọn file Excel (.xlsx hoặc .xls)");
-        return;
-      }
-      
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        setUploadError("File không được vượt quá 10MB");
-        return;
-      }
-
-      setUploadFile(file);
-      setUploadError("");
-    }
-  };
-
-  const handleUploadSubmit = async () => {
-    if (!uploadFile || !selectedHealthCheck) {
-      setUploadError("Vui lòng chọn file để upload");
-      return;
-    }
-
-    setUploading(true);
-    setUploadError("");
-
-    try {
-      const healthCheckId = selectedHealthCheck.formId || selectedHealthCheck.id;
-      
-      // Upload the Excel file with results
-      const uploadResult = await uploadHealthCheckResults(healthCheckId, uploadFile);
-      console.log('Upload successful:', uploadResult);
-
-      // Mark health check as completed
-      await markHealthCheckCompleted(healthCheckId, uploadResult);
-
-      // Close modal and refresh data
-      setShowUploadModal(false);
-      setSelectedHealthCheck(null);
-      setUploadFile(null);
-      fetchHealthCheckSchedules();
-
-      // Show success notification
-      alert('Upload kết quả khám thành công! Lịch khám đã được đánh dấu hoàn thành.');
-
-    } catch (error) {
-      console.error('Upload error:', error);
-      setUploadError(error.message || 'Có lỗi xảy ra khi upload file. Vui lòng thử lại.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleDownloadTemplate = async () => {
-    if (!selectedHealthCheck) return;
-
-    try {
-      const healthCheckId = selectedHealthCheck.formId || selectedHealthCheck.id;
-      await downloadHealthCheckTemplate(healthCheckId);
-    } catch (error) {
-      console.error('Download template error:', error);
-      alert('Có lỗi xảy ra khi tải file mẫu. Vui lòng thử lại.');
-    }
-=======
   const handleStartHealthCheck = (healthCheckId) => {
     // Refresh data after action
     fetchHealthCheckSchedules();
@@ -320,7 +199,6 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
   const handleCompleteHealthCheck = (healthCheckId) => {
     // Refresh data after action
     fetchHealthCheckSchedules();
->>>>>>> main
   };
 
   const renderHealthCheckCard = (healthCheck) => (
@@ -376,16 +254,24 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
             : typeof healthCheck.checkItems === "string"
             ? JSON.parse(healthCheck.checkItems)
             : []
-          ).map((item, index) => (
-            <span
-              key={index}
-              className="inline-block bg-gray-100 dark:bg-gray-700 text-xs px-2 py-1 rounded mr-1 mb-1"
-            >
-              {translateStationName(
-                typeof item === "string" ? item : item.name || item
-              )}
-            </span>
-          ))}
+          ).map((item, index) => {
+            const key =
+              typeof item === "string"
+                ? `${item}-${index}`
+                : item && item.name
+                ? `${item.name}-${index}`
+                : index;
+            return (
+              <span
+                key={key}
+                className="inline-block bg-gray-100 dark:bg-gray-700 text-xs px-2 py-1 rounded mr-1 mb-1"
+              >
+                {translateStationName(
+                  typeof item === "string" ? item : item.name || item
+                )}
+              </span>
+            );
+          })}
         </div>
       )}
 
@@ -413,11 +299,6 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
 
       {healthCheck.confirmStatus?.toLowerCase() === "approved" && (
         <div className="mb-3 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded">
-<<<<<<< HEAD
-          <p className="text-xs text-green-700 dark:text-green-300">
-            ✅ Đã được Quản lý phê duyệt - Sẵn sàng thực hiện
-          </p>
-=======
           <div className="flex items-start">
             <FiCheckCircle className="w-3 h-3 mr-2 mt-0.5 text-green-600 dark:text-green-400" />
             <div className="text-xs text-green-800 dark:text-green-200">
@@ -431,17 +312,11 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               )}
             </div>
           </div>
->>>>>>> main
         </div>
       )}
 
       {healthCheck.confirmStatus?.toLowerCase() === "rejected" && (
         <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
-<<<<<<< HEAD
-          <p className="text-xs text-red-700 dark:text-red-300">
-            ❌ Bị từ chối bởi Quản lý - Cần chỉnh sửa
-          </p>
-=======
           <div className="flex items-start">
             <FiX className="w-3 h-3 mr-2 mt-0.5 text-red-600 dark:text-red-400" />
             <div className="text-xs text-red-800 dark:text-red-200">
@@ -460,7 +335,6 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               )}
             </div>
           </div>
->>>>>>> main
         </div>
       )}
 
@@ -469,7 +343,9 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         {/* View/Edit buttons */}
         <div className="flex space-x-2">
           <Link
-            to={`/nurse/health-services/detail/${healthCheck.formId || healthCheck.id}`}
+            to={`/nurse/health-services/detail/${
+              healthCheck.formId || healthCheck.id
+            }`}
             className="text-xs px-3 py-1 border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700/50 rounded transition-colors"
           >
             <FiEye className="w-3 h-3 mr-1 inline" />
@@ -496,13 +372,6 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
 
         {/* Action buttons based on status */}
         <div className="flex space-x-2">
-<<<<<<< HEAD
-          {/* Show completion button for approved health checks in upcoming tab */}
-          {activeTab === "upcoming" && healthCheck.confirmStatus?.toLowerCase() === "approved" && (
-            <button
-              onClick={() => handleCompleteHealthCheck(healthCheck)}
-              className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
-=======
           {(healthCheck.confirmStatus?.toLowerCase() === "approved" ||
             healthCheck.status === "Approved") && (
             <button
@@ -510,7 +379,6 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
                 handleStartHealthCheck(healthCheck.formId || healthCheck.id)
               }
               className="text-xs px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
->>>>>>> main
             >
               <FiUpload className="w-3 h-3 mr-1 inline" />
               Hoàn thành
@@ -519,13 +387,9 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
           {/* Show completion button for active health checks */}
           {healthCheck.status === "active" && (
             <button
-<<<<<<< HEAD
-              onClick={() => handleCompleteHealthCheck(healthCheck)}
-=======
               onClick={() =>
                 handleCompleteHealthCheck(healthCheck.formId || healthCheck.id)
               }
->>>>>>> main
               className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
             >
               <FiCheckCircle className="w-3 h-3 mr-1 inline" />
@@ -546,15 +410,9 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
   const renderEmptyState = () => {
     const emptyStateConfig = {
       pending: {
-<<<<<<< HEAD
-        icon: FiClock,
-        title: "Không có khám sức khỏe nào đang chờ duyệt",
-        message: "Các yêu cầu khám sức khỏe sẽ xuất hiện ở đây khi được tạo.",
-=======
         title: "Không có yêu cầu chờ duyệt",
         description:
           "Tất cả yêu cầu khám sức khỏe đã được xử lý hoặc chưa có yêu cầu nào",
->>>>>>> main
       },
       upcoming: {
         icon: FiCalendar,
@@ -567,14 +425,8 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         message: "Lịch sử các buổi khám đã hoàn thành sẽ được hiển thị ở đây.",
       },
       rejected: {
-<<<<<<< HEAD
-        icon: FiX,
-        title: "Không có khám sức khỏe nào bị từ chối",
-        message: "Các yêu cầu bị từ chối sẽ xuất hiện ở đây để chỉnh sửa.",
-=======
         title: "Không có yêu cầu bị từ chối",
         description: "Chưa có yêu cầu khám sức khỏe nào bị từ chối",
->>>>>>> main
       },
     };
 
@@ -587,7 +439,9 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
           {config.title}
         </h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">{config.message}</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
+          {config.message}
+        </p>
         <Link
           to="/nurse/health-services/create/health_check"
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
@@ -623,7 +477,8 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               <strong>Lịch khám:</strong> {selectedHealthCheck.title}
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              <strong>Ngày khám:</strong> {formatDate(selectedHealthCheck.scheduledDate)}
+              <strong>Ngày khám:</strong>{" "}
+              {formatDate(selectedHealthCheck.scheduledDate)}
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               <strong>Lớp:</strong> {selectedHealthCheck.grades?.join(", ")}
@@ -663,7 +518,9 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               >
                 <FiFile className="w-8 h-8 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {uploadFile ? uploadFile.name : "Chọn file Excel (.xlsx, .xls)"}
+                  {uploadFile
+                    ? uploadFile.name
+                    : "Chọn file Excel (.xlsx, .xls)"}
                 </span>
               </label>
             </div>
@@ -672,7 +529,9 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
           {/* Error Message */}
           {uploadError && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-700 dark:text-red-300">{uploadError}</p>
+              <p className="text-sm text-red-700 dark:text-red-300">
+                {uploadError}
+              </p>
             </div>
           )}
 
@@ -727,7 +586,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
                 Chờ duyệt
               </p>
               <p className="text-2xl font-semibold text-orange-600 dark:text-orange-400">
-                {healthCheckStats.pending}
+                {stats.pending}
               </p>
             </div>
             <FiClock className="w-8 h-8 text-orange-500 dark:text-orange-400" />
@@ -741,7 +600,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
                 Sẵn sàng
               </p>
               <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
-                {healthCheckStats.ready}
+                {stats.ready}
               </p>
             </div>
             <FiCheckCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
@@ -755,7 +614,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
                 Đang tiến hành
               </p>
               <p className="text-2xl font-semibold text-yellow-600 dark:text-yellow-400">
-                {healthCheckStats.active}
+                {stats.active}
               </p>
             </div>
             <FiPlayCircle className="w-8 h-8 text-yellow-500 dark:text-yellow-400" />
@@ -769,7 +628,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
                 Đã hoàn thành
               </p>
               <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
-                {healthCheckStats.completed}
+                {stats.completed}
               </p>
             </div>
             <FiCheckCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
@@ -783,7 +642,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
                 Tổng học sinh
               </p>
               <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {healthCheckStats.totalStudents}
+                {stats.totalStudents}
               </p>
             </div>
             <FiUsers className="w-8 h-8 text-gray-500 dark:text-gray-400" />
@@ -838,7 +697,11 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
           </div>
         ) : filteredHealthChecks.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {filteredHealthChecks.map(renderHealthCheckCard)}
+            {filteredHealthChecks.map((healthCheck, index) => (
+              <div key={healthCheck.id || index}>
+                {renderHealthCheckCard(healthCheck)}
+              </div>
+            ))}
           </div>
         ) : (
           renderEmptyState()

@@ -19,7 +19,7 @@ const PendingRequests = () => {
 
   const { loading, setLoading, loadAllStats } = useMedicationRequests();
 
-  // Load pending requests
+  // Load all pending requests (manager can see all grades)
   const loadPendingRequests = async () => {
     setLoading(true);
     try {
@@ -138,6 +138,12 @@ const PendingRequests = () => {
         show={showDetailModal}
         request={selectedRequest}
         onClose={() => setShowDetailModal(false)}
+        availableNurses={[]} // TODO: Load available nurses from API
+        onAssignSuccess={() => {
+          // Refresh data when assignment is successful
+          loadPendingRequests();
+          loadAllStats();
+        }}
       />
     </div>
   );

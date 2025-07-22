@@ -358,82 +358,85 @@ const MedicationDetail = () => {
                   </h2>
                 </div>
                 <div className="p-4">
-                  {medication.medicineRequestItems &&
-                  medication.medicineRequestItems.length > 0 ? (
+                  {(medication.medicineItems ||
+                    medication.medicineRequestItems) &&
+                  (medication.medicineItems || medication.medicineRequestItems)
+                    .length > 0 ? (
                     <div className="space-y-6">
-                      {medication.medicineRequestItems.map(
-                        (medicine, index) => (
-                          <div
-                            key={index}
-                            className="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
-                          >
-                            <div className="flex items-center justify-between mb-3">
-                              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                {medicine.medicineName}
-                              </h3>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                Thuốc #{index + 1}
-                              </span>
+                      {(
+                        medication.medicineItems ||
+                        medication.medicineRequestItems
+                      ).map((medicine, index) => (
+                        <div
+                          key={index}
+                          className="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                              {medicine.medicineName}
+                            </h3>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              Thuốc #{index + 1}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                Tổng liều lượng
+                              </h4>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {medicine.dosage && medicine.dosage !== "N/A"
+                                  ? `${medicine.dosage} ${
+                                      medicine.dosageUnit ||
+                                      getMedicineUnit(medicine.medicineName)
+                                    }`
+                                  : "Chưa xác định"}
+                              </p>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div>
-                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                                  Tổng liều lượng
-                                </h4>
-                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                  {medicine.dosage && medicine.dosage !== "N/A"
-                                    ? `${medicine.dosage} ${
+                            <div>
+                              <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                Tần suất uống thuốc
+                              </h4>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {medicine.frequency &&
+                                medicine.frequency !== "N/A"
+                                  ? formatFrequency(medicine.frequency)
+                                  : "Chưa xác định"}
+                              </p>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                Liều lượng mỗi lần
+                              </h4>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {medicine.dosage &&
+                                medicine.frequency &&
+                                medicine.dosage !== "N/A" &&
+                                medicine.frequency !== "N/A"
+                                  ? calculateDosagePerAdministration(
+                                      `${medicine.dosage} ${
                                         medicine.dosageUnit ||
                                         getMedicineUnit(medicine.medicineName)
-                                      }`
-                                    : "Chưa xác định"}
-                                </p>
-                              </div>
-                              <div>
-                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                                  Tần suất uống thuốc 
-                                </h4>
-                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                  {medicine.frequency &&
-                                  medicine.frequency !== "N/A"
-                                    ? formatFrequency(medicine.frequency)
-                                    : "Chưa xác định"}
-                                </p>
-                              </div>
-                              <div>
-                                <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                                  Liều lượng mỗi lần
-                                </h4>
-                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                  {medicine.dosage &&
-                                  medicine.frequency &&
-                                  medicine.dosage !== "N/A" &&
-                                  medicine.frequency !== "N/A"
-                                    ? calculateDosagePerAdministration(
-                                        `${medicine.dosage} ${
-                                          medicine.dosageUnit ||
-                                          getMedicineUnit(medicine.medicineName)
-                                        }`,
-                                        medicine.frequency
-                                      )
-                                    : "Chưa xác định"}
-                                </p>
-                              </div>
+                                      }`,
+                                      medicine.frequency
+                                    )
+                                  : "Chưa xác định"}
+                              </p>
                             </div>
-                            {medicine.instructions &&
-                              medicine.instructions !== "N/A" && (
-                                <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg">
-                                  <h4 className="text-xs font-medium text-amber-800 dark:text-amber-200 mb-1">
-                                    Hướng dẫn sử dụng
-                                  </h4>
-                                  <p className="text-sm text-amber-800 dark:text-amber-200">
-                                    {medicine.instructions}
-                                  </p>
-                                </div>
-                              )}
                           </div>
-                        )
-                      )}
+                          {medicine.instructions &&
+                            medicine.instructions !== "N/A" && (
+                              <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                                <h4 className="text-xs font-medium text-amber-800 dark:text-amber-200 mb-1">
+                                  Hướng dẫn sử dụng
+                                </h4>
+                                <p className="text-sm text-amber-800 dark:text-amber-200">
+                                  {medicine.instructions}
+                                </p>
+                              </div>
+                            )}
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div className="text-center py-8">
@@ -501,10 +504,15 @@ const MedicationDetail = () => {
                 </h2>
               </div>
               <div className="p-4">
-                {medication.medicineRequestItems &&
-                medication.medicineRequestItems.length > 0 ? (
+                {(medication.medicineItems ||
+                  medication.medicineRequestItems) &&
+                (medication.medicineItems || medication.medicineRequestItems)
+                  .length > 0 ? (
                   <div className="space-y-6">
-                    {medication.medicineRequestItems.map((medicine, index) => (
+                    {(
+                      medication.medicineItems ||
+                      medication.medicineRequestItems
+                    ).map((medicine, index) => (
                       <div
                         key={index}
                         className="border border-gray-200 dark:border-gray-600 rounded-lg p-4"

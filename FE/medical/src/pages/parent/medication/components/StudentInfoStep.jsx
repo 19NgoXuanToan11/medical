@@ -1,4 +1,5 @@
 import React from "react";
+import NurseAssignmentInfo from "../../../../components/common/NurseAssignmentInfo";
 
 const StudentInfoStep = ({
   formData,
@@ -78,13 +79,26 @@ const StudentInfoStep = ({
         </div>
       </div>
 
+      {/* Show nurse assignment info when student is selected */}
+      {formData.studentCode && formData.className && (
+        <div className="mt-6">
+          <NurseAssignmentInfo
+            studentCode={formData.studentCode}
+            className={formData.className}
+          />
+        </div>
+      )}
+
       <div>
         <label
           htmlFor="date"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
-          Ngày uống thuốc{" "}
+          Ngày học sinh sẽ uống thuốc{" "}
           <span className="text-red-500 dark:text-red-400">*</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+            (Định dạng: năm/tháng/ngày - ví dụ: 2024/12/25)
+          </span>
         </label>
         <input
           type="text"
@@ -93,18 +107,19 @@ const StudentInfoStep = ({
           value={formData.date}
           onChange={handleInputChange}
           required
-          placeholder="y/m/d"
           className={`w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
-            formData.date && !isValidDate(formData.date)
+            !formData.date ||
+            !isValidDate(formData.date) ||
+            isPastDate(formData.date)
               ? "border-red-400 dark:border-red-500"
               : "border-gray-300 dark:border-gray-600"
           }`}
+          placeholder="2024/12/25"
         />
-
         {formData.date && !isValidDate(formData.date) && (
           <p className="text-red-500 dark:text-red-400 text-sm mt-1">
-            Ngày không hợp lệ. Vui lòng nhập theo định dạng y/m/d (ví dụ:
-            2024/12/15)
+            Định dạng ngày không hợp lệ. Vui lòng sử dụng định dạng
+            năm/tháng/ngày
           </p>
         )}
         {formData.date &&
@@ -115,8 +130,8 @@ const StudentInfoStep = ({
             </p>
           )}
         {!formData.date && (
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            Nhập ngày học sinh sẽ uống thuốc (định dạng: năm/tháng/ngày)
+          <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+            Vui lòng nhập ngày học sinh sẽ uống thuốc
           </p>
         )}
       </div>

@@ -85,6 +85,154 @@ public class MedicineRequestController : ControllerBase
         return Ok(viewModels);
     }
 
+    // GET: api/MedicineRequest/my-assigned-requests - Get requests for current nurse's assigned grades
+    [HttpGet("my-assigned-requests")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetMyAssignedRequests([FromQuery] string? status = null)
+    {
+        // Get current user ID from JWT token
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int staffId))
+        {
+            return Unauthorized("Invalid token or user ID not found");
+        }
+
+        // Get current user role from JWT token
+        var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+        if (roleClaim == null || roleClaim.Value.ToLower() != "nurse")
+        {
+            return Forbid("Only nurses can access their assigned requests");
+        }
+
+        _logger.LogInformation("GetMyAssignedRequests called by staffId={StaffId}, status={Status}", staffId, status);
+
+        try
+        {
+            var requests = await _medicineRequestService.GetMedicineRequestsByAssignedGradeAsync(staffId, status);
+            var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
+            _logger.LogInformation("Returning {Count} requests for staffId={StaffId}", viewModels.Count(), staffId);
+            return Ok(viewModels);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting assigned requests for nurse {StaffId}", staffId);
+            return StatusCode(500, new { message = "Lỗi khi lấy danh sách yêu cầu thuốc được phân công" });
+        }
+    }
+
+    // DEBUG endpoint - Get debug info for nurse assignments
+    [HttpGet("debug/nurse-assignments/{staffId}")]
+    public async Task<IActionResult> GetDebugNurseAssignments(int staffId)
+    {
+        try
+        {
+            var allRequests = await _medicineRequestService.GetAllMedicineRequestsAsync();
+            var requestsInfo = allRequests.Select(r => new {
+                RequestId = r.RequestId,
+                StudentCode = r.StudentCode,
+                StudentName = r.Student != null ? $"{r.Student.FirstName} {r.Student.LastName}" : "null",
+                ClassName = r.Student?.Class?.ClassName ?? "null",
+                GradeLevel = r.Student?.Class?.GradeLevel,
+                Status = r.Status,
+                StaffId = r.StaffId
+            }).ToList();
+
+            return Ok(new {
+                StaffId = staffId,
+                TotalRequests = requestsInfo.Count,
+                Requests = requestsInfo
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting debug info for staffId {StaffId}", staffId);
+            return StatusCode(500, new { message = "Debug error" });
+        }
+    }
+
+    // DEBUG endpoint - Test assigned requests without auth
+    [HttpGet("debug/test-assigned/{staffId}")]
+    public async Task<IActionResult> TestAssignedRequests(int staffId, [FromQuery] string? status = null)
+    {
+        try
+        {
+            _logger.LogInformation("DEBUG TestAssignedRequests called: staffId={StaffId}, status={Status}", staffId, status);
+            
+            var requests = await _medicineRequestService.GetMedicineRequestsByAssignedGradeAsync(staffId, status);
+            var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
+            
+            _logger.LogInformation("DEBUG TestAssignedRequests returning {Count} requests", viewModels.Count());
+            
+            return Ok(new {
+                StaffId = staffId,
+                Status = status,
+                Count = viewModels.Count(),
+                Requests = viewModels
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in TestAssignedRequests for staffId {StaffId}", staffId);
+            return StatusCode(500, new { message = "Debug error", error = ex.Message });
+        }
+    }
+
+    // DEBUG endpoint - Test JWT token validation
+    [HttpGet("debug/test-auth")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<IActionResult> TestAuth()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+            var nameClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Name);
+            var emailClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Email);
+
+            return Ok(new {
+                IsAuthenticated = User.Identity.IsAuthenticated,
+                UserId = userIdClaim?.Value,
+                Role = roleClaim?.Value,
+                Name = nameClaim?.Value,
+                Email = emailClaim?.Value,
+                Claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToList()
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in TestAuth");
+            return StatusCode(500, new { message = "Auth test error", error = ex.Message });
+        }
+    }
+
+    // DEBUG endpoint - Check JWT token format without authentication
+    [HttpGet("debug/check-token")]
+    public async Task<IActionResult> CheckToken()
+    {
+        try
+        {
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+            
+            return Ok(new {
+                HasAuthHeader = authHeader != null,
+                AuthHeader = authHeader,
+                HasBearerPrefix = authHeader?.StartsWith("Bearer ") == true,
+                TokenLength = authHeader?.Replace("Bearer ", "").Length,
+                Recommendations = new List<string>
+                {
+                    authHeader == null ? "Thiếu Authorization header" : null,
+                    authHeader != null && !authHeader.StartsWith("Bearer ") ? "Authorization header phải bắt đầu với 'Bearer '" : null,
+                    authHeader?.Replace("Bearer ", "").Length < 100 ? "Token có vẻ quá ngắn" : null
+                }.Where(r => r != null).ToList()
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in CheckToken");
+            return StatusCode(500, new { message = "Check token error", error = ex.Message });
+        }
+    }
+
     // POST: api/MedicineRequest
     [HttpPost]
     public async Task<ActionResult<MedicineRequestDto.ViewModel>> CreateMedicineRequest(MedicineRequestDto.Create createDto)
@@ -106,6 +254,29 @@ public class MedicineRequestController : ControllerBase
         
         // Set request date to current time
         medicineRequest.RequestDate = DateTime.UtcNow;
+
+        // Check if student code is provided to determine grade for auto nurse assignment
+        if (!string.IsNullOrEmpty(medicineRequest.StudentCode))
+        {
+            var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(medicineRequest.StudentCode);
+            if (grade.HasValue)
+            {
+                var assignedNurse = await _medicineRequestService.GetNurseByGradeAsync(grade.Value);
+                if (assignedNurse != null)
+                {
+                    _logger.LogInformation("Auto-assigned nurse {NurseId} ({NurseName}) to medicine request for student {StudentCode} in grade {Grade}", 
+                        assignedNurse.StaffId, $"{assignedNurse.FirstName} {assignedNurse.LastName}", medicineRequest.StudentCode, grade.Value);
+                }
+                else
+                {
+                    _logger.LogWarning("No nurse found assigned to grade {Grade} for student {StudentCode}", grade.Value, medicineRequest.StudentCode);
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Could not determine grade for student {StudentCode}", medicineRequest.StudentCode);
+            }
+        }
 
         var created = await _medicineRequestService.CreateMedicineRequestAsync(medicineRequest);
         if (created == null)
@@ -165,31 +336,357 @@ public class MedicineRequestController : ControllerBase
         if (item == null)
             return NotFound();
 
-        // Parse VerificationStatus as Dictionary<string, object>
+        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
+        if (request == null)
+            return NotFound("Medicine request not found.");
+
+        // Check if manual assignment is allowed for this request
+        var isManualAssignmentAllowed = await _medicineRequestService.IsManualAssignmentAllowedAsync(request.RequestId);
+        if (!isManualAssignmentAllowed)
+        {
+            var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
+            var assignedNurse = grade.HasValue ? await _medicineRequestService.GetNurseByGradeAsync(grade.Value) : null;
+            return BadRequest($"Manual assignment is not allowed for this request. Student is in grade {grade} which is managed by nurse: {assignedNurse?.FirstName} {assignedNurse?.LastName}");
+        }
+
+        // Proceed with manual assignment
         var periodStatus = new Dictionary<string, object>();
         try
         {
             periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
         }
         catch { }
-        // Set assigned status with staff and timestamp
-        periodStatus[period] = System.Text.Json.JsonSerializer.Serialize(new {
-            Status = "Assigned",
-            StaffId = staffId,
-            Timestamp = DateTime.UtcNow
-        });
-        item.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(periodStatus);
-        await _medicineRequestService.UpdateMedicineRequestItemAsync(item);
 
-        // Update the parent request's StaffId
-        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
-        if (request != null && (request.StaffId == null || request.StaffId != staffId))
+        var history = GetStatusHistory(periodStatus, period);
+        history.Add(new Dictionary<string, object> {
+            { "Status", "Assigned" },
+            { "StaffId", staffId },
+            { "Timestamp", DateTime.UtcNow }
+        });
+
+        periodStatus[period] = history;
+        item.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(periodStatus);
+        var success = await _medicineRequestService.UpdateMedicineRequestItemAsync(item);
+        
+        if (!success) return NotFound();
+        return NoContent();
+    }
+
+    // GET: api/MedicineRequest/student/{studentCode}/grade
+    [HttpGet("student/{studentCode}/grade")]
+    public async Task<IActionResult> GetGradeByStudentCode(string studentCode)
+    {
+        try
         {
-            request.StaffId = staffId;
-            await _medicineRequestService.UpdateMedicineRequestAsync(request);
+            var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(studentCode);
+            
+            if (grade.HasValue)
+            {
+                return Ok(new { grade = grade.Value });
+            }
+            
+            return NotFound(new { message = "Không tìm thấy thông tin khối học của học sinh này" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting grade for student {StudentCode}", studentCode);
+            return StatusCode(500, new { message = "Lỗi khi lấy thông tin khối học" });
+        }
+    }
+
+    // GET: api/MedicineRequest/grade/{grade}/nurse
+    [HttpGet("grade/{grade}/nurse")]
+    public async Task<IActionResult> GetNurseByGrade(int grade)
+    {
+        try
+        {
+            var nurse = await _medicineRequestService.GetNurseByGradeAsync(grade);
+            
+            if (nurse != null)
+            {
+                var nurseViewModel = _mapper.Map<StaffDto.ViewModel>(nurse);
+                return Ok(nurseViewModel);
+            }
+            
+            return NotFound(new { message = $"Không tìm thấy nurse phụ trách khối {grade}" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting nurse for grade {Grade}", grade);
+            return StatusCode(500, new { message = "Lỗi khi lấy thông tin nurse phụ trách khối" });
+        }
+    }
+
+    // GET: api/MedicineRequest/{id}/manual-assignment-allowed
+    [HttpGet("{id}/manual-assignment-allowed")]
+    public async Task<IActionResult> CheckManualAssignmentAllowed(int id)
+    {
+        try
+        {
+            var allowed = await _medicineRequestService.IsManualAssignmentAllowedAsync(id);
+            return Ok(allowed);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking manual assignment for request {RequestId}", id);
+            return StatusCode(500, new { message = "Lỗi khi kiểm tra phân công thủ công" });
+        }
+    }
+
+    // GET: api/MedicineRequest/{id}/auto-assignment-info
+    [HttpGet("{id}/auto-assignment-info")]
+    public async Task<IActionResult> GetAutoAssignmentInfo(int id)
+    {
+        try
+        {
+            var request = await _medicineRequestService.GetMedicineRequestByIdAsync(id);
+            if (request == null)
+            {
+                return NotFound(new { message = "Không tìm thấy yêu cầu thuốc" });
+            }
+
+            var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
+            if (!grade.HasValue)
+            {
+                return Ok(new { 
+                    grade = (int?)null,
+                    nurse = (object)null,
+                    isAutoAssigned = false,
+                    message = "Không thể xác định khối học"
+                });
+            }
+
+            var nurse = await _medicineRequestService.GetNurseByGradeAsync(grade.Value);
+            
+            return Ok(new {
+                grade = grade.Value,
+                nurse = nurse,
+                isAutoAssigned = nurse != null,
+                message = nurse != null ? "Đã có nurse được phân công tự động" : "Chưa có nurse phụ trách khối này"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting auto assignment info for request {RequestId}", id);
+            return StatusCode(500, new { message = "Lỗi khi lấy thông tin phân công tự động" });
+        }
+    }
+
+    // POST: api/MedicineRequest/{id}/assign-nurse/{staffId}
+    [HttpPost("{id}/assign-nurse/{staffId}")]
+    public async Task<IActionResult> AssignNurseToRequest(int id, int staffId)
+    {
+        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(id);
+        if (request == null)
+            return NotFound();
+
+        // Check if manual assignment is allowed
+        var isManualAssignmentAllowed = await _medicineRequestService.IsManualAssignmentAllowedAsync(id);
+        if (!isManualAssignmentAllowed)
+        {
+            var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
+            var assignedNurse = grade.HasValue ? await _medicineRequestService.GetNurseByGradeAsync(grade.Value) : null;
+            return BadRequest($"Manual assignment is not allowed. Student is in grade {grade} which is automatically managed by nurse: {assignedNurse?.FirstName} {assignedNurse?.LastName}");
+        }
+
+        var success = await _medicineRequestService.AssignNurseToRequestAsync(id, staffId);
+        if (!success)
+        {
+            return BadRequest("Assignment failed. Request may not be in correct status or nurse may have reached maximum requests limit.");
         }
 
         return NoContent();
+    }
+
+    // POST: api/MedicineRequest/{id}/start-administration/{staffId}
+    [HttpPost("{id}/start-administration/{staffId}")]
+    public async Task<ActionResult<object>> StartMedicineAdministration(int id, int staffId)
+    {
+        var requestResult = await _medicineRequestService.StartMedicineRequestAsync(id, staffId);
+        if (requestResult == null)
+        {
+            return BadRequest("Failed to start medicine administration. Request may not be in correct status.");
+        }
+
+        return Ok(new
+        {
+            requestResultId = requestResult.ResultId,
+            status = requestResult.Status,
+            message = "Medicine administration started successfully"
+        });
+    }
+
+    // POST: api/MedicineRequest/administer-frequency
+    [HttpPost("administer-frequency")]
+    public async Task<IActionResult> AdministerMedicineByFrequency([FromBody] AdministerFrequencyDto dto)
+    {
+        if (dto == null || dto.RequestResultId <= 0 || dto.MedicineRequestItemId <= 0 || string.IsNullOrEmpty(dto.Frequency) || dto.StaffId <= 0)
+            return BadRequest("Missing required fields.");
+
+        var success = await _medicineRequestService.AdministerMedicineByFrequencyAsync(
+            dto.RequestResultId, dto.MedicineRequestItemId, dto.Frequency, dto.StaffId, dto.Notes);
+
+        if (!success)
+        {
+            return BadRequest("Failed to administer medicine. Please check the request status and frequency.");
+        }
+
+        return NoContent();
+    }
+
+    public class AdministerFrequencyDto
+    {
+        public int RequestResultId { get; set; }
+        public int MedicineRequestItemId { get; set; }
+        public string Frequency { get; set; } = null!;
+        public int StaffId { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    public class PeriodActionDto
+    {
+        public string Period { get; set; } = null!;
+        public int? StaffId { get; set; }
+        public string? RefusalReason { get; set; }
+    }
+
+    public class ReportFailureDto
+    {
+        public int MedicineRequestItemId { get; set; }
+        public string Period { get; set; } = null!;
+        public int StaffId { get; set; }
+        public string FailureReason { get; set; } = null!;
+        public string? Notes { get; set; }
+    }
+
+    public class CreateReRequestDto
+    {
+        public int OriginalRequestResultId { get; set; }
+        public string ReRequestReason { get; set; } = null!;
+        public int StaffId { get; set; }
+    }
+
+    // POST: api/MedicineRequest/create-re-request
+    [HttpPost("create-re-request")]
+    public async Task<ActionResult<object>> CreateReRequest([FromBody] CreateReRequestDto dto)
+    {
+        if (dto == null || dto.OriginalRequestResultId <= 0 || string.IsNullOrEmpty(dto.ReRequestReason) || dto.StaffId <= 0)
+            return BadRequest("Missing required fields.");
+
+        var requestResult = await _medicineRequestService.CreateReRequestAsync(dto.OriginalRequestResultId, dto.ReRequestReason, dto.StaffId);
+        if (requestResult == null)
+        {
+            return BadRequest("Failed to create re-request. Original request may not be eligible for re-request.");
+        }
+
+        return Ok(new
+        {
+            requestResultId = requestResult.ResultId,
+            status = requestResult.Status,
+            message = "Re-request created successfully"
+        });
+    }
+
+    // GET: api/MedicineRequest/failed-requests
+    [HttpGet("failed-requests")]
+    public async Task<ActionResult<IEnumerable<object>>> GetFailedRequests()
+    {
+        var failedResults = await _medicineRequestService.GetFailedRequestsAsync();
+        return Ok(failedResults.Select(r => new
+        {
+            requestResultId = r.ResultId,
+            requestId = r.RequestId,
+            status = r.Status,
+            failedAttempts = r.FailedAttempts,
+            lastAttemptTime = r.LastAttemptTime,
+            student = r.Request?.Student != null ? new
+            {
+                studentCode = r.Request.Student.StudentCode,
+                name = $"{r.Request.Student.FirstName} {r.Request.Student.LastName}"
+            } : null
+        }));
+    }
+
+    // GET: api/MedicineRequest/{originalRequestResultId}/re-requests
+    [HttpGet("{originalRequestResultId}/re-requests")]
+    public async Task<ActionResult<IEnumerable<object>>> GetReRequests(int originalRequestResultId)
+    {
+        var reRequests = await _medicineRequestService.GetReRequestsAsync(originalRequestResultId);
+        return Ok(reRequests.Select(r => new
+        {
+            requestResultId = r.ResultId,
+            status = r.Status,
+            reRequestReason = r.ReRequestReason,
+            submittedAt = r.SubmittedAt,
+            isReRequest = r.IsReRequest
+        }));
+    }
+
+    // POST: api/MedicineRequest/update-time-based-status
+    [HttpPost("update-time-based-status")]
+    public async Task<ActionResult<object>> UpdateTimeBasedStatus()
+    {
+        var updated = await _medicineRequestService.UpdateTimeBasedStatusAsync();
+        return Ok(new
+        {
+            success = updated,
+            message = updated ? "Time-based status updated successfully" : "No updates were made"
+        });
+    }
+
+    // GET: api/MedicineRequest/{requestResultId}/re-request-info
+    [HttpGet("{requestResultId}/re-request-info")]
+    public async Task<ActionResult<object>> GetReRequestInfo(int requestResultId)
+    {
+        var canReRequest = await _medicineRequestService.CanReRequestAsync(requestResultId);
+        var requestResult = await _medicineRequestService.GetRequestResultByIdAsync(requestResultId);
+        
+        if (requestResult == null)
+            return NotFound();
+
+        return Ok(new
+        {
+            canReRequest = canReRequest,
+            status = requestResult.Status,
+            currentTime = DateTime.UtcNow,
+            cutoffTime = DateTime.Today.AddHours(17), // 5 PM cutoff
+            isAfterCutoff = DateTime.UtcNow.Hour >= 17
+        });
+    }
+
+    // POST: api/MedicineRequest/{requestResultId}/mark-failed
+    [HttpPost("{requestResultId}/mark-failed")]
+    public async Task<IActionResult> MarkRequestAsFailed(int requestResultId, [FromBody] string reason)
+    {
+        var success = await _medicineRequestService.MarkAsFailedAsync(requestResultId, reason);
+        if (!success)
+        {
+            return BadRequest("Failed to mark request as failed. Request may not exist.");
+        }
+
+        return NoContent();
+    }
+
+    // GET: api/MedicineRequest/{requestResultId}/failure-summary
+    [HttpGet("{requestResultId}/failure-summary")]
+    public async Task<ActionResult<object>> GetFailureSummary(int requestResultId)
+    {
+        var requestResult = await _medicineRequestService.GetRequestResultByIdAsync(requestResultId);
+        if (requestResult == null)
+            return NotFound();
+
+        var canReRequest = await _medicineRequestService.CanReRequestAsync(requestResultId);
+
+        return Ok(new
+        {
+            requestResultId = requestResultId,
+            status = requestResult.Status,
+            failedAttempts = requestResult.FailedAttempts,
+            lastAttemptTime = requestResult.LastAttemptTime,
+            isEligibleForReRequest = canReRequest,
+            failureReasons = requestResult.FailureReasons,
+            failedFrequencies = requestResult.FailedFrequencies
+        });
     }
 
     // Helper to extract periods from frequency (same logic as in mapping profile)
@@ -662,15 +1159,6 @@ public class MedicineRequestController : ControllerBase
         return NoContent();
     }
 
-    public class ReportFailureDto
-    {
-        public int MedicineRequestItemId { get; set; }
-        public string Period { get; set; }
-        public int StaffId { get; set; }
-        public string FailureReason { get; set; }
-        public string? Notes { get; set; }
-    }
-
     // POST: api/MedicineRequest/item/{medicineRequestItemId}/rerequest
     [HttpPost("item/{medicineRequestItemId}/rerequest")]
     public async Task<IActionResult> ReRequestPeriod(int medicineRequestItemId, [FromQuery] string period, [FromQuery] int staffId)
@@ -930,6 +1418,37 @@ public class MedicineRequestController : ControllerBase
             RequestStatus = requestResult.Request?.Status,
             MedicineRequestId = requestResult.RequestId
         });
+    }
+
+    // DEBUG: GET: api/MedicineRequest/debug/student/{studentCode}
+    [HttpGet("debug/student/{studentCode}")]
+    public async Task<IActionResult> DebugStudent(string studentCode)
+    {
+        try
+        {
+            var student = await _medicineRequestService.GetGradeByStudentCodeAsync(studentCode);
+            
+            // Get raw student data for debugging
+            var studentData = new
+            {
+                studentCode = studentCode,
+                found = student.HasValue,
+                grade = student,
+                message = student.HasValue ? $"Student found with grade {student}" : "Student not found or no grade"
+            };
+            
+            return Ok(studentData);
+        }
+        catch (Exception ex)
+        {
+            return Ok(new
+            {
+                studentCode = studentCode,
+                found = false,
+                error = ex.Message,
+                stackTrace = ex.StackTrace
+            });
+        }
     }
 
     // POST: api/MedicineRequest/item/{itemId}/verify

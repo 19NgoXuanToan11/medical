@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { FiSearch, FiRefreshCw } from "react-icons/fi";
+import { FiSearch, FiRefreshCw, FiInfo } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useMedicationRequests } from "../hooks/useMedicationRequests";
+import { useAuth } from "../../../../utils/auth/AuthContext";
 import {
   transformRequestData,
   filterRequests,
@@ -17,6 +18,7 @@ const PendingRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
+  const { user } = useAuth();
   const {
     loading,
     setLoading,
@@ -29,20 +31,22 @@ const PendingRequests = () => {
     loadAllStats,
   } = useMedicationRequests();
 
-  // Load pending requests
+  // Load pending requests on mount
+  useEffect(() => {
+    loadPendingRequests();
+  }, [user]);
+
+  // Load pending requests filtered by nurse's assigned grades
   const loadPendingRequests = async () => {
     setLoading(true);
     try {
-      const response = await medicationService.getPendingMedicationRequests();
+      // Use new API that automatically filters by nurse's assigned grades
+      const response = await medicationService.getMyAssignedMedicationRequests(
+        "pending"
+      );
 
       if (response.success) {
-        const pendingOnly = filterByStatus(response.data, [
-          "pending",
-          "Pending",
-          null,
-          undefined,
-        ]);
-        const transformedRequests = transformRequestData(pendingOnly);
+        const transformedRequests = transformRequestData(response.data);
 
         // Force status to pending
         const pendingRequests = transformedRequests.map((req) => ({
@@ -52,11 +56,17 @@ const PendingRequests = () => {
 
         setRequests(pendingRequests);
       } else {
-        console.error("Error loading pending requests:", response.message);
+        console.error(
+          "Error loading assigned pending requests:",
+          response.message
+        );
         setRequests([]);
       }
     } catch (error) {
-      console.error("Error loading pending medication requests:", error);
+      console.error(
+        "Error loading assigned pending medication requests:",
+        error
+      );
       setRequests([]);
     }
     setLoading(false);
@@ -121,10 +131,12 @@ const PendingRequests = () => {
     setShowDetailModal(true);
   };
 
-  // Load data on mount
+  // Load data when component mounts or nurseGrade changes
   useEffect(() => {
-    loadPendingRequests();
-  }, []);
+    if (nurseGrade) {
+      loadPendingRequests();
+    }
+  }, [nurseGrade]);
 
   // Filter requests
   const filteredRequests = filterRequests(requests, searchTerm, filterDate);
@@ -148,6 +160,15 @@ const PendingRequests = () => {
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Xem xét và phê duyệt các yêu cầu cấp thuốc đang chờ xử lý
           </p>
+          {nurseGrade && (
+            <div className="mt-2 flex items-center">
+              <div className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+                <span className="text-sm text-blue-800 dark:text-blue-200">
+                  🏥 Bạn phụ trách: <strong>Khối {nurseGrade}</strong>
+                </span>
+              </div>
+            </div>
+          )}
         </div>
         <button
           onClick={handleRefresh}
@@ -160,6 +181,38 @@ const PendingRequests = () => {
           Làm mới
         </button>
       </div>
+
+      {/* Nurse Assignment Info */}
+      {nurseGrade && (
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
+          <div className="flex items-start">
+            <FiInfo className="text-green-500 mr-2 mt-0.5" />
+            <div className="text-sm text-green-700 dark:text-green-300">
+              <p className="font-medium mb-1">
+                📋 Nghiệp vụ mới - Phân công theo khối:
+              </p>
+              <ul className="space-y-1 text-xs">
+                <li>
+                  • Bạn chỉ thấy các yêu cầu thuốc của học sinh{" "}
+                  <strong>Khối {nurseGrade}</strong>
+                </li>
+                <li>
+                  • Hệ thống đã tự động lọc và hiển thị{" "}
+                  {filteredRequests.length} yêu cầu thuộc khối của bạn
+                </li>
+                <li>
+                  • Không cần phân công thủ công - hệ thống tự động phân công
+                  theo khối
+                </li>
+                <li>
+                  • Điều này đảm bảo mỗi nurse chỉ quản lý 1 khối để tối ưu chất
+                  lượng chăm sóc
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Search and Filter */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4 transition-colors duration-300">

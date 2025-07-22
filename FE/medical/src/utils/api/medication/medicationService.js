@@ -2,14 +2,15 @@ import api from "../../staff/staffService";
 
 // Medication Request API Service
 export const medicationService = {
-  // Create new medication request
+  // Create new medication request with auto nurse assignment
   createMedicationRequest: async (requestData) => {
     try {
       const response = await api.post("/MedicineRequest", requestData);
       return {
         success: true,
         data: response.data,
-        message: "Yêu cầu thuốc đã được gửi thành công",
+        message:
+          "Yêu cầu thuốc đã được gửi thành công và tự động phân công nurse theo khối",
       };
     } catch (error) {
       console.error("Error creating medication request:", error);
@@ -17,6 +18,125 @@ export const medicationService = {
         success: false,
         data: null,
         message: error.response?.data?.message || "Không thể gửi yêu cầu thuốc",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get auto-assignment information for a request
+  getAutoAssignmentInfo: async (requestId) => {
+    try {
+      const response = await api.get(
+        `/MedicineRequest/${requestId}/auto-assignment-info`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy thông tin phân công tự động thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching auto assignment info:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy thông tin phân công tự động",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get grade by student code
+  getGradeByStudentCode: async (studentCode) => {
+    try {
+      const response = await api.get(
+        `/MedicineRequest/student/${studentCode}/grade`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy thông tin khối học thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching student grade:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message || "Không thể lấy thông tin khối học",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get nurse by grade
+  getNurseByGrade: async (grade) => {
+    try {
+      const response = await api.get(`/MedicineRequest/grade/${grade}/nurse`);
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy thông tin nurse phụ trách khối thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching nurse by grade:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy thông tin nurse phụ trách khối",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Check if manual assignment is allowed
+  checkManualAssignmentAllowed: async (requestId) => {
+    try {
+      const response = await api.get(
+        `/MedicineRequest/${requestId}/manual-assignment-allowed`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Kiểm tra phân công thủ công thành công",
+      };
+    } catch (error) {
+      console.error("Error checking manual assignment:", error);
+      return {
+        success: false,
+        data: false,
+        message:
+          error.response?.data?.message ||
+          "Không thể kiểm tra phân công thủ công",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Assign nurse to request item with period (with manual assignment check)
+  assignNurseToRequestItem: async (medicineRequestItemId, staffId, period) => {
+    try {
+      const response = await api.post(
+        `/MedicineRequest/item/${medicineRequestItemId}/assign-nurse/${staffId}?period=${encodeURIComponent(
+          period
+        )}`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Phân công nurse thành công",
+      };
+    } catch (error) {
+      console.error("Error assigning nurse to request item:", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          error.response?.data?.message ||
+          "Không thể phân công nurse. Có thể đã có nurse phụ trách khối này.",
         error: error.response?.data || error.message,
       };
     }
@@ -208,6 +328,31 @@ export const medicationService = {
         message:
           error.response?.data?.message ||
           "Không thể lấy danh sách yêu cầu thuốc chờ xử lý",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get medication requests assigned to current nurse's grade
+  getMyAssignedMedicationRequests: async (status = null) => {
+    try {
+      const params = status ? { status } : {};
+      const response = await api.get("/MedicineRequest/my-assigned-requests", {
+        params,
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu thuốc được phân công thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching assigned medication requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc được phân công",
         error: error.response?.data || error.message,
       };
     }
@@ -563,28 +708,6 @@ export const medicationService = {
         message:
           error.response?.data?.message ||
           "Không thể lấy thống kê yêu cầu thuốc",
-        error: error.response?.data || error.message,
-      };
-    }
-  },
-
-  // Get available nurses
-  getAvailableNurses: async () => {
-    try {
-      const response = await api.get("/MedicineRequest/available-nurses");
-      return {
-        success: true,
-        data: response.data,
-        message: "Lấy danh sách y tá có sẵn thành công",
-      };
-    } catch (error) {
-      console.error("Error fetching available nurses:", error);
-      return {
-        success: false,
-        data: [],
-        message:
-          error.response?.data?.message ||
-          "Không thể lấy danh sách y tá có sẵn",
         error: error.response?.data || error.message,
       };
     }

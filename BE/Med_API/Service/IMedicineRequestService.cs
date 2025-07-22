@@ -33,19 +33,21 @@ public interface IMedicineRequestService
     // New failure handling methods
     Task<bool> ReportMedicineFailureAsync(int requestResultId, int medicineRequestItemId, string frequency, string failureReason, int staffId, string? notes = null);
     Task<RequestResult?> CreateReRequestAsync(int originalRequestResultId, string reRequestReason, int staffId);
-    Task<bool> UpdateTimeBasedStatusAsync();
     Task<IEnumerable<RequestResult>> GetFailedRequestsAsync();
     Task<IEnumerable<RequestResult>> GetReRequestsAsync(int originalRequestResultId);
-    Task<bool> IsRequestEligibleForReRequestAsync(int requestResultId);
-    Task<string> GetReRequestReasonAsync(int requestResultId);
-    Task<bool> MarkRequestAsFailedAsync(int requestResultId, string reason);
-    Task<RequestResult?> GetRequestResultByIdAsync(int requestResultId);
+    Task<bool> CanReRequestAsync(int requestResultId);
+    Task<bool> UpdateTimeBasedStatusAsync();
+    Task<bool> MarkAsFailedAsync(int requestResultId, string reason);
     Task<(bool isCompleted, IEnumerable<string> pendingFrequencies)> GetProgressInfoAsync(int requestResultId, int medicineRequestItemId);
-    Task<(bool eligible, string reason)> GetReRequestInfoAsync(int requestResultId);
-    Task<IEnumerable<MedicineRequest>> GetRequestsWithFrequencyMoreThanOneAsync();
-    Task<IEnumerable<MedicineRequest>> GetRequestsNeedingTimeOfDayAsync(string timeOfDay);
-    Task<bool> VerifyMedicineRequestItemAsync(int itemId);
-    Task<bool> RefuseMedicineRequestItemAsync(int itemId);
+
+    // Additional methods
     Task<MedicineRequestItem?> GetMedicineRequestItemByIdAsync(int itemId);
     Task<bool> UpdateMedicineRequestItemAsync(MedicineRequestItem item);
+    Task<RequestResult?> GetRequestResultByIdAsync(int resultId);
+
+    // New methods for auto nurse assignment by grade
+    Task<int?> GetGradeByStudentCodeAsync(string studentCode);
+    Task<Staff?> GetNurseByGradeAsync(int grade);
+    Task<bool> IsManualAssignmentAllowedAsync(int requestId);
+    Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByAssignedGradeAsync(int staffId, string? status = null);
 } 

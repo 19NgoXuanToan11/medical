@@ -62,6 +62,7 @@ import StudentHealthRecordDetail from "../../pages/nurse/health-records/StudentH
 import HealthServicesManagement from "../../pages/nurse/health-services/HealthServicesManagement";
 import HealthServiceCreate from "../../pages/nurse/health-services/HealthServiceCreate";
 import HealthServicesDetail from "../../pages/nurse/health-services/HealthServicesDetail";
+import HealthCheckCreate from "../../pages/nurse/health-services/HealthCheckCreate";
 
 // parent
 import ParentDashboard from "../../pages/parent/dashboard/ParentDashboard";

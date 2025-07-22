@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FiX,
   FiCheckCircle,
@@ -8,10 +8,12 @@ import {
   FiUser,
   FiCalendar,
   FiTablet,
+  FiUsers,
 } from "react-icons/fi";
 import { getVietnameseStatusText } from "../utils/medicationUtils";
 import { calculateDosagePerAdministration } from "../../../../utils/api/medication/medicationUtils";
 import { getMedicineUnit } from "../../../../utils/medicine/medicineUnits";
+import NurseAssignmentModal from "../../../../components/common/NurseAssignmentModal";
 
 // Helper function to format dosage with units
 const formatDosageWithUnit = (dosage, dosageUnit, medicineName) => {
@@ -43,7 +45,9 @@ const formatFrequency = (frequency) => {
   return frequency;
 };
 
-const MedicationDetailModal = ({ show, request, onClose }) => {
+const MedicationDetailModal = ({ show, request, onClose, availableNurses = [], onAssignSuccess }) => {
+  const [showNurseAssignmentModal, setShowNurseAssignmentModal] = useState(false);
+  
   if (!show || !request) return null;
 
   return (
@@ -503,7 +507,16 @@ const MedicationDetailModal = ({ show, request, onClose }) => {
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end p-6 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50">
+          <div className="flex justify-between items-center p-6 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50">
+            {/* Nurse Assignment Button */}
+            <button
+              onClick={() => setShowNurseAssignmentModal(true)}
+              className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium"
+            >
+              <FiUsers className="mr-2" />
+              Thông tin phân công Nurse
+            </button>
+            
             <button
               onClick={onClose}
               className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 font-medium"
@@ -513,6 +526,18 @@ const MedicationDetailModal = ({ show, request, onClose }) => {
           </div>
         </div>
       </div>
+
+      {/* Nurse Assignment Modal */}
+      <NurseAssignmentModal
+        show={showNurseAssignmentModal}
+        onClose={() => setShowNurseAssignmentModal(false)}
+        request={request}
+        availableNurses={availableNurses}
+        onAssignSuccess={() => {
+          setShowNurseAssignmentModal(false);
+          onAssignSuccess && onAssignSuccess();
+        }}
+      />
     </div>
   );
 };

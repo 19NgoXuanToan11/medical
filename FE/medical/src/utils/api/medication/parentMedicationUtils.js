@@ -1,7 +1,7 @@
 // Transform parent medication API data to component structure
 export const transformParentMedicationData = (requests) => {
   return requests.map((req) => {
-    const medicineItems = req.medicineRequestItems || [];
+    const medicineItems = req.medicineItems || [];
     const firstMedicine = medicineItems[0] || {};
     const progress = req.progress || [];
 
@@ -80,7 +80,8 @@ export const transformParentMedicationData = (requests) => {
       totalDoses: totalDoses,
       progressPercentage: progressPercentage,
       progress: progress,
-      medicineRequestItems: medicineItems,
+      medicineRequestItems: medicineItems, // Keep for backward compatibility
+      medicineItems: medicineItems, // Use correct field name from API
       parentId: req.parentId,
       staffId: req.staffId,
       staffName:
@@ -174,7 +175,7 @@ export const transformFailedMedicationData = (failedResults) => {
   return failedResults.map((result) => {
     const request = result.request || {};
     const student = request.student || {};
-    const medicineItems = request.medicineRequestItems || [];
+    const medicineItems = request.medicineItems || request.medicineRequestItems || [];
     const firstMedicine = medicineItems[0] || {};
 
     // Get all medication names for display
