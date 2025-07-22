@@ -55,6 +55,7 @@ const HealthEventCreate = () => {
     studentName: "",
     class: "",
     type: "illness",
+    severity: "moderate", // Mức độ nghiêm trọng mặc định
     symptoms: "",
     assessment: "",
     treatment: "",
@@ -615,6 +616,31 @@ const HealthEventCreate = () => {
                 <option value="chronic">Bệnh mãn tính</option>
                 <option value="other">Khác</option>
               </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="severity"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Mức độ nghiêm trọng <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="severity"
+                name="severity"
+                required
+                value={formData.severity}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
+              >
+                <option value="light">Nhẹ - Không cần lưu vào hồ sơ sức khỏe</option>
+                <option value="moderate">Trung bình - Có thể cần theo dõi</option>
+                <option value="severe">Nặng - Bắt buộc lưu vào hồ sơ sức khỏe</option>
+                <option value="emergency">Cấp cứu - Lưu ngay vào hồ sơ sức khỏe</option>
+              </select>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Sự cố mức độ "Nặng" và "Cấp cứu" sẽ tự động được lưu vào hồ sơ sức khỏe của học sinh
+              </p>
             </div>
 
             <div>

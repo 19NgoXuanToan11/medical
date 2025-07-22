@@ -143,7 +143,7 @@ public class HealthEventController : ControllerBase
     {
         try
         {
-            var events = await _healthEventService.GetHealthEventsByNurseGradeAsync(staffId);
+            var events = await _healthEventService.GetHealthEventsForNurseByGradeAsync(staffId);
             return Ok(_mapper.Map<IEnumerable<HealthEventDto.ViewModel>>(events));
         }
         catch (InvalidOperationException ex)

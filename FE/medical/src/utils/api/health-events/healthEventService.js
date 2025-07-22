@@ -375,6 +375,7 @@ export const mapHealthEventToAPI = (frontendData) => {
     studentCode: frontendData.studentCode,
     staffId: frontendData.staffId, // Use staffId from frontendData (passed from AuthContext)
     eventType: frontendData.type || "illness",
+    severity: frontendData.severity || "moderate", // Mức độ nghiêm trọng
     symptoms: frontendData.symptoms,
     assessment: frontendData.assessment,
     treatment: frontendData.treatment,

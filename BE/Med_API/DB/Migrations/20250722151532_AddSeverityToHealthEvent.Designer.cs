@@ -4,6 +4,7 @@ using DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(MedicalContext))]
-    partial class MedicalContextModelSnapshot : ModelSnapshot
+    [Migration("20250722151532_AddSeverityToHealthEvent")]
+    partial class AddSeverityToHealthEvent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -665,11 +668,7 @@ namespace DB.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<string>("Severity")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasDefaultValue("moderate");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("StaffId")
                         .HasColumnType("int")
@@ -891,91 +890,6 @@ namespace DB.Migrations
                     b.HasIndex("StudentCode");
 
                     b.ToTable("Health_Profile", (string)null);
-                });
-
-            modelBuilder.Entity("DB.HealthRecord", b =>
-                {
-                    b.Property<int>("RecordId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RecordId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("(getutcdate())");
-
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTime>("EventDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("EventType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<int?>("HealthEventId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Outcome")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("StudentCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Treatment")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime");
-
-                    b.Property<int?>("UpdatedBy")
-                        .HasColumnType("int");
-
-                    b.HasKey("RecordId");
-
-                    b.HasIndex("CreatedBy");
-
-                    b.HasIndex("HealthEventId");
-
-                    b.HasIndex("StudentCode");
-
-                    b.HasIndex("UpdatedBy");
-
-                    b.ToTable("Health_Record", (string)null);
                 });
 
             modelBuilder.Entity("DB.InjectionForm", b =>
@@ -1977,43 +1891,6 @@ namespace DB.Migrations
                         .HasConstraintName("FK__Health_Profile__StudentCode");
 
                     b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("DB.HealthRecord", b =>
-                {
-                    b.HasOne("DB.Staff", "CreatedByStaff")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .HasConstraintName("FK__HealthRecord__CreatedBy");
-
-                    b.HasOne("DB.HealthEvent", "HealthEvent")
-                        .WithMany()
-                        .HasForeignKey("HealthEventId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .HasConstraintName("FK__HealthRecord__HealthEventID");
-
-                    b.HasOne("DB.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentCode")
-                        .HasPrincipalKey("StudentCode")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired()
-                        .HasConstraintName("FK__HealthRecord__StudentCode");
-
-                    b.HasOne("DB.Staff", "UpdatedByStaff")
-                        .WithMany()
-                        .HasForeignKey("UpdatedBy")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .HasConstraintName("FK__HealthRecord__UpdatedBy");
-
-                    b.Navigation("CreatedByStaff");
-
-                    b.Navigation("HealthEvent");
-
-                    b.Navigation("Student");
-
-                    b.Navigation("UpdatedByStaff");
                 });
 
             modelBuilder.Entity("DB.InjectionForm", b =>

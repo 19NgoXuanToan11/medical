@@ -11,4 +11,5 @@ public interface IMedicineRepository
     Task<bool> DeleteMedicineAsync(int id);
     Task<Medicine?> GetMedicineByNameAsync(string name);
     Task<IEnumerable<Medicine>> GetActiveMedicinesAsync();
+    Task<bool> UpdateStockQuantityAsync(int medicineId, decimal quantityUsed);
 } 

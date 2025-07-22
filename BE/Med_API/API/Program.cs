@@ -128,7 +128,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add AutoMapper
-builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(StaffProfile).Assembly, typeof(ExcelImportProfile).Assembly, typeof(StudentParentProfile).Assembly, typeof(BlogProfile).Assembly, typeof(ClassProfile).Assembly, typeof(HealthCheckItemProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(StaffProfile).Assembly, typeof(ExcelImportProfile).Assembly, typeof(StudentParentProfile).Assembly, typeof(BlogProfile).Assembly, typeof(ClassProfile).Assembly, typeof(HealthCheckItemProfile).Assembly, typeof(NotificationProfile).Assembly);
 
 // Add DbContext with all entities
 builder.Services.AddDbContext<MedicalContext>(options =>
@@ -160,6 +160,7 @@ builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IHealthCheckItemRepository, HealthCheckItemRepository>();
 builder.Services.AddScoped<IVaccineRepository, VaccineRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // Register Services
 builder.Services.AddScoped<IStudentService, StudentService>();
@@ -184,6 +185,7 @@ builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddScoped<IHealthCheckItemService, HealthCheckItemService>();
 builder.Services.AddScoped<IVaccineService, VaccineService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // Register Background Services
 builder.Services.AddHostedService<TimeBasedStatusService>();
