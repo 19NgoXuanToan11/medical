@@ -554,18 +554,21 @@ const MedicationHistory = () => {
                         </th>
                       </>
                     )}
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Trạng thái
-                    </th>
+                    {/* Xóa cột Trạng thái nếu là tab Tất cả */}
+                    {filterStatus !== "all" && (
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Trạng thái
+                      </th>
+                    )}
                     {filterStatus === "rejected" && (
                       <th
                         scope="col"
                         className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
-                        Lý do từ chối
+                        Thông tin từ chối
                       </th>
                     )}
                     {filterStatus === "failed" && (
@@ -585,9 +588,9 @@ const MedicationHistory = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {finalFilteredMedications.map((medication) => (
+                  {finalFilteredMedications.map((medication, idx) => (
                     <tr
-                      key={medication.id}
+                      key={idx}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-blue-600 dark:text-blue-400">
@@ -658,20 +661,75 @@ const MedicationHistory = () => {
                           </td>
                         </>
                       )}
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        {renderStatusBadge(medication.status)}
-                      </td>
+                      {/* Cột Trạng thái chỉ hiển thị nếu không phải tab Tất cả */}
+                      {filterStatus !== "all" && (
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          {renderStatusBadge(medication.status)}
+                        </td>
+                      )}
+                      {/* Tab Từ chối: Hiển thị chi tiết các loại thuốc bị từ chối, buổi, lý do, thời gian */}
                       {filterStatus === "rejected" && (
-                        <td className="px-6 py-4 text-center">
-                          <div className="text-sm text-gray-900 dark:text-gray-100 max-w-xs">
-                            {medication.refusalReason || "Không có lý do"}
-                          </div>
-                          {medication.staffName &&
-                            medication.staffName !== "N/A" && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Từ chối bởi: {medication.staffName}
-                              </div>
-                            )}
+                        <td className="px-6 py-4 text-left">
+                          {Array.isArray(medication.medicineRequestItems) &&
+                          medication.medicineRequestItems.length > 0 ? (
+                            <div className="space-y-2">
+                              {medication.medicineRequestItems.map(
+                                (item, i) => (
+                                  <div
+                                    key={i}
+                                    className="border-b border-gray-200 dark:border-gray-700 pb-2 mb-2 last:mb-0 last:pb-0 last:border-b-0"
+                                  >
+                                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                                      {item.medicineName}
+                                    </div>
+                                    {item.periodVerificationStatus &&
+                                      Object.entries(
+                                        item.periodVerificationStatus
+                                      ).map(([period, statusObj], j) => {
+                                        if (
+                                          typeof statusObj === "object" &&
+                                          statusObj.Status === "Refused"
+                                        ) {
+                                          return (
+                                            <div
+                                              key={j}
+                                              className="ml-2 text-sm text-red-700 dark:text-red-300"
+                                            >
+                                              <span className="font-semibold">
+                                                Buổi:
+                                              </span>{" "}
+                                              {period} <br />
+                                              <span className="font-semibold">
+                                                Lý do:
+                                              </span>{" "}
+                                              {statusObj.RefusalReason ||
+                                                "Không có lý do"}{" "}
+                                              <br />
+                                              {statusObj.Timestamp ? (
+                                                <>
+                                                  <span className="font-semibold">
+                                                    Thời gian:
+                                                  </span>{" "}
+                                                  {new Date(
+                                                    statusObj.Timestamp
+                                                  ).toLocaleString("vi-VN")}
+                                                  <br />
+                                                </>
+                                              ) : null}
+                                            </div>
+                                          );
+                                        }
+                                        return null;
+                                      })}
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-gray-500 dark:text-gray-400">
+                              Không có thông tin thuốc bị từ chối
+                            </div>
+                          )}
                         </td>
                       )}
                       {filterStatus === "failed" && (

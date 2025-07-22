@@ -7,27 +7,25 @@ export const useMedicationRequests = () => {
   const [showActionDropdown, setShowActionDropdown] = useState({});
   const [stats, setStats] = useState({
     pending: 0,
-    assigned: 0,
     completed: 0,
     rejected: 0,
     today: 0,
     total: 0,
+    inProgress: 0,
   });
 
   // Load stats for all tabs (filtered by nurse's assigned grades)
   const loadAllStats = async () => {
     try {
-      const [pendingResponse, assignedResponse, completedResponse] =
-        await Promise.all([
-          medicationService.getMyAssignedMedicationRequests("pending"),
-          medicationService.getMyAssignedMedicationRequests("assigned"),
-          medicationService.getMyAssignedMedicationRequests("completed"),
-        ]);
+      const [pendingResponse, completedResponse] = await Promise.all([
+        medicationService.getMyAssignedMedicationRequests("pending"),
+        medicationService.getMyAssignedMedicationRequests("completed"),
+      ]);
 
       let pendingCount = 0;
-      let assignedCount = 0;
       let completedCount = 0;
       let todayCount = 0;
+      let inProgressCount = 0;
 
       // Calculate pending count
       if (pendingResponse.success && pendingResponse.data) {
@@ -47,14 +45,6 @@ export const useMedicationRequests = () => {
         }).length;
       }
 
-      // Calculate assigned count
-      if (assignedResponse.success && assignedResponse.data) {
-        const assignedData = assignedResponse.data.filter(
-          (req) => req.status === "Assigned" || req.status === "assigned"
-        );
-        assignedCount = assignedData.length;
-      }
-
       // Calculate completed count
       if (completedResponse.success && completedResponse.data) {
         const completedData = completedResponse.data.filter(
@@ -63,13 +53,27 @@ export const useMedicationRequests = () => {
         completedCount = completedData.length;
       }
 
+      // Get in-progress count from a separate API if needed
+      try {
+        const inProgressResponse =
+          await medicationService.getMyAssignedMedicationRequests(
+            "in-progress"
+          );
+        if (inProgressResponse.success && inProgressResponse.data) {
+          inProgressCount = inProgressResponse.data.length;
+        }
+      } catch (error) {
+        console.log("In-progress data not available");
+        inProgressCount = 0;
+      }
+
       setStats({
         pending: pendingCount,
-        assigned: assignedCount,
         completed: completedCount,
         rejected: 0,
         today: todayCount,
-        total: pendingCount + assignedCount + completedCount,
+        total: pendingCount + completedCount + inProgressCount,
+        inProgress: inProgressCount,
       });
     } catch (error) {
       console.error("Error loading stats:", error);

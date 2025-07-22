@@ -46,7 +46,6 @@ const MedicineVerification = () => {
     { value: "Sáng", label: "Sáng" },
     { value: "Trưa", label: "Trưa" },
     { value: "Chiều", label: "Chiều" },
-    { value: "Tối", label: "Tối" },
   ];
 
   // Handle period selection (checkbox toggle)
