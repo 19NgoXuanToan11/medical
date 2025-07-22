@@ -80,8 +80,17 @@ public class MedicineRequestController : ControllerBase
     [HttpGet("pending")]
     public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetPendingRequests()
     {
-        var requests = await _medicineRequestService.GetPendingRequestsAsync();
+        var requests = await _medicineRequestService.GetAllMedicineRequestsAsync();
         var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
+        // Only keep items with at least one period whose latest status is 'Pending'
+        foreach (var req in viewModels)
+        {
+            req.MedicineRequestItems = req.MedicineRequestItems
+                .Where(item => item.PeriodVerificationStatus != null &&
+                    item.PeriodVerificationStatus.Values.Any(val => val != null && val.ToString() == "Pending")
+                ).ToList();
+        }
+        viewModels = viewModels.Where(r => r.MedicineRequestItems.Any()).ToList();
         return Ok(viewModels);
     }
 
