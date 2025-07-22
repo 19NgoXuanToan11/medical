@@ -88,11 +88,11 @@ const TargetLogisticsStep = ({
           )}
 
           {!loadingGrades && !gradesError && availableGrades.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {availableGrades.map((grade) => (
                 <label
                   key={grade.id}
-                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md ${
+                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md w-full ${
                     formData.targetGrades.includes(grade.id)
                       ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20 ring-2 ring-primary-200 dark:ring-primary-800"
                       : "border-neutral-300 dark:border-neutral-600 hover:border-neutral-400 dark:hover:border-neutral-500 bg-white dark:bg-neutral-900"
@@ -117,11 +117,14 @@ const TargetLogisticsStep = ({
                       {grade.studentCount} học sinh
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                      Khối:{" "}
+                      Lớp:{" "}
                       {grade.classes ? grade.classes.join(", ") : "Không có"}
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       {grade.ageRange}
+                    </p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                      GVCN: {grade.classTeacher || "Chưa có thông tin"}
                     </p>
                   </div>
                 </label>

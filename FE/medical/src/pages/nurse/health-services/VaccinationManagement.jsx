@@ -49,13 +49,28 @@ const VaccinationManagement = ({ searchTerm: parentSearchTerm = "" }) => {
                 ? "completed"
                 : "scheduled",
             totalStudents: schedule.totalStudents || 0,
-            grades:
-              schedule.grades ||
-              (schedule.gradeIds
-                ? JSON.parse(schedule.gradeIds).map(
-                    (gradeId) => `Khối ${gradeId.replace("grade-", "")}`
-                  )
-                : []),
+            grades: (() => {
+              // Handle schedule.grades first (if it exists and is not empty)
+              if (schedule.grades && schedule.grades.length > 0) {
+                const processedGrades = schedule.grades.map((grade) =>
+                  grade.replace("grade-", "")
+                );
+                return processedGrades;
+              }
+              // Handle schedule.gradeIds if grades is empty or doesn't exist
+              if (schedule.gradeIds) {
+                try {
+                  const parsedGrades = JSON.parse(schedule.gradeIds).map(
+                    (gradeId) => gradeId.replace("grade-", "")
+                  );
+                  return parsedGrades;
+                } catch (error) {
+                  console.error("Error parsing gradeIds:", error);
+                  return [];
+                }
+              }
+              return [];
+            })(),
           }));
 
           setVaccinations(transformedVaccinations);

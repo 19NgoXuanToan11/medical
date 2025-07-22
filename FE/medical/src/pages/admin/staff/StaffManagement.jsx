@@ -98,10 +98,8 @@ const StaffManagement = () => {
       // Fetch grade-nurse assignments
       try {
         const gradeNurseResult = await staffService.getAllGradeNurses();
-        console.log("Grade nurse result:", gradeNurseResult);
         if (gradeNurseResult.success) {
           setGradeNurses(gradeNurseResult.data);
-          console.log("Grade nurses set:", gradeNurseResult.data);
         }
       } catch (gradeError) {
         console.error("Error fetching grade assignments:", gradeError);
@@ -716,12 +714,6 @@ const StaffManagement = () => {
                         {staff.roleId === 3 ? (
                           (() => {
                             const grades = getAssignedGrades(staff.staffId);
-                            console.log(
-                              `Staff ${staff.staffId} (${staff.firstName} ${staff.lastName}) grades:`,
-                              grades,
-                              "from gradeNurses:",
-                              gradeNurses
-                            );
                             return formatAssignedGrades(grades);
                           })()
                         ) : (

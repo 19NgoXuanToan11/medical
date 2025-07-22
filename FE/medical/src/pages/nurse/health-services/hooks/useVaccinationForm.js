@@ -7,7 +7,7 @@ import {
 } from "../utils/vaccinationHelpers";
 import { initialFormData } from "../data/vaccinationData";
 import { injectionFormService } from "../../../../utils/api/injection/injectionService";
-import { getActiveClasses } from "../../../../utils/api/class/classService";
+import { staffService } from "../../../../utils/staff/staffService";
 
 // Helper function to get age range by grade level
 const getAgeRangeByGrade = (gradeLevel) => {
@@ -39,51 +39,66 @@ export const useVaccinationForm = () => {
   const [loadingGrades, setLoadingGrades] = useState(true);
   const [gradesError, setGradesError] = useState(null);
 
-  // Load active classes on component mount
+  // Load assigned classes on component mount
   useEffect(() => {
-    const loadActiveClasses = async () => {
+    const loadAssignedClasses = async () => {
       setLoadingGrades(true);
       setGradesError(null);
       try {
-        const classesData = await getActiveClasses();
+        // Use staffService.getMyAssignedClasses() to get classes with teacher info
+        const result = await staffService.getMyAssignedClasses();
 
-        // Group classes by grade level to match HealthCheck pattern
-        const gradeGroups = {};
+        if (result?.success && result?.data && Array.isArray(result.data)) {
+          // Group classes by grade level similar to health check pattern
+          const gradeGroups = {};
 
-        classesData.forEach((classItem) => {
-          const gradeLevel = classItem.gradeLevel;
-          const studentCount =
-            classItem.currentStudentCount ||
-            classItem.studentCount ||
-            (classItem.students ? classItem.students.length : 0) ||
-            0;
+          result.data.forEach((classItem) => {
+            const gradeLevel = classItem.gradeLevel;
+            const studentCount =
+              classItem.currentStudentCount ||
+              classItem.totalStudents ||
+              classItem.studentCount ||
+              0;
 
-          if (!gradeGroups[gradeLevel]) {
-            gradeGroups[gradeLevel] = {
-              id: `grade-${gradeLevel}`,
-              name: `Khối ${gradeLevel}`,
-              gradeLevel: gradeLevel,
-              studentCount: 0,
-              ageRange: getAgeRangeByGrade(gradeLevel),
-              classes: [],
-              classCount: 0,
-            };
-          }
+            if (!gradeGroups[gradeLevel]) {
+              gradeGroups[gradeLevel] = {
+                id: `grade-${gradeLevel}`,
+                name: `Khối ${gradeLevel}`,
+                gradeLevel: gradeLevel,
+                studentCount: 0,
+                ageRange: getAgeRangeByGrade(gradeLevel),
+                classes: [],
+                classCount: 0,
+                classTeacher: null, // Will be updated with the first class teacher found
+              };
+            }
 
-          gradeGroups[gradeLevel].studentCount += studentCount;
-          gradeGroups[gradeLevel].classes.push(
-            classItem.className || classItem.name
+            gradeGroups[gradeLevel].studentCount += studentCount;
+            gradeGroups[gradeLevel].classes.push(
+              classItem.className || classItem.name
+            );
+            gradeGroups[gradeLevel].classCount += 1;
+
+            // Add class teacher info - use the first teacher found for the grade
+            if (
+              classItem.classTeacher &&
+              !gradeGroups[gradeLevel].classTeacher
+            ) {
+              gradeGroups[gradeLevel].classTeacher = classItem.classTeacher;
+            }
+          });
+
+          // Convert to array and sort by grade level
+          const transformedData = Object.values(gradeGroups).sort(
+            (a, b) => a.gradeLevel - b.gradeLevel
           );
-          gradeGroups[gradeLevel].classCount += 1;
-        });
-
-        // Convert to array and sort by grade level
-        const transformedData = Object.values(gradeGroups).sort(
-          (a, b) => a.gradeLevel - b.gradeLevel
-        );
-        setAvailableGrades(transformedData);
+          setAvailableGrades(transformedData);
+        } else {
+          console.warn("No assigned classes found for this nurse");
+          setAvailableGrades([]);
+        }
       } catch (error) {
-        console.error("Error loading active classes:", error);
+        console.error("Error loading assigned classes:", error);
         setGradesError("Không thể tải danh sách lớp học. Vui lòng thử lại.");
         // Fallback to empty array on error
         setAvailableGrades([]);
@@ -92,7 +107,7 @@ export const useVaccinationForm = () => {
       }
     };
 
-    loadActiveClasses();
+    loadAssignedClasses();
   }, []);
 
   // Calculated values
@@ -463,45 +478,57 @@ export const useVaccinationForm = () => {
     setLoadingGrades(true);
     setGradesError(null);
     try {
-      const classesData = await getActiveClasses();
+      // Use staffService.getMyAssignedClasses() to get classes with teacher info
+      const result = await staffService.getMyAssignedClasses();
 
-      // Group classes by grade level to match HealthCheck pattern
-      const gradeGroups = {};
+      if (result?.success && result?.data && Array.isArray(result.data)) {
+        // Group classes by grade level similar to health check pattern
+        const gradeGroups = {};
 
-      classesData.forEach((classItem) => {
-        const gradeLevel = classItem.gradeLevel;
-        const studentCount =
-          classItem.currentStudentCount ||
-          classItem.studentCount ||
-          (classItem.students ? classItem.students.length : 0) ||
-          0;
+        result.data.forEach((classItem) => {
+          const gradeLevel = classItem.gradeLevel;
+          const studentCount =
+            classItem.currentStudentCount ||
+            classItem.totalStudents ||
+            classItem.studentCount ||
+            0;
 
-        if (!gradeGroups[gradeLevel]) {
-          gradeGroups[gradeLevel] = {
-            id: `grade-${gradeLevel}`,
-            name: `Khối ${gradeLevel}`,
-            gradeLevel: gradeLevel,
-            studentCount: 0,
-            ageRange: getAgeRangeByGrade(gradeLevel),
-            classes: [],
-            classCount: 0,
-          };
-        }
+          if (!gradeGroups[gradeLevel]) {
+            gradeGroups[gradeLevel] = {
+              id: `grade-${gradeLevel}`,
+              name: `Khối ${gradeLevel}`,
+              gradeLevel: gradeLevel,
+              studentCount: 0,
+              ageRange: getAgeRangeByGrade(gradeLevel),
+              classes: [],
+              classCount: 0,
+              classTeacher: null, // Will be updated with the first class teacher found
+            };
+          }
 
-        gradeGroups[gradeLevel].studentCount += studentCount;
-        gradeGroups[gradeLevel].classes.push(
-          classItem.className || classItem.name
+          gradeGroups[gradeLevel].studentCount += studentCount;
+          gradeGroups[gradeLevel].classes.push(
+            classItem.className || classItem.name
+          );
+          gradeGroups[gradeLevel].classCount += 1;
+
+          // Add class teacher info - use the first teacher found for the grade
+          if (classItem.classTeacher && !gradeGroups[gradeLevel].classTeacher) {
+            gradeGroups[gradeLevel].classTeacher = classItem.classTeacher;
+          }
+        });
+
+        // Convert to array and sort by grade level
+        const transformedData = Object.values(gradeGroups).sort(
+          (a, b) => a.gradeLevel - b.gradeLevel
         );
-        gradeGroups[gradeLevel].classCount += 1;
-      });
-
-      // Convert to array and sort by grade level
-      const transformedData = Object.values(gradeGroups).sort(
-        (a, b) => a.gradeLevel - b.gradeLevel
-      );
-      setAvailableGrades(transformedData);
+        setAvailableGrades(transformedData);
+      } else {
+        console.warn("No assigned classes found for this nurse");
+        setAvailableGrades([]);
+      }
     } catch (error) {
-      console.error("Error retrying to load active classes:", error);
+      console.error("Error retrying to load assigned classes:", error);
       setGradesError("Không thể tải danh sách lớp học. Vui lòng thử lại.");
       setAvailableGrades([]);
     } finally {

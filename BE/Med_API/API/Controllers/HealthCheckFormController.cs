@@ -57,7 +57,7 @@ public class HealthCheckFormController : ControllerBase
 
         try
         {
-            _logger.LogInformation("Creating HealthCheckForm with Title: {Title}", formDto.Title);
+            _logger.LogInformation("Creating HealthCheckForm with Title: {Title}", formDto.Title ?? "Unknown");
             
             // Set default values for new fields
             if (formDto.CreatedDate == null)
@@ -69,6 +69,11 @@ public class HealthCheckFormController : ControllerBase
             var form = _mapper.Map<HealthCheckForm>(formDto);
             var createdForm = await _healthCheckFormService.CreateHealthCheckFormAsync(form);
             
+            if (createdForm == null)
+            {
+                return StatusCode(500, new { error = "Failed to create health check form." });
+            }
+            
             _logger.LogInformation("HealthCheckForm created successfully with ID: {FormId}", createdForm.FormId);
             
             return CreatedAtAction(
@@ -78,12 +83,12 @@ public class HealthCheckFormController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogError(ex, "Error creating HealthCheckForm with Title: {Title}", formDto.Title);
+            _logger.LogError(ex, "Error creating HealthCheckForm with Title: {Title}", formDto.Title ?? "Unknown");
             return BadRequest(new { error = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error creating HealthCheckForm with Title: {Title}", formDto.Title);
+            _logger.LogError(ex, "Unexpected error creating HealthCheckForm with Title: {Title}", formDto.Title ?? "Unknown");
             return StatusCode(500, new { error = "An unexpected error occurred while creating the health check form." });
         }
     }
@@ -253,18 +258,18 @@ public class HealthCheckFormController : ControllerBase
             foreach (var error in ModelState)
             {
                 _logger.LogWarning("Field {Field}: {Errors}", error.Key, 
-                    string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage)));
+                    string.Join(", ", error.Value?.Errors?.Select(e => e.ErrorMessage) ?? new List<string>()));
             }
             return BadRequest(new { 
                 error = "Validation failed", 
-                details = ModelState.Where(x => x.Value.Errors.Count > 0)
-                    .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage))
+                details = ModelState.Where(x => x.Value?.Errors?.Count > 0)
+                    .ToDictionary(k => k.Key, v => v.Value?.Errors?.Select(e => e.ErrorMessage) ?? new List<string>())
             });
         }
 
         try
         {
-            _logger.LogInformation("Creating HealthCheckSchedule with Title: {Title}", scheduleDto.Title);
+            _logger.LogInformation("Creating HealthCheckSchedule with Title: {Title}", scheduleDto.Title ?? "Unknown");
             _logger.LogInformation("Received data - Title: {Title}, ScheduledDate: {Date}, StartTime: {StartTime}, GradeIds: {GradeIds}", 
                 scheduleDto.Title, scheduleDto.ScheduledDate, scheduleDto.StartTime, scheduleDto.GradeIds);
             
@@ -303,6 +308,11 @@ public class HealthCheckFormController : ControllerBase
             }
             var createdSchedule = await _healthCheckFormService.CreateHealthCheckScheduleAsync(schedule);
             
+            if (createdSchedule == null)
+            {
+                return StatusCode(500, new { error = "Failed to create health check schedule." });
+            }
+            
             _logger.LogInformation("HealthCheckSchedule created successfully with ID: {FormId}", createdSchedule.FormId);
             
             // FINAL DEBUG - CHECK WHAT WE'RE RETURNING
@@ -317,12 +327,12 @@ public class HealthCheckFormController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogError(ex, "Error creating HealthCheckSchedule with Title: {Title}", scheduleDto.Title);
+            _logger.LogError(ex, "Error creating HealthCheckSchedule with Title: {Title}", scheduleDto.Title ?? "Unknown");
             return BadRequest(new { error = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error creating HealthCheckSchedule with Title: {Title}", scheduleDto.Title);
+            _logger.LogError(ex, "Unexpected error creating HealthCheckSchedule with Title: {Title}", scheduleDto.Title ?? "Unknown");
             return StatusCode(500, new { error = "An unexpected error occurred while creating the health check schedule." });
         }
     }
@@ -412,8 +422,8 @@ public class HealthCheckFormController : ControllerBase
             message = "DTO binding successful",
             receivedData = scheduleDto,
             modelStateValid = ModelState.IsValid,
-            modelStateErrors = ModelState.Where(x => x.Value.Errors.Count > 0)
-                .ToDictionary(k => k.Key, v => v.Value.Errors.Select(e => e.ErrorMessage))
+            modelStateErrors = ModelState.Where(x => x.Value?.Errors?.Count > 0)
+                .ToDictionary(k => k.Key, v => v.Value?.Errors?.Select(e => e.ErrorMessage) ?? new List<string>())
         });
     }
 
@@ -434,6 +444,7 @@ public class HealthCheckFormController : ControllerBase
                 new { id = "3B", name = "Lớp 3B", totalStudents = 29 },
                 new { id = "3C", name = "Lớp 3C", totalStudents = 27 },
             };
+            await Task.CompletedTask; // Add await to fix async warning
             return Ok(grades);
         }
         catch (Exception ex)
@@ -494,6 +505,7 @@ public class HealthCheckFormController : ControllerBase
                     required = false 
                 },
             };
+            await Task.CompletedTask; // Add await to fix async warning
             return Ok(stations);
         }
         catch (Exception ex)
@@ -517,6 +529,7 @@ public class HealthCheckFormController : ControllerBase
                 new { id = 4, name = "Bác sĩ Tuấn", specialization = "Tổng quát", available = true },
                 new { id = 5, name = "Y tá Hoa", specialization = "Răng hàm mặt", available = false },
             };
+            await Task.CompletedTask; // Add await to fix async warning
             return Ok(staff);
         }
         catch (Exception ex)
