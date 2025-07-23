@@ -13,6 +13,7 @@ const PreviewStep = ({
   totalStudents,
   scheduleConflicts,
   availableGrades,
+  studentCountsByGrade,
 }) => {
   const hasHighSeverityConflicts = scheduleConflicts.some(
     (c) => c.severity === "error"
@@ -34,41 +35,6 @@ const PreviewStep = ({
 
   return (
     <div className="space-y-6">
-      {/* Header Summary */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Xác nhận kế hoạch tiêm chủng
-          </h2>
-          <div className="px-4 py-2 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200">
-            <FiCalendar className="w-4 h-4 inline mr-1" />
-            Tiêm chủng
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-              {totalStudents}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Tổng học sinh
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-              {formData.targetGrades.reduce((total, gradeId) => {
-                const grade = availableGrades.find((g) => g.id === gradeId);
-                return total + (grade?.classCount || 0);
-              }, 0)}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Lớp học
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Information Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Vaccine Information */}
@@ -202,7 +168,7 @@ const PreviewStep = ({
                   </span>
                   <div className="text-right">
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {grade.studentCount} học sinh
+                      {studentCountsByGrade[gradeId] ?? 0} học sinh
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-500 block">
                       {grade.classes ? grade.classes.join(", ") : "Không có"}
@@ -221,7 +187,11 @@ const PreviewStep = ({
                 Tổng cộng:
               </span>
               <span className="font-bold text-blue-600 dark:text-blue-400">
-                {totalStudents} học sinh
+                {formData.targetGrades.reduce(
+                  (sum, gradeId) => sum + (studentCountsByGrade[gradeId] ?? 0),
+                  0
+                )}{" "}
+                học sinh
               </span>
             </div>
           </div>

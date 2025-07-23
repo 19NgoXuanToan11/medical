@@ -8,6 +8,7 @@ import {
 import { initialFormData } from "../data/vaccinationData";
 import { injectionFormService } from "../../../../utils/api/injection/injectionService";
 import { staffService } from "../../../../utils/staff/staffService";
+import { getStudentCountByGrade } from "../../../../utils/api/class/classService";
 
 // Helper function to get age range by grade level
 const getAgeRangeByGrade = (gradeLevel) => {
@@ -38,6 +39,7 @@ export const useVaccinationForm = () => {
   const [availableGrades, setAvailableGrades] = useState([]);
   const [loadingGrades, setLoadingGrades] = useState(true);
   const [gradesError, setGradesError] = useState(null);
+  const [studentCountsByGrade, setStudentCountsByGrade] = useState({});
 
   // Load assigned classes on component mount
   useEffect(() => {
@@ -109,6 +111,32 @@ export const useVaccinationForm = () => {
 
     loadAssignedClasses();
   }, []);
+
+  // Fetch student counts for selected grades
+  useEffect(() => {
+    async function fetchCounts() {
+      const counts = {};
+      // Fetch counts for ALL available grades, not just selected ones
+      for (const grade of availableGrades) {
+        try {
+          const res = await getStudentCountByGrade(grade.gradeLevel);
+          counts[grade.id] = res.studentCount;
+        } catch (error) {
+          console.error(
+            `Error fetching count for grade ${grade.gradeLevel}:`,
+            error
+          );
+          counts[grade.id] = 0;
+        }
+      }
+      setStudentCountsByGrade(counts);
+    }
+
+    // Only fetch when availableGrades is loaded and not empty
+    if (availableGrades.length > 0) {
+      fetchCounts();
+    }
+  }, [availableGrades]); // Remove formData.targetGrades dependency
 
   // Calculated values
   const totalStudents = calculateTotalStudents(
@@ -546,6 +574,7 @@ export const useVaccinationForm = () => {
     availableGrades,
     loadingGrades,
     gradesError,
+    studentCountsByGrade,
 
     // Calculated values
     totalStudents,

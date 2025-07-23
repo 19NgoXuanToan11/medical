@@ -7,8 +7,8 @@ public class InjectionFormDTO
 {
     public int FormId { get; set; }
 
-    [Required]
-    public int StudentId { get; set; }
+    // Made optional to support vaccination schedules (where StudentId can be null)
+    public int? StudentId { get; set; }
 
     public int? ParentId { get; set; }
 
@@ -33,6 +33,17 @@ public class InjectionFormDTO
     public string? ConfirmStatus { get; set; }
 
     public DateTime? ConfirmedDate { get; set; }
+
+    // Vaccination schedule fields (similar to HealthCheckForm)
+    public DateTime? ScheduledDate { get; set; }
+    public string? StartTime { get; set; }
+    public int? EstimatedDuration { get; set; }
+    public string? Location { get; set; }
+    public string? GradeIds { get; set; } // JSON array of grade IDs
+    public int? TotalStudents { get; set; }
+    public bool? NotifyParents { get; set; } = true;
+    public bool? RequireParentConfirmation { get; set; } = true;
+    public string? Status { get; set; }
 
     // Thêm trường vaccine
     public int? VaccineId { get; set; }
