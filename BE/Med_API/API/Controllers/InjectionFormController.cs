@@ -154,27 +154,39 @@ public class InjectionFormController : ControllerBase
         return Ok("Phụ huynh đã xác nhận đồng ý tiêm chủng thành công");
     }
 
-    // API cho manager duyệt phiếu tiêm chủng
+    // POST: api/InjectionForm/approve/{formId}
     [HttpPost("approve/{formId}")]
-    public async Task<IActionResult> ApproveInjectionForm(int formId)
+    public async Task<IActionResult> ApproveInjectionForm(int formId, [FromQuery] bool isOk = true, [FromServices] INotificationService notificationService = null)
     {
         var form = await _injectionFormService.GetInjectionFormByIdAsync(formId);
         if (form == null)
         {
             return NotFound("Không tìm thấy phiếu tiêm chủng");
         }
-        if (form.Status == "approved")
+        if (!isOk)
         {
-            return BadRequest("Phiếu đã được duyệt trước đó");
+            form.Status = "rejected";
+            await _injectionFormService.UpdateInjectionFormAsync(form);
+            return Ok(new { status = "rejected" });
         }
-        form.Status = "approved";
-        var result = await _injectionFormService.UpdateInjectionFormAsync(form);
-        if (!result)
+        // Nếu OK, chuyển sang chờ phụ huynh xác nhận và gửi notification
+        form.Status = "waiting_parent";
+        await _injectionFormService.UpdateInjectionFormAsync(form);
+        // Gửi notification cho phụ huynh
+        if (form.ParentId.HasValue)
         {
-            return StatusCode(500, "Lỗi duyệt phiếu tiêm chủng");
+            var notification = new API.DTOs.NotificationDto.Create
+            {
+                Type = "injection_consent",
+                Title = "Yêu cầu xác nhận tiêm chủng",
+                Message = $"Phiếu tiêm chủng cho học sinh {form.Student?.LastName} {form.Student?.FirstName} đã được duyệt. Vui lòng xác nhận đồng ý tiêm chủng.",
+                ParentId = form.ParentId.Value,
+                StudentCode = form.Student?.StudentCode,
+                Priority = "high"
+            };
+            await notificationService.CreateNotificationAsync(_mapper.Map<DB.Notification>(notification));
         }
-        // TODO: Gửi thông báo xác nhận cho phụ huynh ở đây
-        return Ok("Phiếu tiêm chủng đã được duyệt và gửi thông báo xác nhận cho phụ huynh");
+        return Ok(new { status = "waiting_parent" });
     }
 
     // API cho manager từ chối phiếu tiêm chủng
@@ -197,5 +209,30 @@ public class InjectionFormController : ControllerBase
             return StatusCode(500, "Lỗi từ chối phiếu tiêm chủng");
         }
         return Ok("Phiếu tiêm chủng đã bị từ chối");
+    }
+
+    // POST: api/InjectionForm/parent-consent/{formId}
+    [HttpPost("parent-consent/{formId}")]
+    public async Task<IActionResult> ParentConsentInjectionForm(int formId, [FromQuery] bool isApproved = true)
+    {
+        var form = await _injectionFormService.GetInjectionFormByIdAsync(formId);
+        if (form == null)
+        {
+            return NotFound("Không tìm thấy phiếu tiêm chủng");
+        }
+        if (form.Status != "waiting_parent")
+        {
+            return BadRequest("Phiếu tiêm chủng không ở trạng thái chờ phụ huynh xác nhận");
+        }
+        if (isApproved)
+        {
+            form.Status = "approved";
+        }
+        else
+        {
+            form.Status = "parent_rejected";
+        }
+        await _injectionFormService.UpdateInjectionFormAsync(form);
+        return Ok(new { status = form.Status });
     }
 } 

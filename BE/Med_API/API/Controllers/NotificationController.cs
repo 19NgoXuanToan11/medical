@@ -164,4 +164,34 @@ public class NotificationController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    // POST: api/Notification/injection-form/{formId}/consent
+    [HttpPost("injection-form/{formId}/consent")]
+    public async Task<ActionResult<NotificationDto.ViewModel>> SendInjectionConsentNotification(int formId, [FromQuery] bool isApproved)
+    {
+        // Lấy thông tin form tiêm chủng
+        var form = await HttpContext.RequestServices.GetService(typeof(Service.IInjectionFormService)) as Service.IInjectionFormService;
+        var injectionForm = await form.GetInjectionFormByIdAsync(formId);
+        if (injectionForm == null)
+        {
+            return NotFound("Không tìm thấy phiếu tiêm chủng");
+        }
+        if (!injectionForm.ParentId.HasValue)
+        {
+            return BadRequest("Phiếu tiêm chủng không có thông tin phụ huynh");
+        }
+        var statusText = isApproved ? "đồng ý" : "từ chối";
+        var notification = new NotificationDto.Create
+        {
+            Type = "injection_consent",
+            Title = $"Thông báo xác nhận tiêm chủng - {statusText}",
+            Message = $"Phiếu tiêm chủng cho học sinh {injectionForm.Student?.LastName} {injectionForm.Student?.FirstName} đã được {statusText}.",
+            ParentId = injectionForm.ParentId,
+            StudentCode = injectionForm.Student?.StudentCode,
+            Priority = "high"
+        };
+        var notificationEntity = HttpContext.RequestServices.GetService(typeof(Service.INotificationService)) as Service.INotificationService;
+        var created = await notificationEntity.CreateNotificationAsync(AutoMapper.Mapper.Map<DB.Notification>(notification));
+        return CreatedAtAction(nameof(GetNotificationById), new { id = created.NotificationId }, _mapper.Map<NotificationDto.ViewModel>(created));
+    }
 } 
