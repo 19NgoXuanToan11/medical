@@ -22,6 +22,7 @@ public class HealthCheckFormDTO
     public int? StudentId { get; set; }
     public int? ParentId { get; set; }
     public DateTime? CreatedDate { get; set; }
+    public int? CreatedBy { get; set; } // Staff ID who created this schedule
 
     // Consent and Confirmation
     [StringLength(20)]

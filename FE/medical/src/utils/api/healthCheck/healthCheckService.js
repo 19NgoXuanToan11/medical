@@ -38,6 +38,77 @@ export const getHealthCheckSchedules = async () => {
   }
 };
 
+// NEW: Get health check schedules for current nurse's assigned grades only
+export const getMyHealthCheckSchedules = async () => {
+  try {
+    // Get token from localStorage (where authService stores it)
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const token = user.token;
+
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+
+    const response = await axios.get(`${API_BASE_URL}/schedules/my-schedules`, config);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching nurse's health check schedules:", error);
+    throw error;
+  }
+};
+
+// New functions to get schedules by specific status
+export const getPendingHealthCheckSchedules = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/schedules/pending`);
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.error || "Failed to fetch pending health check schedules"
+    );
+  }
+};
+
+export const getApprovedHealthCheckSchedules = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/schedules/approved`);
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.error || "Failed to fetch approved health check schedules"
+    );
+  }
+};
+
+export const getRejectedHealthCheckSchedules = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/schedules/rejected`);
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.error || "Failed to fetch rejected health check schedules"
+    );
+  }
+};
+
+export const getCompletedHealthCheckSchedules = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/schedules/completed`);
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.error || "Failed to fetch completed health check schedules"
+    );
+  }
+};
+
 export const getHealthCheckScheduleById = async (id) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/schedules/${id}`);

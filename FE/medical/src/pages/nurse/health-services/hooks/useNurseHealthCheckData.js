@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
-import { getHealthCheckSchedules } from "../../../../utils/api/healthCheck/healthCheckService.js";
+import { getMyHealthCheckSchedules } from "../../../../utils/api/healthCheck/healthCheckService.js";
 
 export const useNurseHealthCheckData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [healthChecks, setHealthChecks] = useState([]);
 
-  // Fetch health check schedules from API
+  // Fetch health check schedules from API (filtered by nurse's assigned grades)
   const fetchHealthCheckSchedules = async () => {
     setLoading(true);
     setError(null);
     try {
-      console.log("🔄 Fetching health check schedules...");
-      const schedules = await getHealthCheckSchedules();
+      console.log("🔄 Fetching nurse's health check schedules...");
+      const schedules = await getMyHealthCheckSchedules(); // Use new endpoint with permission filtering
       console.log("✅ API Response:", schedules);
 
       // Check if schedules is an array
@@ -23,7 +23,7 @@ export const useNurseHealthCheckData = () => {
         return;
       }
 
-      console.log(`📊 Found ${schedules.length} health check schedules`);
+      console.log(`📊 Found ${schedules.length} health check schedules for this nurse`);
 
       // Transform API data to match nurse component structure
       const transformedHealthChecks = schedules.map((schedule) => {
@@ -66,10 +66,13 @@ export const useNurseHealthCheckData = () => {
           
           // Additional fields
           createdDate: schedule.createdDate || schedule.CreatedDate || new Date().toISOString(),
+          createdBy: schedule.createdBy || schedule.CreatedBy, // Track who created this schedule
           confirmedDate: schedule.confirmedDate || schedule.ConfirmedDate,
           confirmedBy: schedule.confirmedBy || schedule.ConfirmedBy,
+          
+          // Consent fields
           consentStatus: schedule.consentStatus || schedule.ConsentStatus || "pending",
-          rejectionReason: schedule.rejectionReason || schedule.RejectionReason,
+          consentDate: schedule.consentDate || schedule.ConsentDate,
           
           // Settings
           notifyParents: schedule.notifyParents !== false,
@@ -80,27 +83,17 @@ export const useNurseHealthCheckData = () => {
         };
       });
 
-      console.log("✅ Transformed health checks:", transformedHealthChecks);
       setHealthChecks(transformedHealthChecks);
+      console.log("✅ Transformed health checks:", transformedHealthChecks);
     } catch (error) {
-      console.error("❌ Error fetching health check schedules:", error);
-      
-      // More detailed error handling
-      let errorMessage = "Không thể tải dữ liệu khám sức khỏe.";
-      
-      if (error.message.includes("Network Error") || error.message.includes("ERR_NETWORK")) {
-        errorMessage += " Lỗi kết nối mạng - vui lòng kiểm tra kết nối internet và backend server.";
-      } else if (error.message.includes("404")) {
-        errorMessage += " API endpoint không tồn tại - vui lòng kiểm tra backend server.";
-      } else if (error.message.includes("500")) {
-        errorMessage += " Lỗi server nội bộ - vui lòng kiểm tra backend logs.";
-      } else if (error.message.includes("CORS")) {
-        errorMessage += " Lỗi CORS - vui lòng kiểm tra cấu hình backend.";
+      console.error("❌ Error fetching nurse's health check schedules:", error);
+      if (error.response?.status === 403) {
+        setError("Bạn không có quyền truy cập. Chỉ y tá mới có thể xem lịch khám của mình.");
+      } else if (error.response?.status === 401) {
+        setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       } else {
-        errorMessage += ` Chi tiết: ${error.message}`;
+        setError("Không thể tải dữ liệu lịch khám. Vui lòng thử lại sau.");
       }
-      
-      setError(errorMessage);
       setHealthChecks([]);
     } finally {
       setLoading(false);
@@ -112,7 +105,7 @@ export const useNurseHealthCheckData = () => {
     fetchHealthCheckSchedules();
   }, []);
 
-  // Filter functions based on nurse workflow
+  // Filter functions based on nurse workflow - FIXED LOGIC
   const getPendingHealthChecks = () => {
     console.log("🔍 Filtering pending health checks from:", healthChecks);
     const pending = healthChecks.filter(hc => {
@@ -124,13 +117,12 @@ export const useNurseHealthCheckData = () => {
         consentStatus: hc.consentStatus
       });
       
-      // Check both confirmStatus and status fields for pending
+      // Chỉ dựa vào confirmStatus (trạng thái phê duyệt từ manager)
       const confirmStatus = hc.confirmStatus?.toLowerCase();
-      const status = hc.status?.toLowerCase();
-      const consentStatus = hc.consentStatus?.toLowerCase();
       
-      const isPending = confirmStatus === "pending" || status === "pending" || consentStatus === "pending";
-      console.log(`⚡ Is pending: ${isPending} (confirmStatus: ${confirmStatus}, status: ${status}, consentStatus: ${consentStatus})`);
+      const isPending = confirmStatus === "chờ duyệt" || confirmStatus === "pending" || 
+                       !confirmStatus || confirmStatus === "" || confirmStatus === "chưa xác định";
+      console.log(`⚡ Is pending: ${isPending} (confirmStatus: ${confirmStatus})`);
       
       return isPending;
     });
@@ -144,10 +136,12 @@ export const useNurseHealthCheckData = () => {
     const upcoming = healthChecks.filter(hc => {
       const confirmStatus = hc.confirmStatus?.toLowerCase();
       const status = hc.status?.toLowerCase();
-      const consentStatus = hc.consentStatus?.toLowerCase();
       
-      const isUpcoming = confirmStatus === "approved" || status === "approved" || status === "active" || consentStatus === "approved";
-      console.log(`⚡ Is upcoming: ${isUpcoming} (confirmStatus: ${confirmStatus}, status: ${status}, consentStatus: ${consentStatus})`);
+      // Chỉ lịch đã được manager duyệt và chưa hoàn thành
+      const isUpcoming = (confirmStatus === "đã duyệt" || confirmStatus === "approved") &&
+                        (status !== "đã hoàn thành" && status !== "completed" && 
+                         status !== "đã hủy" && status !== "cancelled");
+      console.log(`⚡ Is upcoming: ${isUpcoming} (confirmStatus: ${confirmStatus}, status: ${status})`);
       
       return isUpcoming;
     });
@@ -157,24 +151,30 @@ export const useNurseHealthCheckData = () => {
   };
 
   const getCompletedHealthChecks = () => {
+    console.log("🔍 Filtering completed health checks from:", healthChecks);
     const completed = healthChecks.filter(hc => {
       const status = hc.status?.toLowerCase();
-      const confirmStatus = hc.confirmStatus?.toLowerCase();
-      const consentStatus = hc.consentStatus?.toLowerCase();
       
-      return status === "completed" || confirmStatus === "completed" || consentStatus === "completed";
+      // Chỉ dựa vào status chính
+      const isCompleted = status === "đã hoàn thành" || status === "completed";
+      console.log(`⚡ Is completed: ${isCompleted} (status: ${status})`);
+      
+      return isCompleted;
     });
     console.log("✅ Found completed health checks:", completed);
     return completed;
   };
 
   const getRejectedHealthChecks = () => {
+    console.log("🔍 Filtering rejected health checks from:", healthChecks);
     const rejected = healthChecks.filter(hc => {
       const confirmStatus = hc.confirmStatus?.toLowerCase();
-      const status = hc.status?.toLowerCase();
-      const consentStatus = hc.consentStatus?.toLowerCase();
       
-      return confirmStatus === "rejected" || status === "rejected" || consentStatus === "rejected";
+      // Chỉ dựa vào confirmStatus (trạng thái phê duyệt từ manager)
+      const isRejected = confirmStatus === "đã từ chối" || confirmStatus === "rejected";
+      console.log(`⚡ Is rejected: ${isRejected} (confirmStatus: ${confirmStatus})`);
+      
+      return isRejected;
     });
     console.log("✅ Found rejected health checks:", rejected);
     return rejected;

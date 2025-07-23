@@ -19,4 +19,11 @@ public interface IHealthCheckFormService
     Task<HealthCheckForm?> CreateHealthCheckScheduleAsync(HealthCheckForm schedule);
     Task<bool> UpdateHealthCheckScheduleAsync(HealthCheckForm schedule);
     Task<bool> DeleteHealthCheckScheduleAsync(int id);
+    
+    // New methods for filtering by status
+    Task<IEnumerable<HealthCheckForm>> GetHealthCheckSchedulesByConfirmStatusAsync(string confirmStatus);
+    Task<IEnumerable<HealthCheckForm>> GetHealthCheckSchedulesByStatusAsync(string status);
+    
+    // New method for nurse permission filtering
+    Task<IEnumerable<HealthCheckForm>> GetHealthCheckSchedulesByNurseGradesAsync(List<int> assignedGrades, int nurseId);
 } 

@@ -748,7 +748,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         StartTime: startTimeFormatted, // Backend expects TimeSpan format
         EstimatedDuration: formData.estimatedDuration || 60,
         Description: finalDescription,
-        Location: formData.location || "Phòng y tế trường",
+        Location: "Phòng y tế trường", // Fixed location
         StudentId: null,
         ParentId: null,
         CreatedDate: new Date().toISOString(),

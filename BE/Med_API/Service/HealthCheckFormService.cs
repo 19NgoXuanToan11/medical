@@ -1,5 +1,6 @@
 using DB;
 using Repo;
+using System.Text.Json;
 
 namespace Service;
 
@@ -8,15 +9,18 @@ public class HealthCheckFormService : IHealthCheckFormService
     private readonly IHealthCheckFormRepository _healthCheckFormRepository;
     private readonly IStudentRepository _studentRepository;
     private readonly IParentRepository _parentRepository;
+    private readonly IStaffService _staffService;
 
     public HealthCheckFormService(
         IHealthCheckFormRepository healthCheckFormRepository,
         IStudentRepository studentRepository,
-        IParentRepository parentRepository)
+        IParentRepository parentRepository,
+        IStaffService staffService)
     {
         _healthCheckFormRepository = healthCheckFormRepository;
         _studentRepository = studentRepository;
         _parentRepository = parentRepository;
+        _staffService = staffService;
     }
 
     public async Task<IEnumerable<HealthCheckForm>> GetAllHealthCheckFormsAsync()
@@ -184,6 +188,15 @@ public class HealthCheckFormService : IHealthCheckFormService
             throw new InvalidOperationException("At least one grade must be selected");
         }
 
+        // NEW: Validate that nurse can only create schedules for their assigned grades
+        if (schedule.CreatedBy.HasValue)
+        {
+            await ValidateNurseGradePermissionAsync(schedule.CreatedBy.Value, schedule.GradeIds);
+        }
+
+        // Validate nurse schedule conflicts
+        await ValidateNurseScheduleConflictAsync(schedule);
+
         // Set default values
         schedule.CreatedDate = DateTime.UtcNow;
         
@@ -241,6 +254,9 @@ public class HealthCheckFormService : IHealthCheckFormService
             throw new InvalidOperationException("At least one grade must be selected");
         }
 
+        // Validate nurse schedule conflicts
+        await ValidateNurseScheduleConflictAsync(schedule);
+
         // Validate ConsentStatus only if it's provided (not Status field)
         if (!string.IsNullOrEmpty(schedule.ConsentStatus) && !IsValidConsentStatus(schedule.ConsentStatus))
         {
@@ -267,5 +283,183 @@ public class HealthCheckFormService : IHealthCheckFormService
     public async Task<bool> DeleteHealthCheckScheduleAsync(int id)
     {
         return await _healthCheckFormRepository.DeleteHealthCheckFormAsync(id);
+    }
+    
+    // New methods for filtering by status
+    public async Task<IEnumerable<HealthCheckForm>> GetHealthCheckSchedulesByConfirmStatusAsync(string confirmStatus)
+    {
+        var allSchedules = await GetHealthCheckSchedulesAsync();
+        return allSchedules.Where(s => 
+            string.Equals(s.ConfirmStatus, confirmStatus, StringComparison.OrdinalIgnoreCase) ||
+            (string.IsNullOrEmpty(s.ConfirmStatus) && confirmStatus.ToLower() == "pending")
+        );
+    }
+
+    public async Task<IEnumerable<HealthCheckForm>> GetHealthCheckSchedulesByStatusAsync(string status)
+    {
+        var allSchedules = await GetHealthCheckSchedulesAsync();
+        return allSchedules.Where(s => 
+            string.Equals(s.Status, status, StringComparison.OrdinalIgnoreCase)
+        );
+    }
+
+    // NEW: Get health check schedules filtered by nurse's assigned grades
+    public async Task<IEnumerable<HealthCheckForm>> GetHealthCheckSchedulesByNurseGradesAsync(List<int> assignedGrades, int nurseId)
+    {
+        var allSchedules = await GetHealthCheckSchedulesAsync();
+        
+        return allSchedules.Where(schedule => 
+        {
+            // Only show schedules created by this nurse OR schedules for grades this nurse is assigned to
+            if (schedule.CreatedBy == nurseId)
+            {
+                return true; // Nurse can see their own schedules
+            }
+            
+            // Check if any of the schedule's grades match nurse's assigned grades
+            if (!string.IsNullOrEmpty(schedule.GradeIds))
+            {
+                try
+                {
+                    var scheduleGrades = JsonSerializer.Deserialize<List<int>>(schedule.GradeIds) ?? new List<int>();
+                    return scheduleGrades.Any(grade => assignedGrades.Contains(grade));
+                }
+                catch
+                {
+                    return false; // Skip if JSON parsing fails
+                }
+            }
+            
+            return false; // Don't show if no grade match
+        });
+    }
+
+    private async Task ValidateNurseScheduleConflictAsync(HealthCheckForm schedule)
+    {
+        if (!schedule.ScheduledDate.HasValue || !schedule.StartTime.HasValue)
+        {
+            return; // Skip validation if required fields are missing
+        }
+
+        // Parse the selected grades from JSON
+        List<int> selectedGrades;
+        try
+        {
+            selectedGrades = JsonSerializer.Deserialize<List<int>>(schedule.GradeIds ?? "[]") ?? new List<int>();
+        }
+        catch
+        {
+            return; // Skip validation if JSON parsing fails
+        }
+
+        if (!selectedGrades.Any())
+        {
+            return; // Skip validation if no grades selected
+        }
+
+        // Determine session period (morning/afternoon) based on start time
+        var startHour = schedule.StartTime.Value.Hours;
+        string sessionPeriod = startHour < 12 ? "morning" : "afternoon";
+
+        // Get all existing health check schedules for the same date
+        var existingSchedules = await _healthCheckFormRepository.GetAllHealthCheckFormsAsync();
+        var conflictingSchedules = existingSchedules.Where(s => 
+            s.FormId != schedule.FormId && // Exclude current schedule (for updates)
+            s.ScheduledDate.HasValue && 
+            s.ScheduledDate.Value.Date == schedule.ScheduledDate.Value.Date &&
+            s.StartTime.HasValue &&
+            !string.IsNullOrEmpty(s.GradeIds) &&
+            (s.Status == "pending" || s.Status == "approved" || s.Status == "scheduled") // Only check active schedules
+        ).ToList();
+
+        foreach (var existingSchedule in conflictingSchedules)
+        {
+            // Parse existing schedule grades
+            List<int> existingGrades;
+            try
+            {
+                existingGrades = JsonSerializer.Deserialize<List<int>>(existingSchedule.GradeIds) ?? new List<int>();
+            }
+            catch
+            {
+                continue; // Skip if JSON parsing fails
+            }
+
+            // Check if there's grade overlap
+            if (!selectedGrades.Intersect(existingGrades).Any())
+            {
+                continue; // No grade overlap, no conflict
+            }
+
+            // Determine existing schedule session period
+            var existingStartHour = existingSchedule.StartTime.Value.Hours;
+            string existingSessionPeriod = existingStartHour < 12 ? "morning" : "afternoon";
+
+            // Check if same session period
+            if (sessionPeriod == existingSessionPeriod)
+            {
+                // Find the nurse responsible for the existing schedule
+                var conflictingGrade = selectedGrades.Intersect(existingGrades).First();
+                var gradeNurses = await _staffService.GetGradeNursesByGradeAsync(conflictingGrade);
+                var responsibleNurse = gradeNurses.FirstOrDefault();
+
+                if (responsibleNurse != null)
+                {
+                    var sessionText = sessionPeriod == "morning" ? "sáng" : "chiều";
+                    var dateText = schedule.ScheduledDate.Value.ToString("dd/MM/yyyy");
+                    
+                    throw new InvalidOperationException(
+                        $"Đã có lịch khám khối {conflictingGrade} vào ca {sessionText} ngày {dateText} " +
+                        $"được tạo bởi {responsibleNurse.Nurse?.FirstName} {responsibleNurse.Nurse?.LastName}. " +
+                        $"Mỗi khối chỉ được khám một lần trong một ca (sáng hoặc chiều) của cùng một ngày."
+                    );
+                }
+                else
+                {
+                    var sessionText = sessionPeriod == "morning" ? "sáng" : "chiều";
+                    var dateText = schedule.ScheduledDate.Value.ToString("dd/MM/yyyy");
+                    
+                    throw new InvalidOperationException(
+                        $"Đã có lịch khám khối {conflictingGrade} vào ca {sessionText} ngày {dateText}. " +
+                        $"Mỗi khối chỉ được khám một lần trong một ca (sáng hoặc chiều) của cùng một ngày."
+                    );
+                }
+            }
+        }
+    }
+
+    // NEW: Validate that nurse can only create schedules for their assigned grades
+    private async Task ValidateNurseGradePermissionAsync(int nurseId, string gradeIds)
+    {
+        // Parse the selected grades from JSON
+        List<int> selectedGrades;
+        try
+        {
+            selectedGrades = JsonSerializer.Deserialize<List<int>>(gradeIds ?? "[]") ?? new List<int>();
+        }
+        catch
+        {
+            throw new InvalidOperationException("Invalid grade format");
+        }
+
+        if (!selectedGrades.Any())
+        {
+            return; // No grades to validate
+        }
+
+        // Get nurse's assigned grades
+        var gradeNurses = await _staffService.GetGradeNursesByStaffIdAsync(nurseId);
+        var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
+
+        // Check if nurse is trying to create schedule for grades they're not assigned to
+        var unauthorizedGrades = selectedGrades.Where(grade => !assignedGrades.Contains(grade)).ToList();
+        
+        if (unauthorizedGrades.Any())
+        {
+            throw new InvalidOperationException(
+                $"Bạn không có quyền tạo lịch khám cho khối {string.Join(", ", unauthorizedGrades)}. " +
+                $"Bạn chỉ được phép tạo lịch cho các khối: {string.Join(", ", assignedGrades)}."
+            );
+        }
     }
 } 

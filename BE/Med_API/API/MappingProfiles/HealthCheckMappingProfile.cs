@@ -17,14 +17,18 @@ public class HealthCheckMappingProfile : Profile
             // Explicitly map all status fields to ensure they're included
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.ConsentStatus, opt => opt.MapFrom(src => src.ConsentStatus))
-            .ForMember(dest => dest.ConfirmStatus, opt => opt.MapFrom(src => src.ConfirmStatus));
+            .ForMember(dest => dest.ConfirmStatus, opt => opt.MapFrom(src => src.ConfirmStatus))
+            // Map CreatedBy field
+            .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy));
 
         CreateMap<HealthCheckFormDTO, HealthCheckForm>()
             .ForMember(dest => dest.StartTime, opt => opt.Ignore()) // Handle conversion manually in controller
             // Ensure all status fields are mapped from DTO to entity
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.ConsentStatus, opt => opt.MapFrom(src => src.ConsentStatus))
-            .ForMember(dest => dest.ConfirmStatus, opt => opt.MapFrom(src => src.ConfirmStatus));
+            .ForMember(dest => dest.ConfirmStatus, opt => opt.MapFrom(src => src.ConfirmStatus))
+            // Map CreatedBy field
+            .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy));
 
         CreateMap<HealthCheckResult, HealthCheckResultDTO>()
             .ForMember(dest => dest.Form, opt => opt.MapFrom(src => src.Form))

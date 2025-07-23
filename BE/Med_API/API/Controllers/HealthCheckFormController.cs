@@ -159,11 +159,33 @@ public class HealthCheckFormController : ControllerBase
         {
             var schedules = await _healthCheckFormService.GetHealthCheckSchedulesAsync();
             var dtos = _mapper.Map<IEnumerable<HealthCheckFormDTO>>(schedules).ToList();
-            // Map status về chữ thường cho FE, parse gradeIds thành mảng grades
+            
+            // Helper method to convert status to Vietnamese
+            string ConvertStatusToVietnamese(string status)
+            {
+                if (string.IsNullOrEmpty(status)) return "Chưa xác định";
+                
+                return status.ToLower() switch
+                {
+                    "pending" => "Chờ duyệt",
+                    "approved" => "Đã duyệt",
+                    "scheduled" => "Đã lên lịch", 
+                    "active" => "Đang thực hiện",
+                    "completed" => "Đã hoàn thành",
+                    "cancelled" => "Đã hủy",
+                    "rejected" => "Đã từ chối",
+                    _ => status
+                };
+            }
+            
+            // Map status sang tiếng Việt và parse gradeIds thành mảng grades
             foreach (var dto in dtos)
             {
-                if (!string.IsNullOrEmpty(dto.Status))
-                    dto.Status = dto.Status.ToLower();
+                // Convert all status fields to Vietnamese
+                dto.Status = ConvertStatusToVietnamese(dto.Status);
+                dto.ConsentStatus = ConvertStatusToVietnamese(dto.ConsentStatus);
+                dto.ConfirmStatus = ConvertStatusToVietnamese(dto.ConfirmStatus);
+                
                 // Parse gradeIds (JSON string) thành mảng grades
                 if (!string.IsNullOrEmpty(dto.GradeIds))
                 {
@@ -190,6 +212,93 @@ public class HealthCheckFormController : ControllerBase
         }
     }
 
+    // NEW: Get health check schedules for current nurse's assigned grades only
+    [HttpGet("schedules/my-schedules")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<ActionResult<IEnumerable<HealthCheckFormDTO>>> GetMyHealthCheckSchedules(
+        [FromServices] IStaffService staffService)
+    {
+        try
+        {
+            // Get current user ID from JWT token
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int staffId))
+            {
+                return Unauthorized("Invalid token or user ID not found");
+            }
+
+            // Get current user role from JWT token
+            var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+            if (roleClaim == null || roleClaim.Value.ToLower() != "nurse")
+            {
+                return Forbid("Only nurses can access their assigned health check schedules");
+            }
+
+            // Get nurse's assigned grades
+            var gradeNurses = await staffService.GetGradeNursesByStaffIdAsync(staffId);
+            var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
+
+            if (!assignedGrades.Any())
+            {
+                return Ok(new List<HealthCheckFormDTO>()); // Return empty list if no grades assigned
+            }
+
+            // Get schedules filtered by nurse's assigned grades
+            var schedules = await _healthCheckFormService.GetHealthCheckSchedulesByNurseGradesAsync(assignedGrades, staffId);
+            var dtos = _mapper.Map<IEnumerable<HealthCheckFormDTO>>(schedules).ToList();
+            
+            // Helper method to convert status to Vietnamese
+            string ConvertStatusToVietnamese(string status)
+            {
+                if (string.IsNullOrEmpty(status)) return "Chưa xác định";
+                
+                return status.ToLower() switch
+                {
+                    "pending" => "Chờ duyệt",
+                    "approved" => "Đã duyệt",
+                    "scheduled" => "Đã lên lịch", 
+                    "active" => "Đang thực hiện",
+                    "completed" => "Đã hoàn thành",
+                    "cancelled" => "Đã hủy",
+                    "rejected" => "Đã từ chối",
+                    _ => status
+                };
+            }
+            
+            // Map status sang tiếng Việt và parse gradeIds thành mảng grades
+            foreach (var dto in dtos)
+            {
+                // Convert all status fields to Vietnamese
+                dto.Status = ConvertStatusToVietnamese(dto.Status);
+                dto.ConsentStatus = ConvertStatusToVietnamese(dto.ConsentStatus);
+                dto.ConfirmStatus = ConvertStatusToVietnamese(dto.ConfirmStatus);
+                
+                // Parse gradeIds (JSON string) thành mảng grades
+                if (!string.IsNullOrEmpty(dto.GradeIds))
+                {
+                    try
+                    {
+                        dto.Grades = JsonSerializer.Deserialize<List<string>>(dto.GradeIds);
+                    }
+                    catch
+                    {
+                        dto.Grades = new List<string>();
+                    }
+                }
+                else
+                {
+                    dto.Grades = new List<string>();
+                }
+            }
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting nurse's health check schedules");
+            return StatusCode(500, new { error = "An error occurred while retrieving nurse's health check schedules." });
+        }
+    }
+
     [HttpGet("schedules/{id}")]
     public async Task<ActionResult<HealthCheckFormDTO>> GetHealthCheckScheduleById(int id)
     {
@@ -203,9 +312,28 @@ public class HealthCheckFormController : ControllerBase
             
             var dto = _mapper.Map<HealthCheckFormDTO>(schedule);
             
-            // Map status về chữ thường cho FE
-            if (!string.IsNullOrEmpty(dto.Status))
-                dto.Status = dto.Status.ToLower();
+            // Helper method to convert status to Vietnamese
+            string ConvertStatusToVietnamese(string status)
+            {
+                if (string.IsNullOrEmpty(status)) return "Chưa xác định";
+                
+                return status.ToLower() switch
+                {
+                    "pending" => "Chờ duyệt",
+                    "approved" => "Đã duyệt", 
+                    "scheduled" => "Đã lên lịch",
+                    "active" => "Đang thực hiện",
+                    "completed" => "Đã hoàn thành",
+                    "cancelled" => "Đã hủy",
+                    "rejected" => "Đã từ chối",
+                    _ => status
+                };
+            }
+            
+            // Convert all status fields to Vietnamese
+            dto.Status = ConvertStatusToVietnamese(dto.Status);
+            dto.ConsentStatus = ConvertStatusToVietnamese(dto.ConsentStatus);
+            dto.ConfirmStatus = ConvertStatusToVietnamese(dto.ConfirmStatus);
                 
             // Parse gradeIds (JSON string) thành mảng grades
             if (!string.IsNullOrEmpty(dto.GradeIds))
@@ -278,6 +406,21 @@ public class HealthCheckFormController : ControllerBase
             // Check if GradeIds is empty or contains only empty array
             if (string.IsNullOrEmpty(scheduleDto.GradeIds) || scheduleDto.GradeIds.Trim() == "[]")
                 return BadRequest(new { error = "At least one grade must be selected" });
+
+            // Set CreatedBy to current user if authenticated (for permission validation)
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int staffId))
+            {
+                scheduleDto.CreatedBy = staffId;
+                
+                // Additional validation for nurses - they can only create schedules for their assigned grades
+                var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+                if (roleClaim != null && roleClaim.Value.ToLower() == "nurse")
+                {
+                    // This validation will be done in the service layer
+                    _logger.LogInformation("Nurse {StaffId} attempting to create schedule for grades: {GradeIds}", staffId, scheduleDto.GradeIds);
+                }
+            }
 
             // Set default values
             scheduleDto.CreatedDate = DateTime.Now;
@@ -395,6 +538,247 @@ public class HealthCheckFormController : ControllerBase
             return NotFound();
         }
         return NoContent();
+    }
+
+    // New endpoints for health check scheduling by status
+    [HttpGet("schedules/pending")]
+    public async Task<ActionResult<IEnumerable<HealthCheckFormDTO>>> GetPendingHealthCheckSchedules()
+    {
+        try
+        {
+            var schedules = await _healthCheckFormService.GetHealthCheckSchedulesByConfirmStatusAsync("pending");
+            var dtos = _mapper.Map<IEnumerable<HealthCheckFormDTO>>(schedules).ToList();
+            
+            // Helper method to convert status to Vietnamese
+            string ConvertStatusToVietnamese(string status)
+            {
+                if (string.IsNullOrEmpty(status)) return "Chưa xác định";
+                
+                return status.ToLower() switch
+                {
+                    "pending" => "Chờ duyệt",
+                    "approved" => "Đã duyệt",
+                    "scheduled" => "Đã lên lịch", 
+                    "active" => "Đang thực hiện",
+                    "completed" => "Đã hoàn thành",
+                    "cancelled" => "Đã hủy",
+                    "rejected" => "Đã từ chối",
+                    _ => status
+                };
+            }
+            
+            // Map status sang tiếng Việt và parse gradeIds thành mảng grades
+            foreach (var dto in dtos)
+            {
+                // Convert all status fields to Vietnamese
+                dto.Status = ConvertStatusToVietnamese(dto.Status);
+                dto.ConsentStatus = ConvertStatusToVietnamese(dto.ConsentStatus);
+                dto.ConfirmStatus = ConvertStatusToVietnamese(dto.ConfirmStatus);
+                
+                // Parse gradeIds (JSON string) thành mảng grades
+                if (!string.IsNullOrEmpty(dto.GradeIds))
+                {
+                    try
+                    {
+                        dto.Grades = JsonSerializer.Deserialize<List<string>>(dto.GradeIds);
+                    }
+                    catch
+                    {
+                        dto.Grades = new List<string>();
+                    }
+                }
+                else
+                {
+                    dto.Grades = new List<string>();
+                }
+            }
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting pending health check schedules");
+            return StatusCode(500, new { error = "An error occurred while retrieving pending health check schedules." });
+        }
+    }
+
+    [HttpGet("schedules/approved")]
+    public async Task<ActionResult<IEnumerable<HealthCheckFormDTO>>> GetApprovedHealthCheckSchedules()
+    {
+        try
+        {
+            var schedules = await _healthCheckFormService.GetHealthCheckSchedulesByConfirmStatusAsync("approved");
+            var dtos = _mapper.Map<IEnumerable<HealthCheckFormDTO>>(schedules).ToList();
+            
+            // Helper method to convert status to Vietnamese
+            string ConvertStatusToVietnamese(string status)
+            {
+                if (string.IsNullOrEmpty(status)) return "Chưa xác định";
+                
+                return status.ToLower() switch
+                {
+                    "pending" => "Chờ duyệt",
+                    "approved" => "Đã duyệt",
+                    "scheduled" => "Đã lên lịch", 
+                    "active" => "Đang thực hiện",
+                    "completed" => "Đã hoàn thành",
+                    "cancelled" => "Đã hủy",
+                    "rejected" => "Đã từ chối",
+                    _ => status
+                };
+            }
+            
+            // Map status sang tiếng Việt và parse gradeIds thành mảng grades
+            foreach (var dto in dtos)
+            {
+                // Convert all status fields to Vietnamese
+                dto.Status = ConvertStatusToVietnamese(dto.Status);
+                dto.ConsentStatus = ConvertStatusToVietnamese(dto.ConsentStatus);
+                dto.ConfirmStatus = ConvertStatusToVietnamese(dto.ConfirmStatus);
+                
+                // Parse gradeIds (JSON string) thành mảng grades
+                if (!string.IsNullOrEmpty(dto.GradeIds))
+                {
+                    try
+                    {
+                        dto.Grades = JsonSerializer.Deserialize<List<string>>(dto.GradeIds);
+                    }
+                    catch
+                    {
+                        dto.Grades = new List<string>();
+                    }
+                }
+                else
+                {
+                    dto.Grades = new List<string>();
+                }
+            }
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting approved health check schedules");
+            return StatusCode(500, new { error = "An error occurred while retrieving approved health check schedules." });
+        }
+    }
+
+    [HttpGet("schedules/rejected")]
+    public async Task<ActionResult<IEnumerable<HealthCheckFormDTO>>> GetRejectedHealthCheckSchedules()
+    {
+        try
+        {
+            var schedules = await _healthCheckFormService.GetHealthCheckSchedulesByConfirmStatusAsync("rejected");
+            var dtos = _mapper.Map<IEnumerable<HealthCheckFormDTO>>(schedules).ToList();
+            
+            // Helper method to convert status to Vietnamese
+            string ConvertStatusToVietnamese(string status)
+            {
+                if (string.IsNullOrEmpty(status)) return "Chưa xác định";
+                
+                return status.ToLower() switch
+                {
+                    "pending" => "Chờ duyệt",
+                    "approved" => "Đã duyệt",
+                    "scheduled" => "Đã lên lịch", 
+                    "active" => "Đang thực hiện",
+                    "completed" => "Đã hoàn thành",
+                    "cancelled" => "Đã hủy",
+                    "rejected" => "Đã từ chối",
+                    _ => status
+                };
+            }
+            
+            // Map status sang tiếng Việt và parse gradeIds thành mảng grades
+            foreach (var dto in dtos)
+            {
+                // Convert all status fields to Vietnamese
+                dto.Status = ConvertStatusToVietnamese(dto.Status);
+                dto.ConsentStatus = ConvertStatusToVietnamese(dto.ConsentStatus);
+                dto.ConfirmStatus = ConvertStatusToVietnamese(dto.ConfirmStatus);
+                
+                // Parse gradeIds (JSON string) thành mảng grades
+                if (!string.IsNullOrEmpty(dto.GradeIds))
+                {
+                    try
+                    {
+                        dto.Grades = JsonSerializer.Deserialize<List<string>>(dto.GradeIds);
+                    }
+                    catch
+                    {
+                        dto.Grades = new List<string>();
+                    }
+                }
+                else
+                {
+                    dto.Grades = new List<string>();
+                }
+            }
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting rejected health check schedules");
+            return StatusCode(500, new { error = "An error occurred while retrieving rejected health check schedules." });
+        }
+    }
+
+    [HttpGet("schedules/completed")]
+    public async Task<ActionResult<IEnumerable<HealthCheckFormDTO>>> GetCompletedHealthCheckSchedules()
+    {
+        try
+        {
+            var schedules = await _healthCheckFormService.GetHealthCheckSchedulesByStatusAsync("completed");
+            var dtos = _mapper.Map<IEnumerable<HealthCheckFormDTO>>(schedules).ToList();
+            
+            // Helper method to convert status to Vietnamese
+            string ConvertStatusToVietnamese(string status)
+            {
+                if (string.IsNullOrEmpty(status)) return "Chưa xác định";
+                
+                return status.ToLower() switch
+                {
+                    "pending" => "Chờ duyệt",
+                    "approved" => "Đã duyệt",
+                    "scheduled" => "Đã lên lịch", 
+                    "active" => "Đang thực hiện",
+                    "completed" => "Đã hoàn thành",
+                    "cancelled" => "Đã hủy",
+                    "rejected" => "Đã từ chối",
+                    _ => status
+                };
+            }
+            
+            // Map status sang tiếng Việt và parse gradeIds thành mảng grades
+            foreach (var dto in dtos)
+            {
+                // Convert all status fields to Vietnamese
+                dto.Status = ConvertStatusToVietnamese(dto.Status);
+                dto.ConsentStatus = ConvertStatusToVietnamese(dto.ConsentStatus);
+                dto.ConfirmStatus = ConvertStatusToVietnamese(dto.ConfirmStatus);
+                
+                // Parse gradeIds (JSON string) thành mảng grades
+                if (!string.IsNullOrEmpty(dto.GradeIds))
+                {
+                    try
+                    {
+                        dto.Grades = JsonSerializer.Deserialize<List<string>>(dto.GradeIds);
+                    }
+                    catch
+                    {
+                        dto.Grades = new List<string>();
+                    }
+                }
+                else
+                {
+                    dto.Grades = new List<string>();
+                }
+            }
+            return Ok(dtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting completed health check schedules");
+            return StatusCode(500, new { error = "An error occurred while retrieving completed health check schedules." });
+        }
     }
 
     // Debug endpoint to test DTO binding

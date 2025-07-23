@@ -174,30 +174,23 @@ const BasicInfoHealthStep = ({
             </div>
           </div>
 
-          {/* Location */}
+          {/* Location - Fixed */}
           <div>
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Địa điểm thực hiện *
+              Địa điểm thực hiện
             </label>
-            <div className="relative">
-              <FiMapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
-              <input
-                type="text"
-                value={formData.location}
-                onChange={(e) => onInputChange("location", e.target.value)}
-                className={`w-full pl-10 pr-3 py-2 border rounded-lg shadow-sm bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  validationErrors.location
-                    ? "border-error-300 dark:border-error-600"
-                    : "border-neutral-300 dark:border-neutral-600"
-                }`}
-                placeholder="VD: Phòng y tế trường, Hội trường A"
-              />
+            <div className="flex items-center px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-lg">
+              <FiMapPin className="text-neutral-500 dark:text-neutral-400 mr-3" />
+              <span className="text-neutral-700 dark:text-neutral-300">
+                Phòng y tế trường
+              </span>
+              <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full">
+                Mặc định
+              </span>
             </div>
-            {validationErrors.location && (
-              <p className="mt-1 text-sm text-error-600 dark:text-error-400">
-                {validationErrors.location}
-              </p>
-            )}
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              Địa điểm khám sức khỏe được cố định tại phòng y tế trường
+            </p>
           </div>
 
           {/* Description */}

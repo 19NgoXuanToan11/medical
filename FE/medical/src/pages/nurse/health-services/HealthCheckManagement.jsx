@@ -72,33 +72,48 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      pending:
-        "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-      scheduled:
-        "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      Approved:
-        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      active:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-      completed:
-        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      // English statuses
+      pending: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
+      scheduled: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+      Approved: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      active: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+      completed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
       cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
       Rejected: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+      // Vietnamese statuses
+      "Chờ duyệt": "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
+      "Đã lên lịch": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+      "Đã duyệt": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      "Đang thực hiện": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+      "Đã hoàn thành": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      "Đã hủy": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+      "Đã từ chối": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+      "Chưa xác định": "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
     };
     return `px-2 py-1 rounded-full text-xs font-medium ${
-      badges[status] || badges.scheduled
+      badges[status] || badges.scheduled || badges["Đã lên lịch"]
     }`;
   };
 
   const getStatusLabel = (status) => {
     const labels = {
+      // English statuses
       pending: "Chờ duyệt",
-      scheduled: "Đã lên lịch",
+      scheduled: "Đã lên lịch", 
       Approved: "Đã duyệt - Sẵn sàng",
       active: "Đang thực hiện",
       completed: "Đã hoàn thành",
       cancelled: "Đã hủy",
       Rejected: "Đã từ chối",
+      // Vietnamese statuses (already translated, return as-is)
+      "Chờ duyệt": "Chờ duyệt",
+      "Đã lên lịch": "Đã lên lịch",
+      "Đã duyệt": "Đã duyệt - Sẵn sàng",
+      "Đang thực hiện": "Đang thực hiện",
+      "Đã hoàn thành": "Đã hoàn thành",
+      "Đã hủy": "Đã hủy",
+      "Đã từ chối": "Đã từ chối",
+      "Chưa xác định": "Chưa xác định",
     };
     return labels[status] || status;
   };
@@ -182,11 +197,11 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         </div>
         <div className="flex items-center">
           <FiClock className="w-4 h-4 mr-2" />
-          <span>{healthCheck.scheduledTime || healthCheck.startTime}</span>
+          <span>{healthCheck.scheduledTime || healthCheck.startTime || "Chưa xác định"}</span>
         </div>
         <div className="flex items-center">
           <FiUsers className="w-4 h-4 mr-2" />
-          <span>Khối: {healthCheck.grades?.join(", ")}</span>
+          <span>Khối: {healthCheck.grades?.length > 0 ? healthCheck.grades.join(", ") : healthCheck.targetGrades?.join(", ") || "Chưa xác định"}</span>
         </div>
         <div className="flex items-center">
           <FiMapPin className="w-4 h-4 mr-2" />
@@ -310,31 +325,43 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         </div>
       )}
 
-      {/* Actions */}
-      <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
+      {/* Action Buttons */}
+      <div className="flex justify-between items-center">
         <div className="flex space-x-2">
+          {/* View Details Button */}
           <Link
-            to={`/nurse/health-services/${
+            to={`/nurse/health-services/view/${
               healthCheck.formId || healthCheck.id
             }`}
-            className="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
+            className="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 rounded transition-colors"
           >
             <FiEye className="w-3 h-3 mr-1 inline" />
             Chi tiết
           </Link>
+
           {/* Show edit button for pending, scheduled, or rejected items */}
           {(healthCheck.status === "scheduled" ||
             healthCheck.status === "pending" ||
+            healthCheck.status === "Chờ duyệt" ||
+            healthCheck.status === "Đã lên lịch" ||
             healthCheck.confirmStatus?.toLowerCase() === "pending" ||
-            healthCheck.confirmStatus?.toLowerCase() === "rejected") && (
+            healthCheck.confirmStatus?.toLowerCase() === "chờ duyệt" ||
+            healthCheck.confirmStatus?.toLowerCase() === "rejected" ||
+            healthCheck.confirmStatus?.toLowerCase() === "đã từ chối") && (
             <Link
               to={`/nurse/health-services/edit/${
                 healthCheck.formId || healthCheck.id
               }`}
-              className="text-xs px-3 py-1 border border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded transition-colors"
+              className={`text-xs px-3 py-1 rounded transition-colors ${
+                (healthCheck.confirmStatus?.toLowerCase() === "rejected" ||
+                 healthCheck.confirmStatus?.toLowerCase() === "đã từ chối")
+                  ? "bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md"
+                  : "border border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-900/20"
+              }`}
             >
               <FiEdit className="w-3 h-3 mr-1 inline" />
-              {healthCheck.confirmStatus?.toLowerCase() === "rejected"
+              {(healthCheck.confirmStatus?.toLowerCase() === "rejected" ||
+                healthCheck.confirmStatus?.toLowerCase() === "đã từ chối")
                 ? "Chỉnh sửa & Gửi lại"
                 : "Sửa"}
             </Link>
@@ -344,7 +371,9 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         {/* Action buttons based on status */}
         <div className="flex space-x-2">
           {(healthCheck.confirmStatus?.toLowerCase() === "approved" ||
-            healthCheck.status === "Approved") && (
+            healthCheck.confirmStatus?.toLowerCase() === "đã duyệt" ||
+            healthCheck.status === "Approved" ||
+            healthCheck.status === "Đã duyệt") && (
             <button
               onClick={() =>
                 handleStartHealthCheck(healthCheck.formId || healthCheck.id)
@@ -355,7 +384,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               Bắt đầu khám
             </button>
           )}
-          {healthCheck.status === "active" && (
+          {(healthCheck.status === "active" || healthCheck.status === "Đang thực hiện") && (
             <button
               onClick={() =>
                 handleCompleteHealthCheck(healthCheck.formId || healthCheck.id)
@@ -366,13 +395,15 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               Hoàn thành
             </button>
           )}
-          {healthCheck.confirmStatus?.toLowerCase() === "pending" && (
+          {(healthCheck.confirmStatus?.toLowerCase() === "pending" ||
+            healthCheck.confirmStatus?.toLowerCase() === "chờ duyệt") && (
             <span className="text-xs px-3 py-1 bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 rounded">
               <FiClock className="w-3 h-3 mr-1 inline" />
               Chờ Quản lý duyệt
             </span>
           )}
-          {healthCheck.confirmStatus?.toLowerCase() === "rejected" && (
+          {(healthCheck.confirmStatus?.toLowerCase() === "rejected" ||
+            healthCheck.confirmStatus?.toLowerCase() === "đã từ chối") && (
             <span className="text-xs px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded">
               <FiX className="w-3 h-3 mr-1 inline" />
               Đã từ chối

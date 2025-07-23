@@ -19,6 +19,7 @@ public partial class HealthCheckForm
     public int? StudentId { get; set; }
     public int? ParentId { get; set; }
     public DateTime? CreatedDate { get; set; }
+    public int? CreatedBy { get; set; } // Staff ID who created this schedule
 
     // Consent and Confirmation
     public string? ConsentStatus { get; set; }
@@ -52,5 +53,6 @@ public partial class HealthCheckForm
     public virtual Student? Student { get; set; }
     public virtual Parent? Parent { get; set; }
     public virtual Staff? ConfirmedByStaff { get; set; }
+    public virtual Staff? CreatedByStaff { get; set; } // Navigation to staff who created this
     public virtual ICollection<HealthCheckResult> Results { get; set; } = new List<HealthCheckResult>();
 }

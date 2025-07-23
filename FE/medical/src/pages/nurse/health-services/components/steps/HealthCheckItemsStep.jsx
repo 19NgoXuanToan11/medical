@@ -165,7 +165,7 @@ const HealthCheckItemsStep = ({
   return (
     <div className="space-y-8">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -189,70 +189,10 @@ const HealthCheckItemsStep = ({
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-green-900 dark:text-green-200">
-                Thời gian dự kiến
+                Tổng thời gian
               </p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {formatDuration(getTotalSelectedTime())}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`rounded-lg p-6 border ${
-            equipmentStatus?.allAvailable
-              ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-              : equipmentStatus?.hasUnavailable
-              ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-              : equipmentStatus?.hasOutOfStock
-              ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"
-              : "bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800"
-          }`}
-        >
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              {equipmentStatus?.allAvailable ? (
-                <FiCheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
-              ) : equipmentStatus?.hasUnavailable ? (
-                <FiXCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
-              ) : equipmentStatus?.hasOutOfStock ? (
-                <FiAlertTriangle className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
-              ) : (
-                <FiTool className="h-8 w-8 text-gray-600 dark:text-gray-400" />
-              )}
-            </div>
-            <div className="ml-4">
-              <p
-                className={`text-sm font-medium ${
-                  equipmentStatus?.allAvailable
-                    ? "text-green-900 dark:text-green-200"
-                    : equipmentStatus?.hasUnavailable
-                    ? "text-red-900 dark:text-red-200"
-                    : equipmentStatus?.hasOutOfStock
-                    ? "text-yellow-900 dark:text-yellow-200"
-                    : "text-gray-900 dark:text-gray-200"
-                }`}
-              >
-                Trạng thái thiết bị
-              </p>
-              <p
-                className={`text-2xl font-bold ${
-                  equipmentStatus?.allAvailable
-                    ? "text-green-600 dark:text-green-400"
-                    : equipmentStatus?.hasUnavailable
-                    ? "text-red-600 dark:text-red-400"
-                    : equipmentStatus?.hasOutOfStock
-                    ? "text-yellow-600 dark:text-yellow-400"
-                    : "text-gray-600 dark:text-gray-400"
-                }`}
-              >
-                {equipmentStatus?.allAvailable
-                  ? "Đủ"
-                  : equipmentStatus?.hasUnavailable
-                  ? "Thiếu"
-                  : equipmentStatus?.hasOutOfStock
-                  ? "Hết"
-                  : getSelectedEquipment().length}
               </p>
             </div>
           </div>
