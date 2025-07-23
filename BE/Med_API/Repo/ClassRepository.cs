@@ -118,6 +118,7 @@ public class ClassRepository : IClassRepository
     public async Task<IEnumerable<Student>> GetStudentsByClassIdAsync(int classId)
     {
         return await _context.Students
+            .Include(s => s.HealthProfiles)
             .Include(s => s.StudentParents)
             .ThenInclude(sp => sp.Parent)
             .Where(s => s.ClassId == classId && s.IsActive == true)
