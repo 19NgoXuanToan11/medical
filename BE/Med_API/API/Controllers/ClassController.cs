@@ -296,4 +296,13 @@ public class ClassController : ControllerBase
         }
         return Ok(new { message = $"{promotedCount} students promoted to the next class." });
     }
+
+    // GET: api/Class/grade/{gradeLevel}/student-count
+    [HttpGet("grade/{gradeLevel}/student-count")]
+    public async Task<ActionResult> GetStudentCountByGrade(int gradeLevel)
+    {
+        var classes = await _classService.GetClassesByGradeLevelAsync(gradeLevel);
+        int total = classes.SelectMany(c => c.Students).Count();
+        return Ok(new { GradeLevel = gradeLevel, StudentCount = total });
+    }
 } 
