@@ -25,7 +25,9 @@ public class StudentProfile : Profile
             .ForMember(dest => dest.Parents, opt => opt.MapFrom(src => src.Parents))
             .ForMember(dest => dest.StudentParents, opt => opt.MapFrom(src => src.StudentParents))
             .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Class != null ? src.Class.ClassName : null))
-            .ForMember(dest => dest.GradeLevel, opt => opt.MapFrom(src => src.Class != null ? src.Class.GradeLevel : 0));
+            .ForMember(dest => dest.GradeLevel, opt => opt.MapFrom(src => src.Class != null ? src.Class.GradeLevel : 0))
+            // Map HealthProfile đầu tiên (nếu có)
+            .ForMember(dest => dest.HealthProfile, opt => opt.MapFrom(src => src.HealthProfiles != null ? src.HealthProfiles.FirstOrDefault() : null));
 
         // Map from Parent to StudentDto.ParentSummary
         CreateMap<Parent, StudentDto.ParentSummary>();

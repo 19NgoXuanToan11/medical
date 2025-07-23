@@ -97,6 +97,53 @@ public class ClassController : ControllerBase
         return Ok(viewModels);
     }
 
+    // GET: api/Class/my-assigned-classes-with-students
+    [HttpGet("my-assigned-classes-with-students")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<ActionResult> GetMyAssignedClassesWithStudents([FromServices] IStaffService staffService)
+    {
+        // Lấy staffId từ JWT
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int staffId))
+        {
+            return Unauthorized("Invalid token or user ID not found");
+        }
+        var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+        if (roleClaim == null || roleClaim.Value.ToLower() != "nurse")
+        {
+            return Forbid("Only nurses can access their assigned classes");
+        }
+        // Lấy khối nurse phụ trách (chỉ lấy 1 khối đầu tiên)
+        var gradeNurses = await staffService.GetGradeNursesByStaffIdAsync(staffId);
+        var assignedGrade = gradeNurses.Select(gn => gn.Grade).FirstOrDefault();
+        if (assignedGrade == 0)
+        {
+            return Ok(new List<object>()); // Không có khối nào
+        }
+        // Lấy các lớp thuộc khối này
+        var allClasses = await _classService.GetActiveClassesAsync();
+        var assignedClasses = allClasses.Where(c => c.GradeLevel == assignedGrade).ToList();
+        var result = new List<object>();
+        foreach (var classEntity in assignedClasses)
+        {
+            var students = classEntity.Students
+                .OrderBy(s => s.LastName).ThenBy(s => s.FirstName)
+                .Select((s, idx) => new {
+                    SoThuTu = idx + 1,
+                    HoTen = $"{s.LastName} {s.FirstName}",
+                    MaSoHocSinh = s.StudentCode,
+                    SucKhoe = s.HealthProfiles != null ? s.HealthProfiles.FirstOrDefault() : null
+                }).ToList();
+            result.Add(new {
+                ClassId = classEntity.ClassId,
+                ClassName = classEntity.ClassName,
+                GradeLevel = classEntity.GradeLevel,
+                Students = students
+            });
+        }
+        return Ok(result);
+    }
+
     // GET: api/Class/5/students
     [HttpGet("{id}/students")]
     public async Task<ActionResult<IEnumerable<ClassDto.StudentWithParents>>> GetClassStudents(int id)
@@ -104,6 +151,22 @@ public class ClassController : ControllerBase
         var students = await _classService.GetStudentsByClassIdAsync(id);
         var viewModels = _mapper.Map<IEnumerable<ClassDto.StudentWithParents>>(students);
         return Ok(viewModels);
+    }
+
+    // GET: api/Class/{classId}/students-with-health
+    [HttpGet("{classId}/students-with-health")]
+    public async Task<ActionResult> GetClassStudentsWithHealth(int classId)
+    {
+        var students = await _classService.GetStudentsByClassIdAsync(classId);
+        var result = students
+            .OrderBy(s => s.LastName).ThenBy(s => s.FirstName)
+            .Select((s, idx) => new {
+                SoThuTu = idx + 1,
+                HoTen = $"{s.LastName} {s.FirstName}",
+                MaSoHocSinh = s.StudentCode,
+                SucKhoe = s.HealthProfiles != null ? s.HealthProfiles.FirstOrDefault() : null
+            }).ToList();
+        return Ok(result);
     }
 
     // POST: api/Class
