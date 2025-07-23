@@ -132,6 +132,7 @@ public class ClassController : ControllerBase
                     SoThuTu = idx + 1,
                     HoTen = $"{s.LastName} {s.FirstName}",
                     MaSoHocSinh = s.StudentCode,
+                    GioiTinh = s.Gender,
                     SucKhoe = s.HealthProfiles != null ? s.HealthProfiles.FirstOrDefault() : null
                 }).ToList();
             result.Add(new
