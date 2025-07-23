@@ -126,7 +126,7 @@ public class ClassController : ControllerBase
         var result = new List<object>();
         foreach (var classEntity in assignedClasses)
         {
-            var students = classEntity.Students
+            var students = (await _classService.GetStudentsByClassIdAsync(classEntity.ClassId))
                 .OrderBy(s => s.LastName).ThenBy(s => s.FirstName)
                 .Select((s, idx) => new {
                     SoThuTu = idx + 1,
@@ -134,7 +134,8 @@ public class ClassController : ControllerBase
                     MaSoHocSinh = s.StudentCode,
                     SucKhoe = s.HealthProfiles != null ? s.HealthProfiles.FirstOrDefault() : null
                 }).ToList();
-            result.Add(new {
+            result.Add(new
+            {
                 ClassId = classEntity.ClassId,
                 ClassName = classEntity.ClassName,
                 GradeLevel = classEntity.GradeLevel,
