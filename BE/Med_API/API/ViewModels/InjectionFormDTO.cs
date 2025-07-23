@@ -34,6 +34,10 @@ public class InjectionFormDTO
 
     public DateTime? ConfirmedDate { get; set; }
 
+    // Thêm trường vaccine
+    public int? VaccineId { get; set; }
+    public VaccineDto.ViewModel? Vaccine { get; set; }
+
     // Navigation properties
     public StudentDto.ViewModel? Student { get; set; }
     public ParentDto.ViewModel? Parent { get; set; }
