@@ -8,6 +8,7 @@ import {
 } from "react-icons/fi";
 import { useEffect } from "react";
 import { staffService } from "../../../../../utils/staff/staffService";
+import { getStudentCountByGrade } from "../../../../../utils/api/class/classService";
 
 const TargetLogisticsStep = ({
   formData,
@@ -25,6 +26,7 @@ const TargetLogisticsStep = ({
   const [expandedClasses, setExpandedClasses] = useState({}); // { classKey: true/false }
   const [assignedClasses, setAssignedClasses] = useState([]); // [{ classId, className, gradeLevel, students: [] }]
   const [loadingAssigned, setLoadingAssigned] = useState(true);
+  const [studentCountsByGrade, setStudentCountsByGrade] = useState({});
 
   useEffect(() => {
     const fetchAssigned = async () => {
@@ -44,6 +46,31 @@ const TargetLogisticsStep = ({
     };
     fetchAssigned();
   }, []);
+
+  useEffect(() => {
+    async function fetchCounts() {
+      const counts = {};
+      // Fetch counts for ALL available grades, not just selected ones
+      for (const grade of availableGrades) {
+        try {
+          const res = await getStudentCountByGrade(grade.gradeLevel);
+          counts[grade.id] = res.studentCount;
+        } catch (error) {
+          console.error(
+            `Error fetching count for grade ${grade.gradeLevel}:`,
+            error
+          );
+          counts[grade.id] = 0;
+        }
+      }
+      setStudentCountsByGrade(counts);
+    }
+
+    // Only fetch when availableGrades is loaded and not empty
+    if (availableGrades.length > 0) {
+      fetchCounts();
+    }
+  }, [availableGrades]); // Remove formData.targetGrades dependency
 
   // Toggle grade expansion
   const handleToggleGrade = (gradeId) => {
@@ -147,7 +174,7 @@ const TargetLogisticsStep = ({
                       {grade.name}
                     </h4>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                      {grade.studentCount} học sinh
+                      {studentCountsByGrade[grade.id] ?? 0} học sinh
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       Lớp:{" "}
@@ -155,9 +182,6 @@ const TargetLogisticsStep = ({
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       {grade.ageRange}
-                    </p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                      GVCN: {grade.classTeacher || "Chưa có thông tin"}
                     </p>
                   </div>
                 </label>
@@ -212,7 +236,11 @@ const TargetLogisticsStep = ({
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                  {totalStudents}
+                  {formData.targetGrades.reduce(
+                    (sum, gradeId) =>
+                      sum + (studentCountsByGrade[gradeId] ?? 0),
+                    0
+                  )}
                 </p>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400">
                   Học sinh
@@ -256,7 +284,7 @@ const TargetLogisticsStep = ({
                           {grade.name}
                         </span>
                         <span className="text-xs text-neutral-600 dark:text-neutral-400">
-                          {grade.studentCount} học sinh
+                          {studentCountsByGrade[gradeId] ?? 0} học sinh
                         </span>
                       </div>
                       {expandedGrades[gradeId] && (

@@ -31,26 +31,34 @@ public class InjectionFormService : IInjectionFormService
 
     public async Task<InjectionForm?> CreateInjectionFormAsync(InjectionForm injectionForm)
     {
-        // Validate StudentId
-        if (!injectionForm.StudentId.HasValue)
+        // For vaccination schedules (when StudentId is null or 0), skip student validation
+        if (injectionForm.StudentId.HasValue && injectionForm.StudentId.Value > 0)
         {
-            throw new InvalidOperationException("StudentId is required");
+            var student = await _studentRepository.GetStudentByIdAsync(injectionForm.StudentId.Value);
+            if (student == null)
+            {
+                throw new InvalidOperationException("Student not found");
+            }
         }
-
-        var student = await _studentRepository.GetStudentByIdAsync(injectionForm.StudentId.Value);
-        if (student == null)
+        else
         {
-            throw new InvalidOperationException("Student not found");
+            // For vaccination schedules, set StudentId to null
+            injectionForm.StudentId = null;
         }
 
         // Validate ParentId if provided
-        if (injectionForm.ParentId.HasValue)
+        if (injectionForm.ParentId.HasValue && injectionForm.ParentId.Value > 0)
         {
             var parent = await _parentRepository.GetParentByIdAsync(injectionForm.ParentId.Value);
             if (parent == null)
             {
                 throw new InvalidOperationException("Parent not found");
             }
+        }
+        else
+        {
+            // For vaccination schedules, set ParentId to null
+            injectionForm.ParentId = null;
         }
 
         // Set default values
@@ -63,7 +71,11 @@ public class InjectionFormService : IInjectionFormService
             throw new InvalidOperationException("Invalid consent status value");
         }
 
-        return await _injectionFormRepository.CreateInjectionFormAsync(injectionForm);
+        var createdForm = await _injectionFormRepository.CreateInjectionFormAsync(injectionForm);
+        
+        // Reload the form with all relationships including Vaccine
+        var reloadedForm = await _injectionFormRepository.GetInjectionFormByIdAsync(createdForm.FormId);
+        return reloadedForm ?? createdForm;
     }
 
     public async Task<bool> UpdateInjectionFormAsync(InjectionForm injectionForm)
@@ -136,7 +148,7 @@ public class InjectionFormService : IInjectionFormService
         if (string.IsNullOrEmpty(status))
             return false;
 
-        var validStatuses = new[] { "Pending", "Approved", "Rejected", "Cancelled" };
-        return validStatuses.Contains(status);
+        var validStatuses = new[] { "pending", "approved", "rejected", "cancelled" };
+        return validStatuses.Contains(status.ToLower());
     }
 } 

@@ -1,45 +1,45 @@
 // Mock data for health check management
 export const availableGradesData = [
-  { 
-    id: "grade-1", 
-    name: "Khối 1", 
+  {
+    id: "grade-1",
+    name: "Khối 1",
     studentCount: 75, // Total students across all classes in grade 1
     ageRange: "6-7 tuổi",
     classes: ["1A", "1B", "1C"],
-    gradeLevel: 1
+    gradeLevel: 1,
   },
-  { 
-    id: "grade-2", 
-    name: "Khối 2", 
+  {
+    id: "grade-2",
+    name: "Khối 2",
     studentCount: 80, // Total students across all classes in grade 2
     ageRange: "7-8 tuổi",
     classes: ["2A", "2B", "2C"],
-    gradeLevel: 2
+    gradeLevel: 2,
   },
-  { 
-    id: "grade-3", 
-    name: "Khối 3", 
+  {
+    id: "grade-3",
+    name: "Khối 3",
     studentCount: 87, // Total students across all classes in grade 3
     ageRange: "8-9 tuổi",
     classes: ["3A", "3B", "3C"],
-    gradeLevel: 3
+    gradeLevel: 3,
   },
-  { 
-    id: "grade-4", 
-    name: "Khối 4", 
+  {
+    id: "grade-4",
+    name: "Khối 4",
     studentCount: 53, // Total students across all classes in grade 4
     ageRange: "9-10 tuổi",
     classes: ["4A", "4B"],
-    gradeLevel: 4
+    gradeLevel: 4,
   },
-  { 
-    id: "grade-5", 
-    name: "Khối 5", 
+  {
+    id: "grade-5",
+    name: "Khối 5",
     studentCount: 49, // Total students across all classes in grade 5
     ageRange: "10-11 tuổi",
     classes: ["5A", "5B"],
-    gradeLevel: 5
-  }
+    gradeLevel: 5,
+  },
 ];
 
 export const healthCheckStepsConfig = [
@@ -174,9 +174,9 @@ export const initialFormData = {
   studentId: 0,
   parentId: 0,
   createdDate: "",
-  consentStatus: "đang chờ",
+  consentStatus: "pending", // Use English status values
   consentDate: "",
-  confirmStatus: "đang chờ",
+  confirmStatus: "pending", // Use English status values
   confirmedBy: 0,
   confirmedDate: "",
   className: "",

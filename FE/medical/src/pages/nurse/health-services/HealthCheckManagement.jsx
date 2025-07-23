@@ -410,8 +410,9 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
   const renderEmptyState = () => {
     const emptyStateConfig = {
       pending: {
+        icon: FiClock,
         title: "Không có yêu cầu chờ duyệt",
-        description:
+        message:
           "Tất cả yêu cầu khám sức khỏe đã được xử lý hoặc chưa có yêu cầu nào",
       },
       upcoming: {
@@ -425,8 +426,9 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         message: "Lịch sử các buổi khám đã hoàn thành sẽ được hiển thị ở đây.",
       },
       rejected: {
+        icon: FiX,
         title: "Không có yêu cầu bị từ chối",
-        description: "Chưa có yêu cầu khám sức khỏe nào bị từ chối",
+        message: "Chưa có yêu cầu khám sức khỏe nào bị từ chối",
       },
     };
 

@@ -35,6 +35,16 @@ public partial class InjectionForm
 
     public string? Status { get; set; } // Trạng thái duyệt: pending, approved, rejected, etc
 
+    // Vaccination schedule fields (added to support schedule creation)
+    public DateTime? ScheduledDate { get; set; }
+    public TimeSpan? StartTime { get; set; }
+    public int? EstimatedDuration { get; set; }
+    public string? Location { get; set; }
+    public string? GradeIds { get; set; } // JSON array of grade IDs
+    public int? TotalStudents { get; set; }
+    public bool? NotifyParents { get; set; }
+    public bool? RequireParentConfirmation { get; set; }
+
     // Navigation properties
     public virtual Student? Student { get; set; }
     public virtual Parent? Parent { get; set; }

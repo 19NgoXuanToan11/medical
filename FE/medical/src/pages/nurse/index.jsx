@@ -10,6 +10,7 @@ import HealthCheckCreate from "./health-services/HealthCheckCreate";
 import HealthCheckList from "./health-services/HealthCheckList";
 import HealthCheckManagement from "./health-services/HealthCheckManagement";
 import HealthServicesDetail from "./health-services/HealthServicesDetail";
+import VaccinationDetail from "./health-services/VaccinationDetail";
 
 // Health Records
 import HealthRecordsList from "./health-records/HealthRecordsList";
@@ -47,6 +48,7 @@ const NursePages = () => {
         <Route path="/health-services/create" element={<HealthCheckCreate />} />
         <Route path="/health-services/list" element={<HealthCheckList />} />
         <Route path="/health-services/edit/:id" element={<HealthCheckCreate />} />
+        <Route path="/health-services/vaccination/:id" element={<VaccinationDetail />} />
         <Route path="/health-services/:id" element={<HealthServicesDetail />} />
 
         {/* Health Records */}

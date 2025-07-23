@@ -30,48 +30,54 @@ const VaccinationManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         const result = await injectionFormService.getVaccinationSchedules();
 
         if (result.success) {
-          // Transform data to match UI expectations
-          const transformedVaccinations = result.data.map((schedule) => ({
-            id: schedule.formId,
-            title: schedule.title,
-            description: schedule.description,
-            scheduledDate: schedule.scheduledDate
-              ? new Date(schedule.scheduledDate).toLocaleDateString("vi-VN")
-              : "Chưa xác định",
-            scheduledTime: schedule.startTime || "08:00",
-            location: schedule.location,
-            status:
-              schedule.status === "đang chờ"
-                ? "scheduled"
-                : schedule.status === "đã duyệt"
-                ? "active"
-                : schedule.status === "hoàn thành"
-                ? "completed"
-                : "scheduled",
-            totalStudents: schedule.totalStudents || 0,
-            grades: (() => {
-              // Handle schedule.grades first (if it exists and is not empty)
-              if (schedule.grades && schedule.grades.length > 0) {
-                const processedGrades = schedule.grades.map((grade) =>
-                  grade.replace("grade-", "")
-                );
-                return processedGrades;
-              }
-              // Handle schedule.gradeIds if grades is empty or doesn't exist
-              if (schedule.gradeIds) {
+          // Transform InjectionForm schedule data to match UI expectations
+          const transformedVaccinations = result.data.map((injectionForm) => {
+            return {
+              id: injectionForm.formId,
+              formId: injectionForm.formId,
+              title: injectionForm.injectionName || "Tiêm chủng",
+              description: injectionForm.description || "",
+              scheduledDate: injectionForm.scheduledDate
+                ? new Date(injectionForm.scheduledDate).toLocaleDateString(
+                    "vi-VN"
+                  )
+                : "Chưa xác định",
+              scheduledTime: injectionForm.startTime || "08:00",
+              location: injectionForm.location || "Phòng y tế trường",
+              status:
+                injectionForm.status === "đang chờ"
+                  ? "scheduled"
+                  : injectionForm.status === "đã duyệt"
+                  ? "active"
+                  : injectionForm.status === "hoàn thành"
+                  ? "completed"
+                  : "scheduled",
+              totalStudents: injectionForm.totalStudents || 0,
+              grades: (() => {
                 try {
-                  const parsedGrades = JSON.parse(schedule.gradeIds).map(
-                    (gradeId) => gradeId.replace("grade-", "")
-                  );
-                  return parsedGrades;
+                  return injectionForm.gradeIds
+                    ? JSON.parse(injectionForm.gradeIds).map((gradeId) =>
+                        gradeId.replace("grade-", "")
+                      )
+                    : [];
                 } catch (error) {
                   console.error("Error parsing gradeIds:", error);
                   return [];
                 }
-              }
-              return [];
-            })(),
-          }));
+              })(),
+              // Vaccine information
+              vaccineId: injectionForm.vaccineId,
+              vaccineName: injectionForm.vaccine?.name || "Unknown Vaccine",
+              vaccineInfo: injectionForm.vaccine?.name || "Unknown Vaccine",
+              // Additional information
+              estimatedDuration: injectionForm.estimatedDuration || 60,
+              notifyParents: injectionForm.notifyParents,
+              requireParentConfirmation:
+                injectionForm.requireParentConfirmation,
+              consentStatus: injectionForm.consentStatus,
+              confirmStatus: injectionForm.confirmStatus,
+            };
+          });
 
           setVaccinations(transformedVaccinations);
         } else {
@@ -263,7 +269,7 @@ const VaccinationManagement = ({ searchTerm: parentSearchTerm = "" }) => {
       <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
         <div className="flex space-x-2">
           <Link
-            to={`/nurse/health-services/${
+            to={`/nurse/health-services/vaccination/${
               vaccination.formId || vaccination.id
             }`}
             className="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"

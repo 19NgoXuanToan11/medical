@@ -95,6 +95,11 @@ export const getClassStudents = async (classId) => {
   }
 };
 
+export const getStudentCountByGrade = async (gradeLevel) => {
+  const response = await api.get(`/Class/grade/${gradeLevel}/student-count`);
+  return response.data; // { gradeLevel: 2, studentCount: 81 }
+};
+
 // Create a new class
 export const createClass = async (classData) => {
   try {

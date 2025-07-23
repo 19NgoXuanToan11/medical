@@ -17,6 +17,7 @@ public class InjectionFormRepository : IInjectionFormRepository
         return await _context.InjectionForms
             .Include(f => f.Student)
             .Include(f => f.Parent)
+            .Include(f => f.Vaccine)
             .ToListAsync();
     }
 
@@ -25,6 +26,7 @@ public class InjectionFormRepository : IInjectionFormRepository
         return await _context.InjectionForms
             .Include(f => f.Student)
             .Include(f => f.Parent)
+            .Include(f => f.Vaccine)
             .FirstOrDefaultAsync(f => f.FormId == id);
     }
 
@@ -65,6 +67,7 @@ public class InjectionFormRepository : IInjectionFormRepository
         return await _context.InjectionForms
             .Include(f => f.Student)
             .Include(f => f.Parent)
+            .Include(f => f.Vaccine)
             .Where(f => f.StudentId == studentId)
             .OrderByDescending(f => f.CreatedDate)
             .ToListAsync();
@@ -75,6 +78,7 @@ public class InjectionFormRepository : IInjectionFormRepository
         return await _context.InjectionForms
             .Include(f => f.Student)
             .Include(f => f.Parent)
+            .Include(f => f.Vaccine)
             .Where(f => f.ParentId == parentId)
             .OrderByDescending(f => f.CreatedDate)
             .ToListAsync();
@@ -85,6 +89,7 @@ public class InjectionFormRepository : IInjectionFormRepository
         return await _context.InjectionForms
             .Include(f => f.Student)
             .Include(f => f.Parent)
+            .Include(f => f.Vaccine)
             .Where(f => f.ConsentStatus == status)
             .OrderByDescending(f => f.CreatedDate)
             .ToListAsync();
