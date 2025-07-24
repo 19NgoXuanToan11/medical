@@ -239,6 +239,28 @@ const HealthEventsList = () => {
               </div>
             </div>
           )}
+
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={() => handleMarkAsRead(notification.notificationId)}
+              className={`text-sm px-3 py-1 rounded transition-colors ${
+                isUnread
+                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+              }`}
+              disabled={!isUnread}
+            >
+              {isUnread ? "Đánh dấu đã đọc" : "Đã đọc"}
+            </button>
+            <Link
+              to={`/parent/health-events/${
+                additionalData?.EventId || notification.notificationId
+              }/notification`}
+              className="text-sm bg-primary-600 text-white px-3 py-1 rounded hover:bg-primary-700 transition-colors"
+            >
+              Xem chi tiết
+            </Link>
+          </div>
         </div>
       </div>
     );

@@ -279,13 +279,13 @@ export const validateFormStep = (step, formData) => {
       } else {
         const selectedDate = new Date(formData.scheduledDateTime);
         const now = new Date();
-        const minFutureDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+        const minFutureDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
 
         if (selectedDate < now) {
           errors.scheduledDateTime = "Thời gian thực hiện phải trong tương lai";
         } else if (selectedDate < minFutureDate) {
           errors.scheduledDateTime =
-            "Thời gian thực hiện phải ít nhất 24 giờ sau hiện tại";
+            "Thời gian thực hiện phải ít nhất 1 tuần (7 ngày) sau hiện tại để đảm bảo thời gian chuẩn bị";
         }
       }
 
@@ -372,13 +372,31 @@ export const validateCompleteForm = (formData) => {
     errors.targetGrades = "Phải chọn ít nhất một lớp học";
   }
 
-  if (!formData.scheduledDateTime) {
-    errors.scheduledDateTime = "Phải chọn thời gian thực hiện";
+  if (
+    !formData.scheduledDateTime &&
+    (!formData.scheduledDate || !formData.scheduledTime)
+  ) {
+    errors.scheduledDateTime = "Phải chọn ngày và thời gian thực hiện";
   } else {
-    const selectedDate = new Date(formData.scheduledDateTime);
-    const now = new Date();
-    if (selectedDate <= now) {
-      errors.scheduledDateTime = "Thời gian thực hiện phải trong tương lai";
+    let dateToValidate;
+    if (formData.scheduledDateTime) {
+      dateToValidate = new Date(formData.scheduledDateTime);
+    } else if (formData.scheduledDate && formData.scheduledTime) {
+      dateToValidate = new Date(
+        `${formData.scheduledDate}T${formData.scheduledTime}:00`
+      );
+    }
+
+    if (dateToValidate) {
+      const now = new Date();
+      const minFutureDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+
+      if (dateToValidate <= now) {
+        errors.scheduledDateTime = "Thời gian thực hiện phải trong tương lai";
+      } else if (dateToValidate < minFutureDate) {
+        errors.scheduledDateTime =
+          "Thời gian thực hiện phải ít nhất 1 tuần (7 ngày) sau hiện tại";
+      }
     }
   }
 

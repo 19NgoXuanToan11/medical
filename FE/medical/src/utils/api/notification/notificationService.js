@@ -139,6 +139,22 @@ export const notificationService = {
       throw error;
     }
   },
+
+  // Get notification by ID
+  async getNotificationById(notificationId) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/Notification/${notificationId}`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching notification by ID:", error);
+      throw error;
+    }
+  },
 };
 
 export default notificationService;

@@ -149,9 +149,6 @@ const VaccinationDetail = () => {
                 <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Chi tiết tiêm chủng
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  ID: {vaccinationData.formId}
-                </p>
               </div>
             </div>
 
@@ -174,12 +171,6 @@ const VaccinationDetail = () => {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Basic Information Card */}
           <div className="bg-white dark:bg-neutral-800 shadow-sm rounded-lg border border-gray-200 dark:border-neutral-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <FiShield className="h-5 w-5 mr-2 text-blue-600" />
-                Thông tin tiêm chủng
-              </h3>
-            </div>
             <div className="px-6 py-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -328,14 +319,6 @@ const VaccinationDetail = () => {
                       </div>
                       <div>
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Loại vaccine
-                        </span>
-                        <p className="text-sm text-gray-900 dark:text-white font-medium">
-                          {vaccinationData.vaccine.type || "Không có thông tin"}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           Liều lượng
                         </span>
                         <p className="text-sm text-gray-900 dark:text-white font-medium">
@@ -379,16 +362,19 @@ const VaccinationDetail = () => {
                             : "Không có thông tin"}
                         </p>
                       </div>
-                      <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Mô tả
-                        </span>
-                        <p className="text-sm text-gray-900 dark:text-white font-medium">
-                          {vaccinationData.vaccine.description ||
-                            "Không có mô tả"}
-                        </p>
-                      </div>
+                      {/* Đưa mô tả ra giữa hai cột */}
                     </div>
+                  </div>
+                </div>
+                {/* Mô tả ở giữa hai cột */}
+                <div className="flex justify-center mt-6">
+                  <div className="w-full md:w-2/3">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Mô tả
+                    </span>
+                    <p className="text-sm text-gray-900 dark:text-white font-medium text-center">
+                      {vaccinationData.vaccine.description || "Không có mô tả"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -469,54 +455,6 @@ const VaccinationDetail = () => {
               </div>
             </div>
           )}
-
-          {/* Timeline Card */}
-          <div className="bg-white dark:bg-neutral-800 shadow-sm rounded-lg border border-gray-200 dark:border-neutral-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <FiActivity className="h-5 w-5 mr-2 text-orange-600" />
-                Thông tin thời gian
-              </h3>
-            </div>
-            <div className="px-6 py-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-neutral-700 rounded-lg">
-                  <span className="text-sm text-gray-600 dark:text-gray-300">
-                    Ngày tạo
-                  </span>
-                  <span className="text-sm text-gray-900 dark:text-white font-medium">
-                    {vaccinationData.createDate
-                      ? new Date(vaccinationData.createDate).toLocaleDateString(
-                          "vi-VN"
-                        )
-                      : "Không có thông tin"}
-                  </span>
-                </div>
-                {vaccinationData.scheduledDate && (
-                  <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <span className="text-sm text-blue-600 dark:text-blue-300">
-                      Ngày dự kiến thực hiện
-                    </span>
-                    <span className="text-sm text-blue-900 dark:text-blue-100 font-medium">
-                      {new Date(
-                        vaccinationData.scheduledDate
-                      ).toLocaleDateString("vi-VN")}
-                    </span>
-                  </div>
-                )}
-                {vaccinationData.startTime && (
-                  <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <span className="text-sm text-green-600 dark:text-green-300">
-                      Thời gian bắt đầu
-                    </span>
-                    <span className="text-sm text-green-900 dark:text-green-100 font-medium">
-                      {vaccinationData.startTime}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

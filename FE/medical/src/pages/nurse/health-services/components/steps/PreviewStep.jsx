@@ -6,6 +6,7 @@ import {
   FiAlertCircle,
   FiCheckCircle,
   FiActivity,
+  FiShield,
 } from "react-icons/fi";
 
 const PreviewStep = ({
@@ -35,165 +36,164 @@ const PreviewStep = ({
 
   return (
     <div className="space-y-6">
-      {/* Main Information Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Vaccine Information */}
-        <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-            <FiActivity className="w-5 h-5 mr-2 text-green-500 dark:text-green-400" />
-            Thông tin vaccine
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">
-                Tên vaccine:
-              </span>
-              <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
-                {formData.vaccineName || "Chưa chọn"}
-              </span>
-            </div>
-            {formData.vaccineInfo && (
-              <>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Nhà sản xuất:
-                  </span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
-                    {formData.vaccineInfo.manufacturer || "Chưa xác định"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Liều lượng:
-                  </span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
-                    {formData.vaccineInfo.dose || "Theo hướng dẫn"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Cách tiêm:
-                  </span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
-                    {formData.vaccineInfo.administrationMethod || "Tiêm bắp"}
-                  </span>
-                </div>
-                {formData.vaccineInfo.batchNumber && (
-                  <div className="pt-2 border-t border-gray-200 dark:border-neutral-600">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Lô sản xuất:
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {formData.vaccineInfo.batchNumber}
-                      </span>
-                    </div>
-                    {formData.vaccineInfo.expiryDate && (
-                      <div className="flex justify-between mt-1">
-                        <span className="text-gray-600 dark:text-gray-400">
-                          Hạn sử dụng:
-                        </span>
-                        <span className="font-medium text-gray-900 dark:text-gray-100">
-                          {new Date(
-                            formData.vaccineInfo.expiryDate
-                          ).toLocaleDateString("vi-VN")}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
+      {/* Basic Information */}
+      <div className="flex-1 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg p-8 min-w-0">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+          <FiCalendar className="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" />
+          Thông tin cơ bản
+        </h3>
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <span className="text-gray-600 dark:text-gray-400">Tiêu đề:</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
+              {formData.title}
+            </span>
           </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600 dark:text-gray-400">
+              Ngày và giờ thực hiện:
+            </span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {formatDateTime(formData.scheduledDateTime)}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600 dark:text-gray-400">Địa điểm:</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
+              {formData.location}
+            </span>
+          </div>
+          {formData.description && (
+            <div className="pt-2 border-t border-gray-200 dark:border-neutral-600">
+              <span className="text-gray-600 dark:text-gray-400 block mb-1">
+                Mô tả:
+              </span>
+              <span className="text-gray-900 dark:text-gray-100 text-sm">
+                {formData.description}
+              </span>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* Basic Information */}
-        <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-            <FiCalendar className="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" />
-            Thông tin cơ bản
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Tiêu đề:</span>
-              <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
-                {formData.title}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">
-                Ngày và giờ thực hiện:
-              </span>
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {formatDateTime(formData.scheduledDateTime)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">
-                Địa điểm:
-              </span>
-              <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
-                {formData.location}
-              </span>
-            </div>
-            {formData.description && (
-              <div className="pt-2 border-t border-gray-200 dark:border-neutral-600">
-                <span className="text-gray-600 dark:text-gray-400 block mb-1">
-                  Mô tả:
+      {/* Target Classes - Full Width */}
+      <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg p-8">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center">
+          <FiShield className="w-5 h-5 mr-2 text-purple-500 dark:text-purple-400" />
+          Thông tin vắc xin
+        </h3>
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <span className="text-gray-600 dark:text-gray-400">
+              Tên vaccine:
+            </span>
+            <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
+              {formData.vaccineName || "Chưa chọn"}
+            </span>
+          </div>
+          {formData.vaccineInfo && (
+            <>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">
+                  Nhà sản xuất:
                 </span>
-                <span className="text-gray-900 dark:text-gray-100 text-sm">
-                  {formData.description}
+                <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
+                  {formData.vaccineInfo.manufacturer || "Chưa xác định"}
                 </span>
               </div>
-            )}
-          </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">
+                  Liều lượng:
+                </span>
+                <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
+                  {formData.vaccineInfo.dose || "Theo hướng dẫn"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">
+                  Cách tiêm:
+                </span>
+                <span className="font-medium text-gray-900 dark:text-gray-100 text-right">
+                  {formData.vaccineInfo.administrationMethod || "Tiêm bắp"}
+                </span>
+              </div>
+              {formData.vaccineInfo.batchNumber && (
+                <div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Lô sản xuất:
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {formData.vaccineInfo.batchNumber}
+                    </span>
+                  </div>
+                  {formData.vaccineInfo.expiryDate && (
+                    <div className="flex justify-between mt-1">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Hạn sử dụng:
+                      </span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {new Date(
+                          formData.vaccineInfo.expiryDate
+                        ).toLocaleDateString("vi-VN")}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </div>
+      </div>
 
-        {/* Target Classes */}
-        <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-            <FiUsers className="w-5 h-5 mr-2 text-purple-500 dark:text-purple-400" />
-            Lớp học tham gia
-          </h3>
-          <div className="grid grid-cols-1 gap-2">
-            {formData.targetGrades.map((gradeId) => {
-              const grade = availableGrades.find((g) => g.id === gradeId);
-              return grade ? (
-                <div
-                  key={gradeId}
-                  className="flex justify-between items-center p-2 bg-gray-50 dark:bg-neutral-700 rounded"
-                >
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
+      {/* Target Classes */}
+      <div className="flex-1 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg p-8 min-w-0">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+          <FiUsers className="w-5 h-5 mr-2 text-purple-500 dark:text-purple-400" />
+          Lớp học tham gia
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+          {formData.targetGrades.map((gradeId) => {
+            const grade = availableGrades.find((g) => g.id === gradeId);
+            return grade ? (
+              <div
+                key={gradeId}
+                className="bg-gray-50 dark:bg-neutral-700 border border-gray-200 dark:border-neutral-600 rounded-lg p-4"
+              >
+                <div className="flex flex-col space-y-2">
+                  <span className="font-medium text-gray-900 dark:text-gray-100 text-lg">
                     {grade.name}
                   </span>
-                  <div className="text-right">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {studentCountsByGrade[gradeId] ?? 0} học sinh
+                  <div className="space-y-1">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      Số học sinh: {studentCountsByGrade[gradeId] ?? 0}
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-500 block">
+                      Lớp:{" "}
                       {grade.classes ? grade.classes.join(", ") : "Không có"}
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-500 block">
-                      {grade.ageRange}
+                      Độ tuổi: {grade.ageRange}
                     </span>
                   </div>
                 </div>
-              ) : null;
-            })}
-          </div>
-          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-neutral-600">
-            <div className="flex justify-between">
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                Tổng cộng:
-              </span>
-              <span className="font-bold text-blue-600 dark:text-blue-400">
-                {formData.targetGrades.reduce(
-                  (sum, gradeId) => sum + (studentCountsByGrade[gradeId] ?? 0),
-                  0
-                )}{" "}
-                học sinh
-              </span>
-            </div>
+              </div>
+            ) : null;
+          })}
+        </div>
+
+        <div className="border-t border-gray-200 dark:border-neutral-600 pt-4">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-medium text-gray-900 dark:text-gray-100">
+              Tổng cộng:
+            </span>
+            <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+              {formData.targetGrades.reduce(
+                (sum, gradeId) => sum + (studentCountsByGrade[gradeId] ?? 0),
+                0
+              )}{" "}
+              học sinh
+            </span>
           </div>
         </div>
       </div>

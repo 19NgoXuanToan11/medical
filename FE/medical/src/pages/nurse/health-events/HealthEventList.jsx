@@ -43,10 +43,24 @@ const HealthEventList = () => {
         // Use different API based on filter preference and user role
         if (showMyGradeOnly && user?.id && user?.role === "nurse") {
           // Get only health events for students in nurse's assigned grades
-          apiData = await getHealthEventsByNurseGrade(user.id);
+          try {
+            apiData = await getHealthEventsByNurseGrade(user.id);
+          } catch (error) {
+            console.error(
+              "Error with getHealthEventsByNurseGrade, falling back to getAllHealthEvents:",
+              error
+            );
+            apiData = await getAllHealthEvents();
+          }
         } else {
           // Get all health events (fallback)
           apiData = await getAllHealthEvents();
+        }
+
+        // Ensure apiData is an array
+        if (!Array.isArray(apiData)) {
+          setEventsList([]);
+          return;
         }
 
         const mappedEvents = apiData.map(mapHealthEventFromAPI);
@@ -201,6 +215,9 @@ const HealthEventList = () => {
         .includes(searchTerm.toLowerCase())
   );
 
+  // Temporary override for debugging - show all events regardless of filters
+  const debugFilteredEvents = eventsList; // Use this to bypass all filtering
+
   const formatTime = (timeString) => {
     const date = new Date(timeString);
     return date.toLocaleTimeString("vi-VN", {
@@ -311,7 +328,7 @@ const HealthEventList = () => {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Danh sách sự cố ({filteredEvents.length})
+            Danh sách sự cố ({debugFilteredEvents.length})
           </h3>
         </div>
 
@@ -358,7 +375,7 @@ const HealthEventList = () => {
                     </div>
                   </td>
                 </tr>
-              ) : filteredEvents.length === 0 ? (
+              ) : debugFilteredEvents.length === 0 ? (
                 <tr>
                   <td
                     colSpan="9"
@@ -374,7 +391,7 @@ const HealthEventList = () => {
                   </td>
                 </tr>
               ) : (
-                filteredEvents.map((event) => (
+                debugFilteredEvents.map((event) => (
                   <tr
                     key={event.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"

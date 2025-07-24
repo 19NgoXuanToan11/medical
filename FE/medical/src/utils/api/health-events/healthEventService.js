@@ -321,14 +321,25 @@ export const refreshHealthEvents = async () => {
 
 // Helper function to map API data to frontend format
 export const mapHealthEventFromAPI = (apiData) => {
-  return {
+  // Safe mapping with fallbacks
+  const studentName = apiData.student
+    ? `${apiData.student.firstName || ""} ${
+        apiData.student.lastName || ""
+      }`.trim()
+    : "Unknown Student";
+
+  const className = apiData.student?.className || "Unknown Class";
+
+  const nurseName = apiData.staff
+    ? `${apiData.staff.firstName || ""} ${apiData.staff.lastName || ""}`.trim()
+    : "Unknown Nurse";
+
+  const mappedEvent = {
     id: apiData.eventId,
-    studentName: apiData.student
-      ? `${apiData.student.firstName} ${apiData.student.lastName}`
-      : "Unknown",
-    studentCode: apiData.studentCode,
-    class: apiData.student?.className || "Unknown",
-    type: apiData.eventType?.toLowerCase() || "other",
+    studentName: studentName,
+    studentCode: apiData.studentCode || "Unknown Code",
+    class: className,
+    type: (apiData.eventType || "other").toLowerCase(),
     description: apiData.symptoms || apiData.assessment || "No description",
     time: apiData.eventDate,
     status: apiData.treatment ? "resolved" : "pending",
@@ -338,9 +349,7 @@ export const mapHealthEventFromAPI = (apiData) => {
     severity: determineSeverity(apiData),
     parentNotified: apiData.parentNotified || false,
     followUpRequired: apiData.followUpRequired || false,
-    nurseName: apiData.staff
-      ? `${apiData.staff.firstName} ${apiData.staff.lastName}`
-      : "Unknown",
+    nurseName: nurseName,
     assessment: apiData.assessment,
     symptoms: apiData.symptoms,
     treatment: apiData.treatment,
@@ -351,6 +360,8 @@ export const mapHealthEventFromAPI = (apiData) => {
     medicines: apiData.healthEventMedicines,
     medicalSupplies: apiData.healthEventMedicalSupplies,
   };
+
+  return mappedEvent;
 };
 
 // Helper function to determine severity based on event data

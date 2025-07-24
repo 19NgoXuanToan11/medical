@@ -368,8 +368,12 @@ export const useVaccinationForm = () => {
         // Basic information
         title: formData.title?.trim(),
         description: formData.description?.trim() || "",
-        scheduledDateTime: formData.scheduledDateTime,
-        location: formData.location?.trim(),
+        scheduledDateTime:
+          formData.scheduledDateTime ||
+          (formData.scheduledDate && formData.scheduledTime
+            ? `${formData.scheduledDate}T${formData.scheduledTime}:00`
+            : null),
+        location: formData.location?.trim() || "Phòng y tế trường",
 
         // Vaccine information
         vaccineId: parseInt(formData.vaccineId),

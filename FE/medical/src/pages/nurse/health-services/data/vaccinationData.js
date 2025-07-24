@@ -210,6 +210,8 @@ export const initialFormData = {
   title: "",
   description: "",
   scheduledDateTime: "",
+  scheduledDate: "",
+  scheduledTime: "",
   location: "Phòng y tế trường",
 
   // Vaccine Selection (Step 2)

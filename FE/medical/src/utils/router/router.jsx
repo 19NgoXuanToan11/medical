@@ -77,6 +77,7 @@ import VaccinationConsent from "../../pages/parent/vaccination/VaccinationConsen
 import HealthEventsList from "../../pages/parent/health-events/HealthEventsList";
 import ParentHealthEventDetail from "../../pages/parent/health-events/HealthEventDetail";
 import HealthEventResultDetail from "../../pages/parent/health-events/HealthEventResultDetail";
+import HealthEventNotificationDetail from "../../pages/parent/health-events/HealthEventNotificationDetail";
 import Notifications from "../../pages/parent/notification/Notifications";
 import HealthServices from "../../pages/parent/health-services/HealthServices";
 
@@ -208,6 +209,7 @@ function AppRoutes() {
         <Route path="/parent/health-events" element={<HealthEventsList />} />
         <Route path="/parent/health-events/:id" element={<ParentHealthEventDetail />} />
         <Route path="/parent/health-events/:id/results" element={<HealthEventResultDetail />} />
+        <Route path="/parent/health-events/:id/notification" element={<HealthEventNotificationDetail />} />
 
         <Route path="/parent/notifications" element={<Notifications />} />
 
