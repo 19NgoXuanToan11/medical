@@ -13,9 +13,10 @@ import {
   FiX,
   FiUser,
   FiPlus,
+  FiHeart,
+  FiEye,
 } from "react-icons/fi";
 import MedicationReminders from "../medication/MedicationReminders";
-import TodaySchedule from "../../../components/nurse/TodaySchedule";
 import SimpleGreeting from "../../../components/common/SimpleGreeting";
 
 const NurseDashboard = () => {
@@ -299,70 +300,172 @@ const NurseDashboard = () => {
             <MedicationReminders />
           </div>
 
+          {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            {/* Today's Schedule - Takes up more space */}
+            {/* Health Records Management - Takes up more space */}
             <div className="lg:col-span-2">
-              <TodaySchedule />
+              <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden hover:shadow-xl transition-all duration-300">
+                <div className="bg-gradient-to-r from-primary-50 dark:from-primary-900/30 to-blue-50 dark:to-blue-900/30 p-6 border-b border-neutral-100 dark:border-neutral-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-2xl font-bold text-neutral-800 dark:text-neutral-200 flex items-center mb-2">
+                        <FiHeart className="h-7 w-7 mr-3 text-primary-600 dark:text-primary-400" />
+                        Hồ sơ sức khỏe học sinh
+                      </h3>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                        Quản lý và theo dõi tình trạng sức khỏe của các học sinh
+                        thuộc khối bạn phụ trách
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="bg-white dark:bg-neutral-800 rounded-lg p-3 shadow-sm border border-neutral-200 dark:border-neutral-600">
+                        <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                          {stats.totalStudents}
+                        </div>
+                        <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                          Tổng học sinh
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  {/* Quick Stats */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
+                        {stats.totalStudents - stats.allergyAlerts - 10}
+                      </div>
+                      <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                        Sức khỏe tốt
+                      </div>
+                    </div>
+                    <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mb-1">
+                        {stats.allergyAlerts}
+                      </div>
+                      <div className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">
+                        Có dị ứng
+                      </div>
+                    </div>
+                    <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-red-600 dark:text-red-400 mb-1">
+                        10
+                      </div>
+                      <div className="text-xs text-red-600 dark:text-red-400 font-medium">
+                        Bệnh mãn tính
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+                        {stats.totalCheckedStudents}
+                      </div>
+                      <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                        Đã kiểm tra
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recent Health Records */}
+                  <div className="space-y-3 mb-6">
+                    <h4 className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-3">
+                      Hồ sơ cần chú ý
+                    </h4>
+                    {[
+                      {
+                        name: "Nguyễn Văn An",
+                        class: "5A",
+                        issue: "Dị ứng thức ăn",
+                        severity: "medium",
+                      },
+                      {
+                        name: "Trần Thị Bình",
+                        class: "5B",
+                        issue: "Cận thị",
+                        severity: "low",
+                      },
+                      {
+                        name: "Lê Văn Cường",
+                        class: "5C",
+                        issue: "Hen suyễn",
+                        severity: "high",
+                      },
+                    ].map((record, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0">
+                            <div className="h-8 w-8 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
+                              <FiUser className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                              {record.name} - {record.class}
+                            </div>
+                            <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                              {record.issue}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span
+                            className={`h-2 w-2 rounded-full ${
+                              record.severity === "high"
+                                ? "bg-red-500"
+                                : record.severity === "medium"
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
+                            }`}
+                          ></span>
+                          <button className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300">
+                            <FiEye className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      to="/nurse/health-records"
+                      className="flex items-center bg-primary-600 dark:bg-primary-700 hover:bg-primary-700 dark:hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium shadow-sm"
+                    >
+                      <FiHeart className="h-4 w-4 mr-2" />
+                      Xem tất cả hồ sơ
+                    </Link>
+                    <Link
+                      to="/nurse/health-services/health-check-create"
+                      className="flex items-center bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium shadow-sm"
+                    >
+                      <FiPlus className="h-4 w-4 mr-2" />
+                      Khám sức khỏe
+                    </Link>
+                    <Link
+                      to="/nurse/health-events/create"
+                      className="flex items-center bg-orange-600 dark:bg-orange-700 hover:bg-orange-700 dark:hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium shadow-sm"
+                    >
+                      <FiAlertCircle className="h-4 w-4 mr-2" />
+                      Báo cáo sự cố
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Recent Activities */}
             <div className="lg:col-span-1 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-700 overflow-hidden transition-colors duration-300">
               <div className="p-6 border-b border-neutral-100 dark:border-neutral-700">
                 <h3 className="text-lg font-medium text-neutral-800 dark:text-neutral-200">
-                  Sự kiện gần đây
+                  Hoạt động gần đây
                 </h3>
               </div>
               <div className="p-6">
-                <div className="space-y-4">
-                  {recentEvents.map((event) => (
-                    <div
-                      key={event.id}
-                      className="flex items-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg"
-                    >
-                      <div
-                        className={`p-2 rounded-full ${
-                          event.type === "illness"
-                            ? "bg-red-100 dark:bg-red-900/30"
-                            : event.type === "injury"
-                            ? "bg-yellow-100 dark:bg-yellow-900/30"
-                            : "bg-green-100 dark:bg-green-900/30"
-                        }`}
-                      >
-                        <FiActivity
-                          className={`h-5 w-5 ${
-                            event.type === "illness"
-                              ? "text-red-600 dark:text-red-400"
-                              : event.type === "injury"
-                              ? "text-yellow-600 dark:text-yellow-400"
-                              : "text-green-600 dark:text-green-400"
-                          }`}
-                        />
-                      </div>
-                      <div className="ml-3 flex-1">
-                        <div className="flex justify-between">
-                          <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                            {event.studentName} ({event.class})
-                          </div>
-                          <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                            {event.timestamp}
-                          </div>
-                        </div>
-                        <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                          {event.description}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 text-center">
-                  <Link
-                    to="/nurse/health-events"
-                    className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 text-sm font-medium"
-                  >
-                    Xem tất cả sự kiện
-                  </Link>
-                </div>
+                <div className="space-y-4">{/* Activities content */}</div>
               </div>
             </div>
           </div>

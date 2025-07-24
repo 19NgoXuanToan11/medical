@@ -3,6 +3,7 @@ using Repo;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Service;
 
@@ -130,5 +131,11 @@ public class HealthProfileService : IHealthProfileService
     public async Task<bool> DeleteHealthProfileAsync(int id)
     {
         return await _healthProfileRepository.DeleteHealthProfileAsync(id);
+    }
+
+    public async Task<IEnumerable<HealthProfile>> GetHealthProfilesByGradeListAsync(IEnumerable<int> gradeLevels)
+    {
+        var allProfiles = await _healthProfileRepository.GetAllHealthProfilesAsync();
+        return allProfiles.Where(p => p.Student != null && p.Student.Class != null && gradeLevels.Contains(p.Student.Class.GradeLevel));
     }
 } 

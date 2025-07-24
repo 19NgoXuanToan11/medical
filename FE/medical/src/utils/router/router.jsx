@@ -56,7 +56,7 @@ import HealthEventDetail from "../../pages/nurse/health-events/HealthEventDetail
 import HealthEventCreate from "../../pages/nurse/health-events/HealthEventCreate";
 import HealthEventEdit from "../../pages/nurse/health-events/HealthEventEdit";
 import NurseMedicationManagement from "../../pages/nurse/medication/MedicationManagement";
-import NurseSchedule from "../../pages/nurse/schedule/NurseSchedule";
+
 import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealthRecords";
 import StudentHealthRecordDetail from "../../pages/nurse/health-records/StudentHealthRecordDetail";
 import HealthServicesManagement from "../../pages/nurse/health-services/HealthServicesManagement";
@@ -164,8 +164,6 @@ function AppRoutes() {
         <Route path="/nurse/dashboard" element={<NurseDashboard />} />
 
         <Route path="/nurse/profile" element={<NurseProfile />} />
-
-        <Route path="/nurse/schedule" element={<NurseSchedule />} />
 
         <Route path="/nurse/health-records" element={<StudentHealthRecords />} />
         <Route path="/nurse/health-records/:studentId" element={<StudentHealthRecordDetail />} />

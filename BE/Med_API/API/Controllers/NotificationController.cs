@@ -84,19 +84,10 @@ public class NotificationController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateNotification(int id, NotificationDto.Update updateDto)
     {
-        if (id != updateDto.NotificationId)
-        {
-            return BadRequest("ID mismatch");
-        }
-
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         try
         {
             var notification = _mapper.Map<Notification>(updateDto);
+            notification.NotificationId = id; // Đảm bảo gán đúng ID
             var success = await _notificationService.UpdateNotificationAsync(notification);
             if (!success)
             {
@@ -170,7 +161,7 @@ public class NotificationController : ControllerBase
     public async Task<ActionResult<NotificationDto.ViewModel>> SendInjectionConsentNotification(int formId, [FromQuery] bool isApproved)
     {
         // Lấy thông tin form tiêm chủng
-        var form = await HttpContext.RequestServices.GetService(typeof(Service.IInjectionFormService)) as Service.IInjectionFormService;
+        var form = HttpContext.RequestServices.GetService(typeof(Service.IInjectionFormService)) as Service.IInjectionFormService;
         var injectionForm = await form.GetInjectionFormByIdAsync(formId);
         if (injectionForm == null)
         {
@@ -191,7 +182,7 @@ public class NotificationController : ControllerBase
             Priority = "high"
         };
         var notificationEntity = HttpContext.RequestServices.GetService(typeof(Service.INotificationService)) as Service.INotificationService;
-        var created = await notificationEntity.CreateNotificationAsync(AutoMapper.Mapper.Map<DB.Notification>(notification));
+        var created = await notificationEntity.CreateNotificationAsync(_mapper.Map<DB.Notification>(notification));
         return CreatedAtAction(nameof(GetNotificationById), new { id = created.NotificationId }, _mapper.Map<NotificationDto.ViewModel>(created));
     }
 } 

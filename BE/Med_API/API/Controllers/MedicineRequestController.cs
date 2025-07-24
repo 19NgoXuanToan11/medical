@@ -189,7 +189,7 @@ public class MedicineRequestController : ControllerBase
     // DEBUG endpoint - Test JWT token validation
     [HttpGet("debug/test-auth")]
     [Microsoft.AspNetCore.Authorization.Authorize]
-    public async Task<IActionResult> TestAuth()
+    public Task<IActionResult> TestAuth()
     {
         try
         {
@@ -198,31 +198,30 @@ public class MedicineRequestController : ControllerBase
             var nameClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Name);
             var emailClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Email);
 
-            return Ok(new {
+            return Task.FromResult<IActionResult>(Ok(new {
                 IsAuthenticated = User.Identity.IsAuthenticated,
                 UserId = userIdClaim?.Value,
                 Role = roleClaim?.Value,
                 Name = nameClaim?.Value,
                 Email = emailClaim?.Value,
                 Claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToList()
-            });
+            }));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in TestAuth");
-            return StatusCode(500, new { message = "Auth test error", error = ex.Message });
+            return Task.FromResult<IActionResult>(StatusCode(500, new { message = "Auth test error", error = ex.Message }));
         }
     }
 
     // DEBUG endpoint - Check JWT token format without authentication
     [HttpGet("debug/check-token")]
-    public async Task<IActionResult> CheckToken()
+    public Task<IActionResult> CheckToken()
     {
         try
         {
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
-            
-            return Ok(new {
+            return Task.FromResult<IActionResult>(Ok(new {
                 HasAuthHeader = authHeader != null,
                 AuthHeader = authHeader,
                 HasBearerPrefix = authHeader?.StartsWith("Bearer ") == true,
@@ -233,12 +232,12 @@ public class MedicineRequestController : ControllerBase
                     authHeader != null && !authHeader.StartsWith("Bearer ") ? "Authorization header phải bắt đầu với 'Bearer '" : null,
                     authHeader?.Replace("Bearer ", "").Length < 100 ? "Token có vẻ quá ngắn" : null
                 }.Where(r => r != null).ToList()
-            });
+            }));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in CheckToken");
-            return StatusCode(500, new { message = "Check token error", error = ex.Message });
+            return Task.FromResult<IActionResult>(StatusCode(500, new { message = "Check token error", error = ex.Message }));
         }
     }
 
@@ -743,7 +742,7 @@ public class MedicineRequestController : ControllerBase
             {
                 req.MedicineRequestItems = req.MedicineRequestItems
                     .Where(item => item.PeriodVerificationStatus != null &&
-                        item.PeriodVerificationStatus.Any(kv => kv.Key.Trim().Equals(period.Trim(), StringComparison.OrdinalIgnoreCase) && kv.Value == "Verified"))
+                        item.PeriodVerificationStatus.Any(kv => kv.Key.Trim().Equals(period.Trim(), StringComparison.OrdinalIgnoreCase) && (kv.Value?.ToString() == "Verified")))
                     .ToList();
             }
             viewModels = viewModels.Where(r => r.MedicineRequestItems.Any()).ToList();
@@ -753,7 +752,7 @@ public class MedicineRequestController : ControllerBase
             foreach (var req in viewModels)
             {
                 req.MedicineRequestItems = req.MedicineRequestItems
-                    .Where(item => item.PeriodVerificationStatus != null && item.PeriodVerificationStatus.Values.Any(status => status == "Verified"))
+                    .Where(item => item.PeriodVerificationStatus != null && item.PeriodVerificationStatus.Values.Any(status => status?.ToString() == "Verified"))
                     .ToList();
             }
             viewModels = viewModels.Where(r => r.MedicineRequestItems.Any()).ToList();

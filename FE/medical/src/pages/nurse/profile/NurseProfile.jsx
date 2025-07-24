@@ -414,7 +414,9 @@ const NurseProfile = () => {
                   <div className="flex items-center gap-2 text-neutral-900 dark:text-neutral-100">
                     <FiShield className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200">
-                      {currentData.roleName}
+                      {currentData.roleName === "Nurse"
+                        ? "Nhân viên y tế"
+                        : currentData.roleName}
                     </span>
                   </div>
                 </div>
@@ -471,7 +473,7 @@ const NurseProfile = () => {
 
                 <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <span className="text-neutral-600 dark:text-neutral-400">
-                    Sự kiện y tế
+                    Sự cố y tế
                   </span>
                   <span className="font-semibold text-green-700 dark:text-green-300 text-lg">
                     {currentData.healthEventCount.toLocaleString("vi-VN")}
@@ -484,15 +486,6 @@ const NurseProfile = () => {
                   </span>
                   <span className="font-semibold text-orange-700 dark:text-orange-300 text-lg">
                     {currentData.medicineRequestCount.toLocaleString("vi-VN")}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                  <span className="text-neutral-600 dark:text-neutral-400">
-                    Phụ huynh liên hệ
-                  </span>
-                  <span className="font-semibold text-purple-700 dark:text-purple-300 text-lg">
-                    {currentData.parentCount.toLocaleString("vi-VN")}
                   </span>
                 </div>
               </div>
