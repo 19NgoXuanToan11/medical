@@ -479,15 +479,20 @@ export const useHealthCheckForm = (editId = null) => {
     [validationErrors]
   );
 
-  // Handle grade selection (single selection only)
+  // Handle grade selection (multiple selection)
   const handleGradeSelection = useCallback(
     (gradeId) => {
       setFormData((prev) => {
-        // Single selection - replace current selection
-        const newTargetGrades = [gradeId];
+        // Multiple selection - toggle selection
+        const newTargetGrades = prev.targetGrades.includes(gradeId)
+          ? prev.targetGrades.filter((id) => id !== gradeId)
+          : [...prev.targetGrades, gradeId];
 
-        const grade = availableGrades.find((g) => g.id === gradeId);
-        const totalStudents = grade?.studentCount || 0;
+        // Calculate total students from all selected grades
+        const totalStudents = newTargetGrades.reduce((total, id) => {
+          const grade = availableGrades.find((g) => g.id === id);
+          return total + (grade?.studentCount || 0);
+        }, 0);
 
         return {
           ...prev,

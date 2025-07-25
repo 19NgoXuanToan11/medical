@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { FiRefreshCw, FiAlertTriangle, FiCalendar } from "react-icons/fi";
 import RequestCard from "./RequestCard";
+import HealthCheckCompletionModal from "./HealthCheckCompletionModal";
 
 const UpcomingRequestsTab = ({
   upcomingRequests,
@@ -9,6 +10,19 @@ const UpcomingRequestsTab = ({
   onRefresh,
   onViewDetail,
 }) => {
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+
+  const handleCompleteHealthCheck = (request) => {
+    setSelectedRequest(request);
+    setShowCompletionModal(true);
+  };
+
+  const handleCompletionSuccess = (result) => {
+    console.log("Health check completed:", result);
+    // Refresh the data to update the list
+    onRefresh?.();
+  };
   return (
     <div className="space-y-6">
       {/* Header with refresh button */}
@@ -39,9 +53,18 @@ const UpcomingRequestsTab = ({
         <UpcomingRequestsList
           upcomingRequests={upcomingRequests}
           onViewDetail={onViewDetail}
+          onCompleteHealthCheck={handleCompleteHealthCheck}
           error={error}
         />
       )}
+
+      {/* Health Check Completion Modal */}
+      <HealthCheckCompletionModal
+        showModal={showCompletionModal}
+        onClose={() => setShowCompletionModal(false)}
+        selectedRequest={selectedRequest}
+        onSuccess={handleCompletionSuccess}
+      />
     </div>
   );
 };
@@ -66,7 +89,7 @@ const LoadingState = () => (
   </div>
 );
 
-const UpcomingRequestsList = ({ upcomingRequests, onViewDetail, error }) => {
+const UpcomingRequestsList = ({ upcomingRequests, onViewDetail, onCompleteHealthCheck, error }) => {
   const sortedRequests = upcomingRequests.sort((a, b) => {
     // Status order: active first, then Approved, then scheduled
     const statusOrder = { active: 1, Approved: 2, scheduled: 3 };
@@ -88,8 +111,9 @@ const UpcomingRequestsList = ({ upcomingRequests, onViewDetail, error }) => {
           key={request.id}
           request={request}
           onViewDetail={onViewDetail}
-          showActions={false} // No approval actions for upcoming requests
+          showActions={true} // Show completion action for upcoming requests
           variant="upcoming"
+          onCompleteHealthCheck={onCompleteHealthCheck}
         />
       ))}
     </div>

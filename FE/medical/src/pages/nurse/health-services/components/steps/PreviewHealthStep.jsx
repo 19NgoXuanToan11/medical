@@ -103,7 +103,7 @@ const PreviewHealthStep = ({
                 Ngày thực hiện
               </h4>
               <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                {new Date(formData.date).toLocaleDateString("vi-VN")}
+                {formData.scheduledDate ? formatDate(formData.scheduledDate) : "Chưa chọn"}
               </p>
             </div>
             <div>
@@ -111,7 +111,7 @@ const PreviewHealthStep = ({
                 Thời gian
               </h4>
               <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                {formData.time}
+                {formData.scheduledTime || "Chưa chọn"}
               </p>
             </div>
             <div>

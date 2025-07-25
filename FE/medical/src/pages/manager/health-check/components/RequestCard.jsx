@@ -5,6 +5,7 @@ import {
   FiCheck,
   FiX,
   FiAlertTriangle,
+  FiUpload,
 } from "react-icons/fi";
 
 const RequestCard = ({
@@ -14,6 +15,7 @@ const RequestCard = ({
   setSelectedRequest,
   showActions = true,
   variant = "pending", // "pending", "upcoming"
+  onCompleteHealthCheck, // New prop for completing health check
 }) => {
   const getStatusBadge = () => {
     if (variant === "upcoming") {
@@ -143,13 +145,14 @@ const RequestCard = ({
         <RequestDetails request={request} />
 
         {showActions && (
-          <RequestActions
-            request={request}
-            onViewDetail={onViewDetail}
-            onApprovalAction={onApprovalAction}
-            setSelectedRequest={setSelectedRequest}
-            variant={variant}
-          />
+                  <RequestActions
+          request={request}
+          onViewDetail={onViewDetail}
+          onApprovalAction={onApprovalAction}
+          setSelectedRequest={setSelectedRequest}
+          variant={variant}
+          onCompleteHealthCheck={onCompleteHealthCheck}
+        />
         )}
       </div>
     </div>
@@ -315,6 +318,7 @@ const RequestActions = ({
   onApprovalAction,
   setSelectedRequest,
   variant,
+  onCompleteHealthCheck,
 }) => (
   <div className="flex justify-end gap-3">
     <button
@@ -376,6 +380,16 @@ const RequestActions = ({
           </>
         )}
       </>
+    )}
+
+    {variant === "upcoming" && onCompleteHealthCheck && (
+      <button
+        onClick={() => onCompleteHealthCheck(request)}
+        className="px-3 py-1 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 border border-green-200 dark:border-green-600 rounded-md hover:bg-green-50 dark:hover:bg-green-900/20 flex items-center gap-1"
+      >
+        <FiUpload className="h-4 w-4" />
+        Hoàn thành
+      </button>
     )}
   </div>
 );
