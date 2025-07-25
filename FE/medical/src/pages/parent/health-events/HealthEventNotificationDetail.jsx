@@ -24,6 +24,14 @@ import {
 import { useAuth } from "../../../utils/auth/AuthContext";
 import useNotificationPolling from "../../../hooks/useNotificationPolling";
 import notificationService from "../../../utils/api/notification/notificationService";
+import {
+  formatDate,
+  formatTime,
+  formatDateTime,
+  formatDateWithContext,
+  formatDuration,
+  formatRelativeTime
+} from "../../../utils/timeUtils";
 
 const HealthEventNotificationDetail = () => {
   const { id } = useParams();
@@ -166,16 +174,7 @@ const HealthEventNotificationDetail = () => {
     }
   };
 
-  const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("vi-VN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  // formatDateTime function is now imported from timeUtils
 
   if (loading) {
     return (
@@ -252,7 +251,7 @@ const HealthEventNotificationDetail = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Ngày tạo:{" "}
                   {event.createdAt
-                    ? new Date(event.createdAt).toLocaleString("vi-VN")
+                    ? formatDateTime(event.createdAt)
                     : "-"}
                 </p>
               </div>

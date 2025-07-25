@@ -18,6 +18,14 @@ import {
   FiDownload,
 } from "react-icons/fi";
 import healthProfileService from "../../../utils/api/health-profile/healthProfileService";
+import {
+  formatDate,
+  formatTime,
+  formatDateTime,
+  formatDateWithContext,
+  formatDuration,
+  formatRelativeTime
+} from "../../../utils/timeUtils";
 
 const StudentHealthRecords = () => {
   const [healthProfiles, setHealthProfiles] = useState([]);
@@ -92,9 +100,10 @@ const StudentHealthRecords = () => {
     return "Tốt";
   };
 
-  const formatDate = (dateString) => {
+  // formatDate function is now imported from timeUtils
+  const formatDateWithFallback = (dateString) => {
     if (!dateString) return "Chưa cập nhật";
-    return new Date(dateString).toLocaleDateString("vi-VN");
+    return formatDate(dateString);
   };
 
   const getBMI = (height, weight) => {

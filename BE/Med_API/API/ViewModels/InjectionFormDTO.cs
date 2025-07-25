@@ -40,10 +40,14 @@ public class InjectionFormDTO
     public int? EstimatedDuration { get; set; }
     public string? Location { get; set; }
     public string? GradeIds { get; set; } // JSON array of grade IDs
+    public List<string>? Grades { get; set; } // Deserialized GradeIds for frontend
     public int? TotalStudents { get; set; }
     public bool? NotifyParents { get; set; } = true;
     public bool? RequireParentConfirmation { get; set; } = true;
     public string? Status { get; set; }
+    
+    [StringLength(1000)]
+    public string? Notes { get; set; } // Ghi chú từ manager khi duyệt/từ chối
 
     // Thêm trường vaccine
     public int? VaccineId { get; set; }
@@ -52,4 +56,9 @@ public class InjectionFormDTO
     // Navigation properties
     public StudentDto.ViewModel? Student { get; set; }
     public ParentDto.ViewModel? Parent { get; set; }
+
+    // Thêm các trường chi tiết cho vaccination schedule
+    public List<ClassDto.ViewModel>? Classes { get; set; } // Danh sách lớp
+    public List<StudentDto.ViewModel>? Students { get; set; } // Danh sách học sinh
+    public List<HealthProfileDto.ViewModel>? StudentHealthProfiles { get; set; } // Hồ sơ sức khỏe học sinh
 } 

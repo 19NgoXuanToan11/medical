@@ -9,6 +9,7 @@ import {
   generateHealthCheckNotificationTemplate,
   getSeasonText,
 } from "../utils/healthCheckHelpers";
+import { getCurrentVietnamTime } from "../../../../utils/timeUtils";
 import {
   availableGradesData, // Import mock data for fallback
   initialFormData,
@@ -582,7 +583,7 @@ export const useHealthCheckForm = (editId = null) => {
       const draftData = {
         ...formData,
         status: "draft",
-        lastModified: new Date().toISOString(),
+        lastModified: getCurrentVietnamTime(),
         equipmentStatus: equipmentStatus, // Save equipment status with draft
       };
 
@@ -727,7 +728,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
       const scheduledDateISO = formData.scheduledDate
         ? new Date(formData.scheduledDate).toISOString().split("T")[0] +
           "T00:00:00.000Z"
-        : new Date().toISOString();
+        : getCurrentVietnamTime();
 
       // Format time as TimeSpan string (HH:mm:ss) for backend
       const startTimeFormatted = formData.scheduledTime
@@ -751,7 +752,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         Location: formData.location || "Phòng y tế trường",
         StudentId: null,
         ParentId: null,
-        CreatedDate: new Date().toISOString(),
+        CreatedDate: getCurrentVietnamTime(),
         ConsentStatus: "pending", // Use English status values
         ConsentDate: null,
         ConfirmStatus: "pending", // Use English status values

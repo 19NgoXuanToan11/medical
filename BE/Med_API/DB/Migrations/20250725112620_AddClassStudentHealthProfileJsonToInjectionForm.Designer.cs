@@ -4,6 +4,7 @@ using DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(MedicalContext))]
-    partial class MedicalContextModelSnapshot : ModelSnapshot
+    [Migration("20250725112620_AddClassStudentHealthProfileJsonToInjectionForm")]
+    partial class AddClassStudentHealthProfileJsonToInjectionForm
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -987,7 +990,7 @@ namespace DB.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FormId"));
 
-                    b.Property<string>("ClassDetailsJson")
+                    b.Property<string>("ClassListJson")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClassName")
@@ -1033,18 +1036,12 @@ namespace DB.Migrations
                     b.Property<int?>("GradeLevel")
                         .HasColumnType("int");
 
-                    b.Property<string>("HealthProfilesJson")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("InjectionName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("NotifyParents")
@@ -1066,12 +1063,15 @@ namespace DB.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StudentDetailsJson")
+                    b.Property<string>("StudentHealthProfilesJson")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("StudentId")
                         .HasColumnType("int")
                         .HasColumnName("StudentID");
+
+                    b.Property<string>("StudentListJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("TotalStudents")
                         .HasColumnType("int");

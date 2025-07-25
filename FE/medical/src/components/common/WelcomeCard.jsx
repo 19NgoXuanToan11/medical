@@ -1,5 +1,6 @@
 import React from "react";
 import { useAuth } from "../../utils/auth/AuthContext";
+import { formatDate } from "../../utils/timeUtils";
 
 const WelcomeCard = ({
   title,

@@ -20,6 +20,14 @@ import {
   getAllHealthEvents,
   mapHealthEventFromAPI,
 } from "../../../utils/api/health-events/healthEventService";
+import {
+  formatDate,
+  formatTime,
+  formatDateTime,
+  formatDateWithContext,
+  formatDuration,
+  formatRelativeTime,
+} from "../../../utils/timeUtils";
 
 const HealthEventsManagement = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -161,17 +169,7 @@ const HealthEventsManagement = () => {
     return matchesSearch && matchesStatus && matchesType;
   });
 
-  const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
-    return (
-      date.toLocaleDateString("vi-VN") +
-      " " +
-      date.toLocaleTimeString("vi-VN", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    );
-  };
+  // Remove the local formatDateTime function since it's imported from timeUtils
 
   return (
     <div className="space-y-6">
@@ -389,14 +387,10 @@ const HealthEventsManagement = () => {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-white">
-                        {new Date(event.time).toLocaleDateString("vi-VN")}
+                        {formatDate(event.time)}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {new Date(event.time).toLocaleTimeString("vi-VN", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        })}
+                        {formatTime(event.time)}
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">

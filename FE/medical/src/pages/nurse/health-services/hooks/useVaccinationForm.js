@@ -9,6 +9,7 @@ import { initialFormData } from "../data/vaccinationData";
 import { injectionFormService } from "../../../../utils/api/injection/injectionService";
 import { staffService } from "../../../../utils/staff/staffService";
 import { getStudentCountByGrade } from "../../../../utils/api/class/classService";
+import { getCurrentVietnamTime } from "../../../../utils/timeUtils";
 
 // Helper function to get age range by grade level
 const getAgeRangeByGrade = (gradeLevel) => {
@@ -297,7 +298,7 @@ export const useVaccinationForm = () => {
       const draftData = {
         ...formData,
         status: "draft",
-        lastModified: new Date().toISOString(),
+        lastModified: getCurrentVietnamTime(),
       };
 
       localStorage.setItem("vaccination_draft", JSON.stringify(draftData));
@@ -391,7 +392,7 @@ export const useVaccinationForm = () => {
 
         // Additional metadata
         totalStudents,
-        submittedAt: new Date().toISOString(),
+        submittedAt: getCurrentVietnamTime(),
         status: "pending_approval",
 
         // Requirements and approvals
