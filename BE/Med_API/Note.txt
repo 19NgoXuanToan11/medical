@@ -4,30 +4,30 @@
 
 ===== NGHIỆP VỤ MỚI: TỰ ĐỘNG PHÂN CÔNG NURSE THEO KHỐI =====
 
-- Từ bây giờ, nurse sẽ được phân công theo khối (grade level) thay vì phân công thủ công:
+- Nurse được phân công theo khối (grade level):
   * Nurse1 quản lý khối 1 (các lớp 1A, 1B, 1C...)
   * Nurse2 quản lý khối 2 (các lớp 2A, 2B, 2C...)
-  * Nurse3 quản lý khối 3 (các lớp 3A, 3B, 3C...)
-  * Nurse4 quản lý khối 4 (các lớp 4A, 4B, 4C...)
-  * Nurse5 quản lý khối 5 (các lớp 5A, 5B, 5C...)
-
+  * ...
 - Khi tạo MedicineRequest:
   * Hệ thống tự động xác định khối học của học sinh dựa trên StudentCode
   * Tự động phân công nurse phụ trách khối đó cho yêu cầu thuốc
   * Không cho phép phân công thủ công nếu đã có nurse theo khối
 
-- API endpoints mới:
+- API endpoints chính:
+  * GET /api/MedicineRequest - Lấy tất cả yêu cầu thuốc (nếu truyền staffId thì chỉ trả về các yêu cầu thuộc các khối mà nurse đó phụ trách)
+  * GET /api/MedicineRequest/student/{studentCode} - Lấy tất cả yêu cầu thuốc của học sinh (có thể lọc theo staffId để chỉ xem được các yêu cầu thuộc khối nurse phụ trách)
+  * GET /api/MedicineRequest/status/{status} - Lọc theo trạng thái PeriodVerificationStatus của từng item/period (ví dụ: 'verified', 'pending', 'refused', 'completed', 'failed', ...). Có thể truyền staffId để lọc theo nurse.
+  * GET /api/MedicineRequest/available-nurses - Trả về danh sách nurse đang hoạt động và có phân công khối, kèm danh sách các khối phụ trách.
   * GET /api/MedicineRequest/{id}/auto-assignment-info - Xem thông tin phân công tự động
   * POST /api/MedicineRequest/{id}/assign-nurse/{staffId} - Phân công thủ công (chỉ khi không có nurse theo khối)
 
 ===== QUY TRÌNH XÁC THỰC VÀ CHO UỐNG THUỐC =====
 
-- Quy trình xác thực và cho uống thuốc theo từng buổi (period) và từng loại thuốc (per-item/period):
-  - Mỗi MedicineRequestItem (thuốc + buổi) có VerificationStatus là một mảng lịch sử trạng thái (status history array)
-  - Các trạng thái có thể: Pending, Verified, Refused, Assigned, Completed, Failed, Redo (re-request)
-  - Nurse xác thực/refuse từng item/period:
-    - POST /api/MedicineRequest/item/{itemId}/verify?period=... (Xác thực đủ thuốc cho từng buổi)
-    - POST /api/MedicineRequest/item/{itemId}/refuse?period=... (Từ chối thuốc cho từng buổi)
+- Mỗi MedicineRequestItem (thuốc + buổi) có PeriodVerificationStatus là một JSON object chứa lịch sử trạng thái theo từng period
+- Các trạng thái có thể: Pending, Verified, Refused, Assigned, Completed, Failed, Redo (re-request)
+- Nurse xác thực/refuse từng item/period:
+  - POST /api/MedicineRequest/item/{itemId}/verify?period=...
+  - POST /api/MedicineRequest/item/{itemId}/refuse?period=...
   - Chỉ những item/period có trạng thái cuối cùng là Verified mới được phép cho uống
 
 - Để xem các request pending:
@@ -36,6 +36,8 @@ GET /api/MedicineRequest/pending
 - Để xem kết quả:
 GET /api/MedicineRequest/refused (các item/period bị từ chối)
 GET /api/MedicineRequest/verified (các item/period đã xác thực)
+GET /api/MedicineRequest/completed (các item/period đã hoàn thành)
+GET /api/MedicineRequest/failed (các item/period đã thất bại)
 
 - Nurse tự assigned các request đã được verify:
 POST /api/MedicineRequest/{id}/assign-nurse/{staffId}
@@ -45,9 +47,6 @@ GET /api/MedicineRequest/assigned
 
 - Cho uống xong từng buổi thì complete từng item/period:
 POST /api/MedicineRequest/{medicineRequestItemId}/complete/{staffId}?period=...
-
-- Để xem các item/period đã completed:
-GET /api/MedicineRequest/completed
 
 ===== XỬ LÝ THẤT BẠI VÀ TẠO LẠI YÊU CẦU =====
 
@@ -63,19 +62,52 @@ POST /api/MedicineRequest/item/{medicineRequestItemId}/rerequest?period=...&staf
 - Kiểm tra có thể re-request không và lấy full info:
 GET /api/MedicineRequest/item/{medicineRequestItemId}/period/{period}/re-request-info
 
-- API endpoints mới cho failure handling:
-  * POST /api/MedicineRequest/create-re-request - Tạo yêu cầu lại
-  * GET /api/MedicineRequest/failed-requests - Xem yêu cầu thất bại
-  * GET /api/MedicineRequest/{originalRequestResultId}/re-requests - Xem các yêu cầu lại
-  * POST /api/MedicineRequest/update-time-based-status - Cập nhật trạng thái theo thời gian
-  * GET /api/MedicineRequest/{requestResultId}/failure-summary - Tóm tắt thất bại
+===== CẬP NHẬT TỰ ĐỘNG THEO THỜI GIAN =====
+
+- Hệ thống tự động cập nhật trạng thái theo thời gian:
+  * TimeBasedStatusService chạy mỗi 15 phút
+  * Tự động đánh dấu "Pending" periods thành "Failed" khi hết thời gian
+  * Chạy vào các thời điểm: 11:15 AM, 2:15 PM, 6:15 PM, và sau 7 PM
+
+- API để chạy cập nhật thủ công:
+POST /api/MedicineRequest/update-time-based-status
+
+- Thời gian các period:
+  * Sáng: 6 AM - 11 AM
+  * Trưa: 11 AM - 2 PM  
+  * Chiều: 2 PM - 6 PM
+
+===== CẢI TIẾN GẦN ĐÂY =====
+
+1. **Sửa lỗi filtering theo staffId**: 
+   - Các API endpoints giờ đây sử dụng PeriodVerificationStatus thay vì main request status
+   - Hỗ trợ đầy đủ các format JSON: string, object, array
+
+2. **Cải thiện PeriodVerificationStatus handling**:
+   - Xử lý được cả trường hợp status là string, JSON object, hoặc array của objects
+   - Extract được StaffId và Timestamp từ JSON objects
+   - Debug logging chi tiết cho việc troubleshooting
+
+3. **Automated time-based status updates**:
+   - Tự động đánh dấu failed cho các period đã hết thời gian
+   - Preserve status history khi thêm failed status
+   - Background service chạy tự động theo lịch trình
+
+4. **New endpoints**:
+   - GET /api/MedicineRequest/failed - Lấy các request có period bị failed
+   - Tất cả status endpoints giờ đây filter theo PeriodVerificationStatus
+
+5. **Improved error handling**:
+   - Better logging và error messages
+   - Comprehensive response data với statistics
 
 ===== SUMMARY =====
 
-Tóm lại:
-- Hệ thống đã được cập nhật để tự động phân công nurse theo khối
-- Mỗi thuốc + buổi là một item/period, có status history array
+- Hệ thống tự động phân công nurse theo khối
+- Mỗi thuốc + buổi là một item/period, có PeriodVerificationStatus JSON object
 - Chỉ item/period đã verified mới được administer/complete
 - Các thao tác verify/refuse, assign, complete, fail, re-request đều có endpoint riêng rõ ràng
 - Lịch sử trạng thái cho từng item/period được lưu lại đầy đủ để audit và hiển thị
 - Không cho phép phân công thủ công khi đã có nurse theo khối
+- Hệ thống tự động cập nhật trạng thái theo thời gian
+- Tất cả filtering giờ đây dựa trên PeriodVerificationStatus thay vì main request status

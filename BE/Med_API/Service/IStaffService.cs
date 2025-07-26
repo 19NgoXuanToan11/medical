@@ -18,4 +18,5 @@ public interface IStaffService
     Task<IEnumerable<GradeNurse>> GetGradeNursesByGradeAsync(int grade);
     Task<IEnumerable<GradeNurse>> GetGradeNursesByStaffIdAsync(int staffId);
     Task<IEnumerable<GradeNurse>> GetAllGradeNursesAsync();
+    Task<bool> IsNurseAssignedToGradeAsync(int staffId, int grade);
 } 

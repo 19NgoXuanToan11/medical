@@ -20,6 +20,7 @@ public class MedicineRequestService : IMedicineRequestService
         _studentRepository = studentRepository;
     }
 
+    // Core CRUD operations
     public async Task<IEnumerable<MedicineRequest>> GetAllMedicineRequestsAsync()
     {
         return await _medicineRequestRepository.GetAllMedicineRequestsAsync();
@@ -105,6 +106,7 @@ public class MedicineRequestService : IMedicineRequestService
         return await _medicineRequestRepository.DeleteMedicineRequestAsync(id);
     }
 
+    // Filtering methods
     public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStudentCodeAsync(string studentCode)
     {
         return await _medicineRequestRepository.GetMedicineRequestsByStudentCodeAsync(studentCode);
@@ -122,17 +124,75 @@ public class MedicineRequestService : IMedicineRequestService
 
     public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStatusAsync(string status)
     {
-        return await _medicineRequestRepository.GetMedicineRequestsByStatusAsync(status);
-    }
-
-    public async Task<IEnumerable<Staff>> GetAvailableNursesAsync()
-    {
-        return await _medicineRequestRepository.GetAvailableNursesAsync();
+        // Return all requests, filtering by status will be done in the controller
+        return await _medicineRequestRepository.GetAllMedicineRequestsAsync();
     }
 
     public async Task<IEnumerable<MedicineRequest>> GetPendingRequestsAsync()
     {
-        return await _medicineRequestRepository.GetPendingRequestsAsync();
+        // Return all requests, filtering by status will be done in the controller
+        return await _medicineRequestRepository.GetAllMedicineRequestsAsync();
+    }
+
+    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByAssignedGradeAsync(int staffId, string? status = null)
+    {
+        Console.WriteLine($"DEBUG GetMedicineRequestsByAssignedGradeAsync: staffId={staffId}, status={status}");
+        
+        // Get nurse's assigned grades
+        var gradeNurses = await _staffRepository.GetGradeNursesByStaffIdAsync(staffId);
+        var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
+
+        Console.WriteLine($"DEBUG: Found {gradeNurses.Count()} grade assignments for staffId {staffId}");
+        Console.WriteLine($"DEBUG: Assigned grades: [{string.Join(", ", assignedGrades)}]");
+
+        // Get all medicine requests
+        var allRequests = await _medicineRequestRepository.GetAllMedicineRequestsAsync();
+        Console.WriteLine($"DEBUG: Found {allRequests.Count()} total medicine requests");
+
+        // If no grades assigned, return all requests (or filter by status if provided)
+        if (!assignedGrades.Any())
+        {
+            Console.WriteLine($"DEBUG: No grades assigned to staffId {staffId}, returning all requests");
+            if (!string.IsNullOrEmpty(status))
+            {
+                var statusFilteredRequests = allRequests.Where(request => 
+                    request.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+                Console.WriteLine($"DEBUG: Filtered to {statusFilteredRequests.Count} requests with status '{status}'");
+                return statusFilteredRequests;
+            }
+            return allRequests;
+        }
+
+        // Filter requests by assigned grades and status
+        var filteredRequests = allRequests.Where(request =>
+        {
+            Console.WriteLine($"DEBUG: Checking request {request.RequestId}, StudentCode: {request.StudentCode}, Student: {request.Student?.FirstName}, Class: {request.Student?.Class?.ClassName}, GradeLevel: {request.Student?.Class?.GradeLevel}, Status: {request.Status}");
+            
+            // Check if request belongs to a student in assigned grades
+            if (request.Student?.Class?.GradeLevel != null && assignedGrades.Contains(request.Student.Class.GradeLevel))
+            {
+                Console.WriteLine($"DEBUG: Request {request.RequestId} matches assigned grade {request.Student.Class.GradeLevel}");
+                
+                // If status filter is provided, apply it
+                if (!string.IsNullOrEmpty(status))
+                {
+                    bool statusMatch = request.Status.Equals(status, StringComparison.OrdinalIgnoreCase);
+                    Console.WriteLine($"DEBUG: Status filter '{status}' vs request status '{request.Status}': {statusMatch}");
+                    return statusMatch;
+                }
+                return true;
+            }
+            return false;
+        }).ToList();
+
+        Console.WriteLine($"DEBUG: Filtered to {filteredRequests.Count} requests matching criteria");
+        return filteredRequests;
+    }
+
+    // Staff and assignment methods
+    public async Task<IEnumerable<Staff>> GetAvailableNursesAsync()
+    {
+        return await _medicineRequestRepository.GetAvailableNursesAsync();
     }
 
     public async Task<bool> AssignNurseToRequestAsync(int requestId, int staffId)
@@ -140,78 +200,25 @@ public class MedicineRequestService : IMedicineRequestService
         return await _medicineRequestRepository.AssignNurseToRequestAsync(requestId, staffId);
     }
 
-    public async Task<bool> CompleteRequestAsync(int requestId, int staffId)
+    public async Task<bool> IsManualAssignmentAllowedAsync(int requestId)
     {
-        return await _medicineRequestRepository.CompleteRequestAsync(requestId, staffId);
+        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(requestId);
+        if (request == null || string.IsNullOrEmpty(request.StudentCode))
+        {
+            return true; // Allow manual assignment if no request or no student code
+        }
+
+        var grade = await GetGradeByStudentCodeAsync(request.StudentCode);
+        if (!grade.HasValue)
+        {
+            return true; // Allow manual assignment if cannot determine grade
+        }
+
+        var assignedNurse = await GetNurseByGradeAsync(grade.Value);
+        return assignedNurse == null; // Only allow manual assignment if no nurse assigned to this grade
     }
 
-    // Frequency-based methods
-    public async Task<RequestResult?> StartMedicineRequestAsync(int requestId, int staffId)
-    {
-        return await _medicineRequestRepository.StartMedicineRequestAsync(requestId, staffId);
-    }
-
-    public async Task<bool> AdministerMedicineByFrequencyAsync(int requestResultId, int medicineRequestItemId, string frequency, int staffId, string? notes = null)
-    {
-        return await _medicineRequestRepository.AdministerMedicineByFrequencyAsync(requestResultId, medicineRequestItemId, frequency, staffId, notes);
-    }
-
-    public async Task<bool> IsMedicineCompletedForDayAsync(int requestResultId, int medicineRequestItemId)
-    {
-        return await _medicineRequestRepository.IsMedicineCompletedForDayAsync(requestResultId, medicineRequestItemId);
-    }
-
-    public async Task<IEnumerable<string>> GetPendingFrequenciesAsync(int requestResultId, int medicineRequestItemId)
-    {
-        return await _medicineRequestRepository.GetPendingFrequenciesAsync(requestResultId, medicineRequestItemId);
-    }
-
-    public async Task<bool> CompleteMedicineRequestAsync(int requestResultId, int staffId)
-    {
-        return await _medicineRequestRepository.CompleteMedicineRequestAsync(requestResultId, staffId);
-    }
-
-    public async Task<bool> ReportMedicineFailureAsync(int requestResultId, int medicineRequestItemId, string frequency, string failureReason, int staffId, string? notes = null)
-    {
-        return await _medicineRequestRepository.ReportMedicineFailureAsync(requestResultId, medicineRequestItemId, frequency, failureReason, staffId, notes);
-    }
-
-    public async Task<RequestResult?> CreateReRequestAsync(int originalRequestResultId, string reRequestReason, int staffId)
-    {
-        return await _medicineRequestRepository.CreateReRequestAsync(originalRequestResultId, reRequestReason, staffId);
-    }
-
-    public async Task<IEnumerable<RequestResult>> GetFailedRequestsAsync()
-    {
-        return await _medicineRequestRepository.GetFailedRequestsAsync();
-    }
-
-    public async Task<IEnumerable<RequestResult>> GetReRequestsAsync(int originalRequestResultId)
-    {
-        return await _medicineRequestRepository.GetReRequestsAsync(originalRequestResultId);
-    }
-
-    public async Task<bool> CanReRequestAsync(int requestResultId)
-    {
-        return await _medicineRequestRepository.CanReRequestAsync(requestResultId);
-    }
-
-    public async Task<bool> UpdateTimeBasedStatusAsync()
-    {
-        return await _medicineRequestRepository.UpdateTimeBasedStatusAsync();
-    }
-
-    public async Task<bool> MarkAsFailedAsync(int requestResultId, string reason)
-    {
-        return await _medicineRequestRepository.MarkAsFailedAsync(requestResultId, reason);
-    }
-
-    public async Task<(bool isCompleted, IEnumerable<string> pendingFrequencies)> GetProgressInfoAsync(int requestResultId, int medicineRequestItemId)
-    {
-        return await _medicineRequestRepository.GetProgressInfoAsync(requestResultId, medicineRequestItemId);
-    }
-
-    // New methods for auto nurse assignment by grade
+    // Auto-assignment by grade methods
     public async Task<int?> GetGradeByStudentCodeAsync(string studentCode)
     {
         try
@@ -246,59 +253,7 @@ public class MedicineRequestService : IMedicineRequestService
         return gradeNurses.FirstOrDefault()?.Nurse;
     }
 
-    public async Task<bool> IsManualAssignmentAllowedAsync(int requestId)
-    {
-        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(requestId);
-        if (request == null || string.IsNullOrEmpty(request.StudentCode))
-        {
-            return true; // Allow manual assignment if no request or no student code
-        }
-
-        var grade = await GetGradeByStudentCodeAsync(request.StudentCode);
-        if (!grade.HasValue)
-        {
-            return true; // Allow manual assignment if cannot determine grade
-        }
-
-        var assignedNurse = await GetNurseByGradeAsync(grade.Value);
-        return assignedNurse == null; // Only allow manual assignment if no nurse assigned to this grade
-    }
-
-    // Status update methods
-    public async Task<bool> VerifyRequestAsync(int requestId, int staffId)
-    {
-        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(requestId);
-        if (request == null || request.Status != "Pending")
-        {
-            return false;
-        }
-
-        request.Status = "Verified";
-        request.StaffId = staffId;
-        await _medicineRequestRepository.UpdateMedicineRequestAsync(request);
-        return true;
-    }
-
-    public async Task<bool> RefuseRequestAsync(int requestId, int staffId, string refusalReason)
-    {
-        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(requestId);
-        if (request == null || request.Status != "Pending")
-        {
-            return false;
-        }
-
-        request.Status = "Refused";
-        request.StaffId = staffId;
-        request.RefusalReason = refusalReason;
-        await _medicineRequestRepository.UpdateMedicineRequestAsync(request);
-        return true;
-    }
-
-    public async Task<IEnumerable<MedicineRequest>> GetRefusedRequestsAsync()
-    {
-        return await _medicineRequestRepository.GetMedicineRequestsByStatusAsync("Refused");
-    }
-
+    // MedicineRequestItem operations
     public async Task<MedicineRequestItem?> GetMedicineRequestItemByIdAsync(int itemId)
     {
         return await _medicineRequestRepository.GetMedicineRequestItemByIdAsync(itemId);
@@ -312,9 +267,10 @@ public class MedicineRequestService : IMedicineRequestService
         return result;
     }
 
-    public async Task<RequestResult?> GetRequestResultByIdAsync(int resultId)
+    // Time-based status updates
+    public async Task<bool> UpdateTimeBasedStatusAsync()
     {
-        return await _medicineRequestRepository.GetRequestResultByIdAsync(resultId);
+        return await _medicineRequestRepository.UpdateTimeBasedStatusAsync();
     }
 
     // Helper to update the main status of a MedicineRequest
@@ -358,53 +314,6 @@ public class MedicineRequestService : IMedicineRequestService
             request.Status = "Pending"; // fallback
 
         await _medicineRequestRepository.UpdateMedicineRequestAsync(request);
-    }
-
-    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByAssignedGradeAsync(int staffId, string? status = null)
-    {
-        Console.WriteLine($"DEBUG GetMedicineRequestsByAssignedGradeAsync: staffId={staffId}, status={status}");
-        
-        // Get nurse's assigned grades
-        var gradeNurses = await _staffRepository.GetGradeNursesByStaffIdAsync(staffId);
-        var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
-
-        Console.WriteLine($"DEBUG: Found {gradeNurses.Count()} grade assignments for staffId {staffId}");
-        Console.WriteLine($"DEBUG: Assigned grades: [{string.Join(", ", assignedGrades)}]");
-
-        if (!assignedGrades.Any())
-        {
-            Console.WriteLine($"DEBUG: No grades assigned to staffId {staffId}, returning empty list");
-            return new List<MedicineRequest>(); // Return empty list if no grades assigned
-        }
-
-        // Get all medicine requests
-        var allRequests = await _medicineRequestRepository.GetAllMedicineRequestsAsync();
-        Console.WriteLine($"DEBUG: Found {allRequests.Count()} total medicine requests");
-
-        // Filter requests by assigned grades and status
-        var filteredRequests = allRequests.Where(request =>
-        {
-            Console.WriteLine($"DEBUG: Checking request {request.RequestId}, StudentCode: {request.StudentCode}, Student: {request.Student?.FirstName}, Class: {request.Student?.Class?.ClassName}, GradeLevel: {request.Student?.Class?.GradeLevel}, Status: {request.Status}");
-            
-            // Check if request belongs to a student in assigned grades
-            if (request.Student?.Class?.GradeLevel != null && assignedGrades.Contains(request.Student.Class.GradeLevel))
-            {
-                Console.WriteLine($"DEBUG: Request {request.RequestId} matches assigned grade {request.Student.Class.GradeLevel}");
-                
-                // If status filter is provided, apply it
-                if (!string.IsNullOrEmpty(status))
-                {
-                    bool statusMatch = request.Status.Equals(status, StringComparison.OrdinalIgnoreCase);
-                    Console.WriteLine($"DEBUG: Status filter '{status}' vs request status '{request.Status}': {statusMatch}");
-                    return statusMatch;
-                }
-                return true;
-            }
-            return false;
-        }).ToList();
-
-        Console.WriteLine($"DEBUG: Filtered to {filteredRequests.Count} requests matching criteria");
-        return filteredRequests;
     }
 }
 

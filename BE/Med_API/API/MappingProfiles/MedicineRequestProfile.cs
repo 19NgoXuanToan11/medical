@@ -16,7 +16,8 @@ public class MedicineRequestProfile : Profile
             .ForMember(dest => dest.MedicineRequestItems, opt => opt.MapFrom(src => src.MedicineRequestItems))
             .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Student))
             .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.Parent))
-            .ForMember(dest => dest.Staff, opt => opt.MapFrom(src => src.Staff));
+            .ForMember(dest => dest.Staff, opt => opt.MapFrom(src => src.Staff))
+            .ForMember(dest => dest.StaffId, opt => opt.MapFrom(src => src.StaffId ?? 0));
 
         // Map from MedicineRequestDto.Create to MedicineRequest
         CreateMap<MedicineRequestDto.Create, MedicineRequest>()
@@ -54,7 +55,7 @@ public class MedicineRequestProfile : Profile
     private static string? ExtractPeriodsFromFrequency(string? frequency)
     {
         if (string.IsNullOrEmpty(frequency)) return null;
-        var periods = new[] { "Sáng", "Trưa", "Chiều", "Tối" };
+        var periods = new[] { "Sáng", "Trưa", "Chiều"};
         var found = new List<string>();
         foreach (var period in periods)
         {
@@ -67,7 +68,6 @@ public class MedicineRequestProfile : Profile
         // Handle generic cases like '2 lần', '3 lần', etc.
         if (frequency.Contains("2")) return "Sáng, Trưa";
         if (frequency.Contains("3")) return "Sáng, Trưa, Chiều";
-        if (frequency.Contains("4")) return "Sáng, Trưa, Chiều, Tối";
         if (frequency.Contains("1")) return "Sáng";
 
         return null;
@@ -89,7 +89,7 @@ public class MedicineRequestProfile : Profile
         var simpleStatuses = new[] { "Pending", "Verified", "Assigned", "Completed", "Refused" };
         if (simpleStatuses.Contains(jsonOrStatus))
         {
-            var periods = new[] { "Sáng", "Trưa", "Chiều", "Tối" };
+            var periods = new[] { "Sáng", "Trưa", "Chiều" };
             if (!string.IsNullOrEmpty(periodField))
             {
                 periods = periodField.Split(',').Select(p => p.Trim()).Where(p => !string.IsNullOrEmpty(p)).ToArray();

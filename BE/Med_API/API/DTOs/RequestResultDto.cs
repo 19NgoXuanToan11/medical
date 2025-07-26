@@ -127,18 +127,6 @@ public static class RequestResultDto
         public int StaffId { get; set; }
     }
 
-    public class ReRequestCreate
-    {
-        [Required]
-        public int OriginalRequestResultId { get; set; }
-
-        [Required]
-        [StringLength(500)]
-        public string ReRequestReason { get; set; } = null!; // "Complete Failure", "Partial Failure", "Time Expired"
-
-        public int? StaffId { get; set; }
-    }
-
     public class TimeBasedStatusUpdate
     {
         public int RequestResultId { get; set; }

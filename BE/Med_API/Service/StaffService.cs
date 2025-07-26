@@ -157,4 +157,10 @@ public class StaffService : IStaffService
     {
         return await _staffRepository.GetAllGradeNursesAsync();
     }
+
+    public async Task<bool> IsNurseAssignedToGradeAsync(int staffId, int grade)
+    {
+        var grades = await GetGradeNursesByStaffIdAsync(staffId);
+        return grades.Any(g => g.Grade == grade);
+    }
 } 

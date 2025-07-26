@@ -53,6 +53,13 @@ public static class MedicineRequestDto
     }
 }
 
+public class MedicineRequestReRequestInputDto
+{
+    public int OriginalRequestResultId { get; set; }
+    public string ReRequestReason { get; set; } = null!;
+    public int StaffId { get; set; }
+}
+
 public class RefuseRequestDto
 {
     [Required]
@@ -135,9 +142,27 @@ public static class MedicineRequestItemDto
     }
 }
 
+public class AdministerFrequencyDto
+{
+    public int RequestResultId { get; set; }
+    public int MedicineRequestItemId { get; set; }
+    public string Frequency { get; set; } = null!;
+    public int StaffId { get; set; }
+    public string? Notes { get; set; }
+}
+
 public class PeriodActionDto
 {
     public string Period { get; set; } = null!;
     public int? StaffId { get; set; }
     public string? RefusalReason { get; set; }
+}
+
+public class ReportFailureDto
+{
+    public int MedicineRequestItemId { get; set; }
+    public string Period { get; set; } = null!;
+    public int StaffId { get; set; }
+    public string FailureReason { get; set; } = null!;
+    public string? Notes { get; set; }
 } 
