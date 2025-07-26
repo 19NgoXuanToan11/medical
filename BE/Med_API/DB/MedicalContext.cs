@@ -63,9 +63,13 @@ public partial class MedicalContext : DbContext
 
     public virtual DbSet<HealthCheckItem> HealthCheckItems { get; set; }
 
+    public virtual DbSet<Notification> Notifications { get; set; }
+
     public virtual DbSet<HealthCheckItemMedicalSupply> HealthCheckItemMedicalSupplies { get; set; }
 
     public virtual DbSet<Vaccine> Vaccines { get; set; }
+
+    public virtual DbSet<HealthRecord> HealthRecords { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -233,6 +237,10 @@ public partial class MedicalContext : DbContext
             entity.Property(e => e.EventType)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.Severity)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("moderate");
             entity.Property(e => e.FollowUpRequired).HasDefaultValue(false);
             entity.Property(e => e.Notes).HasMaxLength(500);
             entity.Property(e => e.ParentNotified).HasDefaultValue(false);
@@ -872,6 +880,112 @@ public partial class MedicalContext : DbContext
         modelBuilder.Entity<Vaccine>(entity =>
         {
             entity.ToTable("Vaccine");
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notification__20CF2E32");
+
+            entity.ToTable("Notification");
+
+            entity.Property(e => e.NotificationId).HasColumnName("NotificationID");
+            entity.Property(e => e.Type).HasMaxLength(50);
+            entity.Property(e => e.Title).HasMaxLength(200);
+            entity.Property(e => e.Message).HasMaxLength(1000);
+            entity.Property(e => e.ParentId).HasColumnName("ParentID");
+            entity.Property(e => e.StudentCode).HasMaxLength(20).IsUnicode(false);
+            entity.Property(e => e.StaffId).HasColumnName("StaffID");
+            entity.Property(e => e.HealthEventId).HasColumnName("HealthEventID");
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("sent");
+            entity.Property(e => e.Priority).HasMaxLength(20).HasDefaultValue("medium");
+            entity.Property(e => e.IsRead).HasDefaultValue(false);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ReadAt).HasColumnType("datetime");
+            entity.Property(e => e.AdditionalData).HasMaxLength(2000);
+
+            // Configure relationships
+            entity.HasOne(d => d.Parent)
+                .WithMany()
+                .HasForeignKey(d => d.ParentId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__Notification__ParentID");
+
+            entity.HasOne(d => d.Student)
+                .WithMany()
+                .HasForeignKey(d => d.StudentCode)
+                .HasPrincipalKey(p => p.StudentCode)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__Notification__StudentCode");
+
+            entity.HasOne(d => d.Staff)
+                .WithMany()
+                .HasForeignKey(d => d.StaffId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__Notification__StaffID");
+
+            entity.HasOne(d => d.HealthEvent)
+                .WithMany()
+                .HasForeignKey(d => d.HealthEventId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__Notification__HealthEventID");
+        });
+
+        modelBuilder.Entity<HealthRecord>(entity =>
+        {
+            entity.HasKey(e => e.RecordId);
+
+            entity.ToTable("Health_Record");
+
+            entity.Property(e => e.StudentCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Title).HasMaxLength(100);
+            entity.Property(e => e.EventType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Severity)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.Treatment).HasMaxLength(1000);
+            entity.Property(e => e.Outcome).HasMaxLength(1000);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.EventDate)
+                .HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.Student)
+                .WithMany()
+                .HasForeignKey(d => d.StudentCode)
+                .HasPrincipalKey(p => p.StudentCode)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK__HealthRecord__StudentCode");
+
+            entity.HasOne(d => d.HealthEvent)
+                .WithMany()
+                .HasForeignKey(d => d.HealthEventId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK__HealthRecord__HealthEventID");
+
+            entity.HasOne(d => d.CreatedByStaff)
+                .WithMany()
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK__HealthRecord__CreatedBy");
+
+            entity.HasOne(d => d.UpdatedByStaff)
+                .WithMany()
+                .HasForeignKey(d => d.UpdatedBy)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK__HealthRecord__UpdatedBy");
         });
 
         OnModelCreatingPartial(modelBuilder);

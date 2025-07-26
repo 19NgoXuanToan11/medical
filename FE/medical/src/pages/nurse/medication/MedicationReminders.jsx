@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FiClock, FiCheck, FiBell, FiCalendar } from "react-icons/fi";
+import {
+  FiBell,
+  FiClock,
+  FiUser,
+  FiCheckCircle,
+  FiXCircle,
+  FiRefreshCw,
+  FiCalendar,
+} from "react-icons/fi";
+import {
+  formatDate,
+  formatTime,
+  formatDateTime,
+  formatDateWithContext,
+  formatDuration,
+  formatRelativeTime
+} from "../../../utils/timeUtils";
 
 const MedicationReminders = () => {
   const [reminders, setReminders] = useState([]);
@@ -133,7 +149,7 @@ const MedicationReminders = () => {
         </h2>
         <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
           <FiCalendar className="mr-1" />{" "}
-          {new Date().toLocaleDateString("vi-VN")}
+          {formatDate(new Date())}
         </div>
       </div>
 
@@ -177,7 +193,7 @@ const MedicationReminders = () => {
                         className="bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-900/50 text-green-700 dark:text-green-300 p-2 rounded-full"
                         title="Đánh dấu hoàn thành"
                       >
-                        <FiCheck className="h-4 w-4" />
+                        <FiCheckCircle className="h-4 w-4" />
                       </button>
                       <Link
                         to={`/nurse/medication/${reminder.medicationId}`}

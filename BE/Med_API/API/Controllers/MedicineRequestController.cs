@@ -294,6 +294,152 @@ public class MedicineRequestController : ControllerBase
         return Ok(viewModels);
     }
 
+    // GET: api/MedicineRequest/my-assigned-requests - Get requests for current nurse's assigned grades
+    [HttpGet("my-assigned-requests")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetMyAssignedRequests([FromQuery] string? status = null)
+    {
+        // Get current user ID from JWT token
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int staffId))
+        {
+            return Unauthorized("Invalid token or user ID not found");
+        }
+
+        // Get current user role from JWT token
+        var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+        if (roleClaim == null || roleClaim.Value.ToLower() != "nurse")
+        {
+            return Forbid("Only nurses can access their assigned requests");
+        }
+
+        _logger.LogInformation("GetMyAssignedRequests called by staffId={StaffId}, status={Status}", staffId, status);
+
+        try
+        {
+            var requests = await _medicineRequestService.GetMedicineRequestsByAssignedGradeAsync(staffId, status);
+            var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
+            _logger.LogInformation("Returning {Count} requests for staffId={StaffId}", viewModels.Count(), staffId);
+            return Ok(viewModels);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting assigned requests for nurse {StaffId}", staffId);
+            return StatusCode(500, new { message = "Lỗi khi lấy danh sách yêu cầu thuốc được phân công" });
+        }
+    }
+
+    // DEBUG endpoint - Get debug info for nurse assignments
+    [HttpGet("debug/nurse-assignments/{staffId}")]
+    public async Task<IActionResult> GetDebugNurseAssignments(int staffId)
+    {
+        try
+        {
+            var allRequests = await _medicineRequestService.GetAllMedicineRequestsAsync();
+            var requestsInfo = allRequests.Select(r => new {
+                RequestId = r.RequestId,
+                StudentCode = r.StudentCode,
+                StudentName = r.Student != null ? $"{r.Student.FirstName} {r.Student.LastName}" : "null",
+                ClassName = r.Student?.Class?.ClassName ?? "null",
+                GradeLevel = r.Student?.Class?.GradeLevel,
+                Status = r.Status,
+                StaffId = r.StaffId
+            }).ToList();
+
+            return Ok(new {
+                StaffId = staffId,
+                TotalRequests = requestsInfo.Count,
+                Requests = requestsInfo
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting debug info for staffId {StaffId}", staffId);
+            return StatusCode(500, new { message = "Debug error" });
+        }
+    }
+
+    // DEBUG endpoint - Test assigned requests without auth
+    [HttpGet("debug/test-assigned/{staffId}")]
+    public async Task<IActionResult> TestAssignedRequests(int staffId, [FromQuery] string? status = null)
+    {
+        try
+        {
+            _logger.LogInformation("DEBUG TestAssignedRequests called: staffId={StaffId}, status={Status}", staffId, status);
+            
+            var requests = await _medicineRequestService.GetMedicineRequestsByAssignedGradeAsync(staffId, status);
+            var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
+            
+            _logger.LogInformation("DEBUG TestAssignedRequests returning {Count} requests", viewModels.Count());
+            
+            return Ok(new {
+                StaffId = staffId,
+                Status = status,
+                Count = viewModels.Count(),
+                Requests = viewModels
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in TestAssignedRequests for staffId {StaffId}", staffId);
+            return StatusCode(500, new { message = "Debug error", error = ex.Message });
+        }
+    }
+
+    // DEBUG endpoint - Test JWT token validation
+    [HttpGet("debug/test-auth")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public Task<IActionResult> TestAuth()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+            var nameClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Name);
+            var emailClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Email);
+
+            return Task.FromResult<IActionResult>(Ok(new {
+                IsAuthenticated = User.Identity.IsAuthenticated,
+                UserId = userIdClaim?.Value,
+                Role = roleClaim?.Value,
+                Name = nameClaim?.Value,
+                Email = emailClaim?.Value,
+                Claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToList()
+            }));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in TestAuth");
+            return Task.FromResult<IActionResult>(StatusCode(500, new { message = "Auth test error", error = ex.Message }));
+        }
+    }
+
+    // DEBUG endpoint - Check JWT token format without authentication
+    [HttpGet("debug/check-token")]
+    public Task<IActionResult> CheckToken()
+    {
+        try
+        {
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+            return Task.FromResult<IActionResult>(Ok(new {
+                HasAuthHeader = authHeader != null,
+                AuthHeader = authHeader,
+                HasBearerPrefix = authHeader?.StartsWith("Bearer ") == true,
+                TokenLength = authHeader?.Replace("Bearer ", "").Length,
+                Recommendations = new List<string>
+                {
+                    authHeader == null ? "Thiếu Authorization header" : null,
+                    authHeader != null && !authHeader.StartsWith("Bearer ") ? "Authorization header phải bắt đầu với 'Bearer '" : null,
+                    authHeader?.Replace("Bearer ", "").Length < 100 ? "Token có vẻ quá ngắn" : null
+                }.Where(r => r != null).ToList()
+            }));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in CheckToken");
+            return Task.FromResult<IActionResult>(StatusCode(500, new { message = "Check token error", error = ex.Message }));
+        }
+    }
 
     // POST: api/MedicineRequest
     [HttpPost]
@@ -932,28 +1078,7 @@ public class MedicineRequestController : ControllerBase
             {
                 req.MedicineRequestItems = req.MedicineRequestItems
                     .Where(item => item.PeriodVerificationStatus != null &&
-                        item.PeriodVerificationStatus.Any(kv => 
-                        {
-                            if (!kv.Key.Trim().Equals(period.Trim(), StringComparison.OrdinalIgnoreCase))
-                                return false;
-                            
-                            var val = kv.Value;
-                            if (val == null) return false;
-                            
-                            var valStr = val.ToString();
-                            if (valStr == "Verified") return true;
-                            
-                            if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Verified\""))
-                                return true;
-                            
-                            if (val is System.Text.Json.JsonElement elem && 
-                                elem.ValueKind == System.Text.Json.JsonValueKind.Object &&
-                                elem.TryGetProperty("Status", out var statusProp) &&
-                                statusProp.GetString() == "Verified")
-                                return true;
-                            
-                            return false;
-                        }))
+                        item.PeriodVerificationStatus.Any(kv => kv.Key.Trim().Equals(period.Trim(), StringComparison.OrdinalIgnoreCase) && (kv.Value?.ToString() == "Verified")))
                     .ToList();
             }
             viewModels = viewModels.Where(r => r.MedicineRequestItems.Any()).ToList();
@@ -963,25 +1088,7 @@ public class MedicineRequestController : ControllerBase
             foreach (var req in viewModels)
             {
                 req.MedicineRequestItems = req.MedicineRequestItems
-                    .Where(item => item.PeriodVerificationStatus != null && 
-                        item.PeriodVerificationStatus.Values.Any(val => 
-                        {
-                            if (val == null) return false;
-                            
-                            var valStr = val.ToString();
-                            if (valStr == "Verified") return true;
-                            
-                            if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Verified\""))
-                                return true;
-                            
-                            if (val is System.Text.Json.JsonElement elem && 
-                                elem.ValueKind == System.Text.Json.JsonValueKind.Object &&
-                                elem.TryGetProperty("Status", out var statusProp) &&
-                                statusProp.GetString() == "Verified")
-                                return true;
-                            
-                            return false;
-                        }))
+                    .Where(item => item.PeriodVerificationStatus != null && item.PeriodVerificationStatus.Values.Any(status => status?.ToString() == "Verified"))
                     .ToList();
             }
             viewModels = viewModels.Where(r => r.MedicineRequestItems.Any()).ToList();

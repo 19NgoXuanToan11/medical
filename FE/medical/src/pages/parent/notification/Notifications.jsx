@@ -1,168 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import { useAuth } from "../../../utils/auth/AuthContext";
+import useNotificationPolling from "../../../hooks/useNotificationPolling";
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const [filter, setFilter] = useState("all");
 
-  useEffect(() => {
-    // Load notifications from localStorage and combine with mock data
-    const loadNotifications = () => {
-      // Get medication response notifications from localStorage
-      const parentNotifications = JSON.parse(
-        localStorage.getItem("parentNotifications") || "[]"
-      );
+  // Use notification polling hook
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    error,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    refreshNotifications,
+  } = useNotificationPolling(user?.id, 10000); // Poll every 10 seconds
 
-      // Mock data for other notifications
-      const mockNotifications = [
-        {
-          id: 1,
-          type: "health_event",
-          title: "Sự kiện khám sức khỏe sắp diễn ra",
-          message:
-            "Trường sẽ tổ chức khám sức khỏe định kỳ cho học sinh vào ngày 25/01/2024. Vui lòng đảm bảo con bạn có mặt.",
-          date: new Date(2024, 0, 15, 14, 30),
-          read: false,
-          actionRequired: true,
-          actionLink: "/parent/health-events/1",
-        },
-        {
-          id: 2,
-          type: "vaccination",
-          title: "Yêu cầu xác nhận tiêm chủng",
-          message:
-            "Vui lòng xác nhận đồng ý cho con bạn tham gia chương trình tiêm chủng vaccine cúm sắp tới.",
-          date: new Date(2024, 0, 10, 9, 15),
-          read: true,
-          actionRequired: true,
-          actionLink: "/parent/vaccination/consent/1",
-        },
-        {
-          id: 3,
-          type: "report",
-          title: "Báo cáo sức khỏe tháng 12 đã có",
-          message:
-            "Báo cáo sức khỏe hàng tháng của con bạn đã được cập nhật. Nhấn vào đây để xem chi tiết.",
-          date: new Date(2024, 0, 5, 15, 45),
-          read: true,
-          actionRequired: true,
-          actionLink: "/parent/reports/12-2023",
-        },
-      ];
-
-      // Convert localStorage notifications to component format
-      const formattedParentNotifications = parentNotifications.map(
-        (notif, index) => ({
-          id: `parent_${index}`,
-          type: notif.type || "medication",
-          title: notif.title,
-          message: notif.message,
-          date: new Date(notif.createdAt),
-          read: notif.isRead || false,
-          actionRequired: false,
-          medicationRequestId: notif.medicationRequestId,
-          studentId: notif.studentId,
-        })
-      );
-
-      // Combine and sort by date (newest first)
-      const allNotifications = [
-        ...formattedParentNotifications,
-        ...mockNotifications,
-      ].sort((a, b) => b.date - a.date);
-
-      setNotifications(allNotifications);
-      setLoading(false);
-    };
-
-    // Initial load
-    loadNotifications();
-
-    // Set up interval to check for new notifications every 5 seconds
-    const interval = setInterval(loadNotifications, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleMarkAsRead = (id) => {
-    setNotifications((prevNotifications) => {
-      const updatedNotifications = prevNotifications.map((notification) =>
-        notification.id === id ? { ...notification, read: true } : notification
-      );
-
-      // Update localStorage for parent notifications
-      if (id.startsWith("parent_")) {
-        const parentNotifications = JSON.parse(
-          localStorage.getItem("parentNotifications") || "[]"
-        );
-        const index = parseInt(id.replace("parent_", ""));
-        if (parentNotifications[index]) {
-          parentNotifications[index].isRead = true;
-          localStorage.setItem(
-            "parentNotifications",
-            JSON.stringify(parentNotifications)
-          );
-        }
-      }
-
-      return updatedNotifications;
-    });
+  const handleMarkAsRead = async (notificationId) => {
+    await markAsRead(notificationId);
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications((prevNotifications) => {
-      const updatedNotifications = prevNotifications.map((notification) => ({
-        ...notification,
-        read: true,
-      }));
-
-      // Update localStorage for all parent notifications
-      const parentNotifications = JSON.parse(
-        localStorage.getItem("parentNotifications") || "[]"
-      );
-      const updatedParentNotifications = parentNotifications.map((notif) => ({
-        ...notif,
-        isRead: true,
-      }));
-      localStorage.setItem(
-        "parentNotifications",
-        JSON.stringify(updatedParentNotifications)
-      );
-
-      return updatedNotifications;
-    });
+  const handleMarkAllAsRead = async () => {
+    await markAllAsRead();
   };
 
-  const handleDeleteNotification = (id) => {
-    setNotifications((prevNotifications) => {
-      const updatedNotifications = prevNotifications.filter(
-        (notification) => notification.id !== id
-      );
-
-      // Remove from localStorage for parent notifications
-      if (id.startsWith("parent_")) {
-        const parentNotifications = JSON.parse(
-          localStorage.getItem("parentNotifications") || "[]"
-        );
-        const index = parseInt(id.replace("parent_", ""));
-        parentNotifications.splice(index, 1);
-        localStorage.setItem(
-          "parentNotifications",
-          JSON.stringify(parentNotifications)
-        );
-      }
-
-      return updatedNotifications;
-    });
+  const handleDeleteNotification = async (notificationId) => {
+    await deleteNotification(notificationId);
   };
 
   const filteredNotifications = notifications.filter((notification) => {
     if (filter === "all") return true;
-    if (filter === "unread") return !notification.read;
-    if (filter === "action") return notification.actionRequired;
+    if (filter === "unread") return !notification.isRead;
+    if (filter === "action") return notification.type === "health_event"; // Health events require action
     return notification.type === filter;
   });
 
@@ -188,16 +62,16 @@ const Notifications = () => {
         );
       case "health_event":
         return (
-          <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
+          <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-green-600 dark:text-green-400"
+              className="h-6 w-6 text-red-600 dark:text-red-400"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
               <path
                 fillRule="evenodd"
-                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                 clipRule="evenodd"
               />
             </svg>
@@ -250,27 +124,88 @@ const Notifications = () => {
     }
   };
 
-  const formatDate = (date) => {
-    const now = new Date();
-    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
 
-    if (diffDays === 0) {
-      return `Hôm nay, ${format(date, "HH:mm", { locale: vi })}`;
-    } else if (diffDays === 1) {
-      return `Hôm qua, ${format(date, "HH:mm", { locale: vi })}`;
-    } else if (diffDays < 7) {
-      return `${diffDays} ngày trước, ${format(date, "HH:mm", { locale: vi })}`;
-    } else {
-      return format(date, "dd/MM/yyyy, HH:mm", { locale: vi });
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return "Không xác định";
+      }
+
+      const now = new Date();
+      const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) {
+        return `Hôm nay, ${format(date, "HH:mm", { locale: vi })}`;
+      } else if (diffDays === 1) {
+        return `Hôm qua, ${format(date, "HH:mm", { locale: vi })}`;
+      } else if (diffDays < 7) {
+        return `${diffDays} ngày trước, ${format(date, "HH:mm", {
+          locale: vi,
+        })}`;
+      } else {
+        return format(date, "dd/MM/yyyy, HH:mm", { locale: vi });
+      }
+    } catch (error) {
+      console.warn("Error formatting date:", error, dateString);
+      return "Không xác định";
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case "urgent":
+        return "text-red-600 dark:text-red-400";
+      case "high":
+        return "text-orange-600 dark:text-orange-400";
+      case "medium":
+        return "text-yellow-600 dark:text-yellow-400";
+      case "low":
+        return "text-green-600 dark:text-green-400";
+      default:
+        return "text-neutral-600 dark:text-neutral-400";
+    }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 dark:border-primary-400"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
+          <div className="text-red-600 dark:text-red-400 mb-2">
+            <svg
+              className="mx-auto h-12 w-12"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 48 48"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-red-800 dark:text-red-200 mb-2">
+            Lỗi tải thông báo
+          </h3>
+          <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+          <button
+            onClick={refreshNotifications}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+          >
+            Thử lại
+          </button>
+        </div>
       </div>
     );
   }
@@ -291,8 +226,15 @@ const Notifications = () => {
 
         <div className="flex space-x-2">
           <button
+            onClick={refreshNotifications}
+            className="px-4 py-2 text-sm bg-neutral-100 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors text-neutral-700 dark:text-neutral-200 font-medium"
+          >
+            Làm mới
+          </button>
+          <button
             onClick={handleMarkAllAsRead}
             className="px-4 py-2 text-sm bg-neutral-100 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors text-neutral-700 dark:text-neutral-200 font-medium"
+            disabled={unreadCount === 0}
           >
             Đánh dấu tất cả đã đọc
           </button>
@@ -329,17 +271,7 @@ const Notifications = () => {
               : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
           }`}
         >
-          Cần xác nhận
-        </button>
-        <button
-          onClick={() => setFilter("medication")}
-          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors ${
-            filter === "medication"
-              ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
-              : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
-          }`}
-        >
-          Thuốc
+          Cần xem
         </button>
         <button
           onClick={() => setFilter("health_event")}
@@ -350,6 +282,16 @@ const Notifications = () => {
           }`}
         >
           Sự cố y tế
+        </button>
+        <button
+          onClick={() => setFilter("medication")}
+          className={`px-4 py-2 mr-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors ${
+            filter === "medication"
+              ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
+              : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-neutral-100"
+          }`}
+        >
+          Thuốc
         </button>
         <button
           onClick={() => setFilter("vaccination")}
@@ -390,7 +332,7 @@ const Notifications = () => {
                     filter === "unread"
                       ? "chưa đọc"
                       : filter === "action"
-                      ? "cần xác nhận"
+                      ? "cần xem"
                       : filter === "medication"
                       ? "thuốc"
                       : filter === "health_event"
@@ -403,9 +345,9 @@ const Notifications = () => {
           <div className="divide-y divide-neutral-200 dark:divide-neutral-700">
             {filteredNotifications.map((notification) => (
               <div
-                key={notification.id}
+                key={notification.notificationId}
                 className={`p-6 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors ${
-                  !notification.read
+                  !notification.isRead
                     ? "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 dark:border-blue-400"
                     : ""
                 }`}
@@ -415,26 +357,47 @@ const Notifications = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <p
-                          className={`text-sm font-medium ${
-                            !notification.read
-                              ? "text-neutral-900 dark:text-neutral-100"
-                              : "text-neutral-700 dark:text-neutral-300"
-                          }`}
-                        >
-                          {notification.title}
-                        </p>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <p
+                            className={`text-sm font-medium ${
+                              !notification.isRead
+                                ? "text-neutral-900 dark:text-neutral-100"
+                                : "text-neutral-700 dark:text-neutral-300"
+                            }`}
+                          >
+                            {notification.title}
+                          </p>
+                          <span
+                            className={`text-xs font-medium ${getPriorityColor(
+                              notification.priority
+                            )}`}
+                          >
+                            {notification.priority === "urgent"
+                              ? "Khẩn cấp"
+                              : notification.priority === "high"
+                              ? "Quan trọng"
+                              : notification.priority === "medium"
+                              ? "Bình thường"
+                              : "Thấp"}
+                          </span>
+                        </div>
                         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
                           {notification.message}
                         </p>
                         <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
-                          {formatDate(notification.date)}
+                          {formatDate(notification.createdAt)}
                         </p>
 
-                        {notification.actionRequired && (
+                        {notification.studentName && (
+                          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                            Học sinh: {notification.studentName}
+                          </p>
+                        )}
+
+                        {notification.type === "health_event" && (
                           <div className="mt-3">
                             <Link
-                              to={notification.actionLink}
+                              to="/parent/health-events"
                               className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-500 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                             >
                               Xem chi tiết
@@ -444,9 +407,11 @@ const Notifications = () => {
                       </div>
 
                       <div className="flex items-center space-x-2 ml-4">
-                        {!notification.read && (
+                        {!notification.isRead && (
                           <button
-                            onClick={() => handleMarkAsRead(notification.id)}
+                            onClick={() =>
+                              handleMarkAsRead(notification.notificationId)
+                            }
                             className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 px-2 py-1 rounded hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors"
                           >
                             Đánh dấu đã đọc
@@ -454,7 +419,9 @@ const Notifications = () => {
                         )}
                         <button
                           onClick={() =>
-                            handleDeleteNotification(notification.id)
+                            handleDeleteNotification(
+                              notification.notificationId
+                            )
                           }
                           className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                         >

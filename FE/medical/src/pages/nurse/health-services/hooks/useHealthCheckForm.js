@@ -9,6 +9,7 @@ import {
   generateHealthCheckNotificationTemplate,
   getSeasonText,
 } from "../utils/healthCheckHelpers";
+import { getCurrentVietnamTime } from "../../../../utils/timeUtils";
 import {
   availableGradesData, // Import mock data for fallback
   initialFormData,
@@ -478,15 +479,20 @@ export const useHealthCheckForm = (editId = null) => {
     [validationErrors]
   );
 
-  // Handle grade selection (single selection only)
+  // Handle grade selection (multiple selection)
   const handleGradeSelection = useCallback(
     (gradeId) => {
       setFormData((prev) => {
-        // Single selection - replace current selection
-        const newTargetGrades = [gradeId];
+        // Multiple selection - toggle selection
+        const newTargetGrades = prev.targetGrades.includes(gradeId)
+          ? prev.targetGrades.filter((id) => id !== gradeId)
+          : [...prev.targetGrades, gradeId];
 
-        const grade = availableGrades.find((g) => g.id === gradeId);
-        const totalStudents = grade?.studentCount || 0;
+        // Calculate total students from all selected grades
+        const totalStudents = newTargetGrades.reduce((total, id) => {
+          const grade = availableGrades.find((g) => g.id === id);
+          return total + (grade?.studentCount || 0);
+        }, 0);
 
         return {
           ...prev,
@@ -582,7 +588,7 @@ export const useHealthCheckForm = (editId = null) => {
       const draftData = {
         ...formData,
         status: "draft",
-        lastModified: new Date().toISOString(),
+        lastModified: getCurrentVietnamTime(),
         equipmentStatus: equipmentStatus, // Save equipment status with draft
       };
 
@@ -727,7 +733,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
       const scheduledDateISO = formData.scheduledDate
         ? new Date(formData.scheduledDate).toISOString().split("T")[0] +
           "T00:00:00.000Z"
-        : new Date().toISOString();
+        : getCurrentVietnamTime();
 
       // Format time as TimeSpan string (HH:mm:ss) for backend
       const startTimeFormatted = formData.scheduledTime
@@ -751,10 +757,10 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         Location: formData.location || "Phòng y tế trường",
         StudentId: null,
         ParentId: null,
-        CreatedDate: new Date().toISOString(),
-        ConsentStatus: "đang chờ",
+        CreatedDate: getCurrentVietnamTime(),
+        ConsentStatus: "pending", // Use English status values
         ConsentDate: null,
-        ConfirmStatus: "đang chờ",
+        ConfirmStatus: "pending", // Use English status values
         ConfirmedBy: null,
         ConfirmedDate: null,
         ClassName: null,
@@ -767,7 +773,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         RequireParentConfirmation: formData.requireParentConfirmation === true,
         SelectedStations: JSON.stringify(formData.checkItems || []),
         StaffAssigned: null,
-        Status: "đang chờ",
+        Status: "pending", // Use English status values
         EstimatedEndTime: null, // Not used with session-based scheduling
         Student: null,
         Parent: null,

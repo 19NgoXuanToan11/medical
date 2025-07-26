@@ -10,6 +10,7 @@ import {
   FiSave,
   FiX,
   FiShield,
+  FiAlertTriangle,
 } from "react-icons/fi";
 import healthProfileService from "../../../utils/api/health-profile/healthProfileService";
 import {
@@ -18,6 +19,7 @@ import {
   MedicalTab,
   SensoryTab,
   VaccinationTab,
+  HealthIncidentsTab,
 } from "./components";
 
 const StudentHealthRecordDetail = () => {
@@ -191,6 +193,7 @@ const StudentHealthRecordDetail = () => {
     { id: "medical", label: "Y tế", icon: FiHeart },
     { id: "sensory", label: "Cảm giác", icon: FiEye },
     { id: "vaccination", label: "Tiêm chủng", icon: FiShield },
+    { id: "health-incidents", label: "Sự cố y tế", icon: FiAlertTriangle },
   ];
 
   const renderTabContent = () => {
@@ -239,6 +242,13 @@ const StudentHealthRecordDetail = () => {
             isEditing={isEditing}
             editData={editData}
             onInputChange={handleInputChange}
+          />
+        );
+
+      case "health-incidents":
+        return (
+          <HealthIncidentsTab
+            healthProfile={healthProfile}
           />
         );
 

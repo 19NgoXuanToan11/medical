@@ -48,6 +48,9 @@ public static class StudentDto
         // Navigation properties - using simplified DTOs to avoid circular references
         public ICollection<ParentSummary>? Parents { get; set; }
         public ICollection<StudentParentDto.ViewModel>? StudentParents { get; set; }
+
+        // Thêm trường sức khỏe
+        public HealthProfileDto.ViewModel? HealthProfile { get; set; }
     }
 
     public class ParentSummary

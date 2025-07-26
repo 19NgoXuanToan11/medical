@@ -3,13 +3,11 @@ import {
   FiActivity,
   FiCheck,
   FiClock,
-  FiUserCheck,
   FiPlayCircle,
   FiAlertTriangle,
 } from "react-icons/fi";
 import { useMedicationRequests } from "./hooks/useMedicationRequests";
 import MedicineVerification from "./pages/MedicineVerification";
-import MedicineAssignment from "./pages/MedicineAssignment";
 import MedicineAdministration from "./pages/MedicineAdministration";
 import InProgressManagement from "./pages/InProgressManagement";
 import FailedRequestManagement from "./pages/FailedRequestManagement";
@@ -25,13 +23,6 @@ const MedicationManagement = () => {
       icon: FiCheck,
       component: MedicineVerification,
       description: "Kiểm tra và xác nhận/từ chối yêu cầu thuốc",
-    },
-    {
-      key: "assignment",
-      label: "Giao nhiệm vụ",
-      icon: FiUserCheck,
-      component: MedicineAssignment,
-      description: "Giao các yêu cầu đã xác nhận cho y tá",
     },
     {
       key: "administration",
@@ -78,7 +69,7 @@ const MedicationManagement = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow border border-gray-200 dark:border-neutral-700 transition-colors duration-300">
           <div className="flex justify-between items-start">
             <div>
@@ -91,22 +82,6 @@ const MedicationManagement = () => {
             </div>
             <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
               <FiCheck className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow border border-gray-200 dark:border-neutral-700 transition-colors duration-300">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-500 dark:text-gray-400 text-xs">
-                Đã giao việc
-              </p>
-              <p className="text-lg font-bold mt-1 text-blue-600 dark:text-blue-400">
-                {stats.assigned || 0}
-              </p>
-            </div>
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-              <FiUserCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>

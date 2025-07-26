@@ -15,6 +15,7 @@ import {
   createHealthEvent,
   mapHealthEventToAPI,
   sendNotificationToParent,
+  checkNurseGradePermission,
 } from "../../../utils/api/health-events/healthEventService";
 import {
   medicineInventoryService,
@@ -46,11 +47,15 @@ const HealthEventCreate = () => {
   const [loadingStudentInfo, setLoadingStudentInfo] = useState(false);
   const [studentNotFound, setStudentNotFound] = useState(false);
 
+  // State for grade permission validation
+  const [gradePermission, setGradePermission] = useState(null);
+
   const [formData, setFormData] = useState({
     studentCode: "",
     studentName: "",
     class: "",
     type: "illness",
+    severity: "moderate", // Mức độ nghiêm trọng mặc định
     symptoms: "",
     assessment: "",
     treatment: "",
@@ -121,6 +126,7 @@ const HealthEventCreate = () => {
 
     // Reset states
     setStudentNotFound(false);
+    setGradePermission(null);
 
     // If student code is empty, clear student info
     if (!value.trim()) {
@@ -135,8 +141,14 @@ const HealthEventCreate = () => {
     // Fetch student info if student code has reasonable length
     if (value.trim().length >= 3) {
       setLoadingStudentInfo(true);
+
       try {
-        const studentData = await getStudentByCode(value.trim());
+        // Fetch student data and grade permission in parallel
+        const [studentData, permissionData] = await Promise.all([
+          getStudentByCode(value.trim()),
+          checkNurseGradePermission(value.trim()),
+        ]);
+
         // Auto-fill student name and class
         setFormData((prev) => ({
           ...prev,
@@ -144,9 +156,26 @@ const HealthEventCreate = () => {
           class: studentData.className,
         }));
         setStudentNotFound(false);
+
+        // Set grade permission result
+        setGradePermission(permissionData);
       } catch (error) {
         console.error("Error fetching student data:", error);
         setStudentNotFound(true);
+
+        // Still check permission even if student data fetch failed
+        try {
+          const permissionData = await checkNurseGradePermission(value.trim());
+          setGradePermission(permissionData);
+        } catch (permissionError) {
+          console.error("Error checking grade permission:", permissionError);
+          setGradePermission({
+            success: false,
+            canCreate: false,
+            error: "Không thể kiểm tra quyền tạo sự cố y tế",
+          });
+        }
+
         // Clear student info if not found
         setFormData((prev) => ({
           ...prev,
@@ -257,6 +286,18 @@ const HealthEventCreate = () => {
         throw new Error(
           "Không thể xác định thông tin người dùng. Vui lòng đăng nhập lại."
         );
+      }
+
+      // CRITICAL: Check grade permission before submitting
+      if (
+        !gradePermission ||
+        !gradePermission.success ||
+        !gradePermission.canCreate
+      ) {
+        const errorMsg =
+          gradePermission?.error ||
+          "Không có quyền tạo sự cố y tế cho học sinh này";
+        throw new Error(errorMsg);
       }
 
       // Map medications with correct IDs based on selected names
@@ -437,6 +478,64 @@ const HealthEventCreate = () => {
                   Không tìm thấy học sinh với mã này
                 </p>
               )}
+
+              {/* Grade Permission Status */}
+              {loadingStudentInfo && formData.studentCode && (
+                <div className="flex items-center text-sm text-blue-600 dark:text-blue-400 mt-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                  Đang kiểm tra thông tin học sinh và quyền tạo sự cố y tế...
+                </div>
+              )}
+
+              {gradePermission && gradePermission.success && (
+                <div
+                  className={`mt-2 p-3 rounded-lg border ${
+                    gradePermission.canCreate
+                      ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                      : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+                  }`}
+                >
+                  {gradePermission.canCreate ? (
+                    <div className="flex items-center text-green-800 dark:text-green-300">
+                      <FiCheckCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">
+                          Có quyền tạo sự cố y tế
+                        </p>
+                        <p className="text-xs mt-1">
+                          Học sinh thuộc khối {gradePermission.studentGrade} -
+                          Bạn phụ trách khối:{" "}
+                          {gradePermission.assignedGrades.join(", ")}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start text-red-800 dark:text-red-300">
+                      <FiAlertCircle className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium">
+                          Không có quyền tạo sự cố y tế
+                        </p>
+                        <p className="text-xs mt-1">{gradePermission.error}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {gradePermission && !gradePermission.success && (
+                <div className="mt-2 p-3 rounded-lg border bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+                  <div className="flex items-start text-yellow-800 dark:text-yellow-300">
+                    <FiAlertCircle className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium">
+                        Không thể kiểm tra quyền
+                      </p>
+                      <p className="text-xs mt-1">{gradePermission.error}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <label
@@ -445,8 +544,7 @@ const HealthEventCreate = () => {
               >
                 Họ và tên học sinh
                 {formData.studentName && (
-                  <span className="text-xs text-green-600 dark:text-green-400 ml-1">
-                  </span>
+                  <span className="text-xs text-green-600 dark:text-green-400 ml-1"></span>
                 )}
               </label>
               <input
@@ -470,8 +568,7 @@ const HealthEventCreate = () => {
               >
                 Lớp
                 {formData.class && (
-                  <span className="text-xs text-green-600 dark:text-green-400 ml-1">
-                  </span>
+                  <span className="text-xs text-green-600 dark:text-green-400 ml-1"></span>
                 )}
               </label>
               <input
@@ -519,6 +616,31 @@ const HealthEventCreate = () => {
                 <option value="chronic">Bệnh mãn tính</option>
                 <option value="other">Khác</option>
               </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="severity"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Mức độ nghiêm trọng <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="severity"
+                name="severity"
+                required
+                value={formData.severity}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
+              >
+                <option value="light">Nhẹ - Không cần lưu vào hồ sơ sức khỏe</option>
+                <option value="moderate">Trung bình - Có thể cần theo dõi</option>
+                <option value="severe">Nặng - Bắt buộc lưu vào hồ sơ sức khỏe</option>
+                <option value="emergency">Cấp cứu - Lưu ngay vào hồ sơ sức khỏe</option>
+              </select>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Sự cố mức độ "Nặng" và "Cấp cứu" sẽ tự động được lưu vào hồ sơ sức khỏe của học sinh
+              </p>
             </div>
 
             <div>
@@ -853,8 +975,18 @@ const HealthEventCreate = () => {
           </Link>
           <button
             type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center disabled:bg-blue-400"
+            disabled={
+              loading ||
+              (gradePermission &&
+                (!gradePermission.success || !gradePermission.canCreate))
+            }
+            className={`px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center ${
+              loading ||
+              (gradePermission &&
+                (!gradePermission.success || !gradePermission.canCreate))
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+            }`}
           >
             {loading ? (
               <>

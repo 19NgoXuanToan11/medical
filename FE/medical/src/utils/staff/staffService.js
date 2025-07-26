@@ -416,7 +416,7 @@ export const staffService = {
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/api/Class/my-assigned-classes`,
+        `${API_BASE_URL}/api/Class/my-assigned-classes-with-students`,
         {
           method: "GET",
           headers: {

@@ -1,21 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiShield,
   FiCalendar,
-  FiUsers,
   FiCheckCircle,
   FiClock,
-  FiPlus,
-  FiSearch,
-  FiFilter,
+  FiXCircle,
   FiEye,
   FiCheck,
   FiX,
-  FiFileText,
+  FiRefreshCw,
 } from "react-icons/fi";
 import { injectionFormService } from "../../../utils/api/injection/injectionService";
-import PendingInjectionTab from "./components/PendingInjectionTab";
+import { 
+  formatDate, 
+  formatTime, 
+  formatDateTime, 
+  formatDateWithContext,
+  formatDuration,
+  formatRelativeTime 
+} from "../../../utils/timeUtils";
+
+// Import tab components
+import OverviewTab from "./components/OverviewTab";
+import PendingTab from "./components/PendingTab";
+import UpcomingTab from "./components/UpcomingTab";
+import RejectedTab from "./components/RejectedTab";
 
 const VaccinationManagement = () => {
   const navigate = useNavigate();
@@ -23,30 +33,125 @@ const VaccinationManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Injection form state
+  // State for injection forms
+  const [pendingForms, setPendingForms] = useState([]);
+  const [upcomingForms, setUpcomingForms] = useState([]);
+  const [rejectedForms, setRejectedForms] = useState([]);
   const [selectedInjectionForm, setSelectedInjectionForm] = useState(null);
   const [showInjectionApprovalModal, setShowInjectionApprovalModal] =
     useState(false);
   const [injectionApprovalAction, setInjectionApprovalAction] = useState("");
   const [injectionApprovalNotes, setInjectionApprovalNotes] = useState("");
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // Vaccination stats - these would come from API in real implementation
-  const stats = {
+  // Statistics
+  const [stats, setStats] = useState({
     totalVaccinations: 0,
     completedToday: 0,
-    scheduled: 0,
     pending: 0,
+    upcoming: 0,
+    rejected: 0,
     completionRate: 0,
+    totalStudents: 0,
+  });
+
+  // Load data functions
+  const loadPendingForms = async () => {
+    try {
+      const response = await injectionFormService.getInjectionFormsByStatus(
+        "pending"
+      );
+      if (response.success) {
+        const data = response.data || [];
+        setPendingForms(data);
+        return data;
+      }
+      return [];
+    } catch (error) {
+      console.error("Error loading pending forms:", error);
+      return [];
+    }
   };
 
-  // No pending requests - all removed
-  const pendingRequests = [];
+  const loadUpcomingForms = async () => {
+    try {
+      const response = await injectionFormService.getInjectionFormsByStatus(
+        "approved"
+      );
+      if (response.success) {
+        const data = response.data || [];
+        setUpcomingForms(data);
+        return data;
+      }
+      return [];
+    } catch (error) {
+      console.error("Error loading upcoming forms:", error);
+      return [];
+    }
+  };
 
-  // No vaccination programs - all removed
-  const vaccinationPrograms = [];
+  const loadRejectedForms = async () => {
+    try {
+      const response = await injectionFormService.getInjectionFormsByStatus(
+        "rejected"
+      );
+      if (response.success) {
+        const data = response.data || [];
+        setRejectedForms(data);
+        return data;
+      }
+      return [];
+    } catch (error) {
+      console.error("Error loading rejected forms:", error);
+      return [];
+    }
+  };
+
+  const loadAllData = async () => {
+    setLoading(true);
+    try {
+      const [pendingResult, upcomingResult, rejectedResult] = await Promise.all(
+        [loadPendingForms(), loadUpcomingForms(), loadRejectedForms()]
+      );
+
+      // Get fresh data from the results
+      const pendingData = pendingResult || [];
+      const upcomingData = upcomingResult || [];
+      const rejectedData = rejectedResult || [];
+
+      // Calculate total students
+      const totalStudents = [...pendingData, ...upcomingData].reduce(
+        (sum, form) => sum + (form.totalStudents || 0),
+        0
+      );
+
+      // Update stats with fresh data
+      const total =
+        pendingData.length + upcomingData.length + rejectedData.length;
+      setStats({
+        totalVaccinations: total,
+        completedToday: 0, // Would need specific API for today's completed
+        pending: pendingData.length,
+        upcoming: upcomingData.length,
+        rejected: rejectedData.length,
+        completionRate:
+          total > 0 ? Math.round((upcomingData.length / total) * 100) : 0,
+        totalStudents: totalStudents,
+      });
+    } catch (error) {
+      console.error("Error loading data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAllData();
+  }, []);
 
   // Handle injection form approval action
-  const handleInjectionApprovalAction = (action) => {
+  const handleInjectionApprovalAction = (action, form) => {
+    setSelectedInjectionForm(form);
     setInjectionApprovalAction(action);
     setShowInjectionApprovalModal(true);
   };
@@ -79,7 +184,8 @@ const VaccinationManagement = () => {
         setInjectionApprovalNotes("");
         setSelectedInjectionForm(null);
 
-        // Refresh would be handled by the PendingInjectionTab component
+        // Reload data
+        await loadAllData();
       } else {
         alert(response.message || "Có lỗi xảy ra khi xử lý yêu cầu!");
       }
@@ -91,153 +197,11 @@ const VaccinationManagement = () => {
     }
   };
 
-  // Render pending requests tab - now shows empty state
-  const renderPendingRequests = () => (
-    <div className="space-y-6">
-      {/* Search and Filter */}
-      <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
-              <input
-                type="text"
-                placeholder="Tìm kiếm yêu cầu tiêm chủng..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              />
-            </div>
-          </div>
-          <button className="px-4 py-2 bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-600 flex items-center gap-2">
-            <FiFilter className="h-4 w-4" />
-            Bộ lọc
-          </button>
-        </div>
-      </div>
-
-      {/* Empty state for pending requests */}
-      <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow border border-gray-200 dark:border-neutral-700 text-center">
-        <FiShield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-          Không có yêu cầu chờ duyệt
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Tất cả yêu cầu tiêm chủng đã được xử lý hoặc chưa có yêu cầu nào được
-          tạo
-        </p>
-      </div>
-    </div>
-  );
-
-  const renderOverview = () => (
-    <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Tổng mũi tiêm
-              </p>
-              <p className="text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400">
-                {stats.totalVaccinations}
-              </p>
-            </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-              <FiShield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Hoàn thành hôm nay
-              </p>
-              <p className="text-2xl font-bold mt-1 text-green-600 dark:text-green-400">
-                {stats.completedToday}
-              </p>
-            </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
-              <FiCheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Đang chờ duyệt
-              </p>
-              <p className="text-2xl font-bold mt-1 text-orange-600 dark:text-orange-400">
-                {stats.scheduled}
-              </p>
-            </div>
-            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
-              <FiCalendar className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Chờ phụ huynh
-              </p>
-              <p className="text-2xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
-                {stats.pending}
-              </p>
-            </div>
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-              <FiClock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-800 p-5 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
-                Tỷ lệ hoàn thành
-              </p>
-              <p className="text-2xl font-bold mt-1 text-purple-600 dark:text-purple-400">
-                {stats.completionRate}%
-              </p>
-            </div>
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-              <FiUsers className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Vaccination Programs Table - Empty state */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
-        <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Chương trình tiêm chủng
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-            Danh sách các chương trình tiêm chủng đang thực hiện
-          </p>
-        </div>
-
-        <div className="p-8 text-center">
-          <FiCalendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-            Chưa có chương trình tiêm chủng
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400">
-            Hiện tại chưa có chương trình tiêm chủng nào được tạo
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  // Handle show detail
+  const handleShowDetail = (form) => {
+    setSelectedInjectionForm(form);
+    setShowDetailModal(true);
+  };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -249,7 +213,7 @@ const VaccinationManagement = () => {
               Quản lý tiêm chủng
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Quản lý các chương trình tiêm chủng và duyệt yêu cầu từ y tá
+              Quản lý và duyệt các phiếu tiêm chủng từ y tá
             </p>
           </div>
           <button
@@ -272,12 +236,19 @@ const VaccinationManagement = () => {
                 id: "pending",
                 label: "Chờ duyệt",
                 icon: FiClock,
-                count: 0,
+                count: stats.pending,
               },
               {
-                id: "injection_forms",
-                label: "Phiếu tiêm chủng",
-                icon: FiShield,
+                id: "upcoming",
+                label: "Sắp tới",
+                icon: FiCheckCircle,
+                count: stats.upcoming,
+              },
+              {
+                id: "rejected",
+                label: "Đã từ chối",
+                icon: FiXCircle,
+                count: stats.rejected,
               },
             ].map((tab) => (
               <button
@@ -304,78 +275,271 @@ const VaccinationManagement = () => {
 
       {/* Content */}
       <div>
-        {activeTab === "overview" && renderOverview()}
-        {activeTab === "pending" && renderPendingRequests()}
-        {activeTab === "injection_forms" && (
-          <PendingInjectionTab
-            onApprovalAction={handleInjectionApprovalAction}
-            setSelectedForm={setSelectedInjectionForm}
+        {activeTab === "overview" && (
+          <OverviewTab
+            stats={stats}
+            pendingForms={pendingForms}
+            upcomingForms={upcomingForms}
+            rejectedForms={rejectedForms}
           />
         )}
-        {activeTab === "programs" && (
-          <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow border border-gray-200 dark:border-neutral-700 text-center">
-            <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-2">
-              Quản lý chương trình tiêm chủng
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Chức năng này đang được phát triển
-            </p>
-          </div>
+        {activeTab === "pending" && (
+          <PendingTab
+            pendingForms={pendingForms}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            onRefresh={loadAllData}
+            loading={loading}
+            onApprovalAction={handleInjectionApprovalAction}
+            onShowDetail={handleShowDetail}
+          />
+        )}
+        {activeTab === "upcoming" && (
+          <UpcomingTab
+            upcomingForms={upcomingForms}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            onRefresh={loadAllData}
+            loading={loading}
+            onShowDetail={handleShowDetail}
+          />
+        )}
+        {activeTab === "rejected" && (
+          <RejectedTab
+            rejectedForms={rejectedForms}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            onRefresh={loadAllData}
+            loading={loading}
+            onShowDetail={handleShowDetail}
+          />
         )}
       </div>
 
-      {/* Injection Form Approval Modal */}
-      {showInjectionApprovalModal && selectedInjectionForm && (
+      {/* Injection Form Detail Modal */}
+      {showDetailModal && selectedInjectionForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-lg w-full">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                  {injectionApprovalAction === "approve"
-                    ? "Duyệt phiếu tiêm chủng"
-                    : "Từ chối phiếu tiêm chủng"}
+                  Chi tiết phiếu tiêm chủng #{selectedInjectionForm.formId}
                 </h2>
                 <button
-                  onClick={() => setShowInjectionApprovalModal(false)}
+                  onClick={() => setShowDetailModal(false)}
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
-                  <FiX className="h-6 w-6" />
+                  <FiX className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
             <div className="p-6">
-              <div className="mb-4">
-                <p className="text-gray-700 dark:text-gray-300">
-                  {injectionApprovalAction === "approve"
-                    ? `Bạn có chắc chắn muốn duyệt phiếu tiêm chủng cho học sinh "${
-                        selectedInjectionForm.student?.fullName || "N/A"
-                      }"?`
-                    : `Bạn có chắc chắn muốn từ chối phiếu tiêm chủng cho học sinh "${
-                        selectedInjectionForm.student?.fullName || "N/A"
-                      }"?`}
-                </p>
+              {/* Basic Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                    Thông tin cơ bản
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        Tên:
+                      </span>{" "}
+                      {selectedInjectionForm.injectionName || "N/A"}
+                    </p>
+                    <p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        Mô tả:
+                      </span>{" "}
+                      {selectedInjectionForm.description || "N/A"}
+                    </p>
+                    <p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        Trạng thái:
+                      </span>{" "}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          selectedInjectionForm.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : selectedInjectionForm.status === "approved"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {selectedInjectionForm.status === "pending"
+                          ? "Chờ duyệt"
+                          : selectedInjectionForm.status === "approved"
+                          ? "Đã duyệt"
+                          : "Đã từ chối"}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                    Lịch tiêm
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        Ngày:
+                      </span>{" "}
+                      {selectedInjectionForm.scheduledDate
+                        ? formatDateWithContext(selectedInjectionForm.scheduledDate)
+                        : "Chưa xác định"}
+                    </p>
+                    <p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        Giờ:
+                      </span>{" "}
+                      {selectedInjectionForm.startTime || "N/A"}
+                    </p>
+                    <p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        Địa điểm:
+                      </span>{" "}
+                      {selectedInjectionForm.location || "N/A"}
+                    </p>
+                    <p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        Thời gian dự kiến:
+                      </span>{" "}
+                      {selectedInjectionForm.estimatedDuration || 60} phút
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div>
+              {/* Vaccine Information */}
+              {selectedInjectionForm.vaccine && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                    Thông tin Vaccine
+                  </h3>
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <p>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Tên:
+                        </span>{" "}
+                        {selectedInjectionForm.vaccine.name || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Loại:
+                        </span>{" "}
+                        {selectedInjectionForm.vaccine.type || "N/A"}
+                      </p>
+                      <p>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Nhà sản xuất:
+                        </span>{" "}
+                        {selectedInjectionForm.vaccine.manufacturer || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Notes for rejected forms */}
+              {selectedInjectionForm.status === "rejected" &&
+                selectedInjectionForm.notes && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-3">
+                      Lý do từ chối
+                    </h3>
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 rounded-lg">
+                      <p className="text-sm text-red-700 dark:text-red-300">
+                        {selectedInjectionForm.notes}
+                      </p>
+                    </div>
+                  </div>
+                )}
+            </div>
+
+            {/* Action buttons */}
+            {activeTab === "pending" && (
+              <div className="p-6 border-t border-gray-200 dark:border-neutral-700 flex justify-end gap-3">
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-neutral-600 rounded-md hover:bg-gray-50 dark:hover:bg-neutral-700"
+                >
+                  Đóng
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    handleInjectionApprovalAction(
+                      "reject",
+                      selectedInjectionForm
+                    );
+                  }}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-2"
+                >
+                  <FiX className="h-4 w-4" />
+                  Từ chối
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    handleInjectionApprovalAction(
+                      "approve",
+                      selectedInjectionForm
+                    );
+                  }}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+                >
+                  <FiCheck className="h-4 w-4" />
+                  Duyệt
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Injection Form Approval Modal */}
+      {showInjectionApprovalModal && selectedInjectionForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6 border-b border-gray-200 dark:border-neutral-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                {injectionApprovalAction === "approve"
+                  ? "Duyệt phiếu tiêm chủng"
+                  : "Từ chối phiếu tiêm chủng"}
+              </h2>
+            </div>
+
+            <div className="p-6">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Bạn có chắc chắn muốn{" "}
+                {injectionApprovalAction === "approve" ? "duyệt" : "từ chối"}{" "}
+                phiếu tiêm chủng{" "}
+                <strong>#{selectedInjectionForm.formId}</strong>?
+              </p>
+
+              <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {injectionApprovalAction === "approve"
                     ? "Ghi chú (tùy chọn)"
                     : "Lý do từ chối"}
                   {injectionApprovalAction === "reject" && (
-                    <span className="text-red-500 ml-1">*</span>
+                    <span className="text-red-500">*</span>
                   )}
                 </label>
                 <textarea
                   value={injectionApprovalNotes}
                   onChange={(e) => setInjectionApprovalNotes(e.target.value)}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   placeholder={
                     injectionApprovalAction === "approve"
                       ? "Nhập ghi chú thêm nếu cần..."
-                      : "Nhập lý do từ chối..."
+                      : "Nhập lý do từ chối phiếu tiêm chủng..."
                   }
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={3}
+                  required={injectionApprovalAction === "reject"}
                 />
               </div>
             </div>

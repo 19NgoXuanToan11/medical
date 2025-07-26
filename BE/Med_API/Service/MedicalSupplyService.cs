@@ -72,4 +72,23 @@ public class MedicalSupplyService : IMedicalSupplyService
     {
         return await _medicalSupplyRepository.GetActiveMedicalSuppliesAsync();
     }
+
+    public async Task<bool> UpdateStockQuantityAsync(int supplyId, decimal quantityUsed)
+    {
+        // Validate input
+        if (quantityUsed <= 0)
+        {
+            return false; // Số lượng phải lớn hơn 0
+        }
+
+        // Kiểm tra vật tư y tế có tồn tại và còn hoạt động không
+        var medicalSupply = await _medicalSupplyRepository.GetMedicalSupplyByIdAsync(supplyId);
+        if (medicalSupply == null || medicalSupply.IsActive != true)
+        {
+            return false; // Vật tư y tế không tồn tại hoặc không còn hoạt động
+        }
+
+        // Gọi repository để cập nhật số lượng
+        return await _medicalSupplyRepository.UpdateStockQuantityAsync(supplyId, quantityUsed);
+    }
 } 

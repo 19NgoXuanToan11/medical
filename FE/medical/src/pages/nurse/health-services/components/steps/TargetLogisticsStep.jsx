@@ -6,6 +6,9 @@ import {
   FiRefreshCw,
   FiLoader,
 } from "react-icons/fi";
+import { useEffect } from "react";
+import { staffService } from "../../../../../utils/staff/staffService";
+import { getStudentCountByGrade } from "../../../../../utils/api/class/classService";
 
 const TargetLogisticsStep = ({
   formData,
@@ -19,6 +22,63 @@ const TargetLogisticsStep = ({
   onRetryLoadGrades,
 }) => {
   const [showDetails, setShowDetails] = useState(false);
+  const [expandedGrades, setExpandedGrades] = useState({}); // { gradeId: true/false }
+  const [expandedClasses, setExpandedClasses] = useState({}); // { classKey: true/false }
+  const [assignedClasses, setAssignedClasses] = useState([]); // [{ classId, className, gradeLevel, students: [] }]
+  const [loadingAssigned, setLoadingAssigned] = useState(true);
+  const [studentCountsByGrade, setStudentCountsByGrade] = useState({});
+
+  useEffect(() => {
+    const fetchAssigned = async () => {
+      setLoadingAssigned(true);
+      try {
+        const result = await staffService.getMyAssignedClasses();
+        if (result.success && Array.isArray(result.data)) {
+          setAssignedClasses(result.data);
+        } else {
+          setAssignedClasses([]);
+        }
+      } catch (e) {
+        setAssignedClasses([]);
+      } finally {
+        setLoadingAssigned(false);
+      }
+    };
+    fetchAssigned();
+  }, []);
+
+  useEffect(() => {
+    async function fetchCounts() {
+      const counts = {};
+      // Fetch counts for ALL available grades, not just selected ones
+      for (const grade of availableGrades) {
+        try {
+          const res = await getStudentCountByGrade(grade.gradeLevel);
+          counts[grade.id] = res.studentCount;
+        } catch (error) {
+          console.error(
+            `Error fetching count for grade ${grade.gradeLevel}:`,
+            error
+          );
+          counts[grade.id] = 0;
+        }
+      }
+      setStudentCountsByGrade(counts);
+    }
+
+    // Only fetch when availableGrades is loaded and not empty
+    if (availableGrades.length > 0) {
+      fetchCounts();
+    }
+  }, [availableGrades]); // Remove formData.targetGrades dependency
+
+  // Toggle grade expansion
+  const handleToggleGrade = (gradeId) => {
+    setExpandedGrades((prev) => ({
+      ...prev,
+      [gradeId]: !prev[gradeId],
+    }));
+  };
 
   return (
     <div className="space-y-6">
@@ -114,7 +174,7 @@ const TargetLogisticsStep = ({
                       {grade.name}
                     </h4>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                      {grade.studentCount} học sinh
+                      {studentCountsByGrade[grade.id] ?? 0} học sinh
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       Lớp:{" "}
@@ -122,9 +182,6 @@ const TargetLogisticsStep = ({
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       {grade.ageRange}
-                    </p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                      GVCN: {grade.classTeacher || "Chưa có thông tin"}
                     </p>
                   </div>
                 </label>
@@ -179,7 +236,11 @@ const TargetLogisticsStep = ({
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                  {totalStudents}
+                  {formData.targetGrades.reduce(
+                    (sum, gradeId) =>
+                      sum + (studentCountsByGrade[gradeId] ?? 0),
+                    0
+                  )}
                 </p>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400">
                   Học sinh
@@ -201,26 +262,164 @@ const TargetLogisticsStep = ({
 
             {showDetails && (
               <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
-                <div className="space-y-2">
-                  {formData.targetGrades.map((gradeId) => {
-                    const grade = availableGrades.find(
-                      (grade) => grade.id === gradeId
-                    );
-                    return grade ? (
+                {formData.targetGrades.map((gradeId) => {
+                  const grade = availableGrades.find((g) => g.id === gradeId);
+                  if (!grade) return null;
+                  // Lọc các lớp thuộc khối này từ assignedClasses
+                  const classesInGrade = assignedClasses.filter(
+                    (cls) => `${cls.gradeLevel}` === `${grade.gradeLevel}`
+                  );
+                  return (
+                    <div key={gradeId} className="mb-4">
                       <div
-                        key={gradeId}
-                        className="flex justify-between items-center py-1.5 px-3 bg-neutral-50 dark:bg-neutral-800 rounded-md"
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() =>
+                          setExpandedGrades((prev) => ({
+                            ...prev,
+                            [gradeId]: !prev[gradeId],
+                          }))
+                        }
                       >
-                        <span className="font-medium text-neutral-900 dark:text-neutral-100 text-sm">
+                        <span className="font-semibold text-neutral-900 dark:text-neutral-100">
                           {grade.name}
                         </span>
-                        <span className="text-neutral-600 dark:text-neutral-400 text-xs">
-                          {grade.studentCount} học sinh
+                        <span className="text-xs text-neutral-600 dark:text-neutral-400">
+                          {studentCountsByGrade[gradeId] ?? 0} học sinh
                         </span>
                       </div>
-                    ) : null;
-                  })}
-                </div>
+                      {expandedGrades[gradeId] && (
+                        <div className="ml-4 mt-2">
+                          {loadingAssigned ? (
+                            <div className="text-xs text-gray-500">
+                              Đang tải danh sách lớp...
+                            </div>
+                          ) : classesInGrade.length > 0 ? (
+                            classesInGrade.map((cls) => {
+                              const classKey = `${gradeId}-${cls.classId}`;
+                              return (
+                                <div key={classKey} className="mb-2">
+                                  <div
+                                    className="flex items-center justify-between cursor-pointer px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded"
+                                    onClick={() =>
+                                      setExpandedClasses((prev) => ({
+                                        ...prev,
+                                        [classKey]: !prev[classKey],
+                                      }))
+                                    }
+                                  >
+                                    <span className="font-medium text-blue-700 dark:text-blue-300">
+                                      Lớp {cls.className}
+                                    </span>
+                                    <span className="text-xs text-blue-600 dark:text-blue-400">
+                                      {cls.students?.length || 0} học sinh
+                                    </span>
+                                  </div>
+                                  {expandedClasses[classKey] && (
+                                    <div className="ml-4 mt-2">
+                                      {cls.students &&
+                                      cls.students.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                          {cls.students.map((student, sIdx) => {
+                                            const health =
+                                              student.sucKhoe ||
+                                              student.healthProfile ||
+                                              {};
+                                            const highlight = (cond) =>
+                                              cond
+                                                ? "text-red-600 font-semibold"
+                                                : "";
+                                            return (
+                                              <div
+                                                key={
+                                                  student.studentCode || sIdx
+                                                }
+                                                className="p-2 bg-white dark:bg-neutral-800 rounded border border-gray-200 dark:border-gray-700"
+                                              >
+                                                <div className="font-medium text-gray-900 dark:text-white">
+                                                  {(student.soThuTu ||
+                                                    sIdx + 1) + ". "}
+                                                  {student.hoTen} {""}(
+                                                  {student.gioiTinh})
+                                                </div>
+                                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                                  MSHS: {student.maSoHocSinh}
+                                                </div>
+                                                <div className="text-xs mt-1">
+                                                  <span
+                                                    className={highlight(
+                                                      health.hasAllergies
+                                                    )}
+                                                  >
+                                                    Dị ứng:{" "}
+                                                    {health.allergyDetails ||
+                                                      "Không"}
+                                                  </span>
+                                                </div>
+                                                <div className="text-xs mt-1">
+                                                  <span
+                                                    className={highlight(
+                                                      health.hasChronicDiseases
+                                                    )}
+                                                  >
+                                                    Bệnh mãn tính:{" "}
+                                                    {health.chronicDetails ||
+                                                      "Không"}
+                                                  </span>
+                                                </div>
+                                                <div className="text-xs mt-1">
+                                                  <span
+                                                    className={highlight(
+                                                      health.hasPreviousTreatment
+                                                    )}
+                                                  >
+                                                    Đang điều trị:{" "}
+                                                    {health.treatmentDetails ||
+                                                      "Không"}
+                                                  </span>
+                                                </div>
+                                                <div className="text-xs mt-1">
+                                                  Đủ tiêm chủng:{" "}
+                                                  {health.hasCompleteVaccinations ===
+                                                  "Yes"
+                                                    ? "Có"
+                                                    : "Không"}
+                                                </div>
+                                                <div className="text-xs mt-1">
+                                                  Huyết áp:{" "}
+                                                  {health.bloodPressure || "-"}
+                                                </div>
+                                                <div className="text-xs mt-1">
+                                                  Nhịp tim:{" "}
+                                                  {health.heartRate !==
+                                                    undefined &&
+                                                  health.heartRate !== null
+                                                    ? health.heartRate
+                                                    : "-"}
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      ) : (
+                                        <div className="text-xs text-gray-500">
+                                          Không có học sinh nào
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <div className="text-xs text-gray-500">
+                              Không có lớp nào
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

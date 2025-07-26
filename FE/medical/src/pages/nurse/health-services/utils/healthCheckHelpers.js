@@ -322,9 +322,7 @@ export const validateFormStep = (step, formData) => {
 
     case 3: // Target & Logistics
       if (!formData.targetGrades || formData.targetGrades.length === 0) {
-        errors.targetGrades = "Vui lòng chọn một khối lớp";
-      } else if (formData.targetGrades.length > 1) {
-        errors.targetGrades = "Chỉ được chọn một khối lớp";
+        errors.targetGrades = "Vui lòng chọn ít nhất một khối lớp";
       }
       if (
         !formData.maxStudentsPerSession ||

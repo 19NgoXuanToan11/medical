@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 import {
   FaCalendarAlt,
   FaClock,
@@ -8,189 +10,297 @@ import {
   FaCheckCircle,
   FaSyringe,
   FaStethoscope,
+  FaExclamationTriangle,
 } from "react-icons/fa";
+import { useAuth } from "../../../utils/auth/AuthContext";
+import useNotificationPolling from "../../../hooks/useNotificationPolling";
 
 const HealthEventsList = () => {
-  const [activeTab, setActiveTab] = useState("vaccination");
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("health_events");
 
-  // Sample data - categorized by type instead of status
-  const vaccinationEvents = [
-    {
-      id: 2,
-      title: "Tiêm chủng vắc-xin phòng cúm mùa",
-      date: "20/09/2023",
-      time: "09:00 - 15:00",
-      location: "Phòng Y tế trường học",
-      description:
-        "Chương trình tiêm chủng vắc-xin phòng cúm mùa cho học sinh tự nguyện tham gia. Phụ huynh cần ký giấy đồng ý trước khi học sinh được tiêm.",
-      requiredDocuments: ["Giấy đồng ý của phụ huynh", "Sổ tiêm chủng"],
-      status: "needConsent",
-      type: "vaccination",
-    },
-    {
-      id: 4,
-      title: "Tiêm chủng vắc-xin sởi-rubella",
-      date: "15/02/2023",
-      time: "09:00 - 15:00",
-      location: "Phòng Y tế trường học",
-      description:
-        "Chương trình tiêm chủng bổ sung vắc-xin sởi-rubella cho học sinh.",
-      requiredDocuments: [],
-      status: "completed",
-      result: "Đã tiêm",
-      type: "vaccination",
-    },
-  ];
+  // Use notification polling hook to get real data
+  const { notifications, loading, error, markAsRead, refreshNotifications } =
+    useNotificationPolling(user?.id, 10000);
 
-  const regularHealthEvents = [
-    {
-      id: 1,
-      title: "Khám sức khỏe định kỳ học kỳ 1",
-      date: "15/08/2023",
-      time: "08:00 - 16:00",
-      location: "Phòng Y tế trường học",
-      description:
-        "Khám sức khỏe định kỳ cho học sinh bao gồm: đo chiều cao, cân nặng, kiểm tra thị lực, khám răng miệng, khám nội khoa và tư vấn dinh dưỡng.",
-      requiredDocuments: ["Sổ khám sức khỏe", "Thẻ bảo hiểm y tế"],
-      status: "upcoming",
-      type: "regular",
-    },
-    {
-      id: 3,
-      title: "Khám sức khỏe răng miệng",
-      date: "10/03/2023",
-      time: "08:30 - 11:30",
-      location: "Phòng Y tế trường học",
-      description:
-        "Khám răng miệng, phát hiện sâu răng và tư vấn chăm sóc răng miệng cho học sinh.",
-      requiredDocuments: [],
-      status: "completed",
-      result: "Đã khám",
-      type: "regular",
-    },
-  ];
+  // Filter notifications to get only health events
+  const healthEventNotifications = notifications.filter(
+    (notification) => notification.type === "health_event"
+  );
 
-  const renderEventCard = (event) => {
-    const isCompleted = event.status === "completed";
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Không xác định";
+      }
+      return format(date, "dd/MM/yyyy", { locale: vi });
+    } catch (error) {
+      return "Không xác định";
+    }
+  };
+
+  const formatTime = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Không xác định";
+      }
+      return format(date, "HH:mm", { locale: vi });
+    } catch (error) {
+      return "Không xác định";
+    }
+  };
+
+  const getSeverityColor = (severity) => {
+    switch (severity?.toLowerCase()) {
+      case "emergency":
+        return "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300";
+      case "severe":
+        return "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300";
+      case "moderate":
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300";
+      case "light":
+        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300";
+      default:
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
+    }
+  };
+
+  const getSeverityText = (severity) => {
+    switch (severity?.toLowerCase()) {
+      case "emergency":
+        return "Cấp cứu";
+      case "severe":
+        return "Nặng";
+      case "moderate":
+        return "Trung bình";
+      case "light":
+        return "Nhẹ";
+      default:
+        return "Trung bình";
+    }
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case "urgent":
+        return "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300";
+      case "high":
+        return "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300";
+      case "medium":
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300";
+      case "low":
+        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300";
+      default:
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
+    }
+  };
+
+  const getPriorityText = (priority) => {
+    switch (priority) {
+      case "urgent":
+        return "Khẩn cấp";
+      case "high":
+        return "Quan trọng";
+      case "medium":
+        return "Bình thường";
+      case "low":
+        return "Thấp";
+      default:
+        return "Bình thường";
+    }
+  };
+
+  const parseAdditionalData = (additionalDataString) => {
+    try {
+      if (!additionalDataString) return null;
+      return JSON.parse(additionalDataString);
+    } catch (error) {
+      console.warn("Error parsing additional data:", error);
+      return null;
+    }
+  };
+
+  const getEventTypeLabel = (eventType) => {
+    switch (eventType?.toLowerCase()) {
+      case "illness":
+        return "Bệnh tật";
+      case "injury":
+        return "Chấn thương";
+      case "allergy":
+        return "Dị ứng";
+      case "chronic":
+        return "Bệnh mãn tính";
+      default:
+        return "Khác";
+    }
+  };
+
+  const handleMarkAsRead = async (notificationId) => {
+    await markAsRead(notificationId);
+  };
+
+  const renderHealthEventCard = (notification) => {
+    const additionalData = parseAdditionalData(notification.additionalData);
+    const isUnread = !notification.isRead;
+
+    // Use EventDate from additionalData if available, otherwise fall back to createdAt
+    const eventDateTime = additionalData?.EventDate || notification.createdAt;
+
+    // Use Severity from additionalData if available, otherwise fall back to priority
+    const severityToShow = additionalData?.Severity || notification.priority;
 
     return (
       <div
-        key={event.id}
+        key={notification.notificationId}
         className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700 ${
-          isCompleted
-            ? "border-l-4 border-l-gray-400 dark:border-l-gray-500"
-            : ""
+          isUnread ? "border-l-4 border-l-red-500 dark:border-l-red-400" : ""
         }`}
       >
         <div className="p-5">
           <div className="flex justify-between items-start mb-2">
             <h2 className="text-base font-semibold text-gray-900 dark:text-white">
-              {event.title}
+              {notification.title}
             </h2>
-            {event.status === "needConsent" && (
-              <span className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                Cần xác nhận
+            <div className="flex items-center space-x-2">
+              <span
+                className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
+                  additionalData?.Severity
+                    ? getSeverityColor(additionalData.Severity)
+                    : getPriorityColor(notification.priority)
+                }`}
+              >
+                {additionalData?.Severity
+                  ? getSeverityText(additionalData.Severity)
+                  : getPriorityText(notification.priority)}
               </span>
-            )}
-            {event.status === "completed" && (
-              <span className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                Đã kết thúc
-              </span>
-            )}
+              {isUnread && (
+                <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                  Mới
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center text-sm text-gray-600 dark:text-gray-400 mb-4">
             <div className="flex items-center mr-6 mb-2 sm:mb-0">
-              <FaCalendarAlt
-                className={`mr-2 ${
-                  isCompleted
-                    ? "text-gray-500 dark:text-gray-400"
-                    : "text-blue-500 dark:text-blue-400"
-                }`}
-              />
-              {event.date}
+              <FaCalendarAlt className="mr-2 text-red-500 dark:text-red-400" />
+              {formatDate(eventDateTime)}
             </div>
             <div className="flex items-center mr-6 mb-2 sm:mb-0">
-              <FaClock
-                className={`mr-2 ${
-                  isCompleted
-                    ? "text-gray-500 dark:text-gray-400"
-                    : "text-blue-500 dark:text-blue-400"
-                }`}
-              />
-              {event.time}
-            </div>
-            <div className="flex items-center">
-              <FaMapMarkerAlt
-                className={`mr-2 ${
-                  isCompleted
-                    ? "text-gray-500 dark:text-gray-400"
-                    : "text-blue-500 dark:text-blue-400"
-                }`}
-              />
-              {event.location}
+              <FaClock className="mr-2 text-red-500 dark:text-red-400" />
+              {formatTime(eventDateTime)}
             </div>
           </div>
 
           <p className="text-gray-700 dark:text-gray-300 mb-4">
-            {event.description}
+            {notification.message}
           </p>
 
-          {event.requiredDocuments && event.requiredDocuments.length > 0 && (
+          {notification.studentName && (
             <div className="mb-4">
               <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
-                Giấy tờ cần mang theo:
+                Học sinh:
               </h3>
-              <ul className="list-disc pl-5 text-sm text-gray-600 dark:text-gray-400">
-                {event.requiredDocuments.map((doc, index) => (
-                  <li key={index}>{doc}</li>
-                ))}
-              </ul>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {notification.studentName}
+              </p>
             </div>
           )}
 
-          {event.result && (
+          {additionalData && (
             <div className="mb-4">
               <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
-                Kết quả:
+                Chi tiết sự cố:
               </h3>
-              <div className="flex items-center">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
-                  <FaCheckCircle className="mr-1" />
-                  {event.result}
-                </span>
-                <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
-                  {event.type === "vaccination"
-                    ? "Đã hoàn thành tiêm chủng, nhấn nút bên dưới để xem chi tiết"
-                    : "Đã hoàn thành khám sức khỏe, nhấn nút bên dưới để xem chi tiết"}
-                </span>
+              <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                {additionalData.EventType && (
+                  <p>
+                    <strong>Loại sự cố:</strong>{" "}
+                    {getEventTypeLabel(additionalData.EventType)}
+                  </p>
+                )}
+                {additionalData.Symptoms && (
+                  <p>
+                    <strong>Triệu chứng:</strong> {additionalData.Symptoms}
+                  </p>
+                )}
+                {additionalData.Treatment && (
+                  <p>
+                    <strong>Xử lý:</strong> {additionalData.Treatment}
+                  </p>
+                )}
+                {additionalData.ClassName && (
+                  <p>
+                    <strong>Lớp:</strong> {additionalData.ClassName}
+                  </p>
+                )}
               </div>
             </div>
           )}
 
-          <div className="flex flex-wrap gap-2 mt-4">
-            {event.status === "needConsent" && (
-              <Link
-                to={`/parent/vaccination/consent/new`}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors"
-              >
-                Xác nhận tham gia
-              </Link>
-            )}
-            {event.status === "completed" && (
-              <Link
-                to={`/parent/health-events/${event.id}/results`}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors"
-              >
-                <FaInfoCircle className="mr-2" />
-                Xem kết quả chi tiết
-              </Link>
-            )}
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={() => handleMarkAsRead(notification.notificationId)}
+              className={`text-sm px-3 py-1 rounded transition-colors ${
+                isUnread
+                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+              }`}
+              disabled={!isUnread}
+            >
+              {isUnread ? "Đánh dấu đã đọc" : "Đã đọc"}
+            </button>
+            <Link
+              to={`/parent/health-events/${
+                additionalData?.EventId || notification.notificationId
+              }/notification`}
+              className="text-sm bg-primary-600 text-white px-3 py-1 rounded hover:bg-primary-700 transition-colors"
+            >
+              Xem chi tiết
+            </Link>
           </div>
         </div>
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        <div className="container mx-auto px-4 sm:px-6 max-w-6xl pt-20">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500 dark:border-primary-400"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        <div className="container mx-auto px-4 sm:px-6 max-w-6xl pt-20">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
+            <div className="text-red-600 dark:text-red-400 mb-2">
+              <FaExclamationTriangle className="mx-auto h-12 w-12" />
+            </div>
+            <h3 className="text-lg font-medium text-red-800 dark:text-red-200 mb-2">
+              Lỗi tải dữ liệu
+            </h3>
+            <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+            <button
+              onClick={refreshNotifications}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              Thử lại
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
@@ -200,71 +310,26 @@ const HealthEventsList = () => {
             Sự cố y tế
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Thông tin về các sự cố y tế sắp diễn ra và đã diễn ra tại trường
+            Thông tin về các sự cố y tế của con bạn tại trường
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-6">
-          <ul className="flex flex-wrap -mb-px">
-            <li className="mr-2">
-              <button
-                className={`inline-flex items-center py-2 px-4 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${
-                  activeTab === "vaccination"
-                    ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
-                    : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
-                }`}
-                onClick={() => setActiveTab("vaccination")}
-              >
-                <FaSyringe className="mr-2" />
-                Tiêm chủng
-              </button>
-            </li>
-            <li className="mr-2">
-              <button
-                className={`inline-flex items-center py-2 px-4 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${
-                  activeTab === "regular"
-                    ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
-                    : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
-                }`}
-                onClick={() => setActiveTab("regular")}
-              >
-                <FaStethoscope className="mr-2" />Y tế định kỳ
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        {/* Event List */}
+        {/* Health Events List */}
         <div className="space-y-4">
-          {activeTab === "vaccination" && (
-            <>
-              {vaccinationEvents.length === 0 ? (
-                <div className="text-center py-8">
-                  <FaSyringe className="mx-auto text-4xl text-gray-400 dark:text-gray-500 mb-4" />
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Không có sự kiện tiêm chủng nào
-                  </p>
-                </div>
-              ) : (
-                vaccinationEvents.map((event) => renderEventCard(event))
-              )}
-            </>
-          )}
-
-          {activeTab === "regular" && (
-            <>
-              {regularHealthEvents.length === 0 ? (
-                <div className="text-center py-8">
-                  <FaStethoscope className="mx-auto text-4xl text-gray-400 dark:text-gray-500 mb-4" />
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Không có sự kiện y tế định kỳ nào
-                  </p>
-                </div>
-              ) : (
-                regularHealthEvents.map((event) => renderEventCard(event))
-              )}
-            </>
+          {healthEventNotifications.length === 0 ? (
+            <div className="text-center py-8">
+              <FaExclamationTriangle className="mx-auto text-4xl text-gray-400 dark:text-gray-500 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                Không có sự cố y tế nào
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                Hiện tại chưa có sự cố y tế nào được ghi nhận cho con bạn.
+              </p>
+            </div>
+          ) : (
+            healthEventNotifications.map((notification) =>
+              renderHealthEventCard(notification)
+            )
           )}
         </div>
       </div>

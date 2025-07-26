@@ -1,5 +1,3 @@
--Bỏ trang chủ đi vào thẳng login luôn
-
 - Khi tạo mới MedicineRequest, status mặc định là pending
 
 ===== NGHIỆP VỤ MỚI: TỰ ĐỘNG PHÂN CÔNG NURSE THEO KHỐI =====

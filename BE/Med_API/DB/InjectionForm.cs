@@ -34,6 +34,23 @@ public partial class InjectionForm
     public int? VaccineId { get; set; } // Liên kết với Vaccine
 
     public string? Status { get; set; } // Trạng thái duyệt: pending, approved, rejected, etc
+    
+    public string? Notes { get; set; } // Ghi chú từ manager khi duyệt/từ chối
+
+    // Vaccination schedule fields (added to support schedule creation)
+    public DateTime? ScheduledDate { get; set; }
+    public TimeSpan? StartTime { get; set; }
+    public int? EstimatedDuration { get; set; }
+    public string? Location { get; set; }
+    public string? GradeIds { get; set; } // JSON array of grade IDs
+    public int? TotalStudents { get; set; }
+    public bool? NotifyParents { get; set; }
+    public bool? RequireParentConfirmation { get; set; }
+
+    // New fields for storing detailed information as JSON
+    public string? ClassDetailsJson { get; set; } // JSON string of class details
+    public string? StudentDetailsJson { get; set; } // JSON string of student details
+    public string? HealthProfilesJson { get; set; } // JSON string of health profiles
 
     // Navigation properties
     public virtual Student? Student { get; set; }

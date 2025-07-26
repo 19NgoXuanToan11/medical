@@ -30,7 +30,7 @@ api.interceptors.request.use(
 
 // Injection Form API Service
 export const injectionFormService = {
-  // Create vaccination schedule (single API call like HealthCheckForm)
+  // Create vaccination schedule using InjectionForm schedules API
   createVaccinationSchedule: async (vaccinationData) => {
     try {
       // Validate required data
@@ -49,59 +49,64 @@ export const injectionFormService = {
         throw new Error("Tiêu đề là bắt buộc");
       }
 
-      // Map vaccination data to HealthCheckForm-like structure
+      // Map vaccination data to InjectionForm schedule structure
       const vaccinationSchedule = {
-        FormId: 0, // Always 0 for new forms
-        Title: vaccinationData.title?.trim(),
-        ScheduledDate: vaccinationData.scheduledDateTime ? 
-          new Date(vaccinationData.scheduledDateTime).toISOString().split('T')[0] : null,
-        StartTime: vaccinationData.scheduledDateTime ? 
-          new Date(vaccinationData.scheduledDateTime).toTimeString().split(' ')[0] : "08:00:00",
-        EstimatedDuration: 60, // Default duration for vaccination
-        Description: vaccinationData.description?.trim() || "",
-        Location: vaccinationData.location?.trim() || "Phòng y tế trường",
-        StudentId: null,
-        ParentId: null,
-        CreatedDate: new Date().toISOString(),
-        ConsentStatus: "đang chờ",
-        ConsentDate: null,
-        ConfirmStatus: "đang chờ",
-        ConfirmedBy: null,
-        ConfirmedDate: null,
-        ClassName: null,
-        GradeIds: JSON.stringify(vaccinationData.targetGrades.map(g => String(g))),
-        TotalStudents: vaccinationData.totalStudents || 0,
-        NotifyParents: true,
-        AutoAdvance: true,
-        SaveResults: true,
-        GenerateReport: true,
-        RequireParentConfirmation: true,
-        SelectedStations: JSON.stringify([`vaccination-${vaccinationData.vaccineId}`]),
-        StaffAssigned: null,
-        Status: "đang chờ",
-        EstimatedEndTime: null,
-        Student: null,
-        Parent: null,
-        ConfirmedByStaff: null,
-        Results: null,
-        
-        // Vaccination-specific fields (stored in description or notes)
-        VaccineId: vaccinationData.vaccineId,
-        VaccineName: vaccinationData.vaccineName,
-        VaccinationType: "vaccination"
+        formId: 0, // Always 0 for new forms
+        // For vaccination schedules, these can be null or omitted
+        // studentId: null,
+        // parentId: null,
+        createdDate: new Date().toISOString(),
+        injectionName: vaccinationData.title?.trim(),
+        description: vaccinationData.description?.trim() || "",
+        consentStatus: "Pending", // Use English status values expected by backend
+        consentDate: vaccinationData.scheduledDateTime
+          ? new Date(vaccinationData.scheduledDateTime).toISOString()
+          : null,
+        className: "", // Will be populated from grades
+        confirmStatus: "Pending", // Use English status values expected by backend
+        confirmedDate: null,
+        // Vaccination schedule specific fields
+        scheduledDate: vaccinationData.scheduledDateTime
+          ? new Date(vaccinationData.scheduledDateTime)
+              .toISOString()
+              .split("T")[0]
+          : null,
+        startTime: vaccinationData.scheduledDateTime
+          ? new Date(vaccinationData.scheduledDateTime)
+              .toTimeString()
+              .split(" ")[0]
+          : "08:00:00",
+        estimatedDuration: 60, // Default duration for vaccination
+        location: vaccinationData.location?.trim() || "Phòng y tế trường",
+        gradeIds: JSON.stringify(
+          vaccinationData.targetGrades.map((g) => String(g))
+        ),
+        totalStudents: vaccinationData.totalStudents || 0,
+        notifyParents: true,
+        requireParentConfirmation: true,
+        status: "pending", // Use lowercase status for Status field
+        // Vaccine information
+        vaccineId: vaccinationData.vaccineId,
+        // Don't include nested objects as they're handled by backend
       };
 
-      // Create single vaccination schedule using HealthCheckForm API
-      const response = await api.post("/HealthCheckForm/schedules", vaccinationSchedule);
+      // Create vaccination schedule using InjectionForm schedules endpoint
+      const response = await api.post(
+        "/InjectionForm/schedules",
+        vaccinationSchedule
+      );
 
       return {
         success: true,
         data: {
           formId: response.data.formId,
-          title: response.data.title,
+          injectionName: response.data.injectionName,
           scheduledDate: response.data.scheduledDate,
           totalStudents: response.data.totalStudents,
-          status: response.data.status
+          status: response.data.status,
+          vaccineId: response.data.vaccineId,
+          vaccineName:
+            response.data.vaccine?.name || vaccinationData.vaccineName,
         },
         message: "Kế hoạch tiêm chủng đã được tạo thành công!",
       };
@@ -110,24 +115,22 @@ export const injectionFormService = {
       return {
         success: false,
         data: null,
-        message: error.response?.data?.error || error.message || "Không thể tạo kế hoạch tiêm chủng",
+        message:
+          error.response?.data?.error ||
+          error.message ||
+          "Không thể tạo kế hoạch tiêm chủng",
         error: error.response?.data || error.message,
       };
     }
   },
 
-  // Get vaccination schedules (using HealthCheckForm API with vaccination filter)
+  // Get vaccination schedules using InjectionForm schedules API
   getVaccinationSchedules: async () => {
     try {
-      const response = await api.get("/HealthCheckForm/schedules");
-      
-      // Filter for vaccination schedules (those that contain vaccination info)
-      const vaccinationSchedules = response.data.filter(schedule => 
-        schedule.selectedStations && 
-        (schedule.selectedStations.includes('vaccination') || 
-         schedule.description?.includes('tiêm chủng') ||
-         schedule.title?.includes('tiêm chủng'))
-      );
+      const response = await api.get("/InjectionForm/schedules");
+
+      // All injection form schedules are vaccination schedules
+      const vaccinationSchedules = response.data || [];
 
       return {
         success: true,
@@ -139,7 +142,9 @@ export const injectionFormService = {
       return {
         success: false,
         data: [],
-        message: error.response?.data?.error || "Không thể lấy danh sách kế hoạch tiêm chủng",
+        message:
+          error.response?.data?.error ||
+          "Không thể lấy danh sách kế hoạch tiêm chủng",
         error: error.response?.data || error.message,
       };
     }

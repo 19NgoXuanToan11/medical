@@ -77,4 +77,23 @@ public class MedicineService : IMedicineService
     {
         return await _medicineRepository.GetActiveMedicinesAsync();
     }
+
+    public async Task<bool> UpdateStockQuantityAsync(int medicineId, decimal quantityUsed)
+    {
+        // Validate input
+        if (quantityUsed <= 0)
+        {
+            return false; // Số lượng phải lớn hơn 0
+        }
+
+        // Kiểm tra thuốc có tồn tại và còn hoạt động không
+        var medicine = await _medicineRepository.GetMedicineByIdAsync(medicineId);
+        if (medicine == null || medicine.IsActive != true)
+        {
+            return false; // Thuốc không tồn tại hoặc không còn hoạt động
+        }
+
+        // Gọi repository để cập nhật số lượng
+        return await _medicineRepository.UpdateStockQuantityAsync(medicineId, quantityUsed);
+    }
 } 

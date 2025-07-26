@@ -129,6 +129,57 @@ public class StudentController : ControllerBase
         return Ok(studentViewModel);
     }
 
+    // GET: api/Student/my-assigned-students - Get students in grades assigned to current nurse
+    [HttpGet("my-assigned-students")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<ActionResult<IEnumerable<StudentDto.ViewModel>>> GetMyAssignedStudents(
+        [FromServices] IStaffService staffService)
+    {
+        // Get current user ID from JWT token
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int staffId))
+        {
+            return Unauthorized("Invalid token or user ID not found");
+        }
+
+        // Get current user role from JWT token
+        var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+        if (roleClaim == null || roleClaim.Value.ToLower() != "nurse")
+        {
+            return Forbid("Only nurses can access their assigned students");
+        }
+
+        try
+        {
+            // Get nurse's assigned grades
+            var gradeNurses = await staffService.GetGradeNursesByStaffIdAsync(staffId);
+            var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
+
+            if (!assignedGrades.Any())
+            {
+                return Ok(new List<StudentDto.ViewModel>()); // Return empty list if no grades assigned
+            }
+
+            // Get all students and filter by assigned grades
+            var allStudents = await _studentService.GetAllStudentsAsync();
+            var assignedStudents = allStudents.Where(s => 
+                s.Class != null && 
+                assignedGrades.Contains(s.Class.GradeLevel) &&
+                s.IsActive == true
+            ).OrderBy(s => s.Class.GradeLevel)
+            .ThenBy(s => s.Class.ClassName)
+            .ThenBy(s => s.FirstName)
+            .ThenBy(s => s.LastName);
+
+            var studentViewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(assignedStudents);
+            return Ok(studentViewModels);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi khi lấy danh sách học sinh được phân công", error = ex.Message });
+        }
+    }
+
     // GET: api/Student/eligible-for-vaccine
     [HttpGet("eligible-for-vaccine")]
     public async Task<ActionResult<IEnumerable<StudentDto.ViewModel>>> GetEligibleStudentsForVaccine(
@@ -159,4 +210,6 @@ public class StudentController : ControllerBase
         var viewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(eligible);
         return Ok(viewModels);
     }
+
+    
 } 

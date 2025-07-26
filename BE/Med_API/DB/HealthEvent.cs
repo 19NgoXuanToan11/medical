@@ -15,6 +15,8 @@ public partial class HealthEvent
 
     public string EventType { get; set; } = null!;
 
+    public string? Severity { get; set; } // Mức độ nghiêm trọng: light, moderate, severe, emergency
+
     public string? Symptoms { get; set; }
 
     public string? Assessment { get; set; }

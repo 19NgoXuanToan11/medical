@@ -137,4 +137,18 @@ public class HealthEventController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpGet("nurse/{staffId}/grade")]
+    public async Task<ActionResult<IEnumerable<HealthEventDto.ViewModel>>> GetHealthEventsByNurseGrade(int staffId)
+    {
+        try
+        {
+            var events = await _healthEventService.GetHealthEventsForNurseByGradeAsync(staffId);
+            return Ok(_mapper.Map<IEnumerable<HealthEventDto.ViewModel>>(events));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 } 

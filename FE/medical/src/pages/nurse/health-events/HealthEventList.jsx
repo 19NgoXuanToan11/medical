@@ -19,22 +19,50 @@ import {
 } from "react-icons/fi";
 import {
   getAllHealthEvents,
+  getHealthEventsByNurseGrade,
   mapHealthEventFromAPI,
 } from "../../../utils/api/health-events/healthEventService";
+import { useAuth } from "../../../utils/auth/AuthContext";
 
 const HealthEventList = () => {
+  const { user } = useAuth(); // Get current user info
   const [activeTab, setActiveTab] = useState("today");
   const [eventsList, setEventsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [showMyGradeOnly, setShowMyGradeOnly] = useState(true); // New state for filtering
 
   // Load health events from API
   useEffect(() => {
     const fetchHealthEvents = async () => {
       try {
         setLoading(true);
-        const apiData = await getAllHealthEvents();
+        let apiData;
+
+        // Use different API based on filter preference and user role
+        if (showMyGradeOnly && user?.id && user?.role === "nurse") {
+          // Get only health events for students in nurse's assigned grades
+          try {
+            apiData = await getHealthEventsByNurseGrade(user.id);
+          } catch (error) {
+            console.error(
+              "Error with getHealthEventsByNurseGrade, falling back to getAllHealthEvents:",
+              error
+            );
+            apiData = await getAllHealthEvents();
+          }
+        } else {
+          // Get all health events (fallback)
+          apiData = await getAllHealthEvents();
+        }
+
+        // Ensure apiData is an array
+        if (!Array.isArray(apiData)) {
+          setEventsList([]);
+          return;
+        }
+
         const mappedEvents = apiData.map(mapHealthEventFromAPI);
         setEventsList(mappedEvents);
       } catch (error) {
@@ -55,13 +83,20 @@ const HealthEventList = () => {
 
     // Cleanup interval on component unmount
     return () => clearInterval(interval);
-  }, []);
+  }, [showMyGradeOnly, user]); // Re-fetch when filter or user changes
 
   // Manual refresh function
   const handleRefresh = async () => {
     try {
       setLoading(true);
-      const apiData = await getAllHealthEvents();
+      let apiData;
+
+      if (showMyGradeOnly && user?.id && user?.role === "nurse") {
+        apiData = await getHealthEventsByNurseGrade(user.id);
+      } else {
+        apiData = await getAllHealthEvents();
+      }
+
       const mappedEvents = apiData.map(mapHealthEventFromAPI);
       setEventsList(mappedEvents);
     } catch (error) {
@@ -180,6 +215,9 @@ const HealthEventList = () => {
         .includes(searchTerm.toLowerCase())
   );
 
+  // Temporary override for debugging - show all events regardless of filters
+  const debugFilteredEvents = eventsList; // Use this to bypass all filtering
+
   const formatTime = (timeString) => {
     const date = new Date(timeString);
     return date.toLocaleTimeString("vi-VN", {
@@ -203,7 +241,9 @@ const HealthEventList = () => {
             Quản lý sự cố y tế
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Theo dõi và xử lý các sự cố y tế trong trường học
+            {user?.role === "nurse" && showMyGradeOnly
+              ? "Theo dõi và xử lý các sự cố y tế trong khối mình phụ trách"
+              : "Theo dõi và xử lý các sự cố y tế trong trường học"}
           </p>
         </div>
         <div className="mt-4 sm:mt-0 flex space-x-3">
@@ -288,7 +328,7 @@ const HealthEventList = () => {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Danh sách sự cố ({filteredEvents.length})
+            Danh sách sự cố ({debugFilteredEvents.length})
           </h3>
         </div>
 
@@ -335,7 +375,7 @@ const HealthEventList = () => {
                     </div>
                   </td>
                 </tr>
-              ) : filteredEvents.length === 0 ? (
+              ) : debugFilteredEvents.length === 0 ? (
                 <tr>
                   <td
                     colSpan="9"
@@ -351,7 +391,7 @@ const HealthEventList = () => {
                   </td>
                 </tr>
               ) : (
-                filteredEvents.map((event) => (
+                debugFilteredEvents.map((event) => (
                   <tr
                     key={event.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"

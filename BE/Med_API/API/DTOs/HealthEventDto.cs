@@ -12,6 +12,7 @@ public static class HealthEventDto
         public int StaffId { get; set; }
         public DateTime EventDate { get; set; }
         public string EventType { get; set; } = null!;
+        public string? Severity { get; set; }
         public string? Symptoms { get; set; }
         public string? Assessment { get; set; }
         public string? Treatment { get; set; }
@@ -37,6 +38,9 @@ public static class HealthEventDto
         [Required]
         [StringLength(50)]
         public string EventType { get; set; } = null!;
+
+        [StringLength(20)]
+        public string? Severity { get; set; } = "moderate";
 
         [StringLength(500)]
         public string? Symptoms { get; set; }
@@ -71,6 +75,9 @@ public static class HealthEventDto
         [Required]
         [StringLength(50)]
         public string EventType { get; set; } = null!;
+
+        [StringLength(20)]
+        public string? Severity { get; set; }
 
         [StringLength(500)]
         public string? Symptoms { get; set; }

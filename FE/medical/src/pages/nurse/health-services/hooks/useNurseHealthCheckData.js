@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getHealthCheckSchedules } from "../../../../utils/api/healthCheck/healthCheckService.js";
+import { getCurrentVietnamTime } from "../../../../utils/timeUtils";
 
 export const useNurseHealthCheckData = () => {
   const [loading, setLoading] = useState(true);
@@ -27,36 +28,41 @@ export const useNurseHealthCheckData = () => {
         totalStudents: schedule.totalStudents || 0,
         estimatedDuration: schedule.estimatedDuration || 60,
         description: schedule.description || "",
-        
+
         // Parse JSON fields safely
-        targetGrades: schedule.grades || 
-          (schedule.gradeIds ? (() => {
-            try {
-              return JSON.parse(schedule.gradeIds);
-            } catch {
-              return [];
-            }
-          })() : []),
-        
-        checkItems: schedule.selectedStations ? (() => {
-          try {
-            return JSON.parse(schedule.selectedStations);
-          } catch {
-            return [];
-          }
-        })() : [],
+        targetGrades:
+          schedule.grades ||
+          (schedule.gradeIds
+            ? (() => {
+                try {
+                  return JSON.parse(schedule.gradeIds);
+                } catch {
+                  return [];
+                }
+              })()
+            : []),
+
+        checkItems: schedule.selectedStations
+          ? (() => {
+              try {
+                return JSON.parse(schedule.selectedStations);
+              } catch {
+                return [];
+              }
+            })()
+          : [],
 
         // Status fields - key difference from manager
         confirmStatus: schedule.confirmStatus || "pending", // Manager approval status
         status: schedule.status || "scheduled", // Overall health check status
-        
+
         // Additional fields
-        createdDate: schedule.createdDate || new Date().toISOString(),
+        createdDate: schedule.createdDate || getCurrentVietnamTime(),
         confirmedDate: schedule.confirmedDate,
         confirmedBy: schedule.confirmedBy,
         consentStatus: schedule.consentStatus || "pending",
         rejectionReason: schedule.rejectionReason,
-        
+
         // Settings
         notifyParents: schedule.notifyParents !== false,
         autoAdvance: schedule.autoAdvance !== false,
@@ -82,28 +88,30 @@ export const useNurseHealthCheckData = () => {
 
   // Filter functions based on nurse workflow
   const getPendingHealthChecks = () => {
-    return healthChecks.filter(hc => {
+    return healthChecks.filter((hc) => {
       const confirmStatus = hc.confirmStatus?.toLowerCase();
       return confirmStatus === "pending";
     });
   };
 
   const getUpcomingHealthChecks = () => {
-    return healthChecks.filter(hc => {
+    return healthChecks.filter((hc) => {
       const confirmStatus = hc.confirmStatus?.toLowerCase();
-      return confirmStatus === "approved" || hc.status?.toLowerCase() === "active";
+      return (
+        confirmStatus === "approved" || hc.status?.toLowerCase() === "active"
+      );
     });
   };
 
   const getCompletedHealthChecks = () => {
-    return healthChecks.filter(hc => {
+    return healthChecks.filter((hc) => {
       const status = hc.status?.toLowerCase();
       return status === "completed";
     });
   };
 
   const getRejectedHealthChecks = () => {
-    return healthChecks.filter(hc => {
+    return healthChecks.filter((hc) => {
       const confirmStatus = hc.confirmStatus?.toLowerCase();
       return confirmStatus === "rejected";
     });
@@ -128,4 +136,4 @@ export const useNurseHealthCheckData = () => {
     rejectedHealthChecks: getRejectedHealthChecks(),
     fetchHealthCheckSchedules,
   };
-}; 
+};

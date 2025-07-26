@@ -664,6 +664,13 @@ namespace DB.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<string>("Severity")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("moderate");
+
                     b.Property<int?>("StaffId")
                         .HasColumnType("int")
                         .HasColumnName("StaffID");
@@ -886,6 +893,91 @@ namespace DB.Migrations
                     b.ToTable("Health_Profile", (string)null);
                 });
 
+            modelBuilder.Entity("DB.HealthRecord", b =>
+                {
+                    b.Property<int>("RecordId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RecordId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("EventDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int?>("HealthEventId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Outcome")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("StudentCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Treatment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("RecordId");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("HealthEventId");
+
+                    b.HasIndex("StudentCode");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.ToTable("Health_Record", (string)null);
+                });
+
             modelBuilder.Entity("DB.InjectionForm", b =>
                 {
                     b.Property<int>("FormId")
@@ -894,6 +986,9 @@ namespace DB.Migrations
                         .HasColumnName("FormID");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FormId"));
+
+                    b.Property<string>("ClassDetailsJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClassName")
                         .HasMaxLength(50)
@@ -929,24 +1024,57 @@ namespace DB.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int?>("EstimatedDuration")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GradeIds")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("GradeLevel")
                         .HasColumnType("int");
+
+                    b.Property<string>("HealthProfilesJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("InjectionName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("NotifyParents")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("ParentId")
                         .HasColumnType("int")
                         .HasColumnName("ParentID");
 
+                    b.Property<bool?>("RequireParentConfirmation")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ScheduledDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan?>("StartTime")
+                        .HasColumnType("time");
+
                     b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentDetailsJson")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("StudentId")
                         .HasColumnType("int")
                         .HasColumnName("StudentID");
+
+                    b.Property<int?>("TotalStudents")
+                        .HasColumnType("int");
 
                     b.Property<int?>("VaccineId")
                         .HasColumnType("int");
@@ -1213,6 +1341,92 @@ namespace DB.Migrations
                     b.HasIndex("MedicineRequestId");
 
                     b.ToTable("Medicine_Request_Item", (string)null);
+                });
+
+            modelBuilder.Entity("DB.Notification", b =>
+                {
+                    b.Property<int>("NotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("NotificationID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
+
+                    b.Property<string>("AdditionalData")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<int?>("HealthEventId")
+                        .HasColumnType("int")
+                        .HasColumnName("HealthEventID");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int")
+                        .HasColumnName("ParentID");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("medium");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("StaffId")
+                        .HasColumnType("int")
+                        .HasColumnName("StaffID");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("sent");
+
+                    b.Property<string>("StudentCode")
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("NotificationId")
+                        .HasName("PK__Notification__20CF2E32");
+
+                    b.HasIndex("HealthEventId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("StaffId");
+
+                    b.HasIndex("StudentCode");
+
+                    b.ToTable("Notification", (string)null);
                 });
 
             modelBuilder.Entity("DB.Parent", b =>
@@ -1801,6 +2015,43 @@ namespace DB.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("DB.HealthRecord", b =>
+                {
+                    b.HasOne("DB.Staff", "CreatedByStaff")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK__HealthRecord__CreatedBy");
+
+                    b.HasOne("DB.HealthEvent", "HealthEvent")
+                        .WithMany()
+                        .HasForeignKey("HealthEventId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK__HealthRecord__HealthEventID");
+
+                    b.HasOne("DB.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentCode")
+                        .HasPrincipalKey("StudentCode")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK__HealthRecord__StudentCode");
+
+                    b.HasOne("DB.Staff", "UpdatedByStaff")
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK__HealthRecord__UpdatedBy");
+
+                    b.Navigation("CreatedByStaff");
+
+                    b.Navigation("HealthEvent");
+
+                    b.Navigation("Student");
+
+                    b.Navigation("UpdatedByStaff");
+                });
+
             modelBuilder.Entity("DB.InjectionForm", b =>
                 {
                     b.HasOne("DB.Staff", "ConfirmedByStaff")
@@ -1892,6 +2143,42 @@ namespace DB.Migrations
                         .HasConstraintName("FK__Medicine_Request_Item__MedicineRequestID");
 
                     b.Navigation("MedicineRequest");
+                });
+
+            modelBuilder.Entity("DB.Notification", b =>
+                {
+                    b.HasOne("DB.HealthEvent", "HealthEvent")
+                        .WithMany()
+                        .HasForeignKey("HealthEventId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK__Notification__HealthEventID");
+
+                    b.HasOne("DB.Parent", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK__Notification__ParentID");
+
+                    b.HasOne("DB.Staff", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK__Notification__StaffID");
+
+                    b.HasOne("DB.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentCode")
+                        .HasPrincipalKey("StudentCode")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK__Notification__StudentCode");
+
+                    b.Navigation("HealthEvent");
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Staff");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("DB.RequestResult", b =>

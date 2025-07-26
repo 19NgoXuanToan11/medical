@@ -179,6 +179,83 @@ public class HealthEventRepository : IHealthEventRepository
             .OrderByDescending(e => e.EventDate)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByTypeAsync(string eventType)
+    {
+        return await _context.HealthEvents
+            .Include(e => e.Student)
+                .ThenInclude(s => s.Class)
+            .Include(e => e.Staff)
+            .Include(e => e.HealthEventMedicines)
+                .ThenInclude(hem => hem.Medicine)
+            .Include(e => e.HealthEventMedicalSupplies)
+                .ThenInclude(hems => hems.MedicalSupply)
+            .Where(e => e.EventType == eventType)
+            .OrderByDescending(e => e.EventDate)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<HealthEvent>> GetRecentHealthEventsAsync(int count)
+    {
+        return await _context.HealthEvents
+            .Include(e => e.Student)
+                .ThenInclude(s => s.Class)
+            .Include(e => e.Staff)
+            .Include(e => e.HealthEventMedicines)
+                .ThenInclude(hem => hem.Medicine)
+            .Include(e => e.HealthEventMedicalSupplies)
+                .ThenInclude(hems => hems.MedicalSupply)
+            .OrderByDescending(e => e.EventDate)
+            .Take(count)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByGradeAsync(int grade)
+    {
+        return await _context.HealthEvents
+            .Include(e => e.Student)
+                .ThenInclude(s => s.Class)
+            .Include(e => e.Staff)
+            .Include(e => e.HealthEventMedicines)
+                .ThenInclude(hem => hem.Medicine)
+            .Include(e => e.HealthEventMedicalSupplies)
+                .ThenInclude(hems => hems.MedicalSupply)
+            .Where(e => e.Student != null && 
+                       e.Student.Class != null && 
+                       e.Student.Class.GradeLevel == grade)
+            .OrderByDescending(e => e.EventDate)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<HealthEvent>> GetHealthEventsForNurseByGradeAsync(int staffId)
+    {
+        // Get the grades that the nurse is assigned to
+        var nurseGrades = await _context.GradeNurses
+            .Where(gn => gn.StaffId == staffId)
+            .Select(gn => gn.Grade)
+            .ToListAsync();
+
+        if (!nurseGrades.Any())
+        {
+            // If nurse is not assigned to any grades, return empty list
+            return new List<HealthEvent>();
+        }
+
+        // Get health events for students in the grades that the nurse is assigned to
+        return await _context.HealthEvents
+            .Include(e => e.Student)
+                .ThenInclude(s => s.Class)
+            .Include(e => e.Staff)
+            .Include(e => e.HealthEventMedicines)
+                .ThenInclude(hem => hem.Medicine)
+            .Include(e => e.HealthEventMedicalSupplies)
+                .ThenInclude(hems => hems.MedicalSupply)
+            .Where(e => e.Student != null && 
+                       e.Student.Class != null && 
+                       nurseGrades.Contains(e.Student.Class.GradeLevel))
+            .OrderByDescending(e => e.EventDate)
+            .ToListAsync();
+    }
 }
 
 public class HealthEventMedicineComparer : IEqualityComparer<HealthEventMedicine>

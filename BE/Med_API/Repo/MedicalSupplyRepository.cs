@@ -56,4 +56,24 @@ public class MedicalSupplyRepository : IMedicalSupplyRepository
     {
         return await _context.MedicalSupplies.Where(m => m.IsActive == true).ToListAsync();
     }
+
+    public async Task<bool> UpdateStockQuantityAsync(int supplyId, decimal quantityUsed)
+    {
+        var medicalSupply = await _context.MedicalSupplies.FirstOrDefaultAsync(m => m.SupplyId == supplyId);
+        if (medicalSupply == null)
+        {
+            return false;
+        }
+
+        // Kiểm tra số lượng có đủ không
+        if (medicalSupply.StockQuantity < quantityUsed)
+        {
+            return false; // Không đủ số lượng trong kho
+        }
+
+        // Trừ số lượng đã sử dụng
+        medicalSupply.StockQuantity -= quantityUsed;
+        await _context.SaveChangesAsync();
+        return true;
+    }
 } 

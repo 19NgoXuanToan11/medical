@@ -10,4 +10,5 @@ public interface IHealthProfileService
     Task<HealthProfile?> CreateHealthProfileAsync(HealthProfile healthProfile);
     Task<bool> UpdateHealthProfileAsync(HealthProfile healthProfile);
     Task<bool> DeleteHealthProfileAsync(int id);
+    Task<IEnumerable<HealthProfile>> GetHealthProfilesByGradeListAsync(IEnumerable<int> gradeLevels);
 } 

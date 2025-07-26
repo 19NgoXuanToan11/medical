@@ -56,12 +56,13 @@ import HealthEventDetail from "../../pages/nurse/health-events/HealthEventDetail
 import HealthEventCreate from "../../pages/nurse/health-events/HealthEventCreate";
 import HealthEventEdit from "../../pages/nurse/health-events/HealthEventEdit";
 import NurseMedicationManagement from "../../pages/nurse/medication/MedicationManagement";
-import NurseSchedule from "../../pages/nurse/schedule/NurseSchedule";
+
 import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealthRecords";
 import StudentHealthRecordDetail from "../../pages/nurse/health-records/StudentHealthRecordDetail";
 import HealthServicesManagement from "../../pages/nurse/health-services/HealthServicesManagement";
 import HealthServiceCreate from "../../pages/nurse/health-services/HealthServiceCreate";
 import HealthServicesDetail from "../../pages/nurse/health-services/HealthServicesDetail";
+import VaccinationDetail from "../../pages/nurse/health-services/VaccinationDetail";
 import HealthCheckCreate from "../../pages/nurse/health-services/HealthCheckCreate";
 
 // parent
@@ -76,6 +77,7 @@ import VaccinationConsent from "../../pages/parent/vaccination/VaccinationConsen
 import HealthEventsList from "../../pages/parent/health-events/HealthEventsList";
 import ParentHealthEventDetail from "../../pages/parent/health-events/HealthEventDetail";
 import HealthEventResultDetail from "../../pages/parent/health-events/HealthEventResultDetail";
+import HealthEventNotificationDetail from "../../pages/parent/health-events/HealthEventNotificationDetail";
 import Notifications from "../../pages/parent/notification/Notifications";
 import HealthServices from "../../pages/parent/health-services/HealthServices";
 
@@ -163,8 +165,6 @@ function AppRoutes() {
 
         <Route path="/nurse/profile" element={<NurseProfile />} />
 
-        <Route path="/nurse/schedule" element={<NurseSchedule />} />
-
         <Route path="/nurse/health-records" element={<StudentHealthRecords />} />
         <Route path="/nurse/health-records/:studentId" element={<StudentHealthRecordDetail />} />
 
@@ -173,7 +173,8 @@ function AppRoutes() {
         <Route path="/nurse/health-services" element={<HealthServicesManagement />} />
         <Route path="/nurse/health-services/create/:serviceType" element={<HealthServiceCreate />} />
         <Route path="/nurse/health-services/edit/:id" element={<HealthCheckCreate />} />
-        <Route path="/nurse/health-services/:id" element={<HealthServicesDetail />} />
+                    <Route path="/nurse/health-services/vaccination/:id" element={<VaccinationDetail />} />
+            <Route path="/nurse/health-services/:id" element={<HealthServicesDetail />} />
 
         <Route path="/nurse/health-events" element={<HealthEventList />} />
         <Route path="/nurse/health-events/new" element={<HealthEventCreate />} />
@@ -206,6 +207,7 @@ function AppRoutes() {
         <Route path="/parent/health-events" element={<HealthEventsList />} />
         <Route path="/parent/health-events/:id" element={<ParentHealthEventDetail />} />
         <Route path="/parent/health-events/:id/results" element={<HealthEventResultDetail />} />
+        <Route path="/parent/health-events/:id/notification" element={<HealthEventNotificationDetail />} />
 
         <Route path="/parent/notifications" element={<Notifications />} />
 
