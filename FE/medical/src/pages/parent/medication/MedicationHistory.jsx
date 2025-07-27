@@ -5,11 +5,13 @@ import { useAuth } from "../../../utils/auth/AuthContext";
 import {
   transformParentMedicationData,
   transformFailedMedicationData,
+  transformRejectedMedicationData,
   getStatusBadge,
   calculateMedicationStats,
   filterMedications,
 } from "../../../utils/api/medication/parentMedicationUtils";
 import { toast } from "react-toastify";
+import RejectedMedicationTab from "./RejectedMedicationTab";
 
 const MedicationHistory = () => {
   const { user } = useAuth();
@@ -48,9 +50,13 @@ const MedicationHistory = () => {
       }
 
       if (result.success) {
+        console.log("API result data:", result.data);
         let transformedData;
         if (filterStatus === "failed") {
           transformedData = transformFailedMedicationData(result.data);
+        } else if (filterStatus === "rejected") {
+          transformedData = transformRejectedMedicationData(result.data);
+          console.log("Transformed rejected data:", transformedData);
         } else {
           transformedData = transformParentMedicationData(result.data);
         }
@@ -82,18 +88,24 @@ const MedicationHistory = () => {
   }, [searchParams]);
 
   const filteredMedications =
-    filterStatus === "rejected" || filterStatus === "failed"
-      ? medications // For rejected and failed tabs, show all data from specific APIs directly
+    filterStatus === "failed" || filterStatus === "rejected"
+      ? medications // For failed and rejected tabs, show all data from specific API directly
       : filterMedications(medications, filterStatus, searchTerm);
 
-  // Apply filtering logic
+  // Apply filtering logic for failed and rejected tabs
   const finalFilteredMedications =
-    filterStatus === "rejected" || filterStatus === "failed"
+    filterStatus === "failed" || filterStatus === "rejected"
       ? medications.filter((med) => {
           if (!searchTerm) return true; // Show all if no search term
+
+          const medicationName =
+            filterStatus === "rejected"
+              ? med.medicineName || med.medicationName
+              : med.medicationName;
+
           const matchesSearch =
-            (med.medicationName &&
-              med.medicationName
+            (medicationName &&
+              medicationName
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase())) ||
             (med.id &&
@@ -108,7 +120,7 @@ const MedicationHistory = () => {
               ));
           return matchesSearch;
         })
-      : filterMedications(medications, filterStatus, searchTerm);
+      : filteredMedications;
 
   // Calculate stats based on current data
   const stats =
@@ -457,7 +469,6 @@ const MedicationHistory = () => {
         </div>
       )}
 
-      {/* Data Table */}
       {!loading && !error && finalFilteredMedications.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center border border-gray-200 dark:border-gray-700">
           <div className="mx-auto w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
@@ -501,265 +512,214 @@ const MedicationHistory = () => {
       ) : (
         !loading &&
         !error && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Mã yêu cầu
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Học sinh
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Thuốc
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Ngày gửi yêu cầu
-                    </th>
-                    {filterStatus !== "failed" && (
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        Ngày uống thuốc
-                      </th>
-                    )}
-                    {filterStatus === "failed" && (
-                      <>
+          <>
+            {filterStatus === "rejected" ? (
+              <RejectedMedicationTab
+                medications={medications}
+                searchTerm={searchTerm}
+              />
+            ) : (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
                         <th
                           scope="col"
                           className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                         >
-                          Thời gian thất bại
+                          Mã yêu cầu
                         </th>
                         <th
                           scope="col"
                           className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                         >
-                          Số lần thử
+                          Học sinh
                         </th>
-                      </>
-                    )}
-                    {/* Xóa cột Trạng thái nếu là tab Tất cả */}
-                    {filterStatus !== "all" && (
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        Trạng thái
-                      </th>
-                    )}
-                    {filterStatus === "rejected" && (
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        Thông tin từ chối
-                      </th>
-                    )}
-                    {filterStatus === "failed" && (
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        Lý do thất bại
-                      </th>
-                    )}
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                    >
-                      Hành động
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {finalFilteredMedications.map((medication, idx) => (
-                    <tr
-                      key={idx}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-blue-600 dark:text-blue-400">
-                        #{medication.id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {medication.studentName}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {medication.class}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        {medication.medicationCount >= 2 ? (
-                          <div className="space-y-1">
-                            {medication.medicationDisplay.map((name, index) => (
-                              <div key={index} className="text-sm font-medium">
-                                {name}
-                              </div>
-                            ))}
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              Tổng: {medication.medicationCount} loại thuốc
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {medication.medicationName}
-                          </div>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Thuốc
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Ngày gửi yêu cầu
+                        </th>
+                        {filterStatus !== "failed" && (
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            Ngày uống thuốc
+                          </th>
                         )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="text-sm text-gray-900 dark:text-gray-100">
-                          {new Date(medication.requestDate).toLocaleDateString(
-                            "vi-VN"
-                          )}
-                        </div>
-                      </td>
-                      {filterStatus !== "failed" && (
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm text-gray-900 dark:text-gray-100">
-                            {new Date(medication.startDate).toLocaleDateString(
-                              "vi-VN"
-                            )}
-                          </div>
-                        </td>
-                      )}
-                      {filterStatus === "failed" && (
-                        <>
-                          <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <div className="text-sm text-gray-900 dark:text-gray-100">
-                              {medication.lastAttemptTime || "N/A"}
-                            </div>
-                            {medication.administeredTime && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Bắt đầu: {medication.administeredTime}
-                              </div>
-                            )}
+                        {filterStatus === "failed" && (
+                          <>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                            >
+                              Thời gian thất bại
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                            >
+                              Số lần thử
+                            </th>
+                          </>
+                        )}
+                        {/* Xóa cột Trạng thái nếu là tab Tất cả */}
+                        {filterStatus !== "all" && (
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            Trạng thái
+                          </th>
+                        )}
+                        {filterStatus === "failed" && (
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            Lý do thất bại
+                          </th>
+                        )}
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Hành động
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                      {finalFilteredMedications.map((medication, idx) => (
+                        <tr
+                          key={idx}
+                          className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-blue-600 dark:text-blue-400">
+                            #{medication.id}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                              {medication.failedAttempts}
+                              {medication.studentName}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              {medication.currentDayCount}/
-                              {medication.timesPerDay} lần
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              {medication.class}
                             </div>
                           </td>
-                        </>
-                      )}
-                      {/* Cột Trạng thái chỉ hiển thị nếu không phải tab Tất cả */}
-                      {filterStatus !== "all" && (
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          {renderStatusBadge(medication.status)}
-                        </td>
-                      )}
-                      {/* Tab Từ chối: Hiển thị chi tiết các loại thuốc bị từ chối, buổi, lý do, thời gian */}
-                      {filterStatus === "rejected" && (
-                        <td className="px-6 py-4 text-left">
-                          {Array.isArray(medication.medicineRequestItems) &&
-                          medication.medicineRequestItems.length > 0 ? (
-                            <div className="space-y-2">
-                              {medication.medicineRequestItems.map(
-                                (item, i) => (
-                                  <div
-                                    key={i}
-                                    className="border-b border-gray-200 dark:border-gray-700 pb-2 mb-2 last:mb-0 last:pb-0 last:border-b-0"
-                                  >
-                                    <div className="font-medium text-gray-900 dark:text-gray-100">
-                                      {item.medicineName}
+                          <td className="px-6 py-4 text-center">
+                            {medication.medicationCount >= 2 ? (
+                              <div className="space-y-1">
+                                {medication.medicationDisplay.map(
+                                  (name, index) => (
+                                    <div
+                                      key={index}
+                                      className="text-sm font-medium"
+                                    >
+                                      {name}
                                     </div>
-                                    {item.periodVerificationStatus &&
-                                      Object.entries(
-                                        item.periodVerificationStatus
-                                      ).map(([period, statusObj], j) => {
-                                        if (
-                                          typeof statusObj === "object" &&
-                                          statusObj.Status === "Refused"
-                                        ) {
-                                          return (
-                                            <div
-                                              key={j}
-                                              className="ml-2 text-sm text-red-700 dark:text-red-300"
-                                            >
-                                              <span className="font-semibold">
-                                                Buổi:
-                                              </span>{" "}
-                                              {period} <br />
-                                              <span className="font-semibold">
-                                                Lý do:
-                                              </span>{" "}
-                                              {statusObj.RefusalReason ||
-                                                "Không có lý do"}{" "}
-                                              <br />
-                                              {statusObj.Timestamp ? (
-                                                <>
-                                                  <span className="font-semibold">
-                                                    Thời gian:
-                                                  </span>{" "}
-                                                  {new Date(
-                                                    statusObj.Timestamp
-                                                  ).toLocaleString("vi-VN")}
-                                                  <br />
-                                                </>
-                                              ) : null}
-                                            </div>
-                                          );
-                                        }
-                                        return null;
-                                      })}
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          ) : (
-                            <div className="text-gray-500 dark:text-gray-400">
-                              Không có thông tin thuốc bị từ chối
-                            </div>
-                          )}
-                        </td>
-                      )}
-                      {filterStatus === "failed" && (
-                        <td className="px-6 py-4 text-center">
-                          <div className="text-sm text-gray-900 dark:text-gray-100 max-w-xs">
-                            {medication.failureReasons ||
-                              "Không có lý do cụ thể"}
-                          </div>
-                          {medication.staffName &&
-                            medication.staffName !== "N/A" && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Xử lý bởi: {medication.staffName}
+                                  )
+                                )}
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  Tổng: {medication.medicationCount} loại thuốc
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {medication.medicationName}
                               </div>
                             )}
-                        </td>
-                      )}
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <Link
-                          to={`/parent/medication/detail/${medication.id}`}
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
-                        >
-                          Chi tiết
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <div className="text-sm text-gray-900 dark:text-gray-100">
+                              {new Date(
+                                medication.requestDate
+                              ).toLocaleDateString("vi-VN")}
+                            </div>
+                          </td>
+                          {filterStatus !== "failed" && (
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <div className="text-sm text-gray-900 dark:text-gray-100">
+                                {new Date(
+                                  medication.startDate
+                                ).toLocaleDateString("vi-VN")}
+                              </div>
+                            </td>
+                          )}
+                          {filterStatus === "failed" && (
+                            <>
+                              <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <div className="text-sm text-gray-900 dark:text-gray-100">
+                                  {medication.lastAttemptTime || "N/A"}
+                                </div>
+                                {medication.administeredTime && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Bắt đầu: {medication.administeredTime}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                  {medication.failedAttempts}
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {medication.currentDayCount}/
+                                  {medication.timesPerDay} lần
+                                </div>
+                              </td>
+                            </>
+                          )}
+                          {/* Cột Trạng thái chỉ hiển thị nếu không phải tab Tất cả */}
+                          {filterStatus !== "all" && (
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              {renderStatusBadge(medication.status)}
+                            </td>
+                          )}
+                          {filterStatus === "failed" && (
+                            <td className="px-6 py-4 text-center">
+                              <div className="text-sm text-gray-900 dark:text-gray-100 max-w-xs">
+                                {medication.failureReasons ||
+                                  "Không có lý do cụ thể"}
+                              </div>
+                              {medication.staffName &&
+                                medication.staffName !== "N/A" && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Xử lý bởi: {medication.staffName}
+                                  </div>
+                                )}
+                            </td>
+                          )}
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            {medication.id &&
+                            medication.id !== "undefined" &&
+                            !medication.id.includes("undefined") ? (
+                              <Link
+                                to={`/parent/medication/detail/${medication.id}`}
+                                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
+                              >
+                                Chi tiết
+                              </Link>
+                            ) : (
+                              <span className="text-gray-400 cursor-not-allowed">
+                                Chi tiết
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </>
         )
       )}
     </div>

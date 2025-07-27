@@ -6,7 +6,7 @@ import {
   FiCheckCircle,
   FiAlertTriangle,
 } from "react-icons/fi";
-import { medicationService } from "../../utils/api/medication/medicationService";
+import { staffService } from "../../utils/staff/staffService";
 
 const NurseAssignmentInfo = ({ studentCode, requestId, className }) => {
   const [assignmentInfo, setAssignmentInfo] = useState(null);
@@ -31,85 +31,35 @@ const NurseAssignmentInfo = ({ studentCode, requestId, className }) => {
     setLoading(true);
     setError(null);
 
+    const fallbackGrade = extractGradeFromClassName(className);
+
     try {
-      // Get grade by student code
-      const gradeResponse = await medicationService.getGradeByStudentCode(
-        studentCode
-      );
+      // Use staff API to get nurse by grade
+      const nurseResponse = await staffService.getNursesByGrade(fallbackGrade);
 
-      if (gradeResponse.success && gradeResponse.data?.grade) {
-        const grade = gradeResponse.data.grade;
-
-        // Get nurse by grade
-        const nurseResponse = await medicationService.getNurseByGrade(grade);
-
-        if (nurseResponse.success) {
-          setAssignmentInfo({
-            grade,
-            nurse: nurseResponse.data,
-            isAutoAssigned: true,
-            assignmentType: "auto",
-          });
-        } else {
-          setAssignmentInfo({
-            grade,
-            nurse: null,
-            isAutoAssigned: false,
-            assignmentType: "manual",
-            error: "Không tìm thấy nurse phụ trách khối này",
-          });
-        }
+      if (
+        nurseResponse.success &&
+        nurseResponse.data &&
+        nurseResponse.data.length > 0
+      ) {
+        const nurseAssignment = nurseResponse.data[0];
+        setAssignmentInfo({
+          grade: fallbackGrade,
+          nurse: nurseAssignment.nurse,
+          nurseAssignments: nurseResponse.data,
+          isAutoAssigned: true,
+          assignmentType: "auto",
+        });
       } else {
-        const fallbackGrade = extractGradeFromClassName(className);
-
-        if (fallbackGrade) {
-          // Try to get nurse by fallback grade
-          try {
-            const nurseResponse = await medicationService.getNurseByGrade(
-              fallbackGrade
-            );
-
-            if (nurseResponse.success) {
-              setAssignmentInfo({
-                grade: fallbackGrade,
-                nurse: nurseResponse.data,
-                isAutoAssigned: true,
-                assignmentType: "auto",
-                fallback: true,
-              });
-            } else {
-              setAssignmentInfo({
-                grade: fallbackGrade,
-                nurse: null,
-                isAutoAssigned: false,
-                assignmentType: "manual",
-                error: "Không tìm thấy nurse phụ trách khối này",
-                fallback: true,
-              });
-            }
-          } catch (nurseErr) {
-            setAssignmentInfo({
-              grade: fallbackGrade,
-              nurse: null,
-              isAutoAssigned: false,
-              assignmentType: "manual",
-              error: "Lỗi khi tìm nurse phụ trách khối",
-              fallback: true,
-            });
-          }
-        } else {
-          const errorMsg =
-            gradeResponse.message || "Không thể xác định khối học của học sinh";
-          setError(errorMsg);
-          console.error(
-            "❌ Grade not found and no fallback available:",
-            gradeResponse
-          );
-        }
+        setAssignmentInfo({
+          grade: fallbackGrade,
+          nurse: null,
+          isAutoAssigned: false,
+          assignmentType: "manual",
+          error: "Không tìm thấy nurse phụ trách khối này",
+        });
       }
     } catch (err) {
-      const fallbackGrade = extractGradeFromClassName(className);
-
       if (fallbackGrade) {
         setAssignmentInfo({
           grade: fallbackGrade,
@@ -124,9 +74,9 @@ const NurseAssignmentInfo = ({ studentCode, requestId, className }) => {
         setError(errorMsg);
         console.error("❌ Error loading assignment info:", err);
       }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   if (loading) {
@@ -162,20 +112,12 @@ const NurseAssignmentInfo = ({ studentCode, requestId, className }) => {
   return (
     <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
       <div className="space-y-3">
-        {/* Header */}
-        <div className="flex items-center space-x-2">
-          <FiCheckCircle className="text-green-500" />
-          <h4 className="font-medium text-green-800 dark:text-green-200">
-            Thông tin phân công Nurse
-          </h4>
-        </div>
-
         {/* Grade Info */}
         <div className="flex items-center space-x-3">
           <FiUsers className="text-green-600 dark:text-green-400" />
           <div>
             <span className="text-sm font-medium text-green-700 dark:text-green-300">
-              Khối: 
+              Khối:
             </span>
             <span className="text-sm text-green-600 dark:text-green-400 ml-1">
               {assignmentInfo.grade}
@@ -185,16 +127,48 @@ const NurseAssignmentInfo = ({ studentCode, requestId, className }) => {
 
         {/* Nurse Info */}
         {assignmentInfo.nurse ? (
-          <div className="flex items-center space-x-3">
-            <FiUser className="text-green-600 dark:text-green-400" />
-            <div>
-              <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                Nurse phụ trách:
-              </span>
-              <span className="text-sm text-green-600 dark:text-green-400 ml-1">
-                {assignmentInfo.nurse.firstName} {assignmentInfo.nurse.lastName}
-              </span>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-3">
+              <FiUser className="text-green-600 dark:text-green-400" />
+              <div>
+                <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                  Nurse phụ trách:
+                </span>
+                <span className="text-sm text-green-600 dark:text-green-400 ml-1">
+                  {assignmentInfo.nurse.firstName}{" "}
+                  {assignmentInfo.nurse.lastName}
+                </span>
+              </div>
             </div>
+
+            {/* Display additional nurse info if available */}
+            {assignmentInfo.nurse.email && (
+              <div className="flex items-center space-x-3 ml-6">
+                <span className="text-xs text-green-600 dark:text-green-400">
+                  📧 {assignmentInfo.nurse.email}
+                </span>
+              </div>
+            )}
+
+            {assignmentInfo.nurse.phone && (
+              <div className="flex items-center space-x-3 ml-6">
+                <span className="text-xs text-green-600 dark:text-green-400">
+                  📞 {assignmentInfo.nurse.phone}
+                </span>
+              </div>
+            )}
+
+            {/* Show if there are multiple nurses for this grade */}
+            {assignmentInfo.nurseAssignments &&
+              assignmentInfo.nurseAssignments.length > 1 && (
+                <div className="flex items-center space-x-3 ml-6">
+                  <FiInfo className="text-blue-500 text-xs" />
+                  <span className="text-xs text-blue-600 dark:text-blue-400">
+                    +{assignmentInfo.nurseAssignments.length - 1} nurse khác
+                    cũng phụ trách khối này
+                  </span>
+                </div>
+              )}
           </div>
         ) : (
           <div className="flex items-center space-x-3">

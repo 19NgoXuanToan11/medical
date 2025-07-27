@@ -311,8 +311,8 @@ export const medicationService = {
     }
   },
 
-  // Get pending medication requests
-  getPendingMedicationRequests: async () => {
+  // Get pending medication requests (legacy - use the newer one with my-assigned-requests)
+  getPendingMedicationRequestsLegacy: async () => {
     try {
       const response = await api.get("/MedicineRequest/pending");
       return {
@@ -333,10 +333,12 @@ export const medicationService = {
     }
   },
 
-  // Get medication requests assigned to current nurse's grade
+  // Get medication requests assigned to current nurse's grade (theo spec trong Note.txt)
   getMyAssignedMedicationRequests: async (status = null) => {
     try {
-      const params = status ? { status } : {};
+      const params = {};
+      if (status) params.status = status;
+
       const response = await api.get("/MedicineRequest/my-assigned-requests", {
         params,
       });
@@ -353,6 +355,78 @@ export const medicationService = {
         message:
           error.response?.data?.message ||
           "Không thể lấy danh sách yêu cầu thuốc được phân công",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get pending requests by nurse's assigned grade
+  getPendingMedicationRequests: async () => {
+    try {
+      const response = await api.get("/MedicineRequest/my-assigned-requests", {
+        params: { status: "pending" },
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu chờ xử lý thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching pending medication requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu chờ xử lý",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get verified requests by nurse's assigned grade
+  getVerifiedMedicationRequests: async () => {
+    try {
+      const response = await api.get("/MedicineRequest/my-assigned-requests", {
+        params: { status: "verified" },
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu đã xác thực thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching verified medication requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu đã xác thực",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get refused requests by nurse's assigned grade
+  getRefusedMedicationRequests: async () => {
+    try {
+      const response = await api.get("/MedicineRequest/my-assigned-requests", {
+        params: { status: "refused" },
+      });
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu bị từ chối thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching refused medication requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu bị từ chối",
         error: error.response?.data || error.message,
       };
     }
@@ -519,7 +593,7 @@ export const medicationService = {
   getFailedMedicationRequests: async () => {
     try {
       // Use the specific failed requests endpoint
-      const response = await api.get("/MedicineRequest/failed-requests");
+      const response = await api.get("/MedicineRequest/failed");
 
       if (response.data) {
         // For any requests missing medicineRequestItems, fetch them individually
@@ -1022,8 +1096,8 @@ export const medicationService = {
       const response = await api.post(
         `/MedicineRequest/item/${itemId}/verify`,
         {
-          period,
-          staffId,
+          period: period,
+          staffId: staffId,
         }
       );
       return {
@@ -1073,9 +1147,9 @@ export const medicationService = {
       const response = await api.post(
         `/MedicineRequest/item/${itemId}/refuse`,
         {
-          period,
-          staffId,
-          refusalReason,
+          period: period,
+          staffId: staffId,
+          refusalReason: refusalReason,
         }
       );
       return {
@@ -1116,8 +1190,8 @@ export const medicationService = {
     }
   },
 
-  // Get refused medication requests
-  getRefusedMedicationRequests: async () => {
+  // Get refused medication requests (legacy - use the newer one with my-assigned-requests)
+  getRefusedMedicationRequestsLegacy: async () => {
     try {
       const response = await api.get("/MedicineRequest/refused");
       return {
@@ -1442,15 +1516,30 @@ export const medicationService = {
   // Get refused medicine request by ID with detailed refusal information
   getRefusedMedicineRequestById: async (parentId, requestId) => {
     try {
+      // Check if requestId is valid
+      if (
+        !requestId ||
+        requestId === "undefined" ||
+        requestId.includes("undefined")
+      ) {
+        return {
+          success: false,
+          data: null,
+          message: "ID yêu cầu thuốc không hợp lệ",
+        };
+      }
+
       const response = await api.get(
         `/Parent/${parentId}/refused-medicine-requests`
       );
 
       // Find the specific request by ID from the refused requests
       const refusedRequests = response.data;
-      const specificRequest = refusedRequests.find(
-        (req) => req.requestId.toString() === requestId.toString()
-      );
+      const specificRequest = refusedRequests.find((req) => {
+        // Check if both requestId and req.requestId exist before comparing
+        if (!requestId || !req.requestId) return false;
+        return req.requestId.toString() === requestId.toString();
+      });
 
       if (specificRequest) {
         return {

@@ -13,6 +13,46 @@ import { toast } from "react-toastify";
 const MedicationDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
+
+  // Validate id parameter
+  if (!id || id === "undefined" || id.includes("undefined")) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 max-w-6xl mt-20">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-6">
+            <svg
+              className="h-8 w-8 text-red-600 dark:text-red-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            ID yêu cầu thuốc không hợp lệ
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+            Vui lòng quay lại danh sách và thử lại
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Link
+              to="/parent/medication/history"
+              className="px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-md transition-colors"
+            >
+              Quay lại danh sách
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const [loading, setLoading] = useState(true);
   const [medication, setMedication] = useState(null);
   const [error, setError] = useState(null);
@@ -50,9 +90,13 @@ const MedicationDetail = () => {
 
         if (result.success) {
           const transformedData = transformParentMedicationData(result.data);
-          foundMedication = transformedData.find(
-            (med) => med.requestId.toString() === medicationId || med.id === id
-          );
+          foundMedication = transformedData.find((med) => {
+            // Check if requestId exists before calling toString()
+            if (med.requestId && med.requestId.toString() === medicationId)
+              return true;
+            if (med.id === id) return true;
+            return false;
+          });
         }
       }
 
@@ -60,38 +104,46 @@ const MedicationDetail = () => {
         // Enhance with additional detail data
         const enhancedMedication = {
           ...foundMedication,
-          studentId: foundMedication.studentCode,
-          specialInstructions: foundMedication.instructions,
-          timeOfDay: foundMedication.timeOfDay.split(", ").map((time) => {
-            switch (time.toLowerCase()) {
-              case "morning":
-              case "sáng":
-                return "morning";
-              case "afternoon":
-              case "chiều":
-                return "afternoon";
-              case "noon":
-              case "trưa":
-                return "noon";
-              default:
-                return "as_needed";
-            }
-          }),
-          administrationLog: foundMedication.progress.map((p) => ({
-            date: p.administeredTime,
-            status:
-              p.status === "Completed"
-                ? "completed"
-                : p.status === "Failed"
-                ? "missed"
-                : "upcoming",
-            administrator:
-              p.administeredByStaff?.firstName &&
-              p.administeredByStaff?.lastName
-                ? `${p.administeredByStaff.firstName} ${p.administeredByStaff.lastName}`
-                : "N/A",
-            notes: p.reRequestReason || "Không có ghi chú",
-          })),
+          studentId: foundMedication.studentCode || null,
+          specialInstructions:
+            foundMedication.instructions || "Không có hướng dẫn đặc biệt",
+          timeOfDay:
+            foundMedication.timeOfDay &&
+            typeof foundMedication.timeOfDay === "string"
+              ? foundMedication.timeOfDay.split(", ").map((time) => {
+                  switch (time.toLowerCase()) {
+                    case "morning":
+                    case "sáng":
+                      return "morning";
+                    case "afternoon":
+                    case "chiều":
+                      return "afternoon";
+                    case "noon":
+                    case "trưa":
+                      return "noon";
+                    default:
+                      return "as_needed";
+                  }
+                })
+              : [],
+          administrationLog:
+            foundMedication.progress && Array.isArray(foundMedication.progress)
+              ? foundMedication.progress.map((p) => ({
+                  date: p.administeredTime || null,
+                  status:
+                    p.status === "Completed"
+                      ? "completed"
+                      : p.status === "Failed"
+                      ? "missed"
+                      : "upcoming",
+                  administrator:
+                    p.administeredByStaff?.firstName &&
+                    p.administeredByStaff?.lastName
+                      ? `${p.administeredByStaff.firstName} ${p.administeredByStaff.lastName}`
+                      : "N/A",
+                  notes: p.reRequestReason || "Không có ghi chú",
+                }))
+              : [],
           notes: [], // API doesn't provide notes, so empty array
         };
 
@@ -109,7 +161,9 @@ const MedicationDetail = () => {
   };
 
   useEffect(() => {
-    fetchMedicationDetail();
+    if (user?.id) {
+      fetchMedicationDetail();
+    }
   }, [id, user?.id]);
 
   if (loading) {
@@ -147,7 +201,9 @@ const MedicationDetail = () => {
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
             {error ||
-              `Yêu cầu thuốc với mã #${id} không tồn tại hoặc đã bị xóa`}
+              `Yêu cầu thuốc với mã #${
+                id || "N/A"
+              } không tồn tại hoặc đã bị xóa`}
           </p>
           <div className="flex gap-4 justify-center">
             <button
