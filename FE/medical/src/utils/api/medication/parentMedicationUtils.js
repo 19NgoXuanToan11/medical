@@ -51,8 +51,10 @@ export const transformParentMedicationData = (requests) => {
       allMedicationNames.length > 0 ? allMedicationNames : ["N/A"];
 
     return {
-      id: `MED${req.requestId}`,
-      requestId: req.requestId,
+      id: req.requestId
+        ? `MED${req.requestId}`
+        : `MED${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      requestId: req.requestId || null,
       studentName:
         req.student?.firstName && req.student?.lastName
           ? `${req.student.firstName} ${req.student.lastName}`
@@ -92,6 +94,48 @@ export const transformParentMedicationData = (requests) => {
       originalData: req,
     };
   });
+};
+
+// Transform rejected medication API data to component structure
+export const transformRejectedMedicationData = (requests) => {
+  console.log("transformRejectedMedicationData input:", requests);
+  const result = requests.map((req) => {
+    return {
+      id: req.medicineRequestItemId
+        ? `MED${req.medicineRequestItemId}`
+        : `MED${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      requestId: req.medicineRequestItemId || null,
+      medicineRequestItemId: req.medicineRequestItemId,
+      studentName: req.studentName || "N/A",
+      studentCode: req.studentCode || "N/A",
+      className: req.className || "N/A",
+      class: req.className || "N/A", // For backward compatibility
+      parentId: req.parentId,
+      parentName: req.parentName || "N/A",
+      medicineName: req.medicineName || "N/A",
+      medicationName: req.medicineName || "N/A", // For backward compatibility
+      dosage: req.dosage || null,
+      dosageUnit: req.dosageUnit || "viên",
+      frequency: req.frequency || null,
+      timeOfDay: req.timeOfDay || null,
+      instructions: req.instructions || null,
+      period: req.period || "N/A",
+      status: "Refused",
+      staffId: req.staffId,
+      timestamp: req.timestamp,
+      refusalReason: req.refusalReason || "Không có lý do",
+      requestDate: req.timestamp
+        ? new Date(req.timestamp).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      startDate: req.timestamp
+        ? new Date(req.timestamp).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      // Raw API data for reference
+      originalData: req,
+    };
+  });
+  console.log("transformRejectedMedicationData output:", result);
+  return result;
 };
 
 // Get status badge configuration
@@ -175,7 +219,8 @@ export const transformFailedMedicationData = (failedResults) => {
   return failedResults.map((result) => {
     const request = result.request || {};
     const student = request.student || {};
-    const medicineItems = request.medicineItems || request.medicineRequestItems || [];
+    const medicineItems =
+      request.medicineItems || request.medicineRequestItems || [];
     const firstMedicine = medicineItems[0] || {};
 
     // Get all medication names for display
@@ -192,8 +237,10 @@ export const transformFailedMedicationData = (failedResults) => {
       Object.values(failureReasons).join("; ") || "Không có lý do cụ thể";
 
     return {
-      id: `MED${request.requestId}`,
-      requestId: request.requestId,
+      id: request.requestId
+        ? `MED${request.requestId}`
+        : `MED${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      requestId: request.requestId || null,
       resultId: result.resultId,
       studentName:
         student.firstName && student.lastName
@@ -248,7 +295,7 @@ export const filterMedications = (medications, filterStatus, searchTerm) => {
     const matchesStatus = filterStatus === "all" || med.status === filterStatus;
     const matchesSearch =
       med.medicationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      med.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (med.id && med.id.toLowerCase().includes(searchTerm.toLowerCase())) ||
       med.studentName.toLowerCase().includes(searchTerm.toLowerCase());
 
     return matchesStatus && matchesSearch;

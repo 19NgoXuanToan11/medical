@@ -403,6 +403,50 @@ export const staffService = {
     }
   },
 
+  // Get nurses assigned to a specific grade
+  getNursesByGrade: async (grade) => {
+    try {
+      const response = await api.get(`/Staff/grade-nurse/by-grade/${grade}`);
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách nurse phụ trách khối thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching nurses by grade:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách nurse phụ trách khối",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get grade assignments for a specific staff member
+  getGradeAssignmentsByStaffId: async (staffId) => {
+    try {
+      const response = await api.get(`/Staff/grade-nurse/by-staff/${staffId}`);
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách phân công khối thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching grade assignments by staff ID:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách phân công khối",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
   // NEW: Get classes filtered by current nurse's assigned grade levels
   getMyAssignedClasses: async () => {
     try {

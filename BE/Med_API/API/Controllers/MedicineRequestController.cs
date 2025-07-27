@@ -24,7 +24,69 @@ public class MedicineRequestController : ControllerBase
         _staffService = staffService;
     }
 
-    // GET: api/MedicineRequest
+    #region 1. CRUD MEDICINE REQUEST (Quản lý yêu cầu thuốc cơ bản)
+
+    /// <summary>
+    /// 1.1. Create Medicine Request
+    /// Tạo yêu cầu thuốc mới, tự động phân công nurse theo khối
+    /// </summary>
+    [HttpPost]
+    public async Task<ActionResult<MedicineRequestDto.ViewModel>> CreateMedicineRequest(MedicineRequestDto.Create createDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        if (createDto.MedicineRequestItems == null || !createDto.MedicineRequestItems.Any())
+        {
+            return BadRequest("Medicine request must contain at least one medicine item.");
+        }
+
+        // Map the DTO to entity
+        var medicineRequest = _mapper.Map<MedicineRequest>(createDto);
+        
+        // Set default status to Pending
+        medicineRequest.Status = "Pending";
+        
+        // Set request date to current time
+        medicineRequest.RequestDate = DateTime.UtcNow;
+
+        // Check if student code is provided to determine grade for auto nurse assignment
+        if (!string.IsNullOrEmpty(medicineRequest.StudentCode))
+        {
+            var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(medicineRequest.StudentCode);
+            if (grade.HasValue)
+            {
+                var assignedNurse = await _medicineRequestService.GetNurseByGradeAsync(grade.Value);
+                if (assignedNurse != null)
+                {
+                    _logger.LogInformation("Auto-assigned nurse {NurseId} ({NurseName}) to medicine request for student {StudentCode} in grade {Grade}", 
+                        assignedNurse.StaffId, $"{assignedNurse.FirstName} {assignedNurse.LastName}", medicineRequest.StudentCode, grade.Value);
+                }
+                else
+                {
+                    _logger.LogWarning("No nurse found assigned to grade {Grade} for student {StudentCode}", grade.Value, medicineRequest.StudentCode);
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Could not determine grade for student {StudentCode}", medicineRequest.StudentCode);
+            }
+        }
+
+        var created = await _medicineRequestService.CreateMedicineRequestAsync(medicineRequest);
+        if (created == null)
+        {
+            return BadRequest("Failed to create medicine request.");
+        }
+        var viewModel = _mapper.Map<MedicineRequestDto.ViewModel>(created);
+        return CreatedAtAction(nameof(GetMedicineRequest), new { id = viewModel.RequestId }, viewModel);
+    }
+
+    /// <summary>
+    /// 1.2. Get All Medicine Requests
+    /// Lấy tất cả yêu cầu thuốc (có filter theo staffId)
+    /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetMedicineRequests([FromQuery] int? staffId = null)
     {
@@ -48,7 +110,26 @@ public class MedicineRequestController : ControllerBase
         return Ok(viewModels);
     }
 
-    // GET: api/MedicineRequest/student/{studentCode}
+    /// <summary>
+    /// 1.2. Get Medicine Request Detail
+    /// Lấy chi tiết 1 yêu cầu thuốc
+    /// </summary>
+    [HttpGet("{id}")]
+    public async Task<ActionResult<MedicineRequestDto.ViewModel>> GetMedicineRequest(int id)
+    {
+        var medicineRequest = await _medicineRequestService.GetMedicineRequestByIdAsync(id);
+        if (medicineRequest == null)
+        {
+            return NotFound();
+        }
+        var viewModel = _mapper.Map<MedicineRequestDto.ViewModel>(medicineRequest);
+        return Ok(viewModel);
+    }
+
+    /// <summary>
+    /// 1.2. Get Medicine Requests By Student
+    /// Lấy yêu cầu thuốc theo học sinh
+    /// </summary>
     [HttpGet("student/{studentCode}")]
     public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetMedicineRequestsByStudent(string studentCode, [FromQuery] int? staffId = null)
     {
@@ -71,7 +152,193 @@ public class MedicineRequestController : ControllerBase
         return Ok(viewModels);
     }
 
-    // GET: api/MedicineRequest/status/{status}
+    /// <summary>
+    /// 1.3. Update Medicine Request
+    /// Cập nhật yêu cầu thuốc
+    /// </summary>
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateMedicineRequest(int id, MedicineRequestDto.Update updateDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        // Retrieve the existing request to ensure we are updating the correct entity
+        var existingRequest = await _medicineRequestService.GetMedicineRequestByIdAsync(id);
+        if (existingRequest == null)
+        {
+            return NotFound();
+        }
+
+        _mapper.Map(updateDto, existingRequest);
+        existingRequest.RequestId = id; // Ensure ID is set for update
+
+        var success = await _medicineRequestService.UpdateMedicineRequestAsync(existingRequest);
+        if (!success)
+        {
+            return NotFound();
+        }
+        return NoContent();
+    }
+
+    /// <summary>
+    /// 1.4. Delete Medicine Request
+    /// Xóa yêu cầu thuốc
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteMedicineRequest(int id)
+    {
+        var success = await _medicineRequestService.DeleteMedicineRequestAsync(id);
+        if (!success)
+        {
+            return NotFound();
+        }
+        return NoContent();
+    }
+
+    #endregion
+
+    #region 2. NURSE AUTO-ASSIGNMENT (Tự động phân công nurse theo khối)
+
+    /// <summary>
+    /// 2.1. Get Available Nurses
+    /// Lấy danh sách nurse đang hoạt động và phân công khối
+    /// </summary>
+    [HttpGet("available-nurses")]
+    public async Task<ActionResult<IEnumerable<object>>> GetAvailableNurses()
+    {
+        var nurses = await _medicineRequestService.GetAvailableNursesAsync();
+        // Include all active nurses, with or without grade assignments
+        var filtered = nurses.Where(n => n.IsActiveForRequest).ToList();
+        var result = filtered.Select(n => new {
+            n.StaffId,
+            n.FirstName,
+            n.LastName,
+            n.Username,
+            n.Email,
+            n.Phone,
+            n.IsActiveForRequest,
+            AssignedGrades = n.GradeNurses?.Select(g => g.Grade).ToList() ?? new List<int>()
+        });
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 2.1. Get Auto Assignment Info
+    /// Xem thông tin phân công tự động cho yêu cầu
+    /// </summary>
+    [HttpGet("{id}/auto-assignment-info")]
+    public async Task<IActionResult> GetAutoAssignmentInfo(int id)
+    {
+        try
+        {
+            var request = await _medicineRequestService.GetMedicineRequestByIdAsync(id);
+            if (request == null)
+            {
+                return NotFound(new { message = "Không tìm thấy yêu cầu thuốc" });
+            }
+
+            var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
+            if (!grade.HasValue)
+            {
+                return Ok(new { 
+                    grade = (int?)null,
+                    nurse = (object)null,
+                    isAutoAssigned = false,
+                    message = "Không thể xác định khối học"
+                });
+            }
+
+            var nurse = await _medicineRequestService.GetNurseByGradeAsync(grade.Value);
+            
+            return Ok(new {
+                grade = grade.Value,
+                nurse = nurse,
+                isAutoAssigned = nurse != null,
+                message = nurse != null ? "Đã có nurse được phân công tự động" : "Chưa có nurse phụ trách khối này"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting auto assignment info for request {RequestId}", id);
+            return StatusCode(500, new { message = "Lỗi khi lấy thông tin phân công tự động" });
+        }
+    }
+
+    /// <summary>
+    /// 2.1. Check Manual Assignment Allowed
+    /// Kiểm tra có cho phép phân công thủ công không
+    /// </summary>
+    [HttpGet("{id}/manual-assignment-allowed")]
+    public async Task<IActionResult> CheckManualAssignmentAllowed(int id)
+    {
+        try
+        {
+            var allowed = await _medicineRequestService.IsManualAssignmentAllowedAsync(id);
+            return Ok(allowed);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking manual assignment for request {RequestId}", id);
+            return StatusCode(500, new { message = "Lỗi khi kiểm tra phân công thủ công" });
+        }
+    }
+
+    /// <summary>
+    /// 2.2. Assign Nurse
+    /// Phân công nurse cho item/period (chỉ khi không có nurse theo khối)
+    /// </summary>
+    [HttpPost("item/{medicineRequestItemId}/assign-nurse/{staffId}")]
+    public async Task<IActionResult> AssignNurseToRequestItem(int medicineRequestItemId, int staffId, [FromQuery] string period)
+    {
+        if (string.IsNullOrWhiteSpace(period))
+            return BadRequest("Period is required for assignment.");
+
+        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(medicineRequestItemId);
+        if (item == null)
+            return NotFound();
+
+        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
+        if (request == null)
+            return NotFound("Medicine request not found.");
+
+        var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
+        if (!grade.HasValue || !await _staffService.IsNurseAssignedToGradeAsync(staffId, grade.Value))
+            return Forbid("You are not assigned to this grade.");
+
+
+
+        // Proceed with manual assignment
+        var periodStatus = new Dictionary<string, object>();
+        try
+        {
+            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
+            }
+            catch { }
+
+        var history = GetStatusHistory(periodStatus, period);
+        history.Add(new Dictionary<string, object> {
+            { "Status", "Assigned" },
+            { "StaffId", staffId },
+            { "Timestamp", DateTime.UtcNow }
+        });
+
+        periodStatus[period] = history;
+        item.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(periodStatus);
+        var success = await _medicineRequestService.UpdateMedicineRequestItemAsync(item);
+        
+        if (!success) return NotFound();
+        return NoContent();
+    }
+
+    #endregion
+
+    #region 3. PERIOD VERIFICATION FLOW (Quy trình xác thực theo buổi)
+
+    /// <summary>
+    /// 3.1. Get Requests By Status
+    /// Lọc theo trạng thái của từng item/period
+    /// </summary>
     [HttpGet("status/{status}")]
     public async Task<ActionResult<IEnumerable<object>>> GetMedicineRequestsByStatus(string status, [FromQuery] int? staffId = null)
     {
@@ -217,27 +484,10 @@ public class MedicineRequestController : ControllerBase
         return Ok(statusItems);
     }
 
-    // GET: api/MedicineRequest/available-nurses
-    [HttpGet("available-nurses")]
-    public async Task<ActionResult<IEnumerable<object>>> GetAvailableNurses()
-    {
-        var nurses = await _medicineRequestService.GetAvailableNursesAsync();
-        // Include all active nurses, with or without grade assignments
-        var filtered = nurses.Where(n => n.IsActiveForRequest).ToList();
-        var result = filtered.Select(n => new {
-            n.StaffId,
-            n.FirstName,
-            n.LastName,
-            n.Username,
-            n.Email,
-            n.Phone,
-            n.IsActiveForRequest,
-            AssignedGrades = n.GradeNurses?.Select(g => g.Grade).ToList() ?? new List<int>()
-        });
-        return Ok(result);
-    }
-
-    // GET: api/MedicineRequest/pending
+    /// <summary>
+    /// 3.1. Get Pending Requests
+    /// Lấy các yêu cầu đang chờ xác thực
+    /// </summary>
     [HttpGet("pending")]
     public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetPendingRequests([FromQuery] int? staffId = null)
     {
@@ -294,759 +544,10 @@ public class MedicineRequestController : ControllerBase
         return Ok(viewModels);
     }
 
-    // GET: api/MedicineRequest/my-assigned-requests - Get requests for current nurse's assigned grades
-    [HttpGet("my-assigned-requests")]
-    [Microsoft.AspNetCore.Authorization.Authorize]
-    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetMyAssignedRequests([FromQuery] string? status = null)
-    {
-        // Get current user ID from JWT token
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int staffId))
-        {
-            return Unauthorized("Invalid token or user ID not found");
-        }
-
-        // Get current user role from JWT token
-        var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
-        if (roleClaim == null || roleClaim.Value.ToLower() != "nurse")
-        {
-            return Forbid("Only nurses can access their assigned requests");
-        }
-
-        _logger.LogInformation("GetMyAssignedRequests called by staffId={StaffId}, status={Status}", staffId, status);
-
-        try
-        {
-            var requests = await _medicineRequestService.GetMedicineRequestsByAssignedGradeAsync(staffId, status);
-            var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
-            _logger.LogInformation("Returning {Count} requests for staffId={StaffId}", viewModels.Count(), staffId);
-            return Ok(viewModels);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting assigned requests for nurse {StaffId}", staffId);
-            return StatusCode(500, new { message = "Lỗi khi lấy danh sách yêu cầu thuốc được phân công" });
-        }
-    }
-
-    // DEBUG endpoint - Get debug info for nurse assignments
-    [HttpGet("debug/nurse-assignments/{staffId}")]
-    public async Task<IActionResult> GetDebugNurseAssignments(int staffId)
-    {
-        try
-        {
-            var allRequests = await _medicineRequestService.GetAllMedicineRequestsAsync();
-            var requestsInfo = allRequests.Select(r => new {
-                RequestId = r.RequestId,
-                StudentCode = r.StudentCode,
-                StudentName = r.Student != null ? $"{r.Student.FirstName} {r.Student.LastName}" : "null",
-                ClassName = r.Student?.Class?.ClassName ?? "null",
-                GradeLevel = r.Student?.Class?.GradeLevel,
-                Status = r.Status,
-                StaffId = r.StaffId
-            }).ToList();
-
-            return Ok(new {
-                StaffId = staffId,
-                TotalRequests = requestsInfo.Count,
-                Requests = requestsInfo
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting debug info for staffId {StaffId}", staffId);
-            return StatusCode(500, new { message = "Debug error" });
-        }
-    }
-
-    // DEBUG endpoint - Test assigned requests without auth
-    [HttpGet("debug/test-assigned/{staffId}")]
-    public async Task<IActionResult> TestAssignedRequests(int staffId, [FromQuery] string? status = null)
-    {
-        try
-        {
-            _logger.LogInformation("DEBUG TestAssignedRequests called: staffId={StaffId}, status={Status}", staffId, status);
-            
-            var requests = await _medicineRequestService.GetMedicineRequestsByAssignedGradeAsync(staffId, status);
-            var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
-            
-            _logger.LogInformation("DEBUG TestAssignedRequests returning {Count} requests", viewModels.Count());
-            
-            return Ok(new {
-                StaffId = staffId,
-                Status = status,
-                Count = viewModels.Count(),
-                Requests = viewModels
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in TestAssignedRequests for staffId {StaffId}", staffId);
-            return StatusCode(500, new { message = "Debug error", error = ex.Message });
-        }
-    }
-
-    // DEBUG endpoint - Test JWT token validation
-    [HttpGet("debug/test-auth")]
-    [Microsoft.AspNetCore.Authorization.Authorize]
-    public Task<IActionResult> TestAuth()
-    {
-        try
-        {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
-            var nameClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Name);
-            var emailClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Email);
-
-            return Task.FromResult<IActionResult>(Ok(new {
-                IsAuthenticated = User.Identity.IsAuthenticated,
-                UserId = userIdClaim?.Value,
-                Role = roleClaim?.Value,
-                Name = nameClaim?.Value,
-                Email = emailClaim?.Value,
-                Claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToList()
-            }));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in TestAuth");
-            return Task.FromResult<IActionResult>(StatusCode(500, new { message = "Auth test error", error = ex.Message }));
-        }
-    }
-
-    // DEBUG endpoint - Check JWT token format without authentication
-    [HttpGet("debug/check-token")]
-    public Task<IActionResult> CheckToken()
-    {
-        try
-        {
-            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
-            return Task.FromResult<IActionResult>(Ok(new {
-                HasAuthHeader = authHeader != null,
-                AuthHeader = authHeader,
-                HasBearerPrefix = authHeader?.StartsWith("Bearer ") == true,
-                TokenLength = authHeader?.Replace("Bearer ", "").Length,
-                Recommendations = new List<string>
-                {
-                    authHeader == null ? "Thiếu Authorization header" : null,
-                    authHeader != null && !authHeader.StartsWith("Bearer ") ? "Authorization header phải bắt đầu với 'Bearer '" : null,
-                    authHeader?.Replace("Bearer ", "").Length < 100 ? "Token có vẻ quá ngắn" : null
-                }.Where(r => r != null).ToList()
-            }));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in CheckToken");
-            return Task.FromResult<IActionResult>(StatusCode(500, new { message = "Check token error", error = ex.Message }));
-        }
-    }
-
-    // POST: api/MedicineRequest
-    [HttpPost]
-    public async Task<ActionResult<MedicineRequestDto.ViewModel>> CreateMedicineRequest(MedicineRequestDto.Create createDto)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        if (createDto.MedicineRequestItems == null || !createDto.MedicineRequestItems.Any())
-        {
-            return BadRequest("Medicine request must contain at least one medicine item.");
-        }
-
-        // Map the DTO to entity
-        var medicineRequest = _mapper.Map<MedicineRequest>(createDto);
-        
-        // Set default status to Pending
-        medicineRequest.Status = "Pending";
-        
-        // Set request date to current time
-        medicineRequest.RequestDate = DateTime.UtcNow;
-
-        // Check if student code is provided to determine grade for auto nurse assignment
-        if (!string.IsNullOrEmpty(medicineRequest.StudentCode))
-        {
-            var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(medicineRequest.StudentCode);
-            if (grade.HasValue)
-            {
-                var assignedNurse = await _medicineRequestService.GetNurseByGradeAsync(grade.Value);
-                if (assignedNurse != null)
-                {
-                    _logger.LogInformation("Auto-assigned nurse {NurseId} ({NurseName}) to medicine request for student {StudentCode} in grade {Grade}", 
-                        assignedNurse.StaffId, $"{assignedNurse.FirstName} {assignedNurse.LastName}", medicineRequest.StudentCode, grade.Value);
-                }
-                else
-                {
-                    _logger.LogWarning("No nurse found assigned to grade {Grade} for student {StudentCode}", grade.Value, medicineRequest.StudentCode);
-                }
-            }
-            else
-            {
-                _logger.LogWarning("Could not determine grade for student {StudentCode}", medicineRequest.StudentCode);
-            }
-        }
-
-        var created = await _medicineRequestService.CreateMedicineRequestAsync(medicineRequest);
-        if (created == null)
-        {
-            return BadRequest("Failed to create medicine request.");
-        }
-        var viewModel = _mapper.Map<MedicineRequestDto.ViewModel>(created);
-        return CreatedAtAction(nameof(GetMedicineRequest), new { id = viewModel.RequestId }, viewModel);
-    }
-
-    // PUT: api/MedicineRequest/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateMedicineRequest(int id, MedicineRequestDto.Update updateDto)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        // Retrieve the existing request to ensure we are updating the correct entity
-        var existingRequest = await _medicineRequestService.GetMedicineRequestByIdAsync(id);
-        if (existingRequest == null)
-        {
-            return NotFound();
-        }
-
-        _mapper.Map(updateDto, existingRequest);
-        existingRequest.RequestId = id; // Ensure ID is set for update
-
-        var success = await _medicineRequestService.UpdateMedicineRequestAsync(existingRequest);
-        if (!success)
-        {
-            return NotFound();
-        }
-        return NoContent();
-    }
-
-    // DELETE: api/MedicineRequest/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteMedicineRequest(int id)
-    {
-        var success = await _medicineRequestService.DeleteMedicineRequestAsync(id);
-        if (!success)
-        {
-            return NotFound();
-        }
-        return NoContent();
-    }
-
-    // POST: api/MedicineRequest/item/{medicineRequestItemId}/assign-nurse/{staffId}
-    [HttpPost("item/{medicineRequestItemId}/assign-nurse/{staffId}")]
-    public async Task<IActionResult> AssignNurseToRequestItem(int medicineRequestItemId, int staffId, [FromQuery] string period)
-    {
-        if (string.IsNullOrWhiteSpace(period))
-            return BadRequest("Period is required for assignment.");
-
-        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(medicineRequestItemId);
-        if (item == null)
-            return NotFound();
-
-        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
-        if (request == null)
-            return NotFound("Medicine request not found.");
-
-        var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
-        if (!grade.HasValue || !await _staffService.IsNurseAssignedToGradeAsync(staffId, grade.Value))
-            return Forbid("You are not assigned to this grade.");
-
-
-
-        // Proceed with manual assignment
-        var periodStatus = new Dictionary<string, object>();
-        try
-        {
-            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
-        }
-        catch { }
-
-        var history = GetStatusHistory(periodStatus, period);
-        history.Add(new Dictionary<string, object> {
-            { "Status", "Assigned" },
-            { "StaffId", staffId },
-            { "Timestamp", DateTime.UtcNow }
-        });
-
-        periodStatus[period] = history;
-        item.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(periodStatus);
-        var success = await _medicineRequestService.UpdateMedicineRequestItemAsync(item);
-        
-        if (!success) return NotFound();
-        return NoContent();
-    }
-
-
-
-    // GET: api/MedicineRequest/{id}/manual-assignment-allowed
-    [HttpGet("{id}/manual-assignment-allowed")]
-    public async Task<IActionResult> CheckManualAssignmentAllowed(int id)
-    {
-        try
-        {
-            var allowed = await _medicineRequestService.IsManualAssignmentAllowedAsync(id);
-            return Ok(allowed);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error checking manual assignment for request {RequestId}", id);
-            return StatusCode(500, new { message = "Lỗi khi kiểm tra phân công thủ công" });
-        }
-    }
-
-    // GET: api/MedicineRequest/{id}/auto-assignment-info
-    [HttpGet("{id}/auto-assignment-info")]
-    public async Task<IActionResult> GetAutoAssignmentInfo(int id)
-    {
-        try
-        {
-            var request = await _medicineRequestService.GetMedicineRequestByIdAsync(id);
-            if (request == null)
-            {
-                return NotFound(new { message = "Không tìm thấy yêu cầu thuốc" });
-            }
-
-            var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
-            if (!grade.HasValue)
-            {
-                return Ok(new { 
-                    grade = (int?)null,
-                    nurse = (object)null,
-                    isAutoAssigned = false,
-                    message = "Không thể xác định khối học"
-                });
-            }
-
-            var nurse = await _medicineRequestService.GetNurseByGradeAsync(grade.Value);
-            
-            return Ok(new {
-                grade = grade.Value,
-                nurse = nurse,
-                isAutoAssigned = nurse != null,
-                message = nurse != null ? "Đã có nurse được phân công tự động" : "Chưa có nurse phụ trách khối này"
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting auto assignment info for request {RequestId}", id);
-            return StatusCode(500, new { message = "Lỗi khi lấy thông tin phân công tự động" });
-        }
-    }
-
-    
-
-    
-
-
-
-    public class PeriodActionDto
-    {
-        public string Period { get; set; } = null!;
-        public int? StaffId { get; set; }
-    }
-
-    public class RefuseActionDto
-    {
-        public string Period { get; set; } = null!;
-        public int? StaffId { get; set; }
-        public string? RefusalReason { get; set; }
-    }
-
-    public class ReportFailureDto
-    {
-        public int MedicineRequestItemId { get; set; }
-        public string Period { get; set; } = null!;
-        public int StaffId { get; set; }
-        public string FailureReason { get; set; } = null!;
-        public string? Notes { get; set; }
-    }
-
-
-    // POST: api/MedicineRequest/update-time-based-status
-    [HttpPost("update-time-based-status")]
-    public async Task<ActionResult<object>> UpdateTimeBasedStatus()
-    {
-        _logger.LogInformation("POST /update-time-based-status endpoint hit!");
-        
-        try
-        {
-            var currentTime = DateTime.Now;
-            var currentHour = currentTime.Hour;
-            var currentDate = DateOnly.FromDateTime(currentTime.Date);
-            
-            _logger.LogInformation("Current time: {CurrentTime}, Hour: {Hour}", currentTime, currentHour);
-            
-            // Get all medicine requests with their items
-            var allRequests = await _medicineRequestService.GetAllMedicineRequestsAsync();
-            var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(allRequests);
-            
-            var updatedItems = new List<object>();
-            var autoFailedItems = new List<object>();
-            
-            foreach (var req in viewModels)
-            {
-                foreach (var item in req.MedicineRequestItems)
-                {
-                    if (item.PeriodVerificationStatus == null) continue;
-                    
-                    var updatedPeriods = new List<string>();
-                    var failedPeriods = new List<string>();
-                    
-                    foreach (var kv in item.PeriodVerificationStatus)
-                    {
-                        var period = kv.Key;
-                        var val = kv.Value;
-                        
-                        // Determine if this period should be auto-failed based on time
-                        bool shouldAutoFail = ShouldAutoFailPeriod(period, currentHour, currentDate);
-                        
-                        if (shouldAutoFail)
-                        {
-                            // Check if the period is still in "Pending" status
-                            bool isPending = IsPeriodPending(val);
-                            
-                            if (isPending)
-                            {
-                                // Auto-fail this period
-                                var updatedStatus = UpdatePeriodStatusToFailed(val, currentTime);
-                                item.PeriodVerificationStatus[kv.Key] = updatedStatus;
-                                
-                                failedPeriods.Add(period);
-                                autoFailedItems.Add(new
-                                {
-                                    RequestId = req.RequestId,
-                                    ItemId = item.MedicineRequestItemId,
-                                    Period = period,
-                                    Reason = "Auto-failed due to time expiration",
-                                    Timestamp = currentTime
-                                });
-                                
-                                _logger.LogInformation("Auto-failed period {Period} for RequestId {RequestId}, ItemId {ItemId}", 
-                                    period, req.RequestId, item.MedicineRequestItemId);
-                            }
-                        }
-                        
-                        if (failedPeriods.Any())
-                        {
-                            updatedPeriods.AddRange(failedPeriods);
-                        }
-                    }
-                    
-                    if (updatedPeriods.Any())
-                    {
-                        // Update the item in the database
-                        var dbItem = await _medicineRequestService.GetMedicineRequestItemByIdAsync(item.MedicineRequestItemId);
-                        if (dbItem != null)
-                        {
-                            dbItem.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(item.PeriodVerificationStatus);
-                            await _medicineRequestService.UpdateMedicineRequestItemAsync(dbItem);
-                            
-                            updatedItems.Add(new
-                            {
-                                RequestId = req.RequestId,
-                                ItemId = item.MedicineRequestItemId,
-                                UpdatedPeriods = updatedPeriods,
-                                Timestamp = currentTime
-                            });
-                        }
-                    }
-                }
-            }
-            
-            // Also run the original time-based status update for RequestResults
-            var originalUpdated = await _medicineRequestService.UpdateTimeBasedStatusAsync();
-            
-            var result = new
-            {
-                success = true,
-                message = "Time-based status update completed",
-                currentTime = currentTime,
-                updatedItemsCount = updatedItems.Count,
-                autoFailedItemsCount = autoFailedItems.Count,
-                originalUpdateResult = originalUpdated,
-                updatedItems = updatedItems,
-                autoFailedItems = autoFailedItems
-            };
-            
-            _logger.LogInformation("Time-based status update completed. Updated {UpdatedCount} items, Auto-failed {FailedCount} periods", 
-                updatedItems.Count, autoFailedItems.Count);
-            
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error during time-based status update");
-            return StatusCode(500, new { success = false, message = "Error during time-based status update", error = ex.Message });
-        }
-    }
-    
-    private static bool ShouldAutoFailPeriod(string period, int currentHour, DateOnly currentDate)
-    {
-        // Define time windows for each period
-        var periodTimeWindows = new Dictionary<string, (int startHour, int endHour)>
-        {
-            { "Sáng", (6, 11) },    // 6 AM - 11 AM
-            { "Trưa", (11, 14) },   // 11 AM - 2 PM
-            { "Chiều", (14, 18) }   // 2 PM - 6 PM
-        };
-        
-        if (!periodTimeWindows.ContainsKey(period))
-            return false;
-            
-        var (startHour, endHour) = periodTimeWindows[period];
-        
-        // If current time is past the end hour of this period, it should be auto-failed
-        return currentHour > endHour;
-    }
-    
-    private static bool IsPeriodPending(object val)
-    {
-        if (val == null) return false;
-        
-        var valStr = val.ToString();
-        if (valStr == "Pending") return true;
-        
-        if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Pending\"")) return true;
-        
-        if (val is System.Text.Json.JsonElement elem)
-        {
-            if (elem.ValueKind == System.Text.Json.JsonValueKind.Object && 
-                elem.TryGetProperty("Status", out var statusProp) && 
-                statusProp.GetString() == "Pending")
-                return true;
-                
-            if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
-            {
-                foreach (var arrElem in elem.EnumerateArray())
-                {
-                    if (arrElem.ValueKind == System.Text.Json.JsonValueKind.Object && 
-                        arrElem.TryGetProperty("Status", out var arrStatusProp) && 
-                        arrStatusProp.GetString() == "Pending")
-                        return true;
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    private static object UpdatePeriodStatusToFailed(object currentVal, DateTime timestamp)
-    {
-        var failedStatus = new
-        {
-            Status = "Failed",
-            StaffId = (int?)null,
-            Timestamp = timestamp,
-            FailureReason = "Auto-failed due to time expiration",
-            Notes = "Automatically marked as failed by system"
-        };
-        
-        // If current value is a simple string, convert to object
-        if (currentVal is string strVal && strVal == "Pending")
-        {
-            return failedStatus;
-        }
-        
-        // If current value is a JSON string, parse and update
-        if (currentVal is string jsonStr && jsonStr.StartsWith("{"))
-        {
-            try
-            {
-                var jsonObj = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(jsonStr);
-                if (jsonObj.ValueKind == System.Text.Json.JsonValueKind.Object)
-                {
-                    return failedStatus;
-                }
-            }
-            catch { }
-        }
-        
-        // If current value is a JsonElement object, return the failed status
-        if (currentVal is System.Text.Json.JsonElement elem && elem.ValueKind == System.Text.Json.JsonValueKind.Object)
-        {
-            return failedStatus;
-        }
-        
-        // If current value is an array, add the failed status to the array
-        if (currentVal is System.Text.Json.JsonElement arrayElem && arrayElem.ValueKind == System.Text.Json.JsonValueKind.Array)
-        {
-            var statusList = new List<object>();
-            foreach (var arrElem in arrayElem.EnumerateArray())
-            {
-                statusList.Add(arrElem);
-            }
-            statusList.Add(failedStatus);
-            return statusList;
-        }
-        
-        // Default fallback
-        return failedStatus;
-    }
-
-   
-
-    // Helper to extract periods from frequency (same logic as in mapping profile)
-    private static List<string> ExtractPeriodsFromFrequency(string? frequency)
-    {
-        if (string.IsNullOrEmpty(frequency)) return new List<string>();
-        var periods = new[] { "Sáng", "Trưa", "Chiều" };
-        var found = new List<string>();
-        foreach (var period in periods)
-        {
-            if (frequency.IndexOf(period, StringComparison.OrdinalIgnoreCase) >= 0)
-                found.Add(period);
-        }
-        if (found.Count > 0)
-            return found;
-        // Handle generic cases like '2 lần', '3 lần', etc.
-        if (frequency.Contains("2")) return new List<string> { "Sáng", "Trưa" };
-        if (frequency.Contains("3")) return new List<string> { "Sáng", "Trưa", "Chiều" };
-        if (frequency.Contains("1")) return new List<string> { "Sáng" };
-        return new List<string>();
-    }
-
-    // GET: api/MedicineRequest/failed
-    [HttpGet("failed")]
-    public async Task<ActionResult<IEnumerable<object>>> GetFailedRequests([FromQuery] string? period = null, [FromQuery] int? staffId = null)
-    {
-        _logger.LogInformation("GET /failed endpoint hit!");
-        IEnumerable<MedicineRequest> requests;
-        if (staffId.HasValue)
-        {
-            requests = await _medicineRequestService.GetMedicineRequestsByAssignedGradeAsync(staffId.Value);
-        }
-        else
-        {
-            requests = await _medicineRequestService.GetAllMedicineRequestsAsync();
-        }
-        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
-        
-        // Debug log before filtering
-        foreach (var req in viewModels)
-        {
-            _logger.LogInformation("[FAILED][BEFORE] RequestId: {RequestId}, Status: {Status}", req.RequestId, req.Status);
-            foreach (var item in req.MedicineRequestItems)
-            {
-                _logger.LogInformation("[FAILED][BEFORE] ItemId: {ItemId}, PeriodVerificationStatus: {Status}", item.MedicineRequestItemId, System.Text.Json.JsonSerializer.Serialize(item.PeriodVerificationStatus));
-            }
-        }
-        
-        var failedItems = new List<dynamic>();
-        foreach (var req in viewModels)
-        {
-            foreach (var item in req.MedicineRequestItems)
-            {
-                var periodStatus = item.PeriodVerificationStatus;
-                if (periodStatus == null) continue;
-                
-                foreach (var kv in periodStatus)
-                {
-                    string status = null;
-                    int? staffIdValue = null;
-                    DateTime? timestamp = null;
-                    string? failureReason = null;
-                    string? notes = null;
-                    
-                    var val = kv.Value;
-                    if (val == null) continue;
-                    
-                    var valStr = val.ToString();
-                    if (valStr == "Failed") 
-                    {
-                        status = "Failed";
-                    }
-                    else if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Failed\"")) 
-                    {
-                        status = "Failed";
-                        // Try to extract additional info from the JSON string
-                        try
-                        {
-                            var jsonObj = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(valStr);
-                            if (jsonObj.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
-                                staffIdValue = staffIdProp.GetInt32();
-                            if (jsonObj.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                                timestamp = timestampProp.GetDateTime();
-                            if (jsonObj.TryGetProperty("FailureReason", out var failureReasonProp) && failureReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                                failureReason = failureReasonProp.GetString();
-                            if (jsonObj.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                                notes = notesProp.GetString();
-                        }
-                        catch { }
-                    }
-                    else if (val is System.Text.Json.JsonElement elem)
-                    {
-                        if (elem.ValueKind == System.Text.Json.JsonValueKind.Object && elem.TryGetProperty("Status", out var statusProp) && statusProp.GetString() == "Failed")
-                        {
-                            status = "Failed";
-                            // Extract additional info from the JSON object
-                            if (elem.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
-                                staffIdValue = staffIdProp.GetInt32();
-                            if (elem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                                timestamp = timestampProp.GetDateTime();
-                            if (elem.TryGetProperty("FailureReason", out var failureReasonProp) && failureReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                                failureReason = failureReasonProp.GetString();
-                            if (elem.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                                notes = notesProp.GetString();
-                        }
-                        else if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
-                        {
-                            foreach (var arrElem in elem.EnumerateArray())
-                            {
-                                if (arrElem.ValueKind == System.Text.Json.JsonValueKind.Object && arrElem.TryGetProperty("Status", out var arrStatusProp) && arrStatusProp.GetString() == "Failed")
-                                {
-                                    status = "Failed";
-                                    // Extract additional info from the array element
-                                    if (arrElem.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
-                                        staffIdValue = staffIdProp.GetInt32();
-                                    if (arrElem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                                        timestamp = timestampProp.GetDateTime();
-                                    if (arrElem.TryGetProperty("FailureReason", out var failureReasonProp) && failureReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                                        failureReason = failureReasonProp.GetString();
-                                    if (arrElem.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                                        notes = notesProp.GetString();
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    
-                    if (status == "Failed" && (string.IsNullOrEmpty(period) || string.Equals(kv.Key, period, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        failedItems.Add(new {
-                            RequestId = req.RequestId,
-                            StudentCode = req.StudentCode,
-                            StudentName = req.Student != null ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim() : null,
-                            ClassName = req.ClassName,
-                            Date = req.Date,
-                            ParentId = req.ParentId,
-                            ParentName = req.Parent != null ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim() : null,
-                            MedicineRequestItemId = item.MedicineRequestItemId,
-                            MedicineName = item.MedicineName,
-                            Dosage = item.Dosage,
-                            DosageUnit = item.DosageUnit,
-                            Frequency = item.Frequency,
-                            TimeOfDay = item.TimeOfDay,
-                            Instructions = item.Instructions,
-                            Period = kv.Key,
-                            FailedStatus = status,
-                            FailedStaffId = staffIdValue,
-                            FailedTimestamp = timestamp,
-                            FailureReason = failureReason,
-                            Notes = notes
-                        });
-                    }
-                }
-            }
-        }
-        
-        // Debug log after filtering
-        _logger.LogInformation("[FAILED][AFTER] Found {Count} failed items", failedItems.Count);
-        
-        return Ok(failedItems);
-    }
-
-    // GET: api/MedicineRequest/verified
+    /// <summary>
+    /// 3.1. Get Verified Requests
+    /// Lấy các yêu cầu đã xác thực
+    /// </summary>
     [HttpGet("verified")]
     public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetVerifiedRequests([FromQuery] string? period = null, [FromQuery] int? staffId = null)
     {
@@ -1096,33 +597,10 @@ public class MedicineRequestController : ControllerBase
         return Ok(viewModels);
     }
 
-    private static bool IsRefusedStatus(object val)
-    {
-        if (val is string s)
-        {
-            if (s == "Refused") return true;
-            if (s.StartsWith("{") && s.Contains("Status"))
-            {
-                try
-                {
-                    var jsonElem = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(s);
-                    if (jsonElem.ValueKind == System.Text.Json.JsonValueKind.Object &&
-                        jsonElem.TryGetProperty("Status", out var statusPropInner) &&
-                        statusPropInner.GetString() == "Refused")
-                        return true;
-                }
-                catch { }
-            }
-        }
-        if (val is System.Text.Json.JsonElement elem &&
-            elem.ValueKind == System.Text.Json.JsonValueKind.Object &&
-            elem.TryGetProperty("Status", out var statusProp) &&
-            statusProp.GetString() == "Refused")
-            return true;
-        return false;
-    }
-
-    // GET: api/MedicineRequest/refused
+    /// <summary>
+    /// 3.1. Get Refused Requests
+    /// Lấy các yêu cầu bị từ chối
+    /// </summary>
     [HttpGet("refused")]
     public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetRefusedRequests([FromQuery] string? period = null, [FromQuery] int? staffId = null)
     {
@@ -1150,7 +628,10 @@ public class MedicineRequestController : ControllerBase
         return Ok(viewModels);
     }
 
-    // GET: api/MedicineRequest/assigned
+    /// <summary>
+    /// 3.1. Get Assigned Requests
+    /// Lấy các yêu cầu đã phân công
+    /// </summary>
     [HttpGet("assigned")]
     public async Task<ActionResult<IEnumerable<object>>> GetAssignedRequests([FromQuery] string? period = null, [FromQuery] int? staffId = null)
     {
@@ -1412,192 +893,10 @@ public class MedicineRequestController : ControllerBase
         return Ok(result);
     }
 
-    // POST: api/MedicineRequest/{id}/complete/{staffId}
-    [HttpPost("{medicineRequestItemId}/complete/{staffId}")]
-    public async Task<IActionResult> CompleteMedicineRequestItemPeriod(int medicineRequestItemId, int staffId, [FromQuery] string period)
-    {
-        if (string.IsNullOrEmpty(period)) return BadRequest("Period is required.");
-        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(medicineRequestItemId);
-        if (item == null) return NotFound();
-        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
-        if (request == null) return NotFound();
-        var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
-        if (!grade.HasValue || !await _staffService.IsNurseAssignedToGradeAsync(staffId, grade.Value))
-            return Forbid("You are not assigned to this grade.");
-        var periodStatus = new Dictionary<string, object>();
-        try
-        {
-            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
-        }
-        catch { }
-        var history = GetStatusHistory(periodStatus, period);
-        history.Add(new Dictionary<string, object> {
-            { "Status", "Completed" },
-            { "StaffId", staffId },
-            { "Timestamp", DateTime.UtcNow }
-        });
-        periodStatus[period] = history;
-        item.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(periodStatus);
-        var success = await _medicineRequestService.UpdateMedicineRequestItemAsync(item);
-        if (!success) return NotFound();
-        return NoContent();
-    }
-
-    // GET: api/MedicineRequest/item/{medicineRequestItemId}/period/{period}/re-request-info
-    [HttpGet("item/{medicineRequestItemId}/period/{period}/re-request-info")]
-    public async Task<ActionResult<object>> GetReRequestInfo(int medicineRequestItemId, string period)
-    {
-        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(medicineRequestItemId);
-        if (item == null) return NotFound();
-        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
-        var studentName = request?.Student != null ? ($"{request.Student.LastName} {request.Student.FirstName}").Trim() : null;
-        var parentName = request?.Parent != null ? ($"{request.Parent.LastName} {request.Parent.FirstName}").Trim() : null;
-        var periodStatus = new Dictionary<string, object>();
-        try
-        {
-            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
-        }
-        catch { }
-        var history = GetStatusHistory(periodStatus, period);
-        var last = history.LastOrDefault();
-        bool canReRequest = false;
-        string? reason = null;
-        if (last != null && last.ContainsKey("Status") && last["Status"]?.ToString() == "Failed")
-        {
-            if (DateTime.UtcNow.Hour < 17)
-            {
-                canReRequest = true;
-            }
-            else
-            {
-                reason = "Too late for re-request";
-            }
-        }
-        else
-        {
-            reason = "Not failed or already retried";
-        }
-        return Ok(new {
-            canReRequest,
-            reason,
-            studentCode = request?.StudentCode,
-            studentName,
-            className = request?.ClassName,
-            parentId = request?.ParentId,
-            parentName,
-            medicineRequestItemId = item.MedicineRequestItemId,
-            medicineName = item.MedicineName,
-            dosage = item.Dosage,
-            dosageUnit = item.DosageUnit,
-            frequency = item.Frequency,
-            timeOfDay = item.TimeOfDay,
-            instructions = item.Instructions,
-            period,
-            history
-        });
-    }
-
-    // POST: api/MedicineRequest/report-failure
-    [HttpPost("report-failure")]
-    public async Task<IActionResult> ReportMedicineFailure([FromBody] ReportFailureDto dto)
-    {
-        if (dto == null || dto.MedicineRequestItemId <= 0 || string.IsNullOrEmpty(dto.Period) || dto.StaffId <= 0 || string.IsNullOrEmpty(dto.FailureReason))
-            return BadRequest("Missing required fields.");
-        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(dto.MedicineRequestItemId);
-        if (item == null) return NotFound();
-        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
-        if (request == null) return NotFound();
-        var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
-        if (!grade.HasValue || !await _staffService.IsNurseAssignedToGradeAsync(dto.StaffId, grade.Value))
-            return Forbid("You are not assigned to this grade.");
-        var periodStatus = new Dictionary<string, object>();
-        try
-        {
-            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
-        }
-        catch { }
-        var history = GetStatusHistory(periodStatus, dto.Period);
-        history.Add(new Dictionary<string, object> {
-            { "Status", "Failed" },
-            { "StaffId", dto.StaffId },
-            { "Timestamp", DateTime.UtcNow },
-            { "FailureReason", dto.FailureReason },
-            { "Notes", dto.Notes }
-        });
-        periodStatus[dto.Period] = history;
-        item.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(periodStatus);
-        var success = await _medicineRequestService.UpdateMedicineRequestItemAsync(item);
-        if (!success) return NotFound();
-        return NoContent();
-    }
-
-    // POST: api/MedicineRequest/item/{medicineRequestItemId}/rerequest
-    [HttpPost("item/{medicineRequestItemId}/rerequest")]
-    public async Task<IActionResult> ReRequestPeriod(int medicineRequestItemId, [FromQuery] string period, [FromQuery] int staffId)
-    {
-        if (string.IsNullOrEmpty(period) || staffId <= 0) return BadRequest("Period and staffId required.");
-        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(medicineRequestItemId);
-        if (item == null) return NotFound();
-        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
-        if (request == null) return NotFound();
-        var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
-        if (!grade.HasValue || !await _staffService.IsNurseAssignedToGradeAsync(staffId, grade.Value))
-            return Forbid("You are not assigned to this grade.");
-        var periodStatus = new Dictionary<string, object>();
-        try
-        {
-            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
-        }
-        catch { }
-        var history = GetStatusHistory(periodStatus, period);
-        history.Add(new Dictionary<string, object> {
-            { "Status", "Redo" }, // or "Assigned"
-            { "StaffId", staffId },
-            { "Timestamp", DateTime.UtcNow },
-            { "IsReRequest", true }
-        });
-        periodStatus[period] = history;
-        item.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(periodStatus);
-        var success = await _medicineRequestService.UpdateMedicineRequestItemAsync(item);
-        if (!success) return NotFound();
-        return NoContent();
-    }
-
-    // GET: api/MedicineRequest/item/{medicineRequestItemId}/period/{period}/history
-    [HttpGet("item/{medicineRequestItemId}/period/{period}/history")]
-    public async Task<ActionResult<object>> GetPeriodHistory(int medicineRequestItemId, string period)
-    {
-        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(medicineRequestItemId);
-        if (item == null) return NotFound();
-        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
-        var studentName = request?.Student != null ? ($"{request.Student.LastName} {request.Student.FirstName}").Trim() : null;
-        var parentName = request?.Parent != null ? ($"{request.Parent.LastName} {request.Parent.FirstName}").Trim() : null;
-        var periodStatus = new Dictionary<string, object>();
-        try
-        {
-            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
-        }
-        catch { }
-        var history = GetStatusHistory(periodStatus, period);
-        return Ok(new {
-            studentCode = request?.StudentCode,
-            studentName,
-            className = request?.ClassName,
-            parentId = request?.ParentId,
-            parentName,
-            medicineRequestItemId = item.MedicineRequestItemId,
-            medicineName = item.MedicineName,
-            dosage = item.Dosage,
-            dosageUnit = item.DosageUnit,
-            frequency = item.Frequency,
-            timeOfDay = item.TimeOfDay,
-            instructions = item.Instructions,
-            period,
-            history
-        });
-    }
-
-    // GET: api/MedicineRequest/completed
+    /// <summary>
+    /// 3.1. Get Completed Requests
+    /// Lấy các yêu cầu đã hoàn thành
+    /// </summary>
     [HttpGet("completed")]
     public async Task<ActionResult<IEnumerable<object>>> GetCompletedItems([FromQuery] string? period = null, [FromQuery] int? staffId = null)
     {
@@ -1726,8 +1025,149 @@ public class MedicineRequestController : ControllerBase
         return Ok(result);
     }
 
-    
-    // POST: api/MedicineRequest/item/{itemId}/verify
+    /// <summary>
+    /// 3.1. Get Failed Requests
+    /// Lấy các yêu cầu thất bại
+    /// </summary>
+    [HttpGet("failed")]
+    public async Task<ActionResult<IEnumerable<object>>> GetFailedRequests([FromQuery] string? period = null, [FromQuery] int? staffId = null)
+    {
+        _logger.LogInformation("GET /failed endpoint hit!");
+        IEnumerable<MedicineRequest> requests;
+        if (staffId.HasValue)
+        {
+            requests = await _medicineRequestService.GetMedicineRequestsByAssignedGradeAsync(staffId.Value);
+        }
+        else
+        {
+            requests = await _medicineRequestService.GetAllMedicineRequestsAsync();
+        }
+        var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
+        
+        // Debug log before filtering
+        foreach (var req in viewModels)
+        {
+            _logger.LogInformation("[FAILED][BEFORE] RequestId: {RequestId}, Status: {Status}", req.RequestId, req.Status);
+            foreach (var item in req.MedicineRequestItems)
+            {
+                _logger.LogInformation("[FAILED][BEFORE] ItemId: {ItemId}, PeriodVerificationStatus: {Status}", item.MedicineRequestItemId, System.Text.Json.JsonSerializer.Serialize(item.PeriodVerificationStatus));
+            }
+        }
+        
+        var failedItems = new List<dynamic>();
+        foreach (var req in viewModels)
+        {
+            foreach (var item in req.MedicineRequestItems)
+            {
+                var periodStatus = item.PeriodVerificationStatus;
+                if (periodStatus == null) continue;
+                
+                foreach (var kv in periodStatus)
+                {
+                    string status = null;
+                    int? staffIdValue = null;
+                    DateTime? timestamp = null;
+                    string? failureReason = null;
+                    string? notes = null;
+                    
+                    var val = kv.Value;
+                    if (val == null) continue;
+                    
+                    var valStr = val.ToString();
+                    if (valStr == "Failed") 
+                    {
+                        status = "Failed";
+                    }
+                    else if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Failed\"")) 
+                    {
+                        status = "Failed";
+                        // Try to extract additional info from the JSON string
+                        try
+                        {
+                            var jsonObj = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(valStr);
+                            if (jsonObj.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                staffIdValue = staffIdProp.GetInt32();
+                            if (jsonObj.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                timestamp = timestampProp.GetDateTime();
+                            if (jsonObj.TryGetProperty("FailureReason", out var failureReasonProp) && failureReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                failureReason = failureReasonProp.GetString();
+                            if (jsonObj.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                notes = notesProp.GetString();
+                        }
+                        catch { }
+                    }
+                    else if (val is System.Text.Json.JsonElement elem)
+                    {
+                        if (elem.ValueKind == System.Text.Json.JsonValueKind.Object && elem.TryGetProperty("Status", out var statusProp) && statusProp.GetString() == "Failed")
+                        {
+                            status = "Failed";
+                            // Extract additional info from the JSON object
+                            if (elem.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                staffIdValue = staffIdProp.GetInt32();
+                            if (elem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                timestamp = timestampProp.GetDateTime();
+                            if (elem.TryGetProperty("FailureReason", out var failureReasonProp) && failureReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                failureReason = failureReasonProp.GetString();
+                            if (elem.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                notes = notesProp.GetString();
+                        }
+                        else if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
+                        {
+                            foreach (var arrElem in elem.EnumerateArray())
+                            {
+                                if (arrElem.ValueKind == System.Text.Json.JsonValueKind.Object && arrElem.TryGetProperty("Status", out var arrStatusProp) && arrStatusProp.GetString() == "Failed")
+                                {
+                                    status = "Failed";
+                                    // Extract additional info from the array element
+                                    if (arrElem.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                        staffIdValue = staffIdProp.GetInt32();
+                                    if (arrElem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                        timestamp = timestampProp.GetDateTime();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (status == "Failed" && (string.IsNullOrEmpty(period) || string.Equals(kv.Key, period, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        failedItems.Add(new {
+                            RequestId = req.RequestId,
+                            StudentCode = req.StudentCode,
+                            StudentName = req.Student != null ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim() : null,
+                            ClassName = req.ClassName,
+                            Date = req.Date,
+                            ParentId = req.ParentId,
+                            ParentName = req.Parent != null ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim() : null,
+                            MedicineRequestItemId = item.MedicineRequestItemId,
+                            MedicineName = item.MedicineName,
+                            Dosage = item.Dosage,
+                            DosageUnit = item.DosageUnit,
+                            Frequency = item.Frequency,
+                            TimeOfDay = item.TimeOfDay,
+                            Instructions = item.Instructions,
+                            Period = kv.Key,
+                            FailedStatus = status,
+                            FailedStaffId = staffIdValue,
+                            FailedTimestamp = timestamp,
+                            FailureReason = failureReason,
+                            Notes = notes
+                        });
+                    }
+                }
+            }
+        }
+        
+        // Debug log after filtering
+        _logger.LogInformation("[FAILED][AFTER] Found {Count} failed items", failedItems.Count);
+        
+        return Ok(failedItems);
+    }
+
+    /// <summary>
+    /// 3.2. Verify Medicine Request Item
+    /// Xác thực yêu cầu thuốc cho period
+    /// </summary>
     [HttpPost("item/{itemId}/verify")]
     public async Task<IActionResult> VerifyMedicineRequestItem(int itemId, [FromBody] PeriodActionDto dto)
     {
@@ -1758,7 +1198,10 @@ public class MedicineRequestController : ControllerBase
         return NoContent();
     }
 
-    // POST: api/MedicineRequest/item/{itemId}/refuse
+    /// <summary>
+    /// 3.2. Refuse Medicine Request Item
+    /// Từ chối yêu cầu thuốc cho period
+    /// </summary>
     [HttpPost("item/{itemId}/refuse")]
     public async Task<IActionResult> RefuseMedicineRequestItem(int itemId, [FromBody] RefuseActionDto dto)
     {
@@ -1790,19 +1233,526 @@ public class MedicineRequestController : ControllerBase
         return NoContent();
     }
 
-    // POST: api/MedicineRequest/{id}/set-status-verified
-    [HttpPost("{id}/set-status-verified")]
-    public async Task<IActionResult> SetStatusVerified(int id)
+    /// <summary>
+    /// 3.3. Complete Medicine Request Item Period
+    /// Đánh dấu hoàn thành cho period
+    /// </summary>
+    [HttpPost("{medicineRequestItemId}/complete/{staffId}")]
+    public async Task<IActionResult> CompleteMedicineRequestItemPeriod(int medicineRequestItemId, int staffId, [FromQuery] string period)
     {
-        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(id);
+        if (string.IsNullOrEmpty(period)) return BadRequest("Period is required.");
+        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(medicineRequestItemId);
+        if (item == null) return NotFound();
+        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
         if (request == null) return NotFound();
-        request.Status = "Verified";
-        var success = await _medicineRequestService.UpdateMedicineRequestAsync(request);
-        if (!success) return BadRequest("Failed to update status.");
+        var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
+        if (!grade.HasValue || !await _staffService.IsNurseAssignedToGradeAsync(staffId, grade.Value))
+            return Forbid("You are not assigned to this grade.");
+        var periodStatus = new Dictionary<string, object>();
+        try
+        {
+            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
+        }
+        catch { }
+        var history = GetStatusHistory(periodStatus, period);
+        history.Add(new Dictionary<string, object> {
+            { "Status", "Completed" },
+            { "StaffId", staffId },
+            { "Timestamp", DateTime.UtcNow }
+        });
+        periodStatus[period] = history;
+        item.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(periodStatus);
+        var success = await _medicineRequestService.UpdateMedicineRequestItemAsync(item);
+        if (!success) return NotFound();
         return NoContent();
     }
 
-    // Helper for JSON parsing
+    /// <summary>
+    /// 3.3. Report Medicine Failure
+    /// Báo cáo thất bại cho period
+    /// </summary>
+    [HttpPost("report-failure")]
+    public async Task<IActionResult> ReportMedicineFailure([FromBody] ReportFailureDto dto)
+    {
+        if (dto == null || dto.MedicineRequestItemId <= 0 || string.IsNullOrEmpty(dto.Period) || dto.StaffId <= 0 || string.IsNullOrEmpty(dto.FailureReason))
+            return BadRequest("Missing required fields.");
+        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(dto.MedicineRequestItemId);
+        if (item == null) return NotFound();
+        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
+        if (request == null) return NotFound();
+        var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
+        if (!grade.HasValue || !await _staffService.IsNurseAssignedToGradeAsync(dto.StaffId, grade.Value))
+            return Forbid("You are not assigned to this grade.");
+        var periodStatus = new Dictionary<string, object>();
+        try
+        {
+            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
+        }
+        catch { }
+        var history = GetStatusHistory(periodStatus, dto.Period);
+        history.Add(new Dictionary<string, object> {
+            { "Status", "Failed" },
+            { "StaffId", dto.StaffId },
+            { "Timestamp", DateTime.UtcNow },
+            { "FailureReason", dto.FailureReason },
+            { "Notes", dto.Notes }
+        });
+        periodStatus[dto.Period] = history;
+        item.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(periodStatus);
+        var success = await _medicineRequestService.UpdateMedicineRequestItemAsync(item);
+        if (!success) return NotFound();
+        return NoContent();
+    }
+
+    #endregion
+
+    #region 4. TIME-BASED STATUS UPDATES (Tự động cập nhật trạng thái theo thời gian)
+
+    /// <summary>
+    /// 4.1. Update Time Based Status
+    /// Chạy cập nhật trạng thái tự động
+    /// - Tự động đánh dấu failed cho các period đã hết thời gian
+    /// - Chạy vào: 11:15 AM, 2:15 PM, 6:15 PM, và sau 7 PM
+    /// </summary>
+    [HttpPost("update-time-based-status")]
+    public async Task<ActionResult<object>> UpdateTimeBasedStatus()
+    {
+        _logger.LogInformation("POST /update-time-based-status endpoint hit!");
+        
+        try
+        {
+            var currentTime = DateTime.Now;
+            var currentHour = currentTime.Hour;
+            var currentDate = DateOnly.FromDateTime(currentTime.Date);
+            
+            _logger.LogInformation("Current time: {CurrentTime}, Hour: {Hour}", currentTime, currentHour);
+            
+            // Get all medicine requests with their items
+            var allRequests = await _medicineRequestService.GetAllMedicineRequestsAsync();
+            var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(allRequests);
+            
+            var updatedItems = new List<object>();
+            var autoFailedItems = new List<object>();
+            
+            foreach (var req in viewModels)
+            {
+                foreach (var item in req.MedicineRequestItems)
+                {
+                    if (item.PeriodVerificationStatus == null) continue;
+                    
+                    var updatedPeriods = new List<string>();
+                    var failedPeriods = new List<string>();
+                    
+                    foreach (var kv in item.PeriodVerificationStatus)
+                    {
+                        var period = kv.Key;
+                        var val = kv.Value;
+                        
+                        // Determine if this period should be auto-failed based on time
+                        bool shouldAutoFail = ShouldAutoFailPeriod(period, currentHour, currentDate);
+                        
+                        if (shouldAutoFail)
+                        {
+                            // Check if the period is still in "Pending" status
+                            bool isPending = IsPeriodPending(val);
+                            
+                            if (isPending)
+                            {
+                                // Auto-fail this period
+                                var updatedStatus = UpdatePeriodStatusToFailed(val, currentTime);
+                                item.PeriodVerificationStatus[kv.Key] = updatedStatus;
+                                
+                                failedPeriods.Add(period);
+                                autoFailedItems.Add(new
+                                {
+                                    RequestId = req.RequestId,
+                                    ItemId = item.MedicineRequestItemId,
+                                    Period = period,
+                                    Reason = "Auto-failed due to time expiration",
+                                    Timestamp = currentTime
+                                });
+                                
+                                _logger.LogInformation("Auto-failed period {Period} for RequestId {RequestId}, ItemId {ItemId}", 
+                                    period, req.RequestId, item.MedicineRequestItemId);
+                            }
+                        }
+                        
+                        if (failedPeriods.Any())
+                        {
+                            updatedPeriods.AddRange(failedPeriods);
+                        }
+                    }
+                    
+                    if (updatedPeriods.Any())
+                    {
+                        // Update the item in the database
+                        var dbItem = await _medicineRequestService.GetMedicineRequestItemByIdAsync(item.MedicineRequestItemId);
+                        if (dbItem != null)
+                        {
+                            dbItem.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(item.PeriodVerificationStatus);
+                            await _medicineRequestService.UpdateMedicineRequestItemAsync(dbItem);
+                            
+                            updatedItems.Add(new
+                            {
+                                RequestId = req.RequestId,
+                                ItemId = item.MedicineRequestItemId,
+                                UpdatedPeriods = updatedPeriods,
+                                Timestamp = currentTime
+                            });
+                        }
+                    }
+                }
+            }
+            
+            // Also run the original time-based status update for RequestResults
+            var originalUpdated = await _medicineRequestService.UpdateTimeBasedStatusAsync();
+            
+            var result = new
+            {
+                success = true,
+                message = "Time-based status update completed",
+                currentTime = currentTime,
+                updatedItemsCount = updatedItems.Count,
+                autoFailedItemsCount = autoFailedItems.Count,
+                originalUpdateResult = originalUpdated,
+                updatedItems = updatedItems,
+                autoFailedItems = autoFailedItems
+            };
+            
+            _logger.LogInformation("Time-based status update completed. Updated {UpdatedCount} items, Auto-failed {FailedCount} periods", 
+                updatedItems.Count, autoFailedItems.Count);
+            
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during time-based status update");
+            return StatusCode(500, new { success = false, message = "Error during time-based status update", error = ex.Message });
+        }
+    }
+    
+    private static bool ShouldAutoFailPeriod(string period, int currentHour, DateOnly currentDate)
+    {
+        // Define time windows for each period
+        var periodTimeWindows = new Dictionary<string, (int startHour, int endHour)>
+        {
+            { "Sáng", (6, 11) },    // 6 AM - 11 AM
+            { "Trưa", (11, 14) },   // 11 AM - 2 PM
+            { "Chiều", (14, 18) }   // 2 PM - 6 PM
+        };
+        
+        if (!periodTimeWindows.ContainsKey(period))
+            return false;
+            
+        var (startHour, endHour) = periodTimeWindows[period];
+        
+        // If current time is past the end hour of this period, it should be auto-failed
+        return currentHour > endHour;
+    }
+    
+    private static bool IsPeriodPending(object val)
+    {
+        if (val == null) return false;
+        
+        var valStr = val.ToString();
+        if (valStr == "Pending") return true;
+        
+        if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Pending\"")) return true;
+        
+        if (val is System.Text.Json.JsonElement elem)
+        {
+            if (elem.ValueKind == System.Text.Json.JsonValueKind.Object && 
+                elem.TryGetProperty("Status", out var statusProp) && 
+                statusProp.GetString() == "Pending")
+                return true;
+                
+            if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
+            {
+                foreach (var arrElem in elem.EnumerateArray())
+                {
+                    if (arrElem.ValueKind == System.Text.Json.JsonValueKind.Object && 
+                        arrElem.TryGetProperty("Status", out var arrStatusProp) && 
+                        arrStatusProp.GetString() == "Pending")
+                        return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    private static object UpdatePeriodStatusToFailed(object currentVal, DateTime timestamp)
+    {
+        var failedStatus = new
+        {
+            Status = "Failed",
+            StaffId = (int?)null,
+            Timestamp = timestamp,
+            FailureReason = "Auto-failed due to time expiration",
+            Notes = "Automatically marked as failed by system"
+        };
+        
+        // If current value is a simple string, convert to object
+        if (currentVal is string strVal && strVal == "Pending")
+        {
+            return failedStatus;
+        }
+        
+        // If current value is a JSON string, parse and update
+        if (currentVal is string jsonStr && jsonStr.StartsWith("{"))
+        {
+            try
+            {
+                var jsonObj = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(jsonStr);
+                if (jsonObj.ValueKind == System.Text.Json.JsonValueKind.Object)
+                {
+                    return failedStatus;
+                }
+            }
+            catch { }
+        }
+        
+        // If current value is a JsonElement object, return the failed status
+        if (currentVal is System.Text.Json.JsonElement elem && elem.ValueKind == System.Text.Json.JsonValueKind.Object)
+        {
+            return failedStatus;
+        }
+        
+        // If current value is an array, add the failed status to the array
+        if (currentVal is System.Text.Json.JsonElement arrayElem && arrayElem.ValueKind == System.Text.Json.JsonValueKind.Array)
+        {
+            var statusList = new List<object>();
+            foreach (var arrElem in arrayElem.EnumerateArray())
+            {
+                statusList.Add(arrElem);
+            }
+            statusList.Add(failedStatus);
+            return statusList;
+        }
+        
+        // Default fallback
+        return failedStatus;
+    }
+
+    #endregion
+
+    #region 5. RE-REQUEST FLOW (Quy trình tạo lại yêu cầu)
+
+    /// <summary>
+    /// 5.1. Get Re-Request Info
+    /// Kiểm tra có thể re-request không và lấy thông tin
+    /// </summary>
+    [HttpGet("item/{medicineRequestItemId}/period/{period}/re-request-info")]
+    public async Task<ActionResult<object>> GetReRequestInfo(int medicineRequestItemId, string period)
+    {
+        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(medicineRequestItemId);
+        if (item == null) return NotFound();
+        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
+        var studentName = request?.Student != null ? ($"{request.Student.LastName} {request.Student.FirstName}").Trim() : null;
+        var parentName = request?.Parent != null ? ($"{request.Parent.LastName} {request.Parent.FirstName}").Trim() : null;
+        var periodStatus = new Dictionary<string, object>();
+        try
+        {
+            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
+        }
+        catch { }
+        var history = GetStatusHistory(periodStatus, period);
+        var last = history.LastOrDefault();
+        bool canReRequest = false;
+        string? reason = null;
+        if (last != null && last.ContainsKey("Status") && last["Status"]?.ToString() == "Failed")
+        {
+            if (DateTime.UtcNow.Hour < 17)
+            {
+                canReRequest = true;
+            }
+            else
+            {
+                reason = "Too late for re-request";
+            }
+        }
+        else
+        {
+            reason = "Not failed or already retried";
+        }
+        return Ok(new {
+            canReRequest,
+            reason,
+            studentCode = request?.StudentCode,
+            studentName,
+            className = request?.ClassName,
+            parentId = request?.ParentId,
+            parentName,
+            medicineRequestItemId = item.MedicineRequestItemId,
+            medicineName = item.MedicineName,
+            dosage = item.Dosage,
+            dosageUnit = item.DosageUnit,
+            frequency = item.Frequency,
+            timeOfDay = item.TimeOfDay,
+            instructions = item.Instructions,
+            period,
+            history
+        });
+    }
+
+    /// <summary>
+    /// 5.2. Re-Request Period
+    /// Tạo lại yêu cầu cho period đã failed (trước 5pm)
+    /// </summary>
+    [HttpPost("item/{medicineRequestItemId}/rerequest")]
+    public async Task<IActionResult> ReRequestPeriod(int medicineRequestItemId, [FromQuery] string period, [FromQuery] int staffId)
+    {
+        if (string.IsNullOrEmpty(period) || staffId <= 0) return BadRequest("Period and staffId required.");
+        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(medicineRequestItemId);
+        if (item == null) return NotFound();
+        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
+        if (request == null) return NotFound();
+        var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(request.StudentCode);
+        if (!grade.HasValue || !await _staffService.IsNurseAssignedToGradeAsync(staffId, grade.Value))
+            return Forbid("You are not assigned to this grade.");
+        var periodStatus = new Dictionary<string, object>();
+        try
+        {
+            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
+        }
+        catch { }
+        var history = GetStatusHistory(periodStatus, period);
+        history.Add(new Dictionary<string, object> {
+            { "Status", "Redo" }, // or "Assigned"
+            { "StaffId", staffId },
+            { "Timestamp", DateTime.UtcNow },
+            { "IsReRequest", true }
+        });
+        periodStatus[period] = history;
+        item.VerificationStatus = System.Text.Json.JsonSerializer.Serialize(periodStatus);
+        var success = await _medicineRequestService.UpdateMedicineRequestItemAsync(item);
+        if (!success) return NotFound();
+        return NoContent();
+    }
+
+    #endregion
+
+    #region 6. HISTORY & TRACKING (Lịch sử và theo dõi)
+
+    /// <summary>
+    /// 6.1. Get Period History
+    /// Xem lịch sử trạng thái của từng item/period
+    /// </summary>
+    [HttpGet("item/{medicineRequestItemId}/period/{period}/history")]
+    public async Task<ActionResult<object>> GetPeriodHistory(int medicineRequestItemId, string period)
+    {
+        var item = await _medicineRequestService.GetMedicineRequestItemByIdAsync(medicineRequestItemId);
+        if (item == null) return NotFound();
+        var request = await _medicineRequestService.GetMedicineRequestByIdAsync(item.MedicineRequestId);
+        var studentName = request?.Student != null ? ($"{request.Student.LastName} {request.Student.FirstName}").Trim() : null;
+        var parentName = request?.Parent != null ? ($"{request.Parent.LastName} {request.Parent.FirstName}").Trim() : null;
+        var periodStatus = new Dictionary<string, object>();
+        try
+        {
+            periodStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
+        }
+        catch { }
+        var history = GetStatusHistory(periodStatus, period);
+        return Ok(new {
+            studentCode = request?.StudentCode,
+            studentName,
+            className = request?.ClassName,
+            parentId = request?.ParentId,
+            parentName,
+            medicineRequestItemId = item.MedicineRequestItemId,
+            medicineName = item.MedicineName,
+            dosage = item.Dosage,
+            dosageUnit = item.DosageUnit,
+            frequency = item.Frequency,
+            timeOfDay = item.TimeOfDay,
+            instructions = item.Instructions,
+            period,
+            history
+        });
+    }
+
+    #endregion
+
+    #region 7. MY ASSIGNED REQUESTS (Yêu cầu được phân công cho nurse)
+
+    /// <summary>
+    /// 7.1. Get My Assigned Requests
+    /// Lấy các yêu cầu thuộc khối được phân công cho nurse hiện tại
+    /// </summary>
+    [HttpGet("my-assigned-requests")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<ActionResult<IEnumerable<MedicineRequestDto.ViewModel>>> GetMyAssignedRequests([FromQuery] string? status = null)
+    {
+        // Get current user ID from JWT token
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int staffId))
+        {
+            return Unauthorized("Invalid token or user ID not found");
+        }
+
+        // Get current user role from JWT token
+        var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
+        if (roleClaim == null || roleClaim.Value.ToLower() != "nurse")
+        {
+            return Forbid("Only nurses can access their assigned requests");
+        }
+
+        _logger.LogInformation("GetMyAssignedRequests called by staffId={StaffId}, status={Status}", staffId, status);
+
+        try
+        {
+            var requests = await _medicineRequestService.GetMedicineRequestsByAssignedGradeAsync(staffId);
+            var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(requests);
+            
+            // Filter by PeriodVerificationStatus if status is provided
+            if (!string.IsNullOrEmpty(status))
+            {
+                foreach (var req in viewModels)
+                {
+                    req.MedicineRequestItems = req.MedicineRequestItems
+                        .Where(item => item.PeriodVerificationStatus != null &&
+                            item.PeriodVerificationStatus.Values.Any(val => 
+                            {
+                                if (val == null) return false;
+                                var valStr = val.ToString();
+                                if (valStr.Equals(status, StringComparison.OrdinalIgnoreCase)) return true;
+                                if (valStr.StartsWith("{") && valStr.Contains($"\"Status\":\"{status}\"", StringComparison.OrdinalIgnoreCase)) return true;
+                                if (val is System.Text.Json.JsonElement elem)
+                                {
+                                    if (elem.ValueKind == System.Text.Json.JsonValueKind.Object && elem.TryGetProperty("Status", out var statusProp) && statusProp.GetString()?.Equals(status, StringComparison.OrdinalIgnoreCase) == true)
+                                        return true;
+                                    else if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
+                                    {
+                                        foreach (var arrElem in elem.EnumerateArray())
+                                        {
+                                            if (arrElem.ValueKind == System.Text.Json.JsonValueKind.Object && arrElem.TryGetProperty("Status", out var arrStatusProp) && arrStatusProp.GetString()?.Equals(status, StringComparison.OrdinalIgnoreCase) == true)
+                                                return true;
+                                        }
+                                    }
+                                }
+                                return false;
+                            })
+                        ).ToList();
+                }
+                
+                // Remove requests that have no matching items
+                viewModels = viewModels.Where(req => req.MedicineRequestItems.Any()).ToList();
+            }
+            
+            _logger.LogInformation("Returning {Count} requests for staffId={StaffId} with status={Status}", viewModels.Count(), staffId, status);
+            return Ok(viewModels);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting assigned requests for nurse {StaffId}", staffId);
+            return StatusCode(500, new { message = "Lỗi khi lấy danh sách yêu cầu thuốc được phân công" });
+        }
+    }
+
+    #endregion
+
+    #region Helper Methods
+
     private static Dictionary<string, string> ParsePeriodVerificationStatus(string? json, string? period = null)
     {
         if (string.IsNullOrEmpty(json)) return new Dictionary<string, string>();
@@ -1821,7 +1771,6 @@ public class MedicineRequestController : ControllerBase
         }
     }
 
-    // Helper to get or create a status history array for a period
     private static List<Dictionary<string, object>> GetStatusHistory(Dictionary<string, object> periodStatus, string period)
     {
         if (periodStatus.TryGetValue(period, out var val))
@@ -1849,67 +1798,77 @@ public class MedicineRequestController : ControllerBase
         return new List<Dictionary<string, object>>();
     }
 
-    // Restore GET: api/MedicineRequest/{id}
-    [HttpGet("{id}")]
-    public async Task<ActionResult<MedicineRequestDto.ViewModel>> GetMedicineRequest(int id)
+    private static bool IsRefusedStatus(object val)
     {
-        var medicineRequest = await _medicineRequestService.GetMedicineRequestByIdAsync(id);
-        if (medicineRequest == null)
+        if (val is string s)
         {
-            return NotFound();
+            if (s == "Refused") return true;
+            if (s.StartsWith("{") && s.Contains("Status"))
+            {
+                try
+                {
+                    var jsonElem = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(s);
+                    if (jsonElem.ValueKind == System.Text.Json.JsonValueKind.Object &&
+                        jsonElem.TryGetProperty("Status", out var statusPropInner) &&
+                        statusPropInner.GetString() == "Refused")
+                        return true;
+                }
+                catch { }
+            }
         }
-        var viewModel = _mapper.Map<MedicineRequestDto.ViewModel>(medicineRequest);
-        return Ok(viewModel);
+        if (val is System.Text.Json.JsonElement elem &&
+            elem.ValueKind == System.Text.Json.JsonValueKind.Object &&
+            elem.TryGetProperty("Status", out var statusProp) &&
+            statusProp.GetString() == "Refused")
+            return true;
+        return false;
     }
 
-    // GET: api/MedicineRequest/debug/staff/{staffId}/grades
-    [HttpGet("debug/staff/{staffId}/grades")]
-    public async Task<ActionResult<object>> GetStaffGradeAssignments(int staffId)
+    // Helper to extract periods from frequency (same logic as in mapping profile)
+    private static List<string> ExtractPeriodsFromFrequency(string? frequency)
     {
-        _logger.LogInformation("Checking grade assignments for staffId: {StaffId}", staffId);
-        
-        var gradeNurses = await _staffService.GetGradeNursesByStaffIdAsync(staffId);
-        var assignedGrades = gradeNurses.Select(g => g.Grade).ToList();
-        
-        _logger.LogInformation("Staff {StaffId} has {Count} grade assignments: {Grades}", 
-            staffId, assignedGrades.Count, string.Join(", ", assignedGrades));
-        
-        return Ok(new {
-            StaffId = staffId,
-            GradeAssignments = assignedGrades,
-            GradeNurses = gradeNurses.Select(gn => new {
-                GradeNurseId = gn.GradeNurseId,
-                Grade = gn.Grade,
-                NurseId = gn.StaffId
-            })
-        });
+        if (string.IsNullOrEmpty(frequency)) return new List<string>();
+        var periods = new[] { "Sáng", "Trưa", "Chiều" };
+        var found = new List<string>();
+        foreach (var period in periods)
+        {
+            if (frequency.IndexOf(period, StringComparison.OrdinalIgnoreCase) >= 0)
+                found.Add(period);
+        }
+        if (found.Count > 0)
+            return found;
+        // Handle generic cases like '2 lần', '3 lần', etc.
+        if (frequency.Contains("2")) return new List<string> { "Sáng", "Trưa" };
+        if (frequency.Contains("3")) return new List<string> { "Sáng", "Trưa", "Chiều" };
+        if (frequency.Contains("1")) return new List<string> { "Sáng" };
+        return new List<string>();
     }
 
-    // GET: api/MedicineRequest/debug/students
-    [HttpGet("debug/students")]
-    public async Task<ActionResult<object>> GetStudentsWithGrades()
+    #endregion
+
+    #region DTOs
+
+    public class PeriodActionDto
     {
-        _logger.LogInformation("Getting all students with their grade levels");
-        
-        var allRequests = await _medicineRequestService.GetAllMedicineRequestsAsync();
-        var studentsWithGrades = allRequests
-            .Where(r => r.Student != null)
-            .Select(r => new {
-                RequestId = r.RequestId,
-                StudentCode = r.StudentCode,
-                StudentName = r.Student != null ? $"{r.Student.LastName} {r.Student.FirstName}" : null,
-                ClassName = r.Student?.Class?.ClassName,
-                GradeLevel = r.Student?.Class?.GradeLevel,
-                Status = r.Status
-            })
-            .Distinct()
-            .ToList();
-        
-        _logger.LogInformation("Found {Count} unique students with medicine requests", studentsWithGrades.Count);
-        
-        return Ok(new {
-            TotalStudents = studentsWithGrades.Count,
-            Students = studentsWithGrades
-        });
+        public string Period { get; set; } = null!;
+        public int? StaffId { get; set; }
     }
+
+    public class RefuseActionDto
+    {
+        public string Period { get; set; } = null!;
+        public int? StaffId { get; set; }
+        public string? RefusalReason { get; set; }
+    }
+
+    public class ReportFailureDto
+    {
+        public int MedicineRequestItemId { get; set; }
+        public string Period { get; set; } = null!;
+        public int StaffId { get; set; }
+        public string FailureReason { get; set; } = null!;
+        public string? Notes { get; set; }
+    }
+
+    #endregion
 } 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   FiSearch,
   FiRefreshCw,
@@ -23,6 +23,20 @@ import {
   formatTotalDosage,
   formatFrequencyDisplay,
 } from "../../../../utils/api/medication/medicationUtils";
+import {
+  getRequestStatus,
+  getAvailableActions,
+  getUnprocessedPeriods,
+  getProcessedPeriods,
+  getAllPeriodsFromRequest,
+  getPeriodStatus,
+  getPeriodStatusLabel,
+  getStatusClass,
+  filterRequestsByStatus,
+  isPartiallyRefused,
+  isFullyRefused,
+  PERIOD_STATUSES,
+} from "../../../../utils/medicationRequestUtils";
 
 const MedicineVerification = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
@@ -30,6 +44,7 @@ const MedicineVerification = () => {
   const [refusedRequests, setRefusedRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState("pending");
+  const [refusedSubTab, setRefusedSubTab] = useState("all"); // all, fully, partially
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -37,16 +52,39 @@ const MedicineVerification = () => {
   const [showRefuseModal, setShowRefuseModal] = useState(false);
   const [periodReasons, setPeriodReasons] = useState({});
   const [selectedPeriods, setSelectedPeriods] = useState([]);
+  const [availablePeriods, setAvailablePeriods] = useState([]);
 
   const { user } = useAuth();
   const currentStaffId = user?.id || 1; // Fallback to 1 if no user
 
-  // Available periods for selection
-  const availablePeriods = [
-    { value: "Sáng", label: "Sáng" },
-    { value: "Trưa", label: "Trưa" },
-    { value: "Chiều", label: "Chiều" },
-  ];
+  // Function to get available periods from request
+  const getAvailablePeriodsFromRequest = (request) => {
+    const periods = new Set();
+    request.medicineRequestItems?.forEach((item) => {
+      // Parse timeOfDay to determine which time periods to show
+      const timeOfDay = item.timeOfDay || "";
+      const timeSlots = timeOfDay.split(",").map((time) => time.trim());
+
+      // Map time slots to Vietnamese periods
+      const periodMap = {
+        morning: "Sáng",
+        noon: "Trưa",
+        afternoon: "Chiều",
+        evening: "Tối",
+      };
+
+      timeSlots.forEach((slot) => {
+        const period = periodMap[slot.toLowerCase()];
+        if (period) {
+          periods.add(period);
+        }
+      });
+    });
+    return Array.from(periods).map((period) => ({
+      value: period,
+      label: period,
+    }));
+  };
 
   // Handle period selection (checkbox toggle)
   const handlePeriodToggle = (period) => {
@@ -82,6 +120,24 @@ const MedicineVerification = () => {
     );
   };
 
+  // Update the openVerifyModal function
+  const openVerifyModal = (request) => {
+    setSelectedRequest(request);
+    setAvailablePeriods(getUnprocessedPeriods(request));
+    setSelectedPeriods([]);
+    setPeriodReasons({});
+    setShowVerifyModal(true);
+  };
+
+  // Update the openRefuseModal function
+  const openRefuseModal = (request) => {
+    setSelectedRequest(request);
+    setAvailablePeriods(getUnprocessedPeriods(request));
+    setSelectedPeriods([]);
+    setPeriodReasons({});
+    setShowRefuseModal(true);
+  };
+
   useEffect(() => {
     loadAllData();
   }, []);
@@ -103,42 +159,45 @@ const MedicineVerification = () => {
   const loadPendingRequests = async () => {
     try {
       // Use new API that filters by nurse's assigned grades
-      const response = await medicationService.getMyAssignedMedicationRequests(
-        "pending"
-      );
-      if (response.success) {
-        setPendingRequests(response.data);
+      const response = await medicationService.getPendingMedicationRequests();
+      if (response.success && response.data) {
+        setPendingRequests(Array.isArray(response.data) ? response.data : []);
+      } else {
+        setPendingRequests([]);
       }
     } catch (error) {
       console.error("Error loading assigned pending requests:", error);
+      setPendingRequests([]);
     }
   };
 
   const loadVerifiedRequests = async () => {
     try {
       // Use new API that filters by nurse's assigned grades
-      const response = await medicationService.getMyAssignedMedicationRequests(
-        "verified"
-      );
-      if (response.success) {
-        setVerifiedRequests(response.data);
+      const response = await medicationService.getVerifiedMedicationRequests();
+      if (response.success && response.data) {
+        setVerifiedRequests(Array.isArray(response.data) ? response.data : []);
+      } else {
+        setVerifiedRequests([]);
       }
     } catch (error) {
       console.error("Error loading assigned verified requests:", error);
+      setVerifiedRequests([]);
     }
   };
 
   const loadRefusedRequests = async () => {
     try {
       // Use new API that filters by nurse's assigned grades
-      const response = await medicationService.getMyAssignedMedicationRequests(
-        "refused"
-      );
-      if (response.success) {
-        setRefusedRequests(response.data);
+      const response = await medicationService.getRefusedMedicationRequests();
+      if (response.success && response.data) {
+        setRefusedRequests(Array.isArray(response.data) ? response.data : []);
+      } else {
+        setRefusedRequests([]);
       }
     } catch (error) {
       console.error("Error loading assigned refused requests:", error);
+      setRefusedRequests([]);
     }
   };
 
@@ -248,40 +307,66 @@ const MedicineVerification = () => {
     }
   };
 
+  // Enhanced data filtering with mixed status support
   const getCurrentData = () => {
-    switch (activeSubTab) {
-      case "pending":
-        return pendingRequests;
-      case "verified":
-        return verifiedRequests;
-      case "refused":
-        return refusedRequests;
-      default:
-        return [];
+    try {
+      // Combine all requests and filter by tab logic with null checks
+      const allRequests = [
+        ...(pendingRequests || []),
+        ...(verifiedRequests || []),
+        ...(refusedRequests || []),
+      ];
+
+      let filteredRequests = filterRequestsByStatus(allRequests, activeSubTab);
+
+      // Apply sub-filtering for refused tab
+      if (activeSubTab === "refused" && refusedSubTab !== "all") {
+        const beforeSubFilter = filteredRequests.length;
+        filteredRequests = filterRequestsByStatus(
+          filteredRequests,
+          refusedSubTab
+        );
+      }
+
+      return filteredRequests || [];
+    } catch (error) {
+      console.error("Error in getCurrentData:", error);
+      return [];
     }
   };
 
   const filterRequests = (requests) => {
-    return requests.filter((request) => {
-      const searchLower = searchTerm.toLowerCase();
-      const studentName = `${request.student?.firstName || ""} ${
-        request.student?.lastName || ""
-      }`.toLowerCase();
+    try {
+      if (!requests || !Array.isArray(requests)) {
+        return [];
+      }
 
-      // Search through all medicine names
-      const medicineNames =
-        request.medicineRequestItems
-          ?.map((item) => item.medicineName?.toLowerCase() || "")
-          .join(" ") || "";
+      return requests.filter((request) => {
+        if (!request) return false;
 
-      const requestId = request.requestId?.toString() || "";
+        const searchLower = searchTerm.toLowerCase();
+        const studentName = `${request.student?.firstName || ""} ${
+          request.student?.lastName || ""
+        }`.toLowerCase();
 
-      return (
-        studentName.includes(searchLower) ||
-        medicineNames.includes(searchLower) ||
-        requestId.includes(searchLower)
-      );
-    });
+        // Search through all medicine names
+        const medicineNames =
+          request.medicineRequestItems
+            ?.map((item) => item.medicineName?.toLowerCase() || "")
+            .join(" ") || "";
+
+        const requestId = request.requestId?.toString() || "";
+
+        return (
+          studentName.includes(searchLower) ||
+          medicineNames.includes(searchLower) ||
+          requestId.includes(searchLower)
+        );
+      });
+    } catch (error) {
+      console.error("Error in filterRequests:", error);
+      return [];
+    }
   };
 
   const getStatusBadge = (status, subTab) => {
@@ -309,6 +394,48 @@ const MedicineVerification = () => {
     return new Date(dateString).toLocaleDateString("vi-VN");
   };
 
+  // Function to render period status indicators
+  const renderPeriodStatus = (request) => {
+    const requestStatus = getRequestStatus(request);
+    const periods = requestStatus.periods;
+
+    if (periods.length === 0) {
+      return <span className="text-gray-500 text-xs">N/A</span>;
+    }
+
+    return (
+      <div className="period-status-list">
+        {periods.map(({ period, status, label }) => {
+          const statusClass = getStatusClass(status);
+          return (
+            <div key={period} className="period-status-item">
+              <span className={`period-badge ${statusClass}`}>{period}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Function to get row class based on request status
+  const getRequestRowClass = (request) => {
+    const baseClass =
+      "hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-200";
+
+    if (isPartiallyRefused(request)) {
+      return `${baseClass} partially-refused-row`;
+    } else if (isFullyRefused(request)) {
+      return `${baseClass} fully-refused-row`;
+    } else {
+      const requestStatus = getRequestStatus(request);
+      if (requestStatus.isPartiallyProcessed) {
+        return `${baseClass} request-row-with-mixed-status`;
+      }
+    }
+
+    return baseClass;
+  };
+
   // Function to render multiple medicines in table
   const renderMedicinesList = (medicineItems) => {
     if (!medicineItems || medicineItems.length === 0) {
@@ -334,7 +461,229 @@ const MedicineVerification = () => {
     );
   };
 
-  const currentRequests = filterRequests(getCurrentData());
+  const currentRequests = useMemo(() => {
+    try {
+      return filterRequests(getCurrentData());
+    } catch (error) {
+      console.error("Error calculating currentRequests:", error);
+      return [];
+    }
+  }, [
+    pendingRequests,
+    verifiedRequests,
+    refusedRequests,
+    activeSubTab,
+    refusedSubTab,
+    searchTerm,
+  ]);
+
+  // Component for refused tab sub-filters
+  const RefusedTabFilters = () => {
+    try {
+      const allRequests = [
+        ...(pendingRequests || []),
+        ...(verifiedRequests || []),
+        ...(refusedRequests || []),
+      ];
+      const refusedRequestsFiltered =
+        filterRequestsByStatus(allRequests, "refused") || [];
+
+      const fullyRefusedCount =
+        filterRequestsByStatus(refusedRequestsFiltered, "fully_refused")
+          ?.length || 0;
+      const partiallyRefusedCount =
+        filterRequestsByStatus(refusedRequestsFiltered, "partially_refused")
+          ?.length || 0;
+
+      return (
+        <div className="flex space-x-1 bg-gray-50 dark:bg-neutral-750 p-2 rounded-lg mb-4">
+          {[
+            {
+              key: "all",
+              label: "Tất cả",
+              count: refusedRequestsFiltered.length,
+            },
+            {
+              key: "fully_refused",
+              label: "Từ chối hoàn toàn",
+              count: fullyRefusedCount,
+            },
+            {
+              key: "partially_refused",
+              label: "Từ chối một phần",
+              count: partiallyRefusedCount,
+            },
+          ].map(({ key, label, count }) => (
+            <button
+              key={key}
+              onClick={() => setRefusedSubTab(key)}
+              className={`flex items-center px-3 py-1.5 rounded-md text-sm transition-colors duration-200 ${
+                refusedSubTab === key
+                  ? "bg-white dark:bg-neutral-600 text-red-600 dark:text-red-400 shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              }`}
+            >
+              {label}
+              <span
+                className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${
+                  refusedSubTab === key
+                    ? "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300"
+                    : "bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300"
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          ))}
+        </div>
+      );
+    } catch (error) {
+      console.error("Error in RefusedTabFilters:", error);
+      return (
+        <div className="flex space-x-1 bg-gray-50 dark:bg-neutral-750 p-2 rounded-lg mb-4">
+          <div className="text-red-600 text-sm">Lỗi khi tải bộ lọc</div>
+        </div>
+      );
+    }
+  };
+
+  // Inject CSS styles for period indicators
+  useEffect(() => {
+    const styleId = "period-indicator-styles";
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `
+        .period-indicator {
+          display: inline-block;
+          font-weight: 500;
+          border: 1px solid;
+        }
+        
+        .status-pending {
+          background-color: #fff3cd;
+          color: #856404;
+          border-color: #ffeaa7;
+        }
+        
+        .status-verified {
+          background-color: #d4edda;
+          color: #155724;
+          border-color: #c3e6cb;
+        }
+        
+        .status-refused {
+          background-color: #f8d7da;
+          color: #721c24;
+          border-color: #f5c6cb;
+        }
+        
+        .status-completed {
+          background-color: #cce5ff;
+          color: #004085;
+          border-color: #b3d7ff;
+        }
+        
+        .status-failed {
+          background-color: #f8d7da;
+          color: #721c24;
+          border-color: #f5c6cb;
+        }
+        
+        .status-assigned {
+          background-color: #e2e3e5;
+          color: #383d41;
+          border-color: #d6d8db;
+        }
+        
+        .status-redo {
+          background-color: #ffeaa7;
+          color: #6c757d;
+          border-color: #fdcb6e;
+        }
+        
+        .status-unknown {
+          background-color: #f8f9fa;
+          color: #6c757d;
+          border-color: #dee2e6;
+        }
+        
+        .partially-refused-row {
+          background-color: #fff3cd;
+          border-left: 4px solid #dc3545;
+        }
+        
+        .fully-refused-row {
+          background-color: #f8d7da;
+        }
+        
+        .request-row-with-mixed-status {
+          border-left: 4px solid #ffc107;
+        }
+        
+        .period-status-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+        
+        .period-status-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-bottom: 2px;
+        }
+        
+        .period-badge {
+          padding: 2px 8px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 500;
+          border: 1px solid;
+        }
+        
+        .status-text {
+          font-size: 11px;
+          color: #6c757d;
+        }
+        
+        /* Dark mode styles */
+        .dark .status-pending {
+          background-color: #3d3d00;
+          color: #ffeb3b;
+          border-color: #5d5d00;
+        }
+        
+        .dark .status-verified {
+          background-color: #1b5e20;
+          color: #4caf50;
+          border-color: #2e7d32;
+        }
+        
+        .dark .status-refused {
+          background-color: #5d1a1a;
+          color: #f44336;
+          border-color: #7d2d2d;
+        }
+        
+        .dark .status-completed {
+          background-color: #1a237e;
+          color: #2196f3;
+          border-color: #303f9f;
+        }
+        
+        .dark .partially-refused-row {
+          background-color: #3d3d00;
+          border-left: 4px solid #f44336;
+        }
+        
+        .dark .fully-refused-row {
+          background-color: #5d1a1a;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -367,24 +716,33 @@ const MedicineVerification = () => {
           { key: "verified", label: "Đã xác nhận", icon: FiCheck },
           { key: "refused", label: "Đã từ chối", icon: FiX },
         ].map(({ key, label, icon: Icon }) => {
-          // Get the correct count for each tab
+          // Get the correct count for each tab using new logic
           const getTabCount = (tabKey) => {
-            switch (tabKey) {
-              case "pending":
-                return pendingRequests.length;
-              case "verified":
-                return verifiedRequests.length;
-              case "refused":
-                return refusedRequests.length;
-              default:
-                return 0;
+            try {
+              const allRequests = [
+                ...(pendingRequests || []),
+                ...(verifiedRequests || []),
+                ...(refusedRequests || []),
+              ];
+              const count =
+                filterRequestsByStatus(allRequests, tabKey)?.length || 0;
+
+              return count;
+            } catch (error) {
+              console.error("Error in getTabCount:", error);
+              return 0;
             }
           };
 
           return (
             <button
               key={key}
-              onClick={() => setActiveSubTab(key)}
+              onClick={() => {
+                setActiveSubTab(key);
+                if (key !== "refused") {
+                  setRefusedSubTab("all");
+                }
+              }}
               className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
                 activeSubTab === key
                   ? "bg-white dark:bg-neutral-600 text-blue-600 dark:text-blue-400 shadow-sm"
@@ -421,6 +779,9 @@ const MedicineVerification = () => {
         </div>
       </div>
 
+      {/* Refused Tab Sub-filters */}
+      {activeSubTab === "refused" && <RefusedTabFilters />}
+
       {/* Requests Table */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700">
         <div className="overflow-x-auto">
@@ -432,6 +793,9 @@ const MedicineVerification = () => {
                 </th>
                 <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Thuốc
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Buổi uống thuốc
                 </th>
                 <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Ngày gửi yêu cầu
@@ -451,7 +815,7 @@ const MedicineVerification = () => {
               {currentRequests.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="7"
                     className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
                   >
                     {loading ? "Đang tải..." : "Không có dữ liệu"}
@@ -461,7 +825,7 @@ const MedicineVerification = () => {
                 currentRequests.map((request) => (
                   <tr
                     key={request.requestId}
-                    className="hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-200"
+                    className={getRequestRowClass(request)}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -481,6 +845,9 @@ const MedicineVerification = () => {
                     <td className="px-6 py-4 text-center">
                       {renderMedicinesList(request.medicineRequestItems)}
                     </td>
+                    <td className="px-6 py-4 text-center">
+                      {renderPeriodStatus(request)}
+                    </td>
                     <td className="px-6 py-4 text-center text-sm text-gray-900 dark:text-gray-100">
                       {formatDate(request.requestDate)}
                     </td>
@@ -490,7 +857,15 @@ const MedicineVerification = () => {
                         : formatDate(request.requestDate)}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      {getStatusBadge(request.status, activeSubTab)}
+                      <div className="flex flex-col items-center space-y-1">
+                        {getStatusBadge(request.status, activeSubTab)}
+                        {activeSubTab === "refused" &&
+                          isPartiallyRefused(request) && (
+                            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                              Từ chối một phần
+                            </span>
+                          )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
@@ -507,20 +882,14 @@ const MedicineVerification = () => {
                         {activeSubTab === "pending" && (
                           <>
                             <button
-                              onClick={() => {
-                                setSelectedRequest(request);
-                                setShowVerifyModal(true);
-                              }}
+                              onClick={() => openVerifyModal(request)}
                               className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                               title="Xác nhận đủ thuốc"
                             >
                               <FiCheck className="h-4 w-4" />
                             </button>
                             <button
-                              onClick={() => {
-                                setSelectedRequest(request);
-                                setShowRefuseModal(true);
-                              }}
+                              onClick={() => openRefuseModal(request)}
                               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                               title="Từ chối thiếu thuốc"
                             >
@@ -882,7 +1251,7 @@ const MedicineVerification = () => {
                     <button
                       onClick={() => {
                         setShowDetailModal(false);
-                        setShowRefuseModal(true);
+                        openRefuseModal(selectedRequest);
                       }}
                       className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center"
                     >
@@ -892,7 +1261,7 @@ const MedicineVerification = () => {
                     <button
                       onClick={() => {
                         setShowDetailModal(false);
-                        setShowVerifyModal(true);
+                        openVerifyModal(selectedRequest);
                       }}
                       className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 flex items-center"
                     >
@@ -933,6 +1302,29 @@ const MedicineVerification = () => {
               </h3>
             </div>
             <div className="px-6 py-4">
+              {/* Period Status Overview */}
+              <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Tổng quan trạng thái các buổi:
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {getAllPeriodsFromRequest(selectedRequest).map((period) => {
+                    const status = getPeriodStatus(selectedRequest, period);
+                    const statusClass = getStatusClass(status);
+                    const statusLabel = getPeriodStatusLabel(status);
+
+                    return (
+                      <div
+                        key={period}
+                        className={`period-indicator ${statusClass} px-2 py-1 rounded-full text-xs font-medium`}
+                      >
+                        {period}: {statusLabel}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="flex items-center mb-4">
                 <div>
                   <p className="text-sm text-gray-900 dark:text-gray-100">
@@ -1030,6 +1422,29 @@ const MedicineVerification = () => {
               </h3>
             </div>
             <div className="px-6 py-4">
+              {/* Period Status Overview */}
+              <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Tổng quan trạng thái các buổi:
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {getAllPeriodsFromRequest(selectedRequest).map((period) => {
+                    const status = getPeriodStatus(selectedRequest, period);
+                    const statusClass = getStatusClass(status);
+                    const statusLabel = getPeriodStatusLabel(status);
+
+                    return (
+                      <div
+                        key={period}
+                        className={`period-indicator ${statusClass} px-2 py-1 rounded-full text-xs font-medium`}
+                      >
+                        {period}: {statusLabel}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="flex items-center mb-4">
                 <div>
                   <p className="text-sm text-gray-900 dark:text-gray-100">
