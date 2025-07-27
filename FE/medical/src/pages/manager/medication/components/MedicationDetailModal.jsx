@@ -45,9 +45,16 @@ const formatFrequency = (frequency) => {
   return frequency;
 };
 
-const MedicationDetailModal = ({ show, request, onClose, availableNurses = [], onAssignSuccess }) => {
-  const [showNurseAssignmentModal, setShowNurseAssignmentModal] = useState(false);
-  
+const MedicationDetailModal = ({
+  show,
+  request,
+  onClose,
+  availableNurses = [],
+  onAssignSuccess,
+}) => {
+  const [showNurseAssignmentModal, setShowNurseAssignmentModal] =
+    useState(false);
+
   if (!show || !request) return null;
 
   return (
@@ -467,7 +474,17 @@ const MedicationDetailModal = ({ show, request, onClose, availableNurses = [], o
                                       <FiClock className="h-4 w-4 text-green-600 dark:text-green-400" />
                                       <div>
                                         <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                                          {time.trim() === "morning"
+                                          {time.trim() === "sáng"
+                                            ? "Buổi sáng (6:00 - 11:00)"
+                                            : time.trim() === "trưa"
+                                            ? "Buổi trưa (11:00 - 14:00)"
+                                            : time.trim() === "chiều"
+                                            ? "Buổi chiều (14:00 - 18:00)"
+                                            : time.trim() === "tối"
+                                            ? "Buổi tối (18:00 - 22:00)"
+                                            : time.trim() === "khi cần thiết"
+                                            ? "Khi cần thiết"
+                                            : time.trim() === "morning"
                                             ? "Buổi sáng (6:00 - 11:00)"
                                             : time.trim() === "noon"
                                             ? "Buổi trưa (11:00 - 14:00)"
@@ -516,7 +533,7 @@ const MedicationDetailModal = ({ show, request, onClose, availableNurses = [], o
               <FiUsers className="mr-2" />
               Thông tin phân công Nurse
             </button>
-            
+
             <button
               onClick={onClose}
               className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 font-medium"

@@ -98,7 +98,6 @@ export const transformParentMedicationData = (requests) => {
 
 // Transform rejected medication API data to component structure
 export const transformRejectedMedicationData = (requests) => {
-  console.log("transformRejectedMedicationData input:", requests);
   const result = requests.map((req) => {
     return {
       id: req.medicineRequestItemId
@@ -134,7 +133,6 @@ export const transformRejectedMedicationData = (requests) => {
       originalData: req,
     };
   });
-  console.log("transformRejectedMedicationData output:", result);
   return result;
 };
 

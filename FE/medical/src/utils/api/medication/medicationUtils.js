@@ -18,6 +18,7 @@ export const calculateDosagePerAdministration = (totalDosage, frequency) => {
 
   // Handle "as needed" or "khi cần thiết" cases
   if (
+    frequency === "khi cần thiết" ||
     frequency === "as_needed" ||
     (typeof frequency === "string" && frequency.includes("cần thiết"))
   ) {

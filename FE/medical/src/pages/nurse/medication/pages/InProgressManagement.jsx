@@ -219,11 +219,11 @@ const InProgressManagement = () => {
 
     // Define mapping between display text and API values
     const frequencyMap = {
-      "Buổi sáng (6:00 - 11:00)": "morning",
-      "Buổi trưa (11:00 - 14:00)": "noon",
-      "Buổi chiều (14:00 - 18:00)": "afternoon",
-      "Buổi tối (18:00 - 22:00)": "evening",
-      "Khi cần thiết": "as_needed",
+      "Buổi sáng (6:00 - 11:00)": "sáng",
+      "Buổi trưa (11:00 - 14:00)": "trưa",
+      "Buổi chiều (14:00 - 18:00)": "chiều",
+      "Buổi tối (18:00 - 22:00)": "tối",
+      "Khi cần thiết": "khi cần thiết",
     };
 
     let displayOptions = [];
@@ -234,6 +234,12 @@ const InProgressManagement = () => {
         .split(",")
         .map((time) => time.trim().toLowerCase());
       const timeMap = {
+        sáng: "Buổi sáng (6:00 - 11:00)",
+        trưa: "Buổi trưa (11:00 - 14:00)",
+        chiều: "Buổi chiều (14:00 - 18:00)",
+        tối: "Buổi tối (18:00 - 22:00)",
+        "khi cần thiết": "Khi cần thiết",
+        // Backward compatibility for old data
         morning: "Buổi sáng (6:00 - 11:00)",
         noon: "Buổi trưa (11:00 - 14:00)",
         afternoon: "Buổi chiều (14:00 - 18:00)",

@@ -35,6 +35,9 @@ import {
   filterRequestsByStatus,
   isPartiallyRefused,
   isFullyRefused,
+  deduplicateRequests,
+  getPeriodRefusalReason,
+  getRefusedPeriodsWithReasons,
   PERIOD_STATUSES,
 } from "../../../../utils/medicationRequestUtils";
 
@@ -65,12 +68,29 @@ const MedicineVerification = () => {
       const timeOfDay = item.timeOfDay || "";
       const timeSlots = timeOfDay.split(",").map((time) => time.trim());
 
-      // Map time slots to Vietnamese periods
+      // Map time slots to Vietnamese periods (lowercase for API compatibility)
       const periodMap = {
-        morning: "Sáng",
-        noon: "Trưa",
-        afternoon: "Chiều",
-        evening: "Tối",
+        // Vietnamese values (current backend format)
+        sáng: "sáng",
+        trưa: "trưa",
+        chiều: "chiều",
+        tối: "tối",
+        "khi cần thiết": "khi cần thiết",
+        // English values (backward compatibility)
+        morning: "sáng",
+        noon: "trưa",
+        afternoon: "chiều",
+        evening: "tối",
+        as_needed: "khi cần thiết",
+      };
+
+      // Display labels for UI (title case Vietnamese)
+      const displayLabelMap = {
+        sáng: "Sáng",
+        trưa: "Trưa",
+        chiều: "Chiều",
+        tối: "Tối",
+        "khi cần thiết": "Khi cần thiết",
       };
 
       timeSlots.forEach((slot) => {
@@ -81,8 +101,8 @@ const MedicineVerification = () => {
       });
     });
     return Array.from(periods).map((period) => ({
-      value: period,
-      label: period,
+      value: period, // Use lowercase Vietnamese value for API calls
+      label: displayLabelMap[period] || period, // Use title case for display
     }));
   };
 
@@ -131,8 +151,10 @@ const MedicineVerification = () => {
 
   // Update the openRefuseModal function
   const openRefuseModal = (request) => {
+    const unprocessedPeriods = getUnprocessedPeriods(request);
+
     setSelectedRequest(request);
-    setAvailablePeriods(getUnprocessedPeriods(request));
+    setAvailablePeriods(unprocessedPeriods);
     setSelectedPeriods([]);
     setPeriodReasons({});
     setShowRefuseModal(true);
@@ -188,7 +210,7 @@ const MedicineVerification = () => {
 
   const loadRefusedRequests = async () => {
     try {
-      // Use new API that filters by nurse's assigned grades
+      // Use API endpoint /api/MedicineRequest/refused
       const response = await medicationService.getRefusedMedicationRequests();
       if (response.success && response.data) {
         setRefusedRequests(Array.isArray(response.data) ? response.data : []);
@@ -196,7 +218,7 @@ const MedicineVerification = () => {
         setRefusedRequests([]);
       }
     } catch (error) {
-      console.error("Error loading assigned refused requests:", error);
+      console.error("Error loading refused requests:", error);
       setRefusedRequests([]);
     }
   };
@@ -208,15 +230,26 @@ const MedicineVerification = () => {
     }
 
     try {
+      // Map title case Vietnamese to lowercase Vietnamese for API compatibility
+      const periodToApiValue = {
+        Sáng: "sáng",
+        Trưa: "trưa",
+        Chiều: "chiều",
+        Tối: "tối",
+        "Khi cần thiết": "khi cần thiết",
+      };
+
       // Verify each medicine item in the request for all selected periods
       const verifyPromises = [];
 
       for (const period of selectedPeriods) {
+        const apiPeriodValue = periodToApiValue[period] || period.toLowerCase();
+
         for (const item of request.medicineRequestItems || []) {
           verifyPromises.push(
             medicationService.verifyRequestItem(
               item.medicineRequestItemId,
-              period,
+              apiPeriodValue, // Use lowercase Vietnamese value for API
               currentStaffId
             )
           );
@@ -265,13 +298,24 @@ const MedicineVerification = () => {
       // Refuse each medicine item in the request for all selected periods
       const refusePromises = [];
 
+      // Map title case Vietnamese to lowercase Vietnamese for API compatibility
+      const periodToApiValue = {
+        Sáng: "sáng",
+        Trưa: "trưa",
+        Chiều: "chiều",
+        Tối: "tối",
+        "Khi cần thiết": "khi cần thiết",
+      };
+
       for (const period of selectedPeriods) {
         const reasonForPeriod = periodReasons[period];
+        const apiPeriodValue = periodToApiValue[period] || period.toLowerCase();
+
         for (const item of request.medicineRequestItems || []) {
           refusePromises.push(
             medicationService.refuseRequestItem(
               item.medicineRequestItemId,
-              period,
+              apiPeriodValue, // Use lowercase Vietnamese value for API
               currentStaffId,
               reasonForPeriod
             )
@@ -310,12 +354,15 @@ const MedicineVerification = () => {
   // Enhanced data filtering with mixed status support
   const getCurrentData = () => {
     try {
-      // Combine all requests and filter by tab logic with null checks
-      const allRequests = [
+      // Combine all requests and remove duplicates by requestId
+      const allRequestsRaw = [
         ...(pendingRequests || []),
         ...(verifiedRequests || []),
         ...(refusedRequests || []),
       ];
+
+      // Deduplicate requests by requestId to prevent same request appearing multiple times
+      const allRequests = deduplicateRequests(allRequestsRaw);
 
       let filteredRequests = filterRequestsByStatus(allRequests, activeSubTab);
 
@@ -407,9 +454,55 @@ const MedicineVerification = () => {
       <div className="period-status-list">
         {periods.map(({ period, status, label }) => {
           const statusClass = getStatusClass(status);
+
+          // Get inline styles based on status for guaranteed rendering
+          const getInlineStyles = (status) => {
+            switch (status) {
+              case PERIOD_STATUSES.REFUSED:
+                return {
+                  backgroundColor: "#f8d7da",
+                  color: "#721c24",
+                  borderColor: "#f5c6cb",
+                  border: "1px solid #f5c6cb",
+                  padding: "2px 8px",
+                  borderRadius: "12px",
+                  fontSize: "11px",
+                  fontWeight: "500",
+                };
+              case PERIOD_STATUSES.VERIFIED:
+                return {
+                  backgroundColor: "#d4edda",
+                  color: "#155724",
+                  borderColor: "#c3e6cb",
+                  border: "1px solid #c3e6cb",
+                  padding: "2px 8px",
+                  borderRadius: "12px",
+                  fontSize: "11px",
+                  fontWeight: "500",
+                };
+              case PERIOD_STATUSES.PENDING:
+              default:
+                return {
+                  backgroundColor: "#fff3cd",
+                  color: "#856404",
+                  borderColor: "#ffeaa7",
+                  border: "1px solid #ffeaa7",
+                  padding: "2px 8px",
+                  borderRadius: "12px",
+                  fontSize: "11px",
+                  fontWeight: "500",
+                };
+            }
+          };
+
           return (
             <div key={period} className="period-status-item">
-              <span className={`period-badge ${statusClass}`}>{period}</span>
+              <span
+                className={`period-badge ${statusClass}`}
+                style={getInlineStyles(status)}
+              >
+                {period}
+              </span>
             </div>
           );
         })}
@@ -480,11 +573,16 @@ const MedicineVerification = () => {
   // Component for refused tab sub-filters
   const RefusedTabFilters = () => {
     try {
-      const allRequests = [
+      // Combine all requests and remove duplicates by requestId
+      const allRequestsRaw = [
         ...(pendingRequests || []),
         ...(verifiedRequests || []),
         ...(refusedRequests || []),
       ];
+
+      // Deduplicate requests by requestId to prevent same request appearing multiple times
+      const allRequests = deduplicateRequests(allRequestsRaw);
+
       const refusedRequestsFiltered =
         filterRequestsByStatus(allRequests, "refused") || [];
 
@@ -561,39 +659,39 @@ const MedicineVerification = () => {
         }
         
         .status-pending {
-          background-color: #fff3cd;
-          color: #856404;
-          border-color: #ffeaa7;
+          background-color: #fff3cd !important;
+          color: #856404 !important;
+          border-color: #ffeaa7 !important;
         }
         
         .status-verified {
-          background-color: #d4edda;
-          color: #155724;
-          border-color: #c3e6cb;
+          background-color: #d4edda !important;
+          color: #155724 !important;
+          border-color: #c3e6cb !important;
         }
         
         .status-refused {
-          background-color: #f8d7da;
-          color: #721c24;
-          border-color: #f5c6cb;
+          background-color: #f8d7da !important;
+          color: #721c24 !important;
+          border-color: #f5c6cb !important;
         }
         
         .status-completed {
-          background-color: #cce5ff;
-          color: #004085;
-          border-color: #b3d7ff;
+          background-color: #cce5ff !important;
+          color: #004085 !important;
+          border-color: #b3d7ff !important;
         }
         
         .status-failed {
-          background-color: #f8d7da;
-          color: #721c24;
-          border-color: #f5c6cb;
+          background-color: #f8d7da !important;
+          color: #721c24 !important;
+          border-color: #f5c6cb !important;
         }
         
         .status-assigned {
-          background-color: #e2e3e5;
-          color: #383d41;
-          border-color: #d6d8db;
+          background-color: #e2e3e5 !important;
+          color: #383d41 !important;
+          border-color: #d6d8db !important;
         }
         
         .status-redo {
@@ -719,11 +817,16 @@ const MedicineVerification = () => {
           // Get the correct count for each tab using new logic
           const getTabCount = (tabKey) => {
             try {
-              const allRequests = [
+              // Combine all requests and remove duplicates by requestId
+              const allRequestsRaw = [
                 ...(pendingRequests || []),
                 ...(verifiedRequests || []),
                 ...(refusedRequests || []),
               ];
+
+              // Deduplicate requests by requestId to prevent same request appearing multiple times
+              const allRequests = deduplicateRequests(allRequestsRaw);
+
               const count =
                 filterRequestsByStatus(allRequests, tabKey)?.length || 0;
 
@@ -1049,54 +1152,88 @@ const MedicineVerification = () => {
                 </div>
               </div>
 
-              {/* Refusal Reason Section - Only show for refused requests */}
-              {(selectedRequest.status === "refused" ||
-                selectedRequest.status === "Refused" ||
-                selectedRequest.status === "rejected") && (
-                <div className="mb-6">
-                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                    <h4 className="text-md font-medium text-red-800 dark:text-red-300 mb-3 flex items-center">
-                      <FiXCircle className="h-5 w-5 mr-2" />
-                      Lý do từ chối
-                    </h4>
-                    <div className="bg-white dark:bg-red-900/30 p-3 rounded border border-red-300 dark:border-red-700">
-                      <p className="text-red-700 dark:text-red-300 font-medium">
-                        {selectedRequest.refusalReason ||
-                          selectedRequest.rejectionReason ||
-                          selectedRequest.reason ||
-                          "Không có lý do cụ thể"}
-                      </p>
-                    </div>
-                    {/* Additional rejection info */}
-                    {(selectedRequest.rejectedBy ||
-                      selectedRequest.rejectedDate ||
-                      selectedRequest.staff) && (
-                      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {selectedRequest.rejectedBy && (
-                          <div>
-                            <label className="text-sm font-medium text-red-700 dark:text-red-300">
-                              Từ chối bởi:
-                            </label>
-                            <p className="text-red-800 dark:text-red-200">
-                              {selectedRequest.rejectedBy}
-                            </p>
-                          </div>
-                        )}
-                        {selectedRequest.rejectedDate && (
-                          <div>
-                            <label className="text-sm font-medium text-red-700 dark:text-red-300">
-                              Ngày từ chối:
-                            </label>
-                            <p className="text-red-800 dark:text-red-200">
-                              {formatDate(selectedRequest.rejectedDate)}
-                            </p>
-                          </div>
-                        )}
+              {/* Enhanced Refusal Reason Section - Show for any request with refused periods
+                This section displays detailed refusal reasons for each period that was refused.
+                It extracts period-specific refusal reasons from the periodVerificationStatus
+                data structure and presents them in a clear, organized format for nurses to understand
+                exactly why each period was refused and by whom.
+              */}
+              {(() => {
+                const refusedPeriods =
+                  getRefusedPeriodsWithReasons(selectedRequest);
+                if (refusedPeriods.length === 0) return null;
+
+                return (
+                  <div className="mb-6">
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                      <h4 className="text-md font-medium text-red-800 dark:text-red-300 mb-3 flex items-center">
+                        <FiXCircle className="h-5 w-5 mr-2" />
+                        Chi tiết lý do từ chối theo từng buổi
+                      </h4>
+
+                      {/* Summary section */}
+                      <div className="mb-4 p-3 bg-red-100 dark:bg-red-800/30 rounded-lg border border-red-300 dark:border-red-700">
+                        <p className="text-sm text-red-800 dark:text-red-200">
+                          <strong>Tổng quan:</strong> Yêu cầu này có{" "}
+                          {refusedPeriods.length} buổi bị từ chối. Dưới đây là
+                          chi tiết lý do từ chối cho từng buổi để bạn có thể
+                          hiểu rõ nguyên nhân.
+                        </p>
                       </div>
-                    )}
+
+                      <div className="space-y-4">
+                        {refusedPeriods.map((refusalInfo, index) => (
+                          <div
+                            key={index}
+                            className="bg-white dark:bg-red-900/30 p-4 rounded border border-red-300 dark:border-red-700"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <h5 className="text-sm font-semibold text-red-800 dark:text-red-200">
+                                Buổi {refusalInfo.period}
+                              </h5>
+                              {refusalInfo.medicineName && (
+                                <span className="text-xs text-red-600 dark:text-red-300 bg-red-100 dark:bg-red-800 px-2 py-1 rounded">
+                                  {refusalInfo.medicineName}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="mb-3">
+                              <label className="text-xs font-medium text-red-700 dark:text-red-300 block mb-1">
+                                Lý do từ chối:
+                              </label>
+                              <p className="text-sm text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-800/50 p-3 rounded border-l-4 border-red-400">
+                                {refusalInfo.reason}
+                              </p>
+                            </div>
+
+                            {/* Additional context for better understanding */}
+                            <div className="mt-2 pt-2 border-t border-red-200 dark:border-red-700">
+                              <p className="text-xs text-red-600 dark:text-red-400">
+                                <strong>Ghi chú:</strong> Lý do từ chối này áp
+                                dụng cho tất cả các loại thuốc trong buổi{" "}
+                                {refusalInfo.period} của yêu cầu này.
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Fallback to general refusal reason if no period-specific reasons found */}
+                      {refusedPeriods.length === 0 && (
+                        <div className="bg-white dark:bg-red-900/30 p-3 rounded border border-red-300 dark:border-red-700">
+                          <p className="text-red-700 dark:text-red-300 font-medium">
+                            {selectedRequest.refusalReason ||
+                              selectedRequest.rejectionReason ||
+                              selectedRequest.reason ||
+                              "Không có lý do cụ thể"}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Usage Instructions */}
               <div className="mb-6">
@@ -1147,21 +1284,25 @@ const MedicineVerification = () => {
                     .map((time) => time.trim().toLowerCase());
 
                   const timeSlotConfig = {
-                    morning: {
+                    sáng: {
                       label: "Buổi sáng (6:00 - 11:00)",
-                      show: timeSlots.includes("morning"),
+                      show: timeSlots.includes("sáng"),
                     },
-                    noon: {
+                    trưa: {
                       label: "Buổi trưa (11:00 - 14:00)",
-                      show: timeSlots.includes("noon"),
+                      show: timeSlots.includes("trưa"),
                     },
-                    afternoon: {
+                    chiều: {
                       label: "Buổi chiều (14:00 - 18:00)",
-                      show: timeSlots.includes("afternoon"),
+                      show: timeSlots.includes("chiều"),
                     },
-                    evening: {
+                    tối: {
                       label: "Buổi tối (18:00 - 22:00)",
-                      show: timeSlots.includes("evening"),
+                      show: timeSlots.includes("tối"),
+                    },
+                    "khi cần thiết": {
+                      label: "Khi cần thiết (theo triệu chứng)",
+                      show: timeSlots.includes("khi cần thiết"),
                     },
                   };
 
@@ -1290,18 +1431,19 @@ const MedicineVerification = () => {
           }}
         >
           <div
-            className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full border border-gray-300 dark:border-gray-600"
+            className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full border border-gray-300 dark:border-gray-600 flex flex-col"
             style={{
               maxWidth: "28rem",
+              maxHeight: "calc(100vh - 2rem)",
               margin: "1rem",
             }}
           >
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                 Xác nhận đủ thuốc
               </h3>
             </div>
-            <div className="px-6 py-4">
+            <div className="px-6 py-4 flex-1 overflow-y-auto">
               {/* Period Status Overview */}
               <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1373,6 +1515,8 @@ const MedicineVerification = () => {
                     : "Vui lòng chọn ít nhất một buổi để xác nhận."}
                 </p>
               </div>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-600 flex-shrink-0">
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => {
@@ -1410,18 +1554,19 @@ const MedicineVerification = () => {
           }}
         >
           <div
-            className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full border border-gray-300 dark:border-gray-600"
+            className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full border border-gray-300 dark:border-gray-600 flex flex-col"
             style={{
               maxWidth: "28rem",
+              maxHeight: "calc(100vh - 2rem)",
               margin: "1rem",
             }}
           >
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                 Từ chối yêu cầu thuốc
               </h3>
             </div>
-            <div className="px-6 py-4">
+            <div className="px-6 py-4 flex-1 overflow-y-auto">
               {/* Period Status Overview */}
               <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1504,11 +1649,6 @@ const MedicineVerification = () => {
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                               Buổi {period}
                             </label>
-                            {hasReason && (
-                              <span className="text-xs text-green-600 dark:text-green-400 flex items-center">
-                                ✓ Đã nhập
-                              </span>
-                            )}
                           </div>
                           <textarea
                             value={periodReasons[period] || ""}
@@ -1530,6 +1670,8 @@ const MedicineVerification = () => {
                   </div>
                 </div>
               )}
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-600 flex-shrink-0">
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => {

@@ -196,22 +196,22 @@ const MedicationInfoStep = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
                     {
-                      value: "morning",
+                      value: "sáng",
                       label: "Buổi sáng",
                       desc: "(6:00 - 11:00)",
                     },
                     {
-                      value: "noon",
+                      value: "trưa",
                       label: "Buổi trưa",
                       desc: "(11:00 - 14:00)",
                     },
                     {
-                      value: "afternoon",
+                      value: "chiều",
                       label: "Buổi chiều",
                       desc: "(14:00 - 18:00)",
                     },
                     {
-                      value: "as_needed",
+                      value: "khi cần thiết",
                       label: "Khi cần thiết",
                       desc: "(theo triệu chứng)",
                     },

@@ -192,7 +192,7 @@ const MedicationRequest = () => {
         return 3;
       case "4":
         return 4;
-      case "as_needed":
+      case "khi cần thiết":
         return 4; // Không giới hạn cho khi cần thiết
       default:
         return 1;
@@ -201,7 +201,7 @@ const MedicationRequest = () => {
 
   // Kiểm tra xem có thể chọn thêm thời điểm không
   const canSelectTimeSlot = (medication, timeValue) => {
-    if (medication.frequency === "as_needed") return true;
+    if (medication.frequency === "khi cần thiết") return true;
     if (medication.timeOfDay.includes(timeValue)) return true;
 
     const maxTimeSlots = getMaxTimeSlots(medication.frequency);
@@ -316,7 +316,7 @@ const MedicationRequest = () => {
         date: convertDateFormat(formData.date),
         medicineRequestItems: processedMedications,
       };
-      
+
       // Make API call using medication service
       const result = await medicationService.createMedicationRequest(
         requestData
@@ -445,17 +445,7 @@ const MedicationRequest = () => {
               </h2>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
                 Yêu cầu thuốc của bạn đã được gửi đến nhân viên y tế trường học.
-                Bạn sẽ nhận được thông báo khi yêu cầu được xác nhận.
               </p>
-              <div className="bg-primary-50 dark:bg-primary-900/30 rounded-lg p-4 mb-6">
-                <h3 className="font-medium text-primary-700 dark:text-primary-400 mb-2">
-                  Mã theo dõi yêu cầu
-                </h3>
-                <p className="text-primary-600 dark:text-primary-300 font-bold text-xl">
-                  #MED646560
-                </p>
-              </div>
-
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <Link
                   to="/parent/medication/history"

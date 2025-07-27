@@ -19,7 +19,6 @@ const UpcomingRequestsTab = ({
   };
 
   const handleCompletionSuccess = (result) => {
-    console.log("Health check completed:", result);
     // Refresh the data to update the list
     onRefresh?.();
   };

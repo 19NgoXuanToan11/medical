@@ -114,15 +114,18 @@ const MedicationDetail = () => {
                   switch (time.toLowerCase()) {
                     case "morning":
                     case "sáng":
-                      return "morning";
+                      return "sáng";
                     case "afternoon":
                     case "chiều":
-                      return "afternoon";
+                      return "chiều";
                     case "noon":
                     case "trưa":
-                      return "noon";
+                      return "trưa";
+                    case "as_needed":
+                    case "khi cần thiết":
+                      return "khi cần thiết";
                     default:
-                      return "as_needed";
+                      return time.toLowerCase();
                   }
                 })
               : [],
@@ -282,6 +285,15 @@ const MedicationDetail = () => {
 
   const getTimeOfDayText = (timeCode) => {
     switch (timeCode) {
+      case "sáng":
+        return "Buổi sáng (6:00 - 11:00)";
+      case "trưa":
+        return "Buổi trưa (11:00 - 14:00)";
+      case "chiều":
+        return "Buổi chiều (14:00 - 18:00)";
+      case "khi cần thiết":
+        return "Khi cần thiết";
+      // Backward compatibility
       case "morning":
         return "Buổi sáng (6:00 - 11:00)";
       case "noon":

@@ -408,12 +408,10 @@ export const medicationService = {
     }
   },
 
-  // Get refused requests by nurse's assigned grade
+  // Get refused requests using /api/MedicineRequest/refused endpoint
   getRefusedMedicationRequests: async () => {
     try {
-      const response = await api.get("/MedicineRequest/my-assigned-requests", {
-        params: { status: "refused" },
-      });
+      const response = await api.get("/MedicineRequest/refused");
       return {
         success: true,
         data: response.data,
@@ -1144,14 +1142,17 @@ export const medicationService = {
   // Refuse medication request item with period
   refuseRequestItem: async (itemId, period, staffId, refusalReason) => {
     try {
+      const requestPayload = {
+        period: period,
+        staffId: staffId,
+        refusalReason: refusalReason,
+      };
+
       const response = await api.post(
         `/MedicineRequest/item/${itemId}/refuse`,
-        {
-          period: period,
-          staffId: staffId,
-          refusalReason: refusalReason,
-        }
+        requestPayload
       );
+
       return {
         success: true,
         data: response.data,
@@ -1190,7 +1191,7 @@ export const medicationService = {
     }
   },
 
-  // Get refused medication requests (legacy - use the newer one with my-assigned-requests)
+  // Get refused medication requests (legacy - now the main method uses /refused endpoint)
   getRefusedMedicationRequestsLegacy: async () => {
     try {
       const response = await api.get("/MedicineRequest/refused");

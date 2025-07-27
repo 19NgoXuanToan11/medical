@@ -50,13 +50,11 @@ const MedicationHistory = () => {
       }
 
       if (result.success) {
-        console.log("API result data:", result.data);
         let transformedData;
         if (filterStatus === "failed") {
           transformedData = transformFailedMedicationData(result.data);
         } else if (filterStatus === "rejected") {
           transformedData = transformRejectedMedicationData(result.data);
-          console.log("Transformed rejected data:", transformedData);
         } else {
           transformedData = transformParentMedicationData(result.data);
         }

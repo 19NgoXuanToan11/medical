@@ -323,14 +323,6 @@ export const testTimeDisplay = () => {
   const formatted = formatDateTime(timestamp);
   const relative = formatRelativeTime(timestamp);
 
-  console.log("=== Time Display Test ===");
-  console.log("Current timestamp:", timestamp);
-  console.log("Formatted display:", formatted);
-  console.log("Relative display:", relative);
-  console.log(
-    "Expected format should show: dd/MM/yyyy 20:35 if clicked at 20:35"
-  );
-
   return {
     timestamp,
     formatted,
