@@ -1072,13 +1072,66 @@ public class MedicineRequestController : ControllerBase
                     System.Text.Json.JsonSerializer.Serialize(item.PeriodVerificationStatus));
             }
         }
+        
+        // Helper function to check if a value represents "Verified" status
+        bool IsVerifiedStatus(object val)
+        {
+            if (val == null) return false;
+            
+            var valStr = val.ToString();
+            if (valStr == "Verified") return true;
+            
+            // Check if it's a JSON string containing "Verified" status
+            if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Verified\"")) return true;
+            
+            // Check if it's a JsonElement object
+            if (val is System.Text.Json.JsonElement elem)
+            {
+                if (elem.ValueKind == System.Text.Json.JsonValueKind.Object && 
+                    elem.TryGetProperty("Status", out var statusProp) && 
+                    statusProp.GetString() == "Verified")
+                    return true;
+                    
+                if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    foreach (var arrElem in elem.EnumerateArray())
+                    {
+                        if (arrElem.ValueKind == System.Text.Json.JsonValueKind.Object && 
+                            arrElem.TryGetProperty("Status", out var arrStatusProp) && 
+                            arrStatusProp.GetString() == "Verified")
+                            return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
         if (!string.IsNullOrEmpty(period))
         {
             foreach (var req in viewModels)
             {
                 req.MedicineRequestItems = req.MedicineRequestItems
                     .Where(item => item.PeriodVerificationStatus != null &&
-                        item.PeriodVerificationStatus.Any(kv => kv.Key.Trim().Equals(period.Trim(), StringComparison.OrdinalIgnoreCase) && (kv.Value?.ToString() == "Verified")))
+                        item.PeriodVerificationStatus.Any(kv => 
+                            kv.Key.Trim().Equals(period.Trim(), StringComparison.OrdinalIgnoreCase) && 
+                            IsVerifiedStatus(kv.Value)))
+                    .Select(item => new MedicineRequestItemDto.ViewModel
+                    {
+                        MedicineRequestItemId = item.MedicineRequestItemId,
+                        MedicineRequestId = item.MedicineRequestId,
+                        MedicineName = item.MedicineName,
+                        Dosage = item.Dosage,
+                        DosageUnit = item.DosageUnit,
+                        Frequency = item.Frequency,
+                        TimeOfDay = item.TimeOfDay,
+                        Instructions = item.Instructions,
+                        Period = item.Period,
+                        VerificationStatus = item.VerificationStatus,
+                        PeriodVerificationStatus = item.PeriodVerificationStatus
+                            .Where(kv => kv.Key.Trim().Equals(period.Trim(), StringComparison.OrdinalIgnoreCase) && IsVerifiedStatus(kv.Value))
+                            .ToDictionary(kv => kv.Key, kv => kv.Value)
+                    })
                     .ToList();
             }
             viewModels = viewModels.Where(r => r.MedicineRequestItems.Any()).ToList();
@@ -1088,7 +1141,24 @@ public class MedicineRequestController : ControllerBase
             foreach (var req in viewModels)
             {
                 req.MedicineRequestItems = req.MedicineRequestItems
-                    .Where(item => item.PeriodVerificationStatus != null && item.PeriodVerificationStatus.Values.Any(status => status?.ToString() == "Verified"))
+                    .Where(item => item.PeriodVerificationStatus != null && 
+                        item.PeriodVerificationStatus.Values.Any(val => IsVerifiedStatus(val)))
+                    .Select(item => new MedicineRequestItemDto.ViewModel
+                    {
+                        MedicineRequestItemId = item.MedicineRequestItemId,
+                        MedicineRequestId = item.MedicineRequestId,
+                        MedicineName = item.MedicineName,
+                        Dosage = item.Dosage,
+                        DosageUnit = item.DosageUnit,
+                        Frequency = item.Frequency,
+                        TimeOfDay = item.TimeOfDay,
+                        Instructions = item.Instructions,
+                        Period = item.Period,
+                        VerificationStatus = item.VerificationStatus,
+                        PeriodVerificationStatus = item.PeriodVerificationStatus
+                            .Where(kv => IsVerifiedStatus(kv.Value))
+                            .ToDictionary(kv => kv.Key, kv => kv.Value)
+                    })
                     .ToList();
             }
             viewModels = viewModels.Where(r => r.MedicineRequestItems.Any()).ToList();
