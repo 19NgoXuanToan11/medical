@@ -82,16 +82,25 @@ public class HealthEventService : IHealthEventService
         }
 
         // Validate and check stock availability before creating the health event
+        var insufficientItemsList = new List<string>();
+        
         var medicineStockValidation = await ValidateMedicineStockAsync(healthEvent.HealthEventMedicines);
         if (!medicineStockValidation.IsValid)
         {
-            throw new InvalidOperationException($"Không đủ thuốc trong kho: {medicineStockValidation.ErrorMessage}");
+            insufficientItemsList.Add($"Thuốc: {medicineStockValidation.ErrorMessage}");
         }
 
         var supplyStockValidation = await ValidateMedicalSupplyStockAsync(healthEvent.HealthEventMedicalSupplies);
         if (!supplyStockValidation.IsValid)
         {
-            throw new InvalidOperationException($"Không đủ vật tư y tế trong kho: {supplyStockValidation.ErrorMessage}");
+            insufficientItemsList.Add($"Vật tư y tế: {supplyStockValidation.ErrorMessage}");
+        }
+
+        // Lưu thông tin thiếu vào HealthEvent thay vì throw exception
+        if (insufficientItemsList.Any())
+        {
+            healthEvent.InsufficientItems = string.Join("; ", insufficientItemsList);
+            // InsufficientItemsNote sẽ được set từ frontend qua DTO
         }
 
         // Set default values with Vietnam timezone (UTC+7)
@@ -274,30 +283,50 @@ public class HealthEventService : IHealthEventService
     {
         try
         {
-            // Cập nhật số lượng thuốc
+            // Cập nhật số lượng thuốc - chỉ trừ những gì có đủ
             if (healthEvent.HealthEventMedicines != null && healthEvent.HealthEventMedicines.Any())
             {
                 foreach (var medicine in healthEvent.HealthEventMedicines)
                 {
                     var quantityUsed = ExtractQuantityFromDosage(medicine.Dosage);
-                    var success = await _medicineService.UpdateStockQuantityAsync(medicine.MedicineId, quantityUsed);
-                    if (!success)
+                    
+                    // Kiểm tra lại số lượng có sẵn trước khi trừ
+                    var medicineInfo = await _medicineService.GetMedicineByIdAsync(medicine.MedicineId);
+                    if (medicineInfo != null && medicineInfo.IsActive == true && medicineInfo.StockQuantity >= quantityUsed)
                     {
-                        Console.WriteLine($"Warning: Failed to update stock for medicine ID {medicine.MedicineId}");
+                        var success = await _medicineService.UpdateStockQuantityAsync(medicine.MedicineId, quantityUsed);
+                        if (!success)
+                        {
+                            Console.WriteLine($"Warning: Failed to update stock for medicine ID {medicine.MedicineId}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Skipped stock update for medicine ID {medicine.MedicineId} - insufficient stock or inactive");
                     }
                 }
             }
 
-            // Cập nhật số lượng vật tư y tế
+            // Cập nhật số lượng vật tư y tế - chỉ trừ những gì có đủ
             if (healthEvent.HealthEventMedicalSupplies != null && healthEvent.HealthEventMedicalSupplies.Any())
             {
                 foreach (var supply in healthEvent.HealthEventMedicalSupplies)
                 {
                     var quantityUsed = supply.Quantity ?? 1;
-                    var success = await _medicalSupplyService.UpdateStockQuantityAsync(supply.MedicalSupplyId, quantityUsed);
-                    if (!success)
+                    
+                    // Kiểm tra lại số lượng có sẵn trước khi trừ
+                    var supplyInfo = await _medicalSupplyService.GetMedicalSupplyByIdAsync(supply.MedicalSupplyId);
+                    if (supplyInfo != null && supplyInfo.IsActive == true && supplyInfo.StockQuantity >= quantityUsed)
                     {
-                        Console.WriteLine($"Warning: Failed to update stock for medical supply ID {supply.MedicalSupplyId}");
+                        var success = await _medicalSupplyService.UpdateStockQuantityAsync(supply.MedicalSupplyId, quantityUsed);
+                        if (!success)
+                        {
+                            Console.WriteLine($"Warning: Failed to update stock for medical supply ID {supply.MedicalSupplyId}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Skipped stock update for medical supply ID {supply.MedicalSupplyId} - insufficient stock or inactive");
                     }
                 }
             }

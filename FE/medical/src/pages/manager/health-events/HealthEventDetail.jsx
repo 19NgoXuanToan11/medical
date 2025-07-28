@@ -343,6 +343,40 @@ const HealthEventDetail = () => {
                 </div>
               </div>
             )}
+
+          {/* Insufficient Items Warning */}
+          {(event.insufficientItems || event.insufficientItemsNote) && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <FiAlertCircle className="h-5 w-5 text-yellow-600" />
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Cảnh báo thiếu thuốc/vật tư
+                </h2>
+              </div>
+
+              {event.insufficientItems && (
+                <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600">
+                  <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-300 mb-2">
+                    Danh sách thiếu:
+                  </h3>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                    {event.insufficientItems}
+                  </p>
+                </div>
+              )}
+
+              {event.insufficientItemsNote && (
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-600">
+                  <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
+                    Ghi chú từ y tá:
+                  </h3>
+                  <p className="text-sm text-blue-700 dark:text-blue-400">
+                    {event.insufficientItemsNote}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right Column - Student & Staff Info */}

@@ -19,6 +19,8 @@ public static class HealthEventDto
         public bool? ParentNotified { get; set; }
         public bool? FollowUpRequired { get; set; }
         public string? Notes { get; set; }
+        public string? InsufficientItems { get; set; }
+        public string? InsufficientItemsNote { get; set; }
 
         // Navigation properties
         public StudentDto.ViewModel? Student { get; set; }
@@ -58,6 +60,12 @@ public static class HealthEventDto
         [StringLength(500)]
         public string? Notes { get; set; }
 
+        [StringLength(2000)]
+        public string? InsufficientItems { get; set; }
+
+        [StringLength(1000)]
+        public string? InsufficientItemsNote { get; set; }
+
         public ICollection<HealthEventMedicineDto.Create> HealthEventMedicines { get; set; } = new List<HealthEventMedicineDto.Create>();
         public ICollection<HealthEventMedicalSupplyDto.Create> HealthEventMedicalSupplies { get; set; } = new List<HealthEventMedicalSupplyDto.Create>();
     }
@@ -94,6 +102,12 @@ public static class HealthEventDto
 
         [StringLength(500)]
         public string? Notes { get; set; }
+
+        [StringLength(2000)]
+        public string? InsufficientItems { get; set; }
+
+        [StringLength(1000)]
+        public string? InsufficientItemsNote { get; set; }
 
         public ICollection<HealthEventMedicineDto.Update>? HealthEventMedicines { get; set; }
         public ICollection<HealthEventMedicalSupplyDto.Update>? HealthEventMedicalSupplies { get; set; }

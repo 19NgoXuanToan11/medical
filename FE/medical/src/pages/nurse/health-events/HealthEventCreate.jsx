@@ -10,6 +10,7 @@ import {
   FiPackage,
   FiAlertCircle,
   FiCheckCircle,
+  FiAlertTriangle,
 } from "react-icons/fi";
 import {
   createHealthEvent,
@@ -76,6 +77,10 @@ const HealthEventCreate = () => {
       response: "",
     },
   });
+
+  const [insufficientItems, setInsufficientItems] = useState([]);
+  const [insufficientNote, setInsufficientNote] = useState("");
+  const [showInsufficientWarning, setShowInsufficientWarning] = useState(false);
 
   // Fetch inventory data on component mount
   useEffect(() => {
@@ -269,11 +274,65 @@ const HealthEventCreate = () => {
     setFormData((prev) => ({ ...prev, medicalSupplies: updatedSupplies }));
   };
 
+  // Helper: Check for insufficient medicines/supplies
+  const checkInsufficientItems = () => {
+    const insufficient = [];
+    // Check medicines
+    formData.medications.forEach((med) => {
+      if (!med.name || !med.dosage) return;
+      const selected = availableMedicines.find((m) => m.name === med.name);
+      if (selected) {
+        const required = parseFloat(med.dosage);
+        const available = parseFloat(selected.stockQuantity);
+        if (!isNaN(required) && available < required) {
+          insufficient.push({
+            type: "medicine",
+            name: med.name,
+            required,
+            available,
+          });
+        }
+      }
+    });
+    // Check supplies
+    formData.medicalSupplies.forEach((supply) => {
+      if (!supply.name || !supply.quantity) return;
+      const selected = availableMedicalSupplies.find(
+        (s) => s.name === supply.name
+      );
+      if (selected) {
+        const required = parseFloat(supply.quantity);
+        const available = parseFloat(selected.stockQuantity);
+        if (!isNaN(required) && available < required) {
+          insufficient.push({
+            type: "supply",
+            name: supply.name,
+            required,
+            available,
+          });
+        }
+      }
+    });
+    return insufficient;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setSubmitStatus(null);
     setErrorMessage("");
+    setShowInsufficientWarning(false);
+    setInsufficientItems([]);
+
+    // 1. Kiểm tra thiếu thiết bị/thuốc
+    const insufficient = checkInsufficientItems();
+    if (insufficient.length > 0 && insufficientNote.trim() === "") {
+      setInsufficientItems(insufficient);
+      setShowInsufficientWarning(true);
+      setLoading(false);
+      setErrorMessage("");
+      return;
+    }
 
     try {
       // Validate required fields
@@ -336,6 +395,10 @@ const HealthEventCreate = () => {
         staffId: user.id, // Use staff ID from authenticated user
         medications: mappedMedications,
         medicalSupplies: mappedMedicalSupplies,
+        insufficientItemsNote:
+          insufficient.length > 0 ? insufficientNote : undefined,
+        insufficientItems:
+          insufficient.length > 0 ? JSON.stringify(insufficient) : undefined,
       });
 
       // Create health event via API
@@ -633,13 +696,22 @@ const HealthEventCreate = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-gray-100"
               >
-                <option value="light">Nhẹ - Không cần lưu vào hồ sơ sức khỏe</option>
-                <option value="moderate">Trung bình - Có thể cần theo dõi</option>
-                <option value="severe">Nặng - Bắt buộc lưu vào hồ sơ sức khỏe</option>
-                <option value="emergency">Cấp cứu - Lưu ngay vào hồ sơ sức khỏe</option>
+                <option value="light">
+                  Nhẹ - Không cần lưu vào hồ sơ sức khỏe
+                </option>
+                <option value="moderate">
+                  Trung bình - Có thể cần theo dõi
+                </option>
+                <option value="severe">
+                  Nặng - Bắt buộc lưu vào hồ sơ sức khỏe
+                </option>
+                <option value="emergency">
+                  Cấp cứu - Lưu ngay vào hồ sơ sức khỏe
+                </option>
               </select>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Sự cố mức độ "Nặng" và "Cấp cứu" sẽ tự động được lưu vào hồ sơ sức khỏe của học sinh
+                Sự cố mức độ "Nặng" và "Cấp cứu" sẽ tự động được lưu vào hồ sơ
+                sức khỏe của học sinh
               </p>
             </div>
 
@@ -964,6 +1036,67 @@ const HealthEventCreate = () => {
             </div>
           ))}
         </div>
+
+        {/* Error Display Above Submit Buttons */}
+        {submitStatus === "error" && errorMessage && (
+          <div className="p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-600">
+            <div className="flex items-start">
+              <FiAlertCircle className="h-5 w-5 text-red-400 dark:text-red-300 mr-3 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-300">
+                  Không thể tạo sự cố y tế
+                </h3>
+                <p className="text-sm text-red-700 dark:text-red-400 mt-1">
+                  {errorMessage}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Warning Display for Insufficient Items */}
+        {showInsufficientWarning && insufficientItems.length > 0 && (
+          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 mb-4">
+            <div className="flex items-start">
+              <FiAlertTriangle className="h-5 w-5 text-yellow-400 dark:text-yellow-300 mr-3 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-300">
+                  Cảnh báo: Thiếu thiết bị/vật tư hoặc thuốc
+                </h3>
+                <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
+                  Một số thiết bị/vật tư hoặc thuốc không đủ số lượng trong kho.
+                  Bạn vẫn có thể tạo sự cố y tế, nhưng cần ghi chú cách xử lý
+                  hoặc báo cáo cho quản lý để bổ sung.
+                </p>
+                <div className="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
+                  <strong>Danh sách thiếu:</strong>
+                  <ul className="list-disc list-inside mt-1">
+                    {insufficientItems.map((item, idx) => (
+                      <li key={idx}>
+                        {item.type === "medicine" ? "Thuốc" : "Vật tư"}{" "}
+                        {item.name}: Cần {item.required}, Có {item.available}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-3">
+                  <label className="block text-sm font-medium text-yellow-800 dark:text-yellow-300 mb-1">
+                    Ghi chú về thiết bị/thuốc thiếu{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    required
+                    value={insufficientNote}
+                    onChange={(e) => setInsufficientNote(e.target.value)}
+                    className="w-full px-3 py-2 border border-yellow-300 dark:border-yellow-600 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+                    placeholder="Mô tả cách xử lý thay thế hoặc yêu cầu bổ sung thiết bị..."
+                    rows="3"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Submit Buttons */}
         <div className="p-6 bg-gray-50 dark:bg-neutral-700 flex justify-end space-x-4">

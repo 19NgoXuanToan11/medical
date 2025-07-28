@@ -29,6 +29,11 @@ public partial class HealthEvent
 
     public string? Notes { get; set; }
 
+    // Trường mới để lưu thông tin thiếu thuốc/vật tư
+    public string? InsufficientItems { get; set; } // JSON/text mô tả chi tiết các mục thiếu
+
+    public string? InsufficientItemsNote { get; set; } // Ghi chú của nurse về cách xử lý khi thiếu
+
     public virtual Staff? Staff { get; set; }
 
     public virtual Student? Student { get; set; }

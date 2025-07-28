@@ -54,7 +54,34 @@ export const createHealthEvent = async (healthEventData) => {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Try to extract error message from response body
+      let errorMessage = `HTTP error! status: ${response.status}`;
+
+      // First try to get the response as text (in case it's a plain string)
+      const responseText = await response.text();
+
+      if (responseText) {
+        try {
+          // Try to parse as JSON first
+          const errorData = JSON.parse(responseText);
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (typeof errorData === "string") {
+            errorMessage = errorData;
+          }
+        } catch (parseError) {
+          // If it's not JSON, use the response text directly
+          errorMessage = responseText;
+        }
+      } else {
+        // If no response body, use status text
+        errorMessage =
+          response.statusText || `HTTP error! status: ${response.status}`;
+      }
+
+      throw new Error(errorMessage);
     }
 
     return await response.json();
@@ -79,7 +106,34 @@ export const updateHealthEvent = async (id, healthEventData) => {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Try to extract error message from response body
+      let errorMessage = `HTTP error! status: ${response.status}`;
+
+      // First try to get the response as text (in case it's a plain string)
+      const responseText = await response.text();
+
+      if (responseText) {
+        try {
+          // Try to parse as JSON first
+          const errorData = JSON.parse(responseText);
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (typeof errorData === "string") {
+            errorMessage = errorData;
+          }
+        } catch (parseError) {
+          // If it's not JSON, use the response text directly
+          errorMessage = responseText;
+        }
+      } else {
+        // If no response body, use status text
+        errorMessage =
+          response.statusText || `HTTP error! status: ${response.status}`;
+      }
+
+      throw new Error(errorMessage);
     }
 
     return response.status === 204 ? {} : await response.json();
@@ -124,7 +178,34 @@ export const getHealthEventsByStudentCode = async (studentCode) => {
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Try to extract error message from response body
+      let errorMessage = `HTTP error! status: ${response.status}`;
+
+      // First try to get the response as text (in case it's a plain string)
+      const responseText = await response.text();
+
+      if (responseText) {
+        try {
+          // Try to parse as JSON first
+          const errorData = JSON.parse(responseText);
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (typeof errorData === "string") {
+            errorMessage = errorData;
+          }
+        } catch (parseError) {
+          // If it's not JSON, use the response text directly
+          errorMessage = responseText;
+        }
+      } else {
+        // If no response body, use status text
+        errorMessage =
+          response.statusText || `HTTP error! status: ${response.status}`;
+      }
+
+      throw new Error(errorMessage);
     }
 
     return await response.json();
@@ -402,6 +483,8 @@ export const mapHealthEventToAPI = (frontendData) => {
     parentNotified: frontendData.parentNotified || false,
     followUpRequired: frontendData.followUpRequired || false,
     notes: frontendData.notes,
+    insufficientItems: frontendData.insufficientItems,
+    insufficientItemsNote: frontendData.insufficientItemsNote,
     healthEventMedicines:
       frontendData.medications?.length > 0
         ? frontendData.medications
