@@ -854,6 +854,53 @@ public class MedicineRequestController : ControllerBase
                                         }
                                     }
                                 }
+                                // If it's an array JsonElement, process the array of status objects
+                                else if (jsonElem.ValueKind == System.Text.Json.JsonValueKind.Array)
+                                {
+                                    _logger.LogInformation($"Processing array JsonElement for key '{kv.Key}'");
+                                    try
+                                    {
+                                        var statusArray = System.Text.Json.JsonSerializer.Deserialize<List<System.Text.Json.JsonElement>>(jsonElem.GetRawText());
+                                        if (statusArray != null)
+                                        {
+                                            // Get the latest status (last item in the array)
+                                            var latestStatus = statusArray.LastOrDefault();
+                                            if (latestStatus.ValueKind == System.Text.Json.JsonValueKind.Object)
+                                            {
+                                                var status = latestStatus.TryGetProperty("Status", out var statusProp) && statusProp.ValueKind == System.Text.Json.JsonValueKind.String
+                                                    ? statusProp.GetString()
+                                                    : null;
+                                                var staffIdValue = latestStatus.TryGetProperty("StaffId", out var staffProp) && staffProp.ValueKind == System.Text.Json.JsonValueKind.Number
+                                                    ? staffProp.GetInt32()
+                                                    : (int?)null;
+                                                var timestamp = latestStatus.TryGetProperty("Timestamp", out var tsProp) && tsProp.ValueKind == System.Text.Json.JsonValueKind.String
+                                                    ? DateTime.Parse(tsProp.GetString())
+                                                    : (DateTime?)null;
+                                                
+                                                _logger.LogInformation($"Latest status for period '{kv.Key}': {status}");
+                                                if (status == "Assigned")
+                                                {
+                                                    var keyNorm = kv.Key?.Trim().Normalize(System.Text.NormalizationForm.FormC) ?? string.Empty;
+                                                    var periodNorm = period?.Trim().Normalize(System.Text.NormalizationForm.FormC) ?? string.Empty;
+                                                    _logger.LogInformation($"Comparing period key: '{kv.Key}' with query period: '{period}'");
+                                                    if (string.IsNullOrEmpty(periodNorm) || string.Equals(keyNorm, periodNorm, StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        assignedPeriods.Add(new {
+                                                            Period = kv.Key,
+                                                            Status = status,
+                                                            StaffId = staffIdValue,
+                                                            Timestamp = timestamp
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        _logger.LogError($"Error processing array JsonElement for key '{kv.Key}': {ex.Message}");
+                                    }
+                                }
                                 // If it's an object JsonElement, process as before
                                 else if (jsonElem.ValueKind == System.Text.Json.JsonValueKind.Object)
                                 {
