@@ -11,8 +11,13 @@ import {
   FiX,
   FiShield,
   FiAlertTriangle,
+  FiAlertCircle,
+  FiClock,
+  FiUserCheck,
 } from "react-icons/fi";
 import healthProfileService from "../../../utils/api/health-profile/healthProfileService";
+import { getCriticalIncidentsByStudent } from "../../../utils/api/health-events/healthEventService";
+import { formatNotificationTime } from "../../../utils/timeUtils";
 import {
   OverviewTab,
   PhysicalTab,
@@ -30,6 +35,8 @@ const StudentHealthRecordDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [criticalIncidents, setCriticalIncidents] = useState([]);
+  const [loadingIncidents, setLoadingIncidents] = useState(false);
 
   useEffect(() => {
     const fetchStudentHealthRecord = async () => {
@@ -59,8 +66,27 @@ const StudentHealthRecordDetail = () => {
       }
     };
 
+    const fetchCriticalIncidents = async () => {
+      try {
+        setLoadingIncidents(true);
+        const result = await getCriticalIncidentsByStudent(studentId);
+        if (result.success) {
+          setCriticalIncidents(result.data.incidents || []);
+        } else {
+          console.error("Error fetching critical incidents:", result.error);
+          setCriticalIncidents([]);
+        }
+      } catch (error) {
+        console.error("Error fetching critical incidents:", error);
+        setCriticalIncidents([]);
+      } finally {
+        setLoadingIncidents(false);
+      }
+    };
+
     if (studentId) {
       fetchStudentHealthRecord();
+      fetchCriticalIncidents();
     }
   }, [studentId]);
 
@@ -200,7 +226,12 @@ const StudentHealthRecordDetail = () => {
     switch (activeTab) {
       case "overview":
         return (
-          <OverviewTab healthProfile={healthProfile} formatDate={formatDate} />
+          <OverviewTab
+            healthProfile={healthProfile}
+            formatDate={formatDate}
+            criticalIncidents={criticalIncidents}
+            loadingIncidents={loadingIncidents}
+          />
         );
 
       case "physical":
@@ -249,6 +280,8 @@ const StudentHealthRecordDetail = () => {
         return (
           <HealthIncidentsTab
             healthProfile={healthProfile}
+            criticalIncidents={criticalIncidents}
+            loadingIncidents={loadingIncidents}
           />
         );
 

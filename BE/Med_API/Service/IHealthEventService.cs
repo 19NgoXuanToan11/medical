@@ -16,4 +16,5 @@ public interface IHealthEventService
     Task<IEnumerable<HealthEvent>> GetRecentHealthEventsAsync(int count);
     Task<IEnumerable<HealthEvent>> GetHealthEventsByGradeAsync(int grade);
     Task<IEnumerable<HealthEvent>> GetHealthEventsForNurseByGradeAsync(int staffId);
+    Task<IEnumerable<HealthEvent>> GetCriticalIncidentsByStudentAsync(string studentCode);
 } 

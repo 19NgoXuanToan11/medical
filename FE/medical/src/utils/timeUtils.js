@@ -206,6 +206,84 @@ export const getCurrentVietnamTime = () => {
 };
 
 /**
+ * Convert any date to Vietnam timezone
+ * @param {string|Date} dateInput - Date string or Date object
+ * @returns {Date} Date object in Vietnam timezone
+ */
+export const convertToVietnamTime = (dateInput) => {
+  if (!dateInput) return new Date();
+
+  try {
+    const date = new Date(dateInput);
+    if (isNaN(date.getTime())) {
+      return new Date();
+    }
+
+    // Convert to Vietnam timezone
+    return new Date(
+      date.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })
+    );
+  } catch (error) {
+    console.error("Error converting to Vietnam time:", error);
+    return new Date();
+  }
+};
+
+/**
+ * Format timestamp for notification display with Vietnam timezone
+ * @param {string|Date} dateInput - Date string or Date object
+ * @returns {string} Formatted timestamp for notifications
+ */
+export const formatNotificationTime = (dateInput) => {
+  if (!dateInput) return "Không xác định";
+
+  try {
+    const vietnamDate = convertToVietnamTime(dateInput);
+    const now = new Date();
+    const diffDays = Math.floor((now - vietnamDate) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return `Hôm nay, ${vietnamDate.toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "Asia/Ho_Chi_Minh",
+      })}`;
+    } else if (diffDays === 1) {
+      return `Hôm qua, ${vietnamDate.toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "Asia/Ho_Chi_Minh",
+      })}`;
+    } else if (diffDays < 7) {
+      return `${diffDays} ngày trước, ${vietnamDate.toLocaleTimeString(
+        "vi-VN",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: "Asia/Ho_Chi_Minh",
+        }
+      )}`;
+    } else {
+      return vietnamDate.toLocaleString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "Asia/Ho_Chi_Minh",
+      });
+    }
+  } catch (error) {
+    console.error("Error formatting notification time:", error);
+    return "Không xác định";
+  }
+};
+
+/**
  * Get current Vietnam time as Date object
  * @returns {Date} Current date in Vietnam timezone
  */

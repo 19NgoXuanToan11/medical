@@ -12,7 +12,14 @@ import {
   FiPlus,
 } from "react-icons/fi";
 
-const HealthIncidentsTab = ({ healthProfile }) => {
+import { getCriticalIncidentsByStudent } from "../../../../utils/api/health-events/healthEventService";
+import { formatNotificationTime } from "../../../../utils/timeUtils";
+
+const HealthIncidentsTab = ({
+  healthProfile,
+  criticalIncidents = [],
+  loadingIncidents = false,
+}) => {
   const [healthRecords, setHealthRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,49 +28,39 @@ const HealthIncidentsTab = ({ healthProfile }) => {
     const fetchHealthRecords = async () => {
       try {
         setLoading(true);
-        // TODO: Implement API call to fetch health records for student
-        // const records = await healthRecordService.getByStudentCode(healthProfile.studentCode);
-
-        // Mock data for now
-        const mockRecords = [
-          {
-            recordId: 1,
-            title: "Sự cố y tế - Chấn thương",
-            eventType: "injury",
-            severity: "severe",
-            description:
-              "Triệu chứng: Té ngã trong sân trường, đau chân phải\nĐánh giá: Có thể bị bong gân",
-            treatment: "Băng bó, chườm lạnh, chuyển viện kiểm tra",
-            outcome: "Đã hồi phục hoàn toàn sau 2 tuần",
-            eventDate: "2025-07-15T10:30:00",
-            createdAt: "2025-07-15T10:45:00",
-            createdByStaff: {
-              firstName: "Ngô",
-              lastName: "Hoàng Tuấn",
-            },
-            notes: "Học sinh cần theo dõi thêm 1 tuần",
-          },
-          {
-            recordId: 2,
-            title: "Sự cố y tế - Dị ứng",
-            eventType: "allergy",
-            severity: "emergency",
-            description:
-              "Triệu chứng: Phát ban đỏ toàn thân, khó thở\nĐánh giá: Dị ứng thức ăn nghiêm trọng",
-            treatment: "Tiêm thuốc chống dị ứng, gọi cấp cứu",
-            outcome: "Đã ổn định, cần tránh các thực phẩm gây dị ứng",
-            eventDate: "2025-07-10T14:20:00",
-            createdAt: "2025-07-10T14:25:00",
-            createdByStaff: {
-              firstName: "Nguyễn",
-              lastName: "Thị Lan",
-            },
-            notes: "Cần thông báo cho giáo viên về tình trạng dị ứng",
-          },
-        ];
-
-        setHealthRecords(mockRecords);
-        setError(null);
+        // Fetch critical incidents from API
+        const result = await getCriticalIncidentsByStudent(
+          healthProfile.studentCode
+        );
+        if (result.success) {
+          // Transform API data to match the expected format
+          const transformedRecords = result.data.incidents.map(
+            (incident, index) => ({
+              recordId: incident.incidentId,
+              title: `Sự cố y tế - ${getSeverityLabel(incident.severityLevel)}`,
+              eventType: getEventTypeFromSeverity(incident.severityLevel),
+              severity: incident.severityLevel,
+              description: incident.description,
+              treatment: incident.actionsTaken || "Chưa có thông tin",
+              outcome: "Đang theo dõi",
+              eventDate: incident.timestamp,
+              createdAt: incident.timestamp,
+              createdByStaff: {
+                firstName: incident.handledBy?.split(" ")[0] || "Chưa",
+                lastName:
+                  incident.handledBy?.split(" ").slice(1).join(" ") ||
+                  "xác định",
+              },
+              notes: incident.notifiedParent
+                ? "Đã thông báo phụ huynh"
+                : "Chưa thông báo phụ huynh",
+            })
+          );
+          setHealthRecords(transformedRecords);
+        } else {
+          console.error("Error fetching critical incidents:", result.error);
+          setError("Không thể tải dữ liệu sự cố y tế");
+        }
       } catch (err) {
         console.error("Error fetching health records:", err);
         setError("Không thể tải dữ liệu sự cố y tế");
@@ -76,6 +73,36 @@ const HealthIncidentsTab = ({ healthProfile }) => {
       fetchHealthRecords();
     }
   }, [healthProfile]);
+
+  const getSeverityLabel = (severityLevel) => {
+    switch (severityLevel?.toLowerCase()) {
+      case "emergency":
+        return "Cấp cứu";
+      case "severe":
+        return "Nặng";
+      case "moderate":
+        return "Trung bình";
+      case "light":
+        return "Nhẹ";
+      default:
+        return severityLevel || "Không xác định";
+    }
+  };
+
+  const getEventTypeFromSeverity = (severityLevel) => {
+    switch (severityLevel?.toLowerCase()) {
+      case "emergency":
+        return "emergency";
+      case "severe":
+        return "injury";
+      case "moderate":
+        return "illness";
+      case "light":
+        return "illness";
+      default:
+        return "other";
+    }
+  };
 
   const getEventTypeLabel = (eventType) => {
     switch (eventType?.toLowerCase()) {

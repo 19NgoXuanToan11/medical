@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import useNotificationPolling from "../../../hooks/useNotificationPolling";
+import { formatDate, formatTime } from "../../../utils/timeUtils";
 
 const HealthEventsList = () => {
   const { user } = useAuth();
@@ -28,29 +29,7 @@ const HealthEventsList = () => {
     (notification) => notification.type === "health_event"
   );
 
-  const formatDate = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        return "Không xác định";
-      }
-      return format(date, "dd/MM/yyyy", { locale: vi });
-    } catch (error) {
-      return "Không xác định";
-    }
-  };
-
-  const formatTime = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        return "Không xác định";
-      }
-      return format(date, "HH:mm", { locale: vi });
-    } catch (error) {
-      return "Không xác định";
-    }
-  };
+  // Use imported formatDate and formatTime from timeUtils.js which handle Vietnam timezone
 
   const getSeverityColor = (severity) => {
     switch (severity?.toLowerCase()) {

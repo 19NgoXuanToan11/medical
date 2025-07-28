@@ -173,8 +173,8 @@ function AppRoutes() {
         <Route path="/nurse/health-services" element={<HealthServicesManagement />} />
         <Route path="/nurse/health-services/create/:serviceType" element={<HealthServiceCreate />} />
         <Route path="/nurse/health-services/edit/:id" element={<HealthCheckCreate />} />
-                    <Route path="/nurse/health-services/vaccination/:id" element={<VaccinationDetail />} />
-            <Route path="/nurse/health-services/:id" element={<HealthServicesDetail />} />
+        <Route path="/nurse/health-services/vaccination/:id" element={<VaccinationDetail />} />
+        <Route path="/nurse/health-services/:id" element={<HealthServicesDetail />} />
 
         <Route path="/nurse/health-events" element={<HealthEventList />} />
         <Route path="/nurse/health-events/new" element={<HealthEventCreate />} />

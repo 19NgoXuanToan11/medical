@@ -16,7 +16,6 @@ import {
 } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import ThemeToggle from "../../common/ThemeToggle";
-import NotificationDropdown from "../../common/NotificationDropdown";
 
 const ManagerLayout = () => {
   const location = useLocation();
@@ -196,7 +195,6 @@ const ManagerLayout = () => {
           </div>
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <NotificationDropdown userRole="manager" />
             <div className="h-8 w-8 rounded-full bg-primary-600 dark:bg-primary-500 flex items-center justify-center">
               <span className="text-white font-medium text-sm">MG</span>
             </div>

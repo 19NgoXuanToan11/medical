@@ -211,5 +211,47 @@ public class StudentController : ControllerBase
         return Ok(viewModels);
     }
 
+    // GET: api/Student/grade/{studentCode}
+    [HttpGet("grade/{studentCode}")]
+    public async Task<ActionResult<object>> GetStudentGrade(string studentCode)
+    {
+        try
+        {
+            var student = await _studentService.GetStudentByCodeAsync(studentCode);
+
+            if (student == null)
+            {
+                return NotFound(new { 
+                    message = "Không tìm thấy học sinh với mã số này",
+                    studentCode = studentCode
+                });
+            }
+
+            if (student.Class == null)
+            {
+                return NotFound(new { 
+                    message = "Học sinh chưa được phân lớp",
+                    studentCode = studentCode
+                });
+            }
+
+            return Ok(new { 
+                grade = student.Class.GradeLevel,
+                className = student.Class.ClassName,
+                studentCode = studentCode,
+                studentName = $"{student.LastName} {student.FirstName}",
+                message = "Lấy thông tin khối học thành công"
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { 
+                message = "Lỗi khi lấy thông tin khối học",
+                studentCode = studentCode,
+                error = ex.Message
+            });
+        }
+    }
+
     
 } 

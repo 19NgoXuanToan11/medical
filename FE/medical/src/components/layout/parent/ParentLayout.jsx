@@ -19,7 +19,6 @@ import { FiLogOut } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import { useParent } from "../../../utils/auth/ParentContext";
 import ThemeToggle from "../../common/ThemeToggle";
-import NotificationDropdown from "../../common/NotificationDropdown";
 
 const ParentLayout = () => {
   const location = useLocation();
@@ -380,7 +379,6 @@ const ParentLayout = () => {
           </div>
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <NotificationDropdown userRole="parent" />
 
             {/* User Profile Section */}
             <div className="relative" ref={userDropdownRef}>

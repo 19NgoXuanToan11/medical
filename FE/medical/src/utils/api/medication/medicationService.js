@@ -1142,17 +1142,14 @@ export const medicationService = {
   // Refuse medication request item with period
   refuseRequestItem: async (itemId, period, staffId, refusalReason) => {
     try {
-      const requestPayload = {
-        period: period,
-        staffId: staffId,
-        refusalReason: refusalReason,
-      };
-
       const response = await api.post(
         `/MedicineRequest/item/${itemId}/refuse`,
-        requestPayload
+        {
+          period: period,
+          staffId: staffId,
+          refusalReason: refusalReason,
+        }
       );
-
       return {
         success: true,
         data: response.data,

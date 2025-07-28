@@ -30,7 +30,8 @@ import {
   formatDateTime,
   formatDateWithContext,
   formatDuration,
-  formatRelativeTime
+  formatRelativeTime,
+  formatNotificationTime,
 } from "../../../utils/timeUtils";
 
 const HealthEventNotificationDetail = () => {
@@ -250,8 +251,10 @@ const HealthEventNotificationDetail = () => {
                 </h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Ngày tạo:{" "}
-                  {event.createdAt
-                    ? formatDateTime(event.createdAt)
+                  {event.EventDate
+                    ? formatNotificationTime(event.EventDate)
+                    : event.createdAt
+                    ? formatNotificationTime(event.createdAt)
                     : "-"}
                 </p>
               </div>

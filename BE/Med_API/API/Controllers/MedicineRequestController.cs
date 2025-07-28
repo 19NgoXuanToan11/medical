@@ -331,6 +331,74 @@ public class MedicineRequestController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// 2.1. Get Student Grade by Student Code
+    /// Lấy thông tin khối học của học sinh theo mã số học sinh
+    /// </summary>
+    [HttpGet("student/{studentCode}/grade")]
+    public async Task<IActionResult> GetStudentGrade(string studentCode)
+    {
+        try
+        {
+            var grade = await _medicineRequestService.GetGradeByStudentCodeAsync(studentCode);
+            if (!grade.HasValue)
+            {
+                return NotFound(new { 
+                    message = "Không tìm thấy thông tin khối học của học sinh này",
+                    studentCode = studentCode
+                });
+            }
+
+            return Ok(new { 
+                grade = grade.Value,
+                studentCode = studentCode,
+                message = "Lấy thông tin khối học thành công"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting grade for student {StudentCode}", studentCode);
+            return StatusCode(500, new { 
+                message = "Lỗi khi lấy thông tin khối học",
+                studentCode = studentCode
+            });
+        }
+    }
+
+    /// <summary>
+    /// 2.1. Get Nurse by Grade
+    /// Lấy thông tin nurse phụ trách khối học
+    /// </summary>
+    [HttpGet("grade/{grade}/nurse")]
+    public async Task<IActionResult> GetNurseByGrade(int grade)
+    {
+        try
+        {
+            var nurse = await _medicineRequestService.GetNurseByGradeAsync(grade);
+            if (nurse == null)
+            {
+                return NotFound(new { 
+                    message = "Không tìm thấy nurse phụ trách khối này",
+                    grade = grade
+                });
+            }
+
+            return Ok(new { 
+                nurse = nurse,
+                grade = grade,
+                message = "Lấy thông tin nurse phụ trách khối thành công"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting nurse for grade {Grade}", grade);
+            return StatusCode(500, new { 
+                message = "Lỗi khi lấy thông tin nurse phụ trách khối",
+                grade = grade
+            });
+        }
+    }
+
     #endregion
 
     #region 3. PERIOD VERIFICATION FLOW (Quy trình xác thực theo buổi)

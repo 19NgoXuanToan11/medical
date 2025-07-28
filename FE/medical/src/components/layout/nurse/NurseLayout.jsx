@@ -17,7 +17,6 @@ import {
 } from "react-icons/fi";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import ThemeToggle from "../../common/ThemeToggle";
-import NotificationDropdown from "../../common/NotificationDropdown";
 
 const NurseLayout = () => {
   const location = useLocation();
@@ -187,7 +186,6 @@ const NurseLayout = () => {
           </div>
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <NotificationDropdown userRole="nurse" />
 
             {/* User Profile Dropdown */}
             <div className="relative" ref={profileDropdownRef}>

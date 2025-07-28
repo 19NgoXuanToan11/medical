@@ -38,6 +38,7 @@ import {
   deduplicateRequests,
   getPeriodRefusalReason,
   getRefusedPeriodsWithReasons,
+  debugRequestStatus,
   PERIOD_STATUSES,
 } from "../../../../utils/medicationRequestUtils";
 
@@ -68,29 +69,12 @@ const MedicineVerification = () => {
       const timeOfDay = item.timeOfDay || "";
       const timeSlots = timeOfDay.split(",").map((time) => time.trim());
 
-      // Map time slots to Vietnamese periods (lowercase for API compatibility)
+      // Map time slots to Vietnamese periods
       const periodMap = {
-        // Vietnamese values (current backend format)
-        sáng: "sáng",
-        trưa: "trưa",
-        chiều: "chiều",
-        tối: "tối",
-        "khi cần thiết": "khi cần thiết",
-        // English values (backward compatibility)
-        morning: "sáng",
-        noon: "trưa",
-        afternoon: "chiều",
-        evening: "tối",
-        as_needed: "khi cần thiết",
-      };
-
-      // Display labels for UI (title case Vietnamese)
-      const displayLabelMap = {
-        sáng: "Sáng",
-        trưa: "Trưa",
-        chiều: "Chiều",
-        tối: "Tối",
-        "khi cần thiết": "Khi cần thiết",
+        morning: "Sáng",
+        noon: "Trưa",
+        afternoon: "Chiều",
+        evening: "Tối",
       };
 
       timeSlots.forEach((slot) => {
@@ -101,8 +85,8 @@ const MedicineVerification = () => {
       });
     });
     return Array.from(periods).map((period) => ({
-      value: period, // Use lowercase Vietnamese value for API calls
-      label: displayLabelMap[period] || period, // Use title case for display
+      value: period,
+      label: period,
     }));
   };
 
@@ -151,10 +135,8 @@ const MedicineVerification = () => {
 
   // Update the openRefuseModal function
   const openRefuseModal = (request) => {
-    const unprocessedPeriods = getUnprocessedPeriods(request);
-
     setSelectedRequest(request);
-    setAvailablePeriods(unprocessedPeriods);
+    setAvailablePeriods(getUnprocessedPeriods(request));
     setSelectedPeriods([]);
     setPeriodReasons({});
     setShowRefuseModal(true);
@@ -230,26 +212,15 @@ const MedicineVerification = () => {
     }
 
     try {
-      // Map title case Vietnamese to lowercase Vietnamese for API compatibility
-      const periodToApiValue = {
-        Sáng: "sáng",
-        Trưa: "trưa",
-        Chiều: "chiều",
-        Tối: "tối",
-        "Khi cần thiết": "khi cần thiết",
-      };
-
       // Verify each medicine item in the request for all selected periods
       const verifyPromises = [];
 
       for (const period of selectedPeriods) {
-        const apiPeriodValue = periodToApiValue[period] || period.toLowerCase();
-
         for (const item of request.medicineRequestItems || []) {
           verifyPromises.push(
             medicationService.verifyRequestItem(
               item.medicineRequestItemId,
-              apiPeriodValue, // Use lowercase Vietnamese value for API
+              period,
               currentStaffId
             )
           );
@@ -298,24 +269,13 @@ const MedicineVerification = () => {
       // Refuse each medicine item in the request for all selected periods
       const refusePromises = [];
 
-      // Map title case Vietnamese to lowercase Vietnamese for API compatibility
-      const periodToApiValue = {
-        Sáng: "sáng",
-        Trưa: "trưa",
-        Chiều: "chiều",
-        Tối: "tối",
-        "Khi cần thiết": "khi cần thiết",
-      };
-
       for (const period of selectedPeriods) {
         const reasonForPeriod = periodReasons[period];
-        const apiPeriodValue = periodToApiValue[period] || period.toLowerCase();
-
         for (const item of request.medicineRequestItems || []) {
           refusePromises.push(
             medicationService.refuseRequestItem(
               item.medicineRequestItemId,
-              apiPeriodValue, // Use lowercase Vietnamese value for API
+              period,
               currentStaffId,
               reasonForPeriod
             )
@@ -363,6 +323,16 @@ const MedicineVerification = () => {
 
       // Deduplicate requests by requestId to prevent same request appearing multiple times
       const allRequests = deduplicateRequests(allRequestsRaw);
+
+      // Debug logging for refused requests (only for specific request)
+      if (activeSubTab === "refused") {
+        allRequests.forEach((request) => {
+          if (request && request.requestId === 2053) {
+            const debug = debugRequestStatus(request);
+            console.log(`🔍 Debug Request ${request.requestId}:`, debug);
+          }
+        });
+      }
 
       let filteredRequests = filterRequestsByStatus(allRequests, activeSubTab);
 
@@ -446,14 +416,29 @@ const MedicineVerification = () => {
     const requestStatus = getRequestStatus(request);
     const periods = requestStatus.periods;
 
+    // Debug logging for specific request
+    if (request.requestId === 2053) {
+      console.log(
+        `🔍 Rendering periods for request ${request.requestId}:`,
+        periods
+      );
+    }
+
     if (periods.length === 0) {
       return <span className="text-gray-500 text-xs">N/A</span>;
     }
 
+    // Get refusal reasons for refused periods
+    const refusedPeriodsWithReasons = getRefusedPeriodsWithReasons(request);
+
     return (
-      <div className="period-status-list">
+      <div className="period-status-list space-y-1">
         {periods.map(({ period, status, label }) => {
           const statusClass = getStatusClass(status);
+          const isRefused = status === PERIOD_STATUSES.REFUSED;
+          const refusalInfo = refusedPeriodsWithReasons.find(
+            (p) => p.period === period
+          );
 
           // Get inline styles based on status for guaranteed rendering
           const getInlineStyles = (status) => {
@@ -497,12 +482,25 @@ const MedicineVerification = () => {
 
           return (
             <div key={period} className="period-status-item">
-              <span
-                className={`period-badge ${statusClass}`}
-                style={getInlineStyles(status)}
-              >
-                {period}
-              </span>
+              <div className="flex items-center space-x-1">
+                <span
+                  className={`period-badge ${statusClass}`}
+                  style={getInlineStyles(status)}
+                  title={
+                    isRefused && refusalInfo
+                      ? `Lý do: ${refusalInfo.reason}`
+                      : label
+                  }
+                >
+                  {period}
+                </span>
+                {isRefused && <span className="text-red-500 text-xs">✗</span>}
+              </div>
+              {isRefused && refusalInfo && (
+                <div className="text-xs text-red-600 dark:text-red-400 mt-1 max-w-[200px] truncate">
+                  {refusalInfo.reason}
+                </div>
+              )}
             </div>
           );
         })}
@@ -516,9 +514,9 @@ const MedicineVerification = () => {
       "hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-200";
 
     if (isPartiallyRefused(request)) {
-      return `${baseClass} partially-refused-row`;
+      return `${baseClass} partially-refused-row bg-orange-50 dark:bg-orange-900/20`;
     } else if (isFullyRefused(request)) {
-      return `${baseClass} fully-refused-row`;
+      return `${baseClass} fully-refused-row bg-red-50 dark:bg-red-900/20`;
     } else {
       const requestStatus = getRequestStatus(request);
       if (requestStatus.isPartiallyProcessed) {
@@ -594,51 +592,71 @@ const MedicineVerification = () => {
           ?.length || 0;
 
       return (
-        <div className="flex space-x-1 bg-gray-50 dark:bg-neutral-750 p-2 rounded-lg mb-4">
-          {[
-            {
-              key: "all",
-              label: "Tất cả",
-              count: refusedRequestsFiltered.length,
-            },
-            {
-              key: "fully_refused",
-              label: "Từ chối hoàn toàn",
-              count: fullyRefusedCount,
-            },
-            {
-              key: "partially_refused",
-              label: "Từ chối một phần",
-              count: partiallyRefusedCount,
-            },
-          ].map(({ key, label, count }) => (
-            <button
-              key={key}
-              onClick={() => setRefusedSubTab(key)}
-              className={`flex items-center px-3 py-1.5 rounded-md text-sm transition-colors duration-200 ${
-                refusedSubTab === key
-                  ? "bg-white dark:bg-neutral-600 text-red-600 dark:text-red-400 shadow-sm"
-                  : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-              }`}
-            >
-              {label}
-              <span
-                className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4 mb-4">
+          <div className="mb-3">
+            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Phân loại yêu cầu từ chối:
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              • <strong>Từ chối hoàn toàn:</strong> Tất cả các buổi trong yêu
+              cầu đều bị từ chối
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              • <strong>Từ chối một phần:</strong> Một số buổi bị từ chối, một
+              số buổi khác đã được xác nhận hoặc đang chờ
+            </p>
+          </div>
+
+          <div className="flex space-x-1 bg-gray-50 dark:bg-neutral-750 p-2 rounded-lg">
+            {[
+              {
+                key: "all",
+                label: "Tất cả",
+                count: refusedRequestsFiltered.length,
+                description: "Tất cả yêu cầu bị từ chối",
+              },
+              {
+                key: "fully_refused",
+                label: "Từ chối hoàn toàn",
+                count: fullyRefusedCount,
+                description: "Tất cả buổi đều bị từ chối",
+              },
+              {
+                key: "partially_refused",
+                label: "Từ chối một phần",
+                count: partiallyRefusedCount,
+                description: "Chỉ một số buổi bị từ chối",
+              },
+            ].map(({ key, label, count, description }) => (
+              <button
+                key={key}
+                onClick={() => setRefusedSubTab(key)}
+                className={`refused-tab-button flex flex-col items-center px-4 py-3 rounded-md text-sm transition-colors duration-200 min-w-[140px] ${
                   refusedSubTab === key
-                    ? "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300"
-                    : "bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300"
+                    ? "active bg-white dark:bg-neutral-600 text-red-600 dark:text-red-400 shadow-sm border border-red-200 dark:border-red-700"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700"
                 }`}
+                title={description}
               >
-                {count}
-              </span>
-            </button>
-          ))}
+                <span className="font-medium">{label}</span>
+                <span
+                  className={`mt-1 px-2 py-0.5 text-xs rounded-full ${
+                    refusedSubTab === key
+                      ? "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300"
+                      : "bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       );
     } catch (error) {
       console.error("Error in RefusedTabFilters:", error);
       return (
-        <div className="flex space-x-1 bg-gray-50 dark:bg-neutral-750 p-2 rounded-lg mb-4">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4 mb-4">
           <div className="text-red-600 text-sm">Lỗi khi tải bộ lọc</div>
         </div>
       );
@@ -708,15 +726,29 @@ const MedicineVerification = () => {
         
         .partially-refused-row {
           background-color: #fff3cd;
-          border-left: 4px solid #dc3545;
+          border-left: 4px solid #f97316;
         }
         
         .fully-refused-row {
           background-color: #f8d7da;
+          border-left: 4px solid #dc2626;
         }
         
         .request-row-with-mixed-status {
           border-left: 4px solid #ffc107;
+        }
+        
+        .refused-tab-button {
+          transition: all 0.2s ease-in-out;
+        }
+        
+        .refused-tab-button:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .refused-tab-button.active {
+          box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
         }
         
         .period-status-list {
@@ -883,7 +915,46 @@ const MedicineVerification = () => {
       </div>
 
       {/* Refused Tab Sub-filters */}
-      {activeSubTab === "refused" && <RefusedTabFilters />}
+      {activeSubTab === "refused" && (
+        <>
+          <RefusedTabFilters />
+          {/* Statistics for refused requests */}
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-4 mb-4">
+            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              Thống kê yêu cầu từ chối:
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-3 bg-gray-50 dark:bg-neutral-750 rounded-lg">
+                <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                  {filterRequestsByStatus(getCurrentData(), "refused")
+                    ?.length || 0}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  Tổng số yêu cầu từ chối
+                </div>
+              </div>
+              <div className="text-center p-3 bg-gray-50 dark:bg-neutral-750 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                  {filterRequestsByStatus(getCurrentData(), "partially_refused")
+                    ?.length || 0}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  Từ chối một phần
+                </div>
+              </div>
+              <div className="text-center p-3 bg-gray-50 dark:bg-neutral-750 rounded-lg">
+                <div className="text-2xl font-bold text-red-800 dark:text-red-300">
+                  {filterRequestsByStatus(getCurrentData(), "fully_refused")
+                    ?.length || 0}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  Từ chối hoàn toàn
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Requests Table */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700">
@@ -921,7 +992,42 @@ const MedicineVerification = () => {
                     colSpan="7"
                     className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
                   >
-                    {loading ? "Đang tải..." : "Không có dữ liệu"}
+                    {loading ? (
+                      "Đang tải..."
+                    ) : (
+                      <div className="flex flex-col items-center space-y-2">
+                        <div className="text-lg font-medium">
+                          {activeSubTab === "refused" &&
+                            refusedSubTab === "fully_refused" &&
+                            "Không có yêu cầu từ chối hoàn toàn"}
+                          {activeSubTab === "refused" &&
+                            refusedSubTab === "partially_refused" &&
+                            "Không có yêu cầu từ chối một phần"}
+                          {activeSubTab === "refused" &&
+                            refusedSubTab === "all" &&
+                            "Không có yêu cầu bị từ chối"}
+                          {activeSubTab === "pending" &&
+                            "Không có yêu cầu chờ kiểm tra"}
+                          {activeSubTab === "verified" &&
+                            "Không có yêu cầu đã xác nhận"}
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          {activeSubTab === "refused" &&
+                            refusedSubTab === "fully_refused" &&
+                            "Tất cả các buổi trong yêu cầu đều bị từ chối"}
+                          {activeSubTab === "refused" &&
+                            refusedSubTab === "partially_refused" &&
+                            "Một số buổi bị từ chối, một số buổi khác đã được xác nhận hoặc đang chờ"}
+                          {activeSubTab === "refused" &&
+                            refusedSubTab === "all" &&
+                            "Các yêu cầu thuốc bị từ chối sẽ hiển thị ở đây"}
+                          {activeSubTab === "pending" &&
+                            "Các yêu cầu thuốc chờ kiểm tra sẽ hiển thị ở đây"}
+                          {activeSubTab === "verified" &&
+                            "Các yêu cầu thuốc đã được xác nhận sẽ hiển thị ở đây"}
+                        </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ) : (
@@ -962,12 +1068,20 @@ const MedicineVerification = () => {
                     <td className="px-6 py-4 text-center">
                       <div className="flex flex-col items-center space-y-1">
                         {getStatusBadge(request.status, activeSubTab)}
-                        {activeSubTab === "refused" &&
-                          isPartiallyRefused(request) && (
-                            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                              Từ chối một phần
-                            </span>
-                          )}
+                        {activeSubTab === "refused" && (
+                          <>
+                            {isPartiallyRefused(request) && (
+                              <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                                Từ chối một phần
+                              </span>
+                            )}
+                            {isFullyRefused(request) && (
+                              <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                Từ chối hoàn toàn
+                              </span>
+                            )}
+                          </>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right text-sm font-medium">
@@ -1149,6 +1263,89 @@ const MedicineVerification = () => {
                       )}
                     </tbody>
                   </table>
+                </div>
+              </div>
+
+              {/* Request Status Overview */}
+              <div className="mb-6">
+                <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">
+                  Tổng quan trạng thái yêu cầu
+                </h4>
+                <div className="bg-gray-50 dark:bg-neutral-750 p-4 rounded-lg">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {(() => {
+                      const requestStatus = getRequestStatus(selectedRequest);
+                      const periods = requestStatus.periods;
+
+                      const pendingCount = periods.filter(
+                        (p) => p.status === PERIOD_STATUSES.PENDING
+                      ).length;
+                      const verifiedCount = periods.filter(
+                        (p) => p.status === PERIOD_STATUSES.VERIFIED
+                      ).length;
+                      const refusedCount = periods.filter(
+                        (p) => p.status === PERIOD_STATUSES.REFUSED
+                      ).length;
+                      const completedCount = periods.filter(
+                        (p) => p.status === PERIOD_STATUSES.COMPLETED
+                      ).length;
+
+                      return (
+                        <>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                              {pendingCount}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">
+                              Chờ kiểm tra
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                              {verifiedCount}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">
+                              Đã xác nhận
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                              {refusedCount}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">
+                              Bị từ chối
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                              {completedCount}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">
+                              Đã hoàn thành
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Status classification */}
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <div className="text-center">
+                      {isPartiallyRefused(selectedRequest) && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                          <FiAlertTriangle className="h-4 w-4 mr-1" />
+                          Yêu cầu từ chối một phần
+                        </span>
+                      )}
+                      {isFullyRefused(selectedRequest) && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                          <FiXCircle className="h-4 w-4 mr-1" />
+                          Yêu cầu từ chối hoàn toàn
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 

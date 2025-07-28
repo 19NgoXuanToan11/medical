@@ -193,6 +193,20 @@ public class HealthEventService : IHealthEventService
         return await _healthEventRepository.GetHealthEventsForNurseByGradeAsync(staffId);
     }
 
+    public async Task<IEnumerable<HealthEvent>> GetCriticalIncidentsByStudentAsync(string studentCode)
+    {
+        // Lấy tất cả sự cố y tế của học sinh có mức độ nghiêm trọng "severe" hoặc "emergency"
+        var allEvents = await _healthEventRepository.GetHealthEventsByStudentCodeAsync(studentCode);
+        
+        var criticalIncidents = allEvents.Where(he => 
+            he.Severity != null && 
+            (he.Severity.ToLower() == "severe" || he.Severity.ToLower() == "emergency"))
+            .OrderByDescending(he => he.EventDate)
+            .ToList();
+
+        return criticalIncidents;
+    }
+
     // Phương thức helper để validate số lượng thuốc trong kho
     private async Task<(bool IsValid, string ErrorMessage)> ValidateMedicineStockAsync(ICollection<HealthEventMedicine>? medicines)
     {

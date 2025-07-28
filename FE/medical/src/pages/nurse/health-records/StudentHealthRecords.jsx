@@ -246,7 +246,7 @@ const StudentHealthRecords = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                     Cập nhật gần nhất
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                     Thao tác
                   </th>
                 </tr>
@@ -314,12 +314,22 @@ const StudentHealthRecords = () => {
                         {formatDate(profile.lastUpdated)}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-center">
-                        <button
-                          onClick={() => handleViewDetail(profile)}
-                          className="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
-                        >
-                          <FiEye className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center justify-center space-x-2">
+                          <button
+                            onClick={() => handleViewDetail(profile)}
+                            className="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
+                            title="Xem nhanh"
+                          >
+                            <FiEye className="h-4 w-4" />
+                          </button>
+                          <Link
+                            to={`/nurse/health-records/${profile.studentCode}`}
+                            className="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
+                            title="Xem chi tiết đầy đủ"
+                          >
+                            Chi tiết
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   );

@@ -214,6 +214,15 @@ export const getHealthEventsByNurseGrade = async (staffId) => {
 // Send notification to parent - Improved real notification system
 export const sendNotificationToParent = async (notificationData) => {
   try {
+    // Get current Vietnam time
+    const getVietnamTime = () => {
+      const now = new Date();
+      const vietnamTime = new Date(
+        now.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })
+      );
+      return vietnamTime.toISOString();
+    };
+
     // Create a comprehensive notification object
     const notification = {
       id: `health-event-${Date.now()}-${Math.random()
@@ -224,7 +233,7 @@ export const sendNotificationToParent = async (notificationData) => {
       message: notificationData.message,
       studentCode: notificationData.studentCode,
       eventDetails: notificationData.eventDetails,
-      timestamp: notificationData.timestamp || new Date().toISOString(),
+      timestamp: notificationData.timestamp || getVietnamTime(),
       priority: notificationData.priority || "medium",
       isRead: false,
       status: "sent",
@@ -419,9 +428,9 @@ export const mapHealthEventToAPI = (frontendData) => {
 // Check if current nurse can create health event for a student
 export const checkNurseGradePermission = async (studentCode) => {
   try {
-    // Get student grade
+    // Get student grade using the Student API endpoint
     const gradeResponse = await fetch(
-      `${API_BASE_URL}/MedicineRequest/student/${studentCode}/grade`
+      `${API_BASE_URL}/Student/grade/${studentCode}`
     );
     if (!gradeResponse.ok) {
       if (gradeResponse.status === 404) {
@@ -482,6 +491,39 @@ export const checkNurseGradePermission = async (studentCode) => {
       success: false,
       error: "Có lỗi xảy ra khi kiểm tra quyền tạo sự cố y tế",
       canCreate: false,
+    };
+  }
+};
+
+// Get critical medical incidents for a specific student
+export const getCriticalIncidentsByStudent = async (studentCode) => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/HealthEvent/student/${studentCode}/critical-incidents`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      data: data,
+      message: data.message || "Lấy danh sách sự cố nghiêm trọng thành công",
+    };
+  } catch (error) {
+    console.error("Error fetching critical incidents:", error);
+    return {
+      success: false,
+      error: error.message,
+      message: "Lỗi khi lấy danh sách sự cố nghiêm trọng",
     };
   }
 };

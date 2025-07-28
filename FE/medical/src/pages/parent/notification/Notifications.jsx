@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { useAuth } from "../../../utils/auth/AuthContext";
 import useNotificationPolling from "../../../hooks/useNotificationPolling";
+import { formatNotificationTime } from "../../../utils/timeUtils";
 
 const Notifications = () => {
   const { user } = useAuth();
@@ -125,32 +126,20 @@ const Notifications = () => {
   };
 
   const formatDate = (dateString) => {
+    return formatNotificationTime(dateString);
+  };
+
+  const getNotificationDateTime = (notification) => {
+    // Parse additionalData to get EventDate if available
     try {
-      const date = new Date(dateString);
-
-      // Check if date is valid
-      if (isNaN(date.getTime())) {
-        return "Không xác định";
-      }
-
-      const now = new Date();
-      const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-
-      if (diffDays === 0) {
-        return `Hôm nay, ${format(date, "HH:mm", { locale: vi })}`;
-      } else if (diffDays === 1) {
-        return `Hôm qua, ${format(date, "HH:mm", { locale: vi })}`;
-      } else if (diffDays < 7) {
-        return `${diffDays} ngày trước, ${format(date, "HH:mm", {
-          locale: vi,
-        })}`;
-      } else {
-        return format(date, "dd/MM/yyyy, HH:mm", { locale: vi });
+      if (notification.additionalData) {
+        const additionalData = JSON.parse(notification.additionalData);
+        return additionalData?.EventDate || notification.createdAt;
       }
     } catch (error) {
-      console.warn("Error formatting date:", error, dateString);
-      return "Không xác định";
+      console.warn("Error parsing additional data:", error);
     }
+    return notification.createdAt;
   };
 
   const getPriorityColor = (priority) => {
@@ -385,7 +374,7 @@ const Notifications = () => {
                           {notification.message}
                         </p>
                         <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
-                          {formatDate(notification.createdAt)}
+                          {formatDate(getNotificationDateTime(notification))}
                         </p>
 
                         {notification.studentName && (

@@ -151,4 +151,57 @@ public class HealthEventController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    /// <summary>
+    /// Get critical medical incidents for a specific student
+    /// Lấy danh sách sự cố y tế nghiêm trọng của học sinh
+    /// </summary>
+    [HttpGet("student/{studentCode}/critical-incidents")]
+    public async Task<ActionResult<object>> GetCriticalIncidentsByStudent(string studentCode)
+    {
+        try
+        {
+            var criticalIncidents = await _healthEventService.GetCriticalIncidentsByStudentAsync(studentCode);
+            
+            if (!criticalIncidents.Any())
+            {
+                return Ok(new
+                {
+                    studentCode = studentCode,
+                    message = "Không có sự cố nghiêm trọng nào được ghi nhận",
+                    incidents = new List<object>(),
+                    count = 0
+                });
+            }
+
+            var incidentsData = criticalIncidents.Select(incident => new
+            {
+                incidentId = incident.EventId,
+                timestamp = incident.EventDate,
+                severityLevel = incident.Severity,
+                description = incident.Symptoms,
+                handledBy = incident.Staff?.FirstName + " " + incident.Staff?.LastName,
+                actionsTaken = incident.Treatment,
+                notifiedParent = incident.ParentNotified,
+                studentName = incident.Student?.FirstName + " " + incident.Student?.LastName,
+                className = incident.Student?.Class?.ClassName,
+                gradeLevel = incident.Student?.Class?.GradeLevel
+            }).ToList();
+
+            return Ok(new
+            {
+                studentCode = studentCode,
+                message = "Lấy danh sách sự cố nghiêm trọng thành công",
+                incidents = incidentsData,
+                count = incidentsData.Count
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { 
+                message = "Lỗi server nội bộ khi lấy danh sách sự cố nghiêm trọng", 
+                error = ex.Message 
+            });
+        }
+    }
 } 
