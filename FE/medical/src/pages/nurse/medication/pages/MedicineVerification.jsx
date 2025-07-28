@@ -329,7 +329,6 @@ const MedicineVerification = () => {
         allRequests.forEach((request) => {
           if (request && request.requestId === 2053) {
             const debug = debugRequestStatus(request);
-            console.log(`🔍 Debug Request ${request.requestId}:`, debug);
           }
         });
       }
@@ -415,14 +414,6 @@ const MedicineVerification = () => {
   const renderPeriodStatus = (request) => {
     const requestStatus = getRequestStatus(request);
     const periods = requestStatus.periods;
-
-    // Debug logging for specific request
-    if (request.requestId === 2053) {
-      console.log(
-        `🔍 Rendering periods for request ${request.requestId}:`,
-        periods
-      );
-    }
 
     if (periods.length === 0) {
       return <span className="text-gray-500 text-xs">N/A</span>;

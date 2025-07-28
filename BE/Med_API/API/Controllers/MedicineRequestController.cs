@@ -790,8 +790,6 @@ public class MedicineRequestController : ControllerBase
             var assignedItems = new List<object>();
             foreach (var item in req.MedicineRequestItems)
             {
-                // Debug: log VerificationStatus
-                _logger.LogInformation($"ItemId: {item.MedicineRequestItemId}, VerificationStatus: {item.VerificationStatus}, Period: {item.Period}, Frequency: {item.Frequency}");
                 var periodStatus = new Dictionary<string, object>();
                 bool parsedAsDict = false;
                 if (!string.IsNullOrEmpty(item.VerificationStatus))

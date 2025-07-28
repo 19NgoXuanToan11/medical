@@ -8,6 +8,7 @@ public partial class HealthEventMedicalSupply
     public int HealthEventMedicalSupplyId { get; set; }
     public int HealthEventId { get; set; }
     public int MedicalSupplyId { get; set; }
+    public string? MedicalSupplyName { get; set; }
     public decimal? Quantity { get; set; }
     public string? Time { get; set; }
 

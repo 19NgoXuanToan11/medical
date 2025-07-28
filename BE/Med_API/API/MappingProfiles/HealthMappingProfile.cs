@@ -27,24 +27,26 @@ public class HealthMappingProfile : Profile
 
         // HealthEventMedicine Mappings
         CreateMap<HealthEventMedicine, HealthEventMedicineDto.ViewModel>()
-            .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.Medicine.Name));
+            .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.MedicineName ?? src.Medicine.Name));
 
         CreateMap<HealthEventMedicineDto.Create, HealthEventMedicine>()
             .ForMember(dest => dest.HealthEventMedicineId, opt => opt.Ignore())
             .ForMember(dest => dest.HealthEvent, opt => opt.Ignore())
-            .ForMember(dest => dest.Medicine, opt => opt.Ignore());
+            .ForMember(dest => dest.Medicine, opt => opt.Ignore())
+            .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.MedicineName));
 
         CreateMap<HealthEventMedicineDto.Update, HealthEventMedicine>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
         // HealthEventMedicalSupply Mappings
         CreateMap<HealthEventMedicalSupply, HealthEventMedicalSupplyDto.ViewModel>()
-            .ForMember(dest => dest.MedicalSupplyName, opt => opt.MapFrom(src => src.MedicalSupply.Name));
+            .ForMember(dest => dest.MedicalSupplyName, opt => opt.MapFrom(src => src.MedicalSupplyName ?? src.MedicalSupply.Name));
 
         CreateMap<HealthEventMedicalSupplyDto.Create, HealthEventMedicalSupply>()
             .ForMember(dest => dest.HealthEventMedicalSupplyId, opt => opt.Ignore())
             .ForMember(dest => dest.HealthEvent, opt => opt.Ignore())
-            .ForMember(dest => dest.MedicalSupply, opt => opt.Ignore());
+            .ForMember(dest => dest.MedicalSupply, opt => opt.Ignore())
+            .ForMember(dest => dest.MedicalSupplyName, opt => opt.MapFrom(src => src.MedicalSupplyName));
 
         CreateMap<HealthEventMedicalSupplyDto.Update, HealthEventMedicalSupply>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

@@ -136,28 +136,21 @@ public class MedicineRequestService : IMedicineRequestService
 
     public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByAssignedGradeAsync(int staffId, string? status = null)
     {
-        Console.WriteLine($"DEBUG GetMedicineRequestsByAssignedGradeAsync: staffId={staffId}, status={status}");
         
         // Get nurse's assigned grades
         var gradeNurses = await _staffRepository.GetGradeNursesByStaffIdAsync(staffId);
         var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
 
-        Console.WriteLine($"DEBUG: Found {gradeNurses.Count()} grade assignments for staffId {staffId}");
-        Console.WriteLine($"DEBUG: Assigned grades: [{string.Join(", ", assignedGrades)}]");
-
         // Get all medicine requests
         var allRequests = await _medicineRequestRepository.GetAllMedicineRequestsAsync();
-        Console.WriteLine($"DEBUG: Found {allRequests.Count()} total medicine requests");
 
         // If no grades assigned, return all requests (or filter by status if provided)
         if (!assignedGrades.Any())
         {
-            Console.WriteLine($"DEBUG: No grades assigned to staffId {staffId}, returning all requests");
             if (!string.IsNullOrEmpty(status))
             {
                 var statusFilteredRequests = allRequests.Where(request => 
                     request.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
-                Console.WriteLine($"DEBUG: Filtered to {statusFilteredRequests.Count} requests with status '{status}'");
                 return statusFilteredRequests;
             }
             return allRequests;
@@ -166,18 +159,13 @@ public class MedicineRequestService : IMedicineRequestService
         // Filter requests by assigned grades and status
         var filteredRequests = allRequests.Where(request =>
         {
-            Console.WriteLine($"DEBUG: Checking request {request.RequestId}, StudentCode: {request.StudentCode}, Student: {request.Student?.FirstName}, Class: {request.Student?.Class?.ClassName}, GradeLevel: {request.Student?.Class?.GradeLevel}, Status: {request.Status}");
-            
             // Check if request belongs to a student in assigned grades
             if (request.Student?.Class?.GradeLevel != null && assignedGrades.Contains(request.Student.Class.GradeLevel))
             {
-                Console.WriteLine($"DEBUG: Request {request.RequestId} matches assigned grade {request.Student.Class.GradeLevel}");
-                
                 // If status filter is provided, apply it
                 if (!string.IsNullOrEmpty(status))
                 {
                     bool statusMatch = request.Status.Equals(status, StringComparison.OrdinalIgnoreCase);
-                    Console.WriteLine($"DEBUG: Status filter '{status}' vs request status '{request.Status}': {statusMatch}");
                     return statusMatch;
                 }
                 return true;
@@ -185,7 +173,6 @@ public class MedicineRequestService : IMedicineRequestService
             return false;
         }).ToList();
 
-        Console.WriteLine($"DEBUG: Filtered to {filteredRequests.Count} requests matching criteria");
         return filteredRequests;
     }
 
@@ -227,22 +214,18 @@ public class MedicineRequestService : IMedicineRequestService
             
             if (student == null)
             {
-                Console.WriteLine($"DEBUG: Student not found for code: {studentCode}");
                 return null;
             }
             
             if (student.Class == null)
             {
-                Console.WriteLine($"DEBUG: Class not loaded for student: {studentCode}");
                 return null;
             }
             
-            Console.WriteLine($"DEBUG: Student {studentCode} found with Class {student.Class.ClassName}, GradeLevel: {student.Class.GradeLevel}");
             return student.Class.GradeLevel;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"DEBUG: Error getting grade for student {studentCode}: {ex.Message}");
             return null;
         }
     }

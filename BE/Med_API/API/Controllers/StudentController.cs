@@ -111,6 +111,7 @@ public class StudentController : ControllerBase
         var students = await _studentService.GetAllStudentsAsync();
         var filtered = students.Where(s => s.Class != null && s.Class.GradeLevel == grade);
         var studentViewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(filtered);
+        
         return Ok(studentViewModels);
     }
 

@@ -44,25 +44,16 @@ public class HealthCheckFormRepository : IHealthCheckFormRepository
             var existingForm = await _context.HealthCheckForms.FindAsync(healthCheckForm.FormId);
             if (existingForm == null)
             {
-                Console.WriteLine($"REPO ERROR: HealthCheckForm with ID {healthCheckForm.FormId} not found");
                 return false;
             }
 
-            Console.WriteLine($"REPO: Found existing form, updating...");
-            Console.WriteLine($"REPO: New Status = {healthCheckForm.Status}");
-            Console.WriteLine($"REPO: New ConsentStatus = {healthCheckForm.ConsentStatus}");
-
             _context.Entry(existingForm).CurrentValues.SetValues(healthCheckForm);
             
-            Console.WriteLine($"REPO: Calling SaveChanges...");
             await _context.SaveChangesAsync();
-            Console.WriteLine($"REPO: SaveChanges completed successfully");
             return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"REPO ERROR: {ex.Message}");
-            Console.WriteLine($"REPO ERROR STACK: {ex.StackTrace}");
             throw;
         }
     }

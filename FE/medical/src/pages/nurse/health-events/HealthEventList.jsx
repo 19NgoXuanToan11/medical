@@ -16,6 +16,7 @@ import {
   FiUserCheck,
   FiRefreshCw,
   FiX,
+  FiUsers,
 } from "react-icons/fi";
 import {
   getAllHealthEvents,
@@ -32,6 +33,12 @@ const HealthEventList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [showMyGradeOnly, setShowMyGradeOnly] = useState(true); // New state for filtering
+
+  // State cho filter khối/lớp
+  const [selectedGrade, setSelectedGrade] = useState("all");
+  const [selectedClass, setSelectedClass] = useState("all");
+  const gradeOptions = ["all", "1", "2", "3", "4", "5"];
+  const classOptions = ["all", "A", "B", "C"];
 
   // Load health events from API
   useEffect(() => {
@@ -205,15 +212,32 @@ const HealthEventList = () => {
     });
   };
 
-  const filteredEvents = filterEventsByDate(eventsList, activeTab).filter(
-    (event) =>
-      event.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      getEventTypeLabel(event.type)
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-  );
+  // Lọc theo khối/lớp
+  const filteredEvents = filterEventsByDate(eventsList, activeTab)
+    .filter((event) => {
+      // Lọc theo khối
+      if (selectedGrade !== "all") {
+        // event.class có thể là "2A", "3B"...
+        if (!event.class || !event.class.startsWith(selectedGrade))
+          return false;
+      }
+      // Lọc theo lớp
+      if (selectedClass !== "all") {
+        // Lấy ký tự cuối cùng (A/B/C)
+        if (!event.class || event.class.slice(-1) !== selectedClass)
+          return false;
+      }
+      return true;
+    })
+    .filter(
+      (event) =>
+        event.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getEventTypeLabel(event.type)
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+    );
 
   // Temporary override for debugging - show all events regardless of filters
   const debugFilteredEvents = eventsList; // Use this to bypass all filtering
@@ -263,6 +287,13 @@ const HealthEventList = () => {
           >
             <FiPlus className="mr-2 h-4 w-4" />
             Tạo sự cố mới
+          </Link>
+          <Link
+            to="/nurse/health-events/batch"
+            className="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors duration-200"
+          >
+            <FiUsers className="mr-2 h-4 w-4" />
+            Tạo sự cố hàng loạt
           </Link>
         </div>
       </div>
@@ -326,10 +357,26 @@ const HealthEventList = () => {
 
       {/* Events List */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Danh sách sự cố ({debugFilteredEvents.length})
+            Danh sách sự cố ({filteredEvents.length})
           </h3>
+          {/* Filter khối/lớp */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-700 dark:text-gray-300 ml-2 mr-1">
+              Lớp:
+            </label>
+            <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+              className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            >
+              <option value="all">Tất cả</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+            </select>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -375,7 +422,7 @@ const HealthEventList = () => {
                     </div>
                   </td>
                 </tr>
-              ) : debugFilteredEvents.length === 0 ? (
+              ) : filteredEvents.length === 0 ? (
                 <tr>
                   <td
                     colSpan="9"
@@ -391,7 +438,7 @@ const HealthEventList = () => {
                   </td>
                 </tr>
               ) : (
-                debugFilteredEvents.map((event) => (
+                filteredEvents.map((event) => (
                   <tr
                     key={event.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"

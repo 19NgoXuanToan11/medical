@@ -59,6 +59,56 @@ public class HealthEventController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Create multiple health events in batch (for collective incidents)
+    /// Tạo nhiều sự cố y tế cùng lúc (cho sự cố tập thể)
+    /// </summary>
+    [HttpPost("batch")]
+    public async Task<ActionResult<object>> CreateBatchHealthEvents(List<HealthEventDto.Create> createDtos)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        if (createDtos == null || !createDtos.Any())
+        {
+            return BadRequest("Danh sách sự cố y tế không được để trống");
+        }
+
+        if (createDtos.Count > 50)
+        {
+            return BadRequest("Không thể tạo quá 50 sự cố cùng lúc");
+        }
+
+        try
+        {
+            var healthEvents = _mapper.Map<List<HealthEvent>>(createDtos);
+            var batchResult = await _healthEventService.CreateBatchHealthEventsAsync(healthEvents);
+            
+            return Ok(new
+            {
+                message = "Tạo sự cố y tế hàng loạt thành công",
+                totalRequested = createDtos.Count,
+                successfullyCreated = batchResult.SuccessfulCount,
+                failedCount = batchResult.FailedCount,
+                failedDetails = batchResult.FailedDetails,
+                createdEvents = _mapper.Map<IEnumerable<HealthEventDto.ViewModel>>(batchResult.CreatedEvents)
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { 
+                message = "Lỗi server nội bộ khi tạo sự cố y tế hàng loạt", 
+                error = ex.Message 
+            });
+        }
+    }
+
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateHealthEvent(int id, HealthEventDto.Update updateDto)
     {

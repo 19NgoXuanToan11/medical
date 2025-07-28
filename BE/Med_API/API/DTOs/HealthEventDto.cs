@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using API.DTOs;
+using DB;
 
 namespace API.DTOs;
 
@@ -111,5 +112,17 @@ public static class HealthEventDto
 
         public ICollection<HealthEventMedicineDto.Update>? HealthEventMedicines { get; set; }
         public ICollection<HealthEventMedicalSupplyDto.Update>? HealthEventMedicalSupplies { get; set; }
+    }
+
+    /// <summary>
+    /// Result of batch health event creation
+    /// Kết quả tạo sự cố y tế hàng loạt
+    /// </summary>
+    public class BatchResult
+    {
+        public int SuccessfulCount { get; set; }
+        public int FailedCount { get; set; }
+        public List<string> FailedDetails { get; set; } = new List<string>();
+        public List<HealthEvent> CreatedEvents { get; set; } = new List<HealthEvent>();
     }
 } 

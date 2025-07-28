@@ -19,6 +19,9 @@ public static class HealthEventMedicalSupplyDto
         [Required]
         public int MedicalSupplyId { get; set; }
 
+        [StringLength(100)]
+        public string? MedicalSupplyName { get; set; }
+
         [Range(0, double.MaxValue, ErrorMessage = "Quantity cannot be negative")]
         public decimal? Quantity { get; set; }
 

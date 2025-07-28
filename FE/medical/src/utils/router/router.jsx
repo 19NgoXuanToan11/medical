@@ -55,6 +55,7 @@ import HealthEventList from "../../pages/nurse/health-events/HealthEventList";
 import HealthEventDetail from "../../pages/nurse/health-events/HealthEventDetail";
 import HealthEventCreate from "../../pages/nurse/health-events/HealthEventCreate";
 import HealthEventEdit from "../../pages/nurse/health-events/HealthEventEdit";
+import BatchHealthEventCreate from "../../pages/nurse/health-events/BatchHealthEventCreate";
 import NurseMedicationManagement from "../../pages/nurse/medication/MedicationManagement";
 
 import StudentHealthRecords from "../../pages/nurse/health-records/StudentHealthRecords";
@@ -178,6 +179,7 @@ function AppRoutes() {
 
         <Route path="/nurse/health-events" element={<HealthEventList />} />
         <Route path="/nurse/health-events/new" element={<HealthEventCreate />} />
+        <Route path="/nurse/health-events/batch" element={<BatchHealthEventCreate />} />
         <Route path="/nurse/health-events/:id" element={<HealthEventDetail />} />
         <Route path="/nurse/health-events/:id/edit" element={<HealthEventEdit />} />
       </Route>

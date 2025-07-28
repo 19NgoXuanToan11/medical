@@ -398,6 +398,55 @@ export const sendNotificationToParent = async (notificationData) => {
   }
 };
 
+// Create batch health events
+export const createBatchHealthEvents = async (healthEventsData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/HealthEvent/batch`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(healthEventsData),
+    });
+
+    if (!response.ok) {
+      // Try to extract error message from response body
+      let errorMessage = `HTTP error! status: ${response.status}`;
+
+      // First try to get the response as text (in case it's a plain string)
+      const responseText = await response.text();
+
+      if (responseText) {
+        try {
+          // Try to parse as JSON first
+          const errorData = JSON.parse(responseText);
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (typeof errorData === "string") {
+            errorMessage = errorData;
+          }
+        } catch (parseError) {
+          // If it's not JSON, use the response text directly
+          errorMessage = responseText;
+        }
+      } else {
+        // If no response body, use status text
+        errorMessage =
+          response.statusText || `HTTP error! status: ${response.status}`;
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating batch health events:", error);
+    throw error;
+  }
+};
+
 // Helper function to refresh health events data
 export const refreshHealthEvents = async () => {
   try {
@@ -491,6 +540,7 @@ export const mapHealthEventToAPI = (frontendData) => {
             .filter((med) => med.name && med.name.trim() !== "") // Only include medications with names
             .map((med) => ({
               medicineId: med.id, // Use the actual medicine ID
+              medicineName: med.name, // Add medicine name for database storage
               dosage: med.dosage || "1 viên",
               time: med.time || "9:30", // Use correct field name "time"
             }))
@@ -501,6 +551,7 @@ export const mapHealthEventToAPI = (frontendData) => {
             .filter((supply) => supply.name && supply.name.trim() !== "") // Only include supplies with names
             .map((supply) => ({
               medicalSupplyId: supply.id, // Use the actual supply ID
+              medicalSupplyName: supply.name, // Add medical supply name for database storage
               quantity: supply.quantity || 1, // Use correct field name "quantity"
               time: supply.time || "9:30", // Use correct field name "time"
             }))

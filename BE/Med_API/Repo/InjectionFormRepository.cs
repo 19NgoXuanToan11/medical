@@ -91,8 +91,6 @@ public class InjectionFormRepository : IInjectionFormRepository
         }
         catch (Exception ex)
         {
-            // Log the error but don't expose sensitive information
-            Console.WriteLine($"Error updating injection form {injectionForm.FormId}: {ex.Message}");
             throw; // Re-throw to let the service layer handle it
         }
     }

@@ -192,74 +192,50 @@ public class HealthCheckFormService : IHealthCheckFormService
         
         schedule.ConsentStatus = "Pending";
 
-        Console.WriteLine($"FORCED STATUS TO: '{schedule.Status}'");
-        
         var result = await _healthCheckFormRepository.CreateHealthCheckFormAsync(schedule);
-        
-        Console.WriteLine($"RESULT STATUS: '{result.Status}'");
         
         return result;
     }
 
     public async Task<bool> UpdateHealthCheckScheduleAsync(HealthCheckForm schedule)
     {
-        Console.WriteLine("=== SERVICE: UpdateHealthCheckScheduleAsync ===");
-        Console.WriteLine($"FormId: {schedule.FormId}");
-        Console.WriteLine($"Title: {schedule.Title}");
-        Console.WriteLine($"Status: {schedule.Status}");
-        Console.WriteLine($"ConsentStatus: {schedule.ConsentStatus}");
-        Console.WriteLine($"ScheduledDate: {schedule.ScheduledDate}");
-        Console.WriteLine($"GradeIds: {schedule.GradeIds}");
-        
         // Validate that the schedule exists
         var existingSchedule = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(schedule.FormId);
         if (existingSchedule == null)
         {
-            Console.WriteLine($"ERROR: Schedule with FormId {schedule.FormId} not found");
             return false;
         }
         
-        Console.WriteLine($"Found existing schedule: {existingSchedule.FormId}, Title: {existingSchedule.Title}");
-
         // Validate required fields for scheduling
         if (string.IsNullOrEmpty(schedule.Title))
         {
-            Console.WriteLine("ERROR: Title is empty");
             throw new InvalidOperationException("Title is required for health check schedule");
         }
 
         if (!schedule.ScheduledDate.HasValue)
         {
-            Console.WriteLine("ERROR: ScheduledDate is null");
             throw new InvalidOperationException("Scheduled date is required for health check schedule");
         }
 
         // Check if GradeIds is empty or contains only empty array
         if (string.IsNullOrEmpty(schedule.GradeIds) || schedule.GradeIds.Trim() == "[]")
         {
-            Console.WriteLine($"ERROR: GradeIds is empty or invalid: '{schedule.GradeIds}'");
             throw new InvalidOperationException("At least one grade must be selected");
         }
 
         // Validate ConsentStatus only if it's provided (not Status field)
         if (!string.IsNullOrEmpty(schedule.ConsentStatus) && !IsValidConsentStatus(schedule.ConsentStatus))
         {
-            Console.WriteLine($"ERROR: Invalid ConsentStatus: '{schedule.ConsentStatus}'");
             throw new InvalidOperationException("Invalid consent status value");
         }
 
-        // Status field is free-form text for schedules, no validation needed
-        Console.WriteLine("All validations passed, calling repository update...");
         try 
         {
             var result = await _healthCheckFormRepository.UpdateHealthCheckFormAsync(schedule);
-            Console.WriteLine($"Repository update result: {result}");
             return result;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"ERROR in repository update: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
             throw;
         }
     }

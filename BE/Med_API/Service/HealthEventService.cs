@@ -41,6 +41,33 @@ public class HealthEventService : IHealthEventService
         return await _healthEventRepository.GetHealthEventByIdAsync(id);
     }
 
+    public async Task<BatchResult> CreateBatchHealthEventsAsync(IEnumerable<HealthEvent> healthEvents)
+    {
+        var result = new BatchResult();
+        var createdEvents = new List<HealthEvent>();
+
+        foreach (var healthEvent in healthEvents)
+        {
+            try
+            {
+                var createdEvent = await CreateHealthEventAsync(healthEvent);
+                if (createdEvent != null)
+                {
+                    createdEvents.Add(createdEvent);
+                    result.SuccessfulCount++;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.FailedCount++;
+                result.FailedDetails.Add($"Học sinh {healthEvent.StudentCode}: {ex.Message}");
+            }
+        }
+
+        result.CreatedEvents = createdEvents;
+        return result;
+    }
+
     public async Task<HealthEvent?> CreateHealthEventAsync(HealthEvent healthEvent)
     {
         // Validate StudentCode
@@ -149,9 +176,6 @@ public class HealthEventService : IHealthEventService
         }
         catch (Exception ex)
         {
-            // Log the error but don't fail the health event creation
-            // In a real application, you might want to use a proper logging framework
-            Console.WriteLine($"Failed to send notification for health event {createdHealthEvent.EventId}: {ex.Message}");
         }
 
         return createdHealthEvent;
@@ -297,12 +321,10 @@ public class HealthEventService : IHealthEventService
                         var success = await _medicineService.UpdateStockQuantityAsync(medicine.MedicineId, quantityUsed);
                         if (!success)
                         {
-                            Console.WriteLine($"Warning: Failed to update stock for medicine ID {medicine.MedicineId}");
                         }
                     }
                     else
                     {
-                        Console.WriteLine($"Skipped stock update for medicine ID {medicine.MedicineId} - insufficient stock or inactive");
                     }
                 }
             }
@@ -321,20 +343,16 @@ public class HealthEventService : IHealthEventService
                         var success = await _medicalSupplyService.UpdateStockQuantityAsync(supply.MedicalSupplyId, quantityUsed);
                         if (!success)
                         {
-                            Console.WriteLine($"Warning: Failed to update stock for medical supply ID {supply.MedicalSupplyId}");
                         }
                     }
                     else
                     {
-                        Console.WriteLine($"Skipped stock update for medical supply ID {supply.MedicalSupplyId} - insufficient stock or inactive");
                     }
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error updating inventory stock for health event {healthEvent.EventId}: {ex.Message}");
-            // Log error but don't fail the health event creation
         }
     }
 
@@ -377,8 +395,6 @@ public class HealthEventService : IHealthEventService
         }
         catch (Exception ex)
         {
-            // Log error but don't throw to allow proper error handling upstream
-            Console.WriteLine($"ERROR: Error getting grade for student {studentCode}: {ex.Message}");
             return null;
         }
     }
@@ -407,13 +423,9 @@ public class HealthEventService : IHealthEventService
 
             _context.HealthRecords.Add(healthRecord);
             await _context.SaveChangesAsync();
-
-            Console.WriteLine($"Created health record for severe/emergency health event {healthEvent.EventId}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error creating health record for health event {healthEvent.EventId}: {ex.Message}");
-            // Don't throw - this shouldn't fail the main health event creation
         }
     }
 

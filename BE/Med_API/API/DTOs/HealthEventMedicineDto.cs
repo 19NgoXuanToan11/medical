@@ -20,6 +20,9 @@ public static class HealthEventMedicineDto
         public int MedicineId { get; set; }
         
         [StringLength(100)]
+        public string? MedicineName { get; set; }
+        
+        [StringLength(100)]
         public string? Dosage { get; set; }
 
         [StringLength(50)]

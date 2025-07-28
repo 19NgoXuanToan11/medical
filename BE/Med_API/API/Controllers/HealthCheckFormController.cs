@@ -241,17 +241,6 @@ public class HealthCheckFormController : ControllerBase
     [HttpPost("schedules")]
     public async Task<ActionResult<HealthCheckFormDTO>> CreateHealthCheckSchedule(HealthCheckFormDTO scheduleDto)
     {
-        // Debug logging - log the raw request
-        _logger.LogInformation("=== DEBUG: Raw request received ===");
-        _logger.LogInformation("Title: {Title}", scheduleDto.Title);
-        _logger.LogInformation("ScheduledDate: {Date}", scheduleDto.ScheduledDate);
-        _logger.LogInformation("StartTime: {StartTime}", scheduleDto.StartTime);
-        _logger.LogInformation("GradeIds: {GradeIds}", scheduleDto.GradeIds);
-        _logger.LogInformation("Description: {Description}", scheduleDto.Description);
-        _logger.LogInformation("Location: {Location}", scheduleDto.Location);
-        _logger.LogInformation("Status from frontend: {Status}", scheduleDto.Status);
-        Console.WriteLine($"CONTROLLER RECEIVED: Status = '{scheduleDto.Status}'");
-        
         if (!ModelState.IsValid)
         {
             _logger.LogWarning("Invalid model state for HealthCheckSchedule creation:");
@@ -291,7 +280,6 @@ public class HealthCheckFormController : ControllerBase
                 scheduleDto.Status = "pending";
             
             _logger.LogInformation("Final Status after processing: {Status}", scheduleDto.Status);
-            Console.WriteLine($"CONTROLLER SENDING TO SERVICE: Status = '{scheduleDto.Status}'");
 
             // Convert StartTime from string to TimeSpan for mapping
             var schedule = _mapper.Map<HealthCheckForm>(scheduleDto);
@@ -317,8 +305,6 @@ public class HealthCheckFormController : ControllerBase
             
             // FINAL DEBUG - CHECK WHAT WE'RE RETURNING
             var responseDto = _mapper.Map<HealthCheckFormDTO>(createdSchedule);
-            Console.WriteLine($"MAPPED RESPONSE DTO: Status = '{responseDto.Status}'");
-            Console.WriteLine($"ORIGINAL ENTITY: Status = '{createdSchedule.Status}'");
             
             return CreatedAtAction(
                 nameof(GetHealthCheckScheduleById),
