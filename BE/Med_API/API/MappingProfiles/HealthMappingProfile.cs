@@ -14,7 +14,8 @@ public class HealthMappingProfile : Profile
             .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Student))
             .ForMember(dest => dest.Staff, opt => opt.MapFrom(src => src.Staff))
             .ForMember(dest => dest.HealthEventMedicines, opt => opt.MapFrom(src => src.HealthEventMedicines))
-            .ForMember(dest => dest.HealthEventMedicalSupplies, opt => opt.MapFrom(src => src.HealthEventMedicalSupplies));
+            .ForMember(dest => dest.HealthEventMedicalSupplies, opt => opt.MapFrom(src => src.HealthEventMedicalSupplies))
+            .ForMember(dest => dest.HealthEventFollowUps, opt => opt.MapFrom(src => src.HealthEventFollowUps));
 
         CreateMap<HealthEventDto.Create, HealthEvent>()
             .ForMember(dest => dest.EventId, opt => opt.Ignore())
@@ -63,5 +64,23 @@ public class HealthMappingProfile : Profile
 
         // Parent Summary Mapping
         CreateMap<Parent, HealthProfileDto.ParentSummary>();
+
+        // HealthEventFollowUp Mappings
+        CreateMap<HealthEventFollowUp, Service.DTOs.HealthEventFollowUpDto.ViewModel>()
+            .ForMember(dest => dest.StaffName, opt => opt.MapFrom(src => src.Staff != null ? $"{src.Staff.FirstName} {src.Staff.LastName}" : string.Empty));
+
+        CreateMap<Service.DTOs.HealthEventFollowUpDto.Create, HealthEventFollowUp>()
+            .ForMember(dest => dest.FollowUpId, opt => opt.Ignore())
+            .ForMember(dest => dest.Timestamp, opt => opt.Ignore())
+            .ForMember(dest => dest.Event, opt => opt.Ignore())
+            .ForMember(dest => dest.Staff, opt => opt.Ignore());
+
+        CreateMap<Service.DTOs.HealthEventFollowUpDto.Update, HealthEventFollowUp>()
+            .ForMember(dest => dest.EventId, opt => opt.Ignore())
+            .ForMember(dest => dest.StaffId, opt => opt.Ignore())
+            .ForMember(dest => dest.Timestamp, opt => opt.Ignore())
+            .ForMember(dest => dest.Event, opt => opt.Ignore())
+            .ForMember(dest => dest.Staff, opt => opt.Ignore())
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 } 

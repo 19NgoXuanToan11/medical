@@ -148,6 +148,7 @@ builder.Services.AddScoped<IInjectionResultRepository, InjectionResultRepository
 builder.Services.AddScoped<IHealthCheckFormRepository, HealthCheckFormRepository>();
 builder.Services.AddScoped<IHealthCheckResultRepository, HealthCheckResultRepository>();
 builder.Services.AddScoped<IHealthEventRepository, HealthEventRepository>();
+builder.Services.AddScoped<IHealthEventFollowUpRepository, HealthEventFollowUpRepository>();
 builder.Services.AddScoped<IHealthProfileRepository, HealthProfileRepository>();
 builder.Services.AddScoped<IDashboardSummaryRepository, DashboardSummaryRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
@@ -173,6 +174,7 @@ builder.Services.AddScoped<IInjectionResultService, InjectionResultService>();
 builder.Services.AddScoped<IHealthCheckFormService, HealthCheckFormService>();
 builder.Services.AddScoped<IHealthCheckResultService, HealthCheckResultService>();
 builder.Services.AddScoped<IHealthEventService, HealthEventService>();
+builder.Services.AddScoped<IHealthEventFollowUpService, HealthEventFollowUpService>();
 builder.Services.AddScoped<IHealthProfileService, HealthProfileService>();
 builder.Services.AddScoped<IDashboardSummaryService, DashboardSummaryService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();

@@ -41,4 +41,6 @@ public partial class HealthEvent
     public virtual ICollection<HealthEventMedicine> HealthEventMedicines { get; set; } = new List<HealthEventMedicine>();
 
     public virtual ICollection<HealthEventMedicalSupply> HealthEventMedicalSupplies { get; set; } = new List<HealthEventMedicalSupply>();
+
+    public virtual ICollection<HealthEventFollowUp> HealthEventFollowUps { get; set; } = new List<HealthEventFollowUp>();
 }

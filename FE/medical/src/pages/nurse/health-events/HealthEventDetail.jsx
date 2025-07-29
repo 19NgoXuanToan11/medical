@@ -22,11 +22,14 @@ import {
   FiPackage as FiPill,
   FiShield,
   FiClock as FiTime,
+  FiPlus,
 } from "react-icons/fi";
 import {
   getHealthEventById,
   deleteHealthEvent,
 } from "../../../utils/api/health-events/healthEventService";
+import FollowUpTimeline from "../../../components/health-events/FollowUpTimeline";
+import FollowUpForm from "../../../components/health-events/FollowUpForm";
 
 const HealthEventDetail = () => {
   const { id } = useParams();
@@ -34,6 +37,8 @@ const HealthEventDetail = () => {
   const [loading, setLoading] = useState(true);
   const [event, setEvent] = useState(null);
   const [error, setError] = useState(null);
+  const [showFollowUpForm, setShowFollowUpForm] = useState(false);
+  const [followUpKey, setFollowUpKey] = useState(0); // For forcing re-render of timeline
 
   useEffect(() => {
     const fetchEventDetail = async () => {
@@ -120,9 +125,18 @@ const HealthEventDetail = () => {
         navigate("/nurse/health-events");
       } catch (error) {
         console.error("Failed to delete health event:", error);
-        alert("Không thể xóa sự cố y tế. Vui lòng thử lại.");
+        alert("Không thể xóa sự cố y tế");
       }
     }
+  };
+
+  const handleFollowUpAdded = () => {
+    setShowFollowUpForm(false);
+    setFollowUpKey((prev) => prev + 1); // Force re-render of timeline
+  };
+
+  const handleAddFollowUp = () => {
+    setShowFollowUpForm(true);
   };
 
   if (loading) {
@@ -517,6 +531,41 @@ const HealthEventDetail = () => {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Follow-up Section */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <FiTrendingUp className="h-5 w-5 text-blue-600" />
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Theo Dõi Tình Trạng
+                </h2>
+              </div>
+              <button
+                onClick={handleAddFollowUp}
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <FiPlus className="mr-1 h-4 w-4" />
+                Thêm Cập Nhật
+              </button>
+            </div>
+
+            {showFollowUpForm && (
+              <div className="mb-6">
+                <FollowUpForm
+                  eventId={event.eventId}
+                  onFollowUpAdded={handleFollowUpAdded}
+                  onCancel={() => setShowFollowUpForm(false)}
+                />
+              </div>
+            )}
+
+            <FollowUpTimeline
+              key={followUpKey}
+              eventId={event.eventId}
+              onFollowUpAdded={handleFollowUpAdded}
+            />
           </div>
         </div>
       </div>

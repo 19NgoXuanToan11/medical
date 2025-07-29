@@ -24,9 +24,9 @@ const HealthEventsList = () => {
   const { notifications, loading, error, markAsRead, refreshNotifications } =
     useNotificationPolling(user?.id, 10000);
 
-  // Filter notifications to get only health events
+  // Filter notifications to get only health events and follow-ups
   const healthEventNotifications = notifications.filter(
-    (notification) => notification.type === "health_event"
+    (notification) => notification.type === "health_event" || notification.type === "health_event_follow_up"
   );
 
   // Use imported formatDate and formatTime from timeUtils.js which handle Vietnam timezone
@@ -123,6 +123,7 @@ const HealthEventsList = () => {
   const renderHealthEventCard = (notification) => {
     const additionalData = parseAdditionalData(notification.additionalData);
     const isUnread = !notification.isRead;
+    const isFollowUp = notification.type === "health_event_follow_up";
 
     // Use EventDate from additionalData if available, otherwise fall back to createdAt
     const eventDateTime = additionalData?.EventDate || notification.createdAt;
@@ -135,7 +136,7 @@ const HealthEventsList = () => {
         key={notification.notificationId}
         className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700 ${
           isUnread ? "border-l-4 border-l-red-500 dark:border-l-red-400" : ""
-        }`}
+        } ${isFollowUp ? "border-l-4 border-l-blue-500 dark:border-l-blue-400" : ""}`}
       >
         <div className="p-5">
           <div className="flex justify-between items-start mb-2">
@@ -143,6 +144,11 @@ const HealthEventsList = () => {
               {notification.title}
             </h2>
             <div className="flex items-center space-x-2">
+              {isFollowUp && (
+                <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                  Cập nhật
+                </span>
+              )}
               <span
                 className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
                   additionalData?.Severity
@@ -188,7 +194,28 @@ const HealthEventsList = () => {
             </div>
           )}
 
-          {additionalData && (
+          {/* Show follow-up specific information */}
+          {isFollowUp && additionalData && (
+            <div className="mb-4 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+                Cập nhật tình trạng:
+              </h3>
+              <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                {additionalData.FollowUpStatus && (
+                  <p>
+                    <strong>Trạng thái:</strong> {additionalData.FollowUpStatus}
+                  </p>
+                )}
+                {additionalData.FollowUpNote && (
+                  <p>
+                    <strong>Ghi chú:</strong> {additionalData.FollowUpNote}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {additionalData && !isFollowUp && (
             <div className="mb-4">
               <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
                 Chi tiết sự cố:
@@ -233,11 +260,11 @@ const HealthEventsList = () => {
             </button>
             <Link
               to={`/parent/health-events/${
-                additionalData?.EventId || notification.notificationId
+                additionalData?.EventId || additionalData?.HealthEventId || notification.notificationId
               }/notification`}
               className="text-sm bg-primary-600 text-white px-3 py-1 rounded hover:bg-primary-700 transition-colors"
             >
-              Xem chi tiết
+              {isFollowUp ? "Xem chi tiết sự cố" : "Xem chi tiết"}
             </Link>
           </div>
         </div>

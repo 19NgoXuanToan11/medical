@@ -24,6 +24,7 @@ import {
 import { useAuth } from "../../../utils/auth/AuthContext";
 import useNotificationPolling from "../../../hooks/useNotificationPolling";
 import notificationService from "../../../utils/api/notification/notificationService";
+import FollowUpTimeline from "../../../components/health-events/FollowUpTimeline";
 import {
   formatDate,
   formatTime,
@@ -397,6 +398,21 @@ const HealthEventNotificationDetail = () => {
               </div>
             </div>
           </div>
+
+          {/* Follow-up Timeline */}
+          {event?.EventId && (
+            <div className="mt-8">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <FiTrendingUp className="h-5 w-5 text-green-600" />
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Lịch sử cập nhật tình trạng
+                  </h2>
+                </div>
+                <FollowUpTimeline eventId={event.EventId} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

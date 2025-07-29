@@ -10,10 +10,12 @@ import {
   FiFileText,
   FiEdit,
   FiPlus,
+  FiTrendingUp,
 } from "react-icons/fi";
 
 import { getCriticalIncidentsByStudent } from "../../../../utils/api/health-events/healthEventService";
 import { formatNotificationTime } from "../../../../utils/timeUtils";
+import FollowUpTimeline from "../../../../components/health-events/FollowUpTimeline";
 
 const HealthIncidentsTab = ({
   healthProfile,
@@ -308,6 +310,17 @@ const HealthIncidentsTab = ({
                     </div>
                     <div>Ngày tạo: {formatDateTime(record.createdAt)}</div>
                   </div>
+                </div>
+
+                {/* Follow-up Timeline */}
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <FiTrendingUp className="h-4 w-4 text-green-600" />
+                    <h5 className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                      Lịch sử cập nhật tình trạng:
+                    </h5>
+                  </div>
+                  <FollowUpTimeline eventId={record.recordId} />
                 </div>
               </div>
             </div>

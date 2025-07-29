@@ -174,7 +174,7 @@ public class HealthEventService : IHealthEventService
             createdHealthEvent.ParentNotified = true;
             await _healthEventRepository.UpdateHealthEventAsync(createdHealthEvent);
         }
-        catch (Exception ex)
+        catch 
         {
         }
 
@@ -351,7 +351,7 @@ public class HealthEventService : IHealthEventService
                 }
             }
         }
-        catch (Exception ex)
+        catch
         {
         }
     }
@@ -424,7 +424,7 @@ public class HealthEventService : IHealthEventService
             _context.HealthRecords.Add(healthRecord);
             await _context.SaveChangesAsync();
         }
-        catch (Exception ex)
+        catch
         {
         }
     }

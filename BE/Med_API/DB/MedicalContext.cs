@@ -29,6 +29,8 @@ public partial class MedicalContext : DbContext
 
     public virtual DbSet<HealthEventMedicalSupply> HealthEventMedicalSupplies { get; set; }
 
+    public virtual DbSet<HealthEventFollowUp> HealthEventFollowUps { get; set; }
+
     public virtual DbSet<HealthProfile> HealthProfiles { get; set; }
 
     public virtual DbSet<InjectionForm> InjectionForms { get; set; }
@@ -986,6 +988,35 @@ public partial class MedicalContext : DbContext
                 .HasForeignKey(d => d.UpdatedBy)
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK__HealthRecord__UpdatedBy");
+        });
+
+        modelBuilder.Entity<HealthEventFollowUp>(entity =>
+        {
+            entity.HasKey(e => e.FollowUpId);
+
+            entity.ToTable("HealthEventFollowUp");
+
+            entity.Property(e => e.FollowUpId).HasColumnName("FollowUpID");
+            entity.Property(e => e.EventId).HasColumnName("EventID");
+            entity.Property(e => e.StaffId).HasColumnName("StaffID");
+            entity.Property(e => e.Timestamp)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(100);
+            entity.Property(e => e.Note).HasMaxLength(500);
+
+            // Configure relationships
+            entity.HasOne(d => d.Event)
+                .WithMany(p => p.HealthEventFollowUps)
+                .HasForeignKey(d => d.EventId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__HealthEventFollowUp__EventID");
+
+            entity.HasOne(d => d.Staff)
+                .WithMany()
+                .HasForeignKey(d => d.StaffId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK__HealthEventFollowUp__StaffID");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -28,6 +28,7 @@ public static class HealthEventDto
         public StaffDto.ViewModel? Staff { get; set; }
         public ICollection<HealthEventMedicineDto.ViewModel> HealthEventMedicines { get; set; } = new List<HealthEventMedicineDto.ViewModel>();
         public ICollection<HealthEventMedicalSupplyDto.ViewModel> HealthEventMedicalSupplies { get; set; } = new List<HealthEventMedicalSupplyDto.ViewModel>();
+        public ICollection<Service.DTOs.HealthEventFollowUpDto.ViewModel> HealthEventFollowUps { get; set; } = new List<Service.DTOs.HealthEventFollowUpDto.ViewModel>();
     }
 
     public class Create
