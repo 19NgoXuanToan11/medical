@@ -27,7 +27,6 @@ import { getMedicineUnit } from "../../../../utils/medicine/medicineUnits";
 
 const MedicineAdministration = () => {
   const [assignedRequests, setAssignedRequests] = useState([]);
-  const [completedRequests, setCompletedRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState("assigned");
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,7 +45,7 @@ const MedicineAdministration = () => {
   const loadAllData = async () => {
     setLoading(true);
     try {
-      await Promise.all([loadAssignedRequests(), loadCompletedRequests()]);
+      await loadAssignedRequests();
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -61,17 +60,6 @@ const MedicineAdministration = () => {
       }
     } catch (error) {
       console.error("Error loading assigned requests:", error);
-    }
-  };
-
-  const loadCompletedRequests = async () => {
-    try {
-      const response = await medicationService.getCompletedMedicationRequests();
-      if (response.success) {
-        setCompletedRequests(response.data);
-      }
-    } catch (error) {
-      console.error("Error loading completed requests:", error);
     }
   };
 
@@ -94,7 +82,7 @@ const MedicineAdministration = () => {
     }
 
     try {
-      const response = await medicationService.startMedicationAdministration(
+      const response = await medicationService.completeMedicationRequest(
         selectedRequest.requestId,
         currentStaffId
       );
@@ -119,10 +107,48 @@ const MedicineAdministration = () => {
     }
 
     try {
+      // Get the first medicine request item
+      const medicineItem =
+        selectedRequest.medicineRequestItems?.[0] ||
+        selectedRequest.assignedItems?.[0];
+      if (!medicineItem) {
+        alert("Không tìm thấy thông tin thuốc");
+        return;
+      }
+
+      // Get the correct medicineRequestItemId
+      const medicineRequestItemId =
+        medicineItem.medicineRequestItemId ||
+        medicineItem.id ||
+        medicineItem.itemId;
+
+      if (!medicineRequestItemId) {
+        alert("Không tìm thấy ID của medicine request item");
+        console.error("No valid ID found in medicineItem:", medicineItem);
+        return;
+      }
+
+      // Determine period based on timeOfDay - use Vietnamese format as backend requires
+      let period = "sáng"; // default
+      if (medicineItem.timeOfDay) {
+        const timeOfDay = medicineItem.timeOfDay.toLowerCase().trim();
+        if (timeOfDay.includes("trưa") || timeOfDay.includes("noon")) {
+          period = "trưa";
+        } else if (
+          timeOfDay.includes("chiều") ||
+          timeOfDay.includes("afternoon")
+        ) {
+          period = "chiều";
+        } else if (timeOfDay.includes("tối") || timeOfDay.includes("evening")) {
+          period = "tối";
+        }
+      }
+
       const response = await medicationService.completeMedicationRequest(
-        selectedRequest.requestId,
+        medicineRequestItemId, // medicineRequestItemId
         currentStaffId,
-        "Hoàn thành cho uống thuốc"
+        period
+        // Removed notes parameter
       );
 
       if (response.success) {
@@ -139,52 +165,43 @@ const MedicineAdministration = () => {
   };
 
   const getCurrentData = () => {
-    switch (activeSubTab) {
-      case "assigned":
-        return assignedRequests;
-      case "completed":
-        return completedRequests;
-      default:
-        return [];
-    }
+    return assignedRequests;
   };
 
   const filterRequests = (requests) => {
     return requests.filter((request) => {
       const searchLower = searchTerm.toLowerCase();
-      const studentName = `${request.student?.firstName || ""} ${
-        request.student?.lastName || ""
-      }`.toLowerCase();
-      const medicineName =
-        request.medicineRequestItems?.[0]?.medicineName?.toLowerCase() || "";
+      // Use studentName from new schema or fallback to student object
+      const studentName = (
+        request.studentName ||
+        `${request.student?.firstName || ""} ${request.student?.lastName || ""}`
+      ).toLowerCase();
+
+      // Get medicine names from assignedItems or medicineRequestItems
+      const medicineNames = (
+        request.assignedItems ||
+        request.medicineRequestItems ||
+        []
+      )
+        .map((item) => item.medicineName?.toLowerCase() || "")
+        .join(" ");
+
       const requestId = request.requestId?.toString() || "";
+      const className = request.className?.toLowerCase() || "";
 
       return (
         studentName.includes(searchLower) ||
-        medicineName.includes(searchLower) ||
-        requestId.includes(searchLower)
+        medicineNames.includes(searchLower) ||
+        requestId.includes(searchLower) ||
+        className.includes(searchLower)
       );
     });
   };
 
   const getStatusBadge = (status, subTab) => {
-    const statusMap = {
-      assigned: {
-        label: "Chờ cho uống",
-        color: "bg-orange-100 text-orange-800",
-      },
-      completed: {
-        label: "Đã hoàn thành",
-        color: "bg-green-100 text-green-800",
-      },
-    };
-
-    const config = statusMap[subTab] || statusMap.assigned;
     return (
-      <span
-        className={`px-2 py-1 text-xs font-medium rounded-full ${config.color}`}
-      >
-        {config.label}
+      <span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">
+        Chờ cho uống
       </span>
     );
   };
@@ -255,34 +272,16 @@ const MedicineAdministration = () => {
 
       {/* Sub Tabs */}
       <div className="flex space-x-1 bg-gray-100 dark:bg-neutral-700 p-1 rounded-lg">
-        {[
-          { key: "assigned", label: "Chờ cho uống", icon: FiClock },
-          { key: "completed", label: "Đã hoàn thành", icon: FiCheck },
-        ].map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            onClick={() => setActiveSubTab(key)}
-            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
-              activeSubTab === key
-                ? "bg-white dark:bg-neutral-600 text-blue-600 dark:text-blue-400 shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-            }`}
-          >
-            <Icon className="h-4 w-4 mr-2" />
-            {label}
-            <span
-              className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                activeSubTab === key
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
-                  : "bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300"
-              }`}
-            >
-              {key === "assigned"
-                ? assignedRequests.length
-                : completedRequests.length}
-            </span>
-          </button>
-        ))}
+        <button
+          onClick={() => setActiveSubTab("assigned")}
+          className="flex items-center px-4 py-2 rounded-md transition-colors duration-200 bg-white dark:bg-neutral-600 text-blue-600 dark:text-blue-400 shadow-sm"
+        >
+          <FiClock className="h-4 w-4 mr-2" />
+          Chờ cho uống
+          <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+            {assignedRequests.length}
+          </span>
+        </button>
       </div>
 
       {/* Search */}
@@ -306,16 +305,16 @@ const MedicineAdministration = () => {
             <thead className="bg-gray-50 dark:bg-neutral-700">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Học sinh
+                  Học sinh & Lớp
                 </th>
                 <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Thuốc
+                  Thuốc & Liều lượng
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Buổi được phân công
                 </th>
                 <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Y tá phụ trách
-                </th>
-                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Ngày gửi yêu cầu
                 </th>
                 <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Ngày uống thuốc
@@ -344,34 +343,95 @@ const MedicineAdministration = () => {
                     key={request.requestId}
                     className="hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-200"
                   >
+                    {/* Học sinh & Lớp */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {request.student?.firstName}{" "}
-                            {request.student?.lastName}
+                            {request.studentName ||
+                              `${request.student?.firstName || ""} ${
+                                request.student?.lastName || ""
+                              }`}
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
                             Lớp:{" "}
-                            {request.student?.class?.className ||
-                              request.className}
+                            {request.className ||
+                              request.student?.class?.className ||
+                              "N/A"}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="text-sm text-gray-900 dark:text-gray-100">
-                        {request.medicineRequestItems?.[0]?.medicineName ||
-                          "N/A"}
+
+                    {/* Thuốc & Liều lượng */}
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        {(
+                          request.assignedItems ||
+                          request.medicineRequestItems ||
+                          []
+                        ).map((item, index) => (
+                          <div key={index} className="text-sm">
+                            <div className="font-medium text-gray-900 dark:text-gray-100">
+                              {item.medicineName}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {item.dosage} {item.dosageUnit} - {item.frequency}{" "}
+                              lần/ngày
+                            </div>
+                            {item.instructions && (
+                              <div className="text-xs text-blue-600 dark:text-blue-400 italic">
+                                {item.instructions}
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                      {isOneTimeFrequency(
-                        request.medicineRequestItems?.[0]?.frequency
-                      ) && (
-                        <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                          Uống 1 lần
-                        </div>
-                      )}
                     </td>
+
+                    {/* Buổi được phân công */}
+                    <td className="px-6 py-4 text-center">
+                      <div className="space-y-1">
+                        {(request.assignedItems || []).map(
+                          (item, itemIndex) => (
+                            <div key={itemIndex}>
+                              {(item.assignedPeriods || []).map(
+                                (period, periodIndex) => (
+                                  <div
+                                    key={periodIndex}
+                                    className="inline-block mr-1 mb-1"
+                                  >
+                                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                      {period.period}
+                                    </span>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {formatDateTime(period.timestamp)}
+                                    </div>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          )
+                        )}
+                        {/* Fallback for old schema */}
+                        {(!request.assignedItems ||
+                          request.assignedItems.length === 0) &&
+                          (request.medicineRequestItems || []).map(
+                            (item, index) => (
+                              <div
+                                key={index}
+                                className="inline-block mr-1 mb-1"
+                              >
+                                <span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">
+                                  {item.timeOfDay || "N/A"}
+                                </span>
+                              </div>
+                            )
+                          )}
+                      </div>
+                    </td>
+
+                    {/* Y tá phụ trách */}
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center">
                         <div className="ml-2">
@@ -381,17 +441,21 @@ const MedicineAdministration = () => {
                         </div>
                       </div>
                     </td>
+
+                    {/* Ngày uống thuốc */}
                     <td className="px-6 py-4 text-center text-sm text-gray-900 dark:text-gray-100">
-                      {formatDate(request.requestDate)}
+                      <div>{formatDate(request.date)}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        Yêu cầu cấp thuốc: {formatDate(request.requestDate)}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-center text-sm text-gray-900 dark:text-gray-100">
-                      {request.date
-                        ? formatDate(request.date)
-                        : formatDate(request.requestDate)}
-                    </td>
+
+                    {/* Trạng thái */}
                     <td className="px-6 py-4 text-center">
                       {getStatusBadge(request.status, activeSubTab)}
                     </td>
+
+                    {/* Thao tác */}
                     <td className="px-6 py-4 text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
                         <button
@@ -417,7 +481,8 @@ const MedicineAdministration = () => {
                               <FiPlay className="h-4 w-4" />
                             </button>
                             {isOneTimeFrequency(
-                              request.medicineRequestItems?.[0]?.frequency
+                              (request.assignedItems ||
+                                request.medicineRequestItems)?.[0]?.frequency
                             ) && (
                               <button
                                 onClick={() => {
@@ -466,8 +531,10 @@ const MedicineAdministration = () => {
                     Học sinh
                   </label>
                   <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                    {selectedRequest.student?.firstName}{" "}
-                    {selectedRequest.student?.lastName}
+                    {selectedRequest.studentName ||
+                      `${selectedRequest.student?.firstName || ""} ${
+                        selectedRequest.student?.lastName || ""
+                      }`}
                   </p>
                 </div>
                 <div>
@@ -475,8 +542,25 @@ const MedicineAdministration = () => {
                     Lớp
                   </label>
                   <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                    {selectedRequest.student?.class?.className ||
-                      selectedRequest.className}
+                    {selectedRequest.className ||
+                      selectedRequest.student?.class?.className ||
+                      "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Mã học sinh
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {selectedRequest.studentCode || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Phụ huynh
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {selectedRequest.parentName || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -512,103 +596,173 @@ const MedicineAdministration = () => {
                     {getStatusBadge(selectedRequest.status, activeSubTab)}
                   </p>
                 </div>
-                {activeSubTab === "completed" &&
-                  selectedRequest.completedDate && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Ngày hoàn thành
-                      </label>
-                      <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                        {formatDateTime(selectedRequest.completedDate)}
-                      </p>
-                    </div>
-                  )}
               </div>
 
-              {selectedRequest.medicineRequestItems && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Thông tin thuốc
-                  </label>
-                  <div className="space-y-3">
-                    {selectedRequest.medicineRequestItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className="border border-gray-200 dark:border-gray-600 rounded-lg p-3"
-                      >
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              Tên thuốc:
-                            </span>
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              {/* Assigned Items Information */}
+              {selectedRequest.assignedItems &&
+                selectedRequest.assignedItems.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                      Thông tin thuốc được phân công
+                    </label>
+                    <div className="space-y-4">
+                      {selectedRequest.assignedItems.map((item, index) => (
+                        <div
+                          key={index}
+                          className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-neutral-700"
+                        >
+                          {/* Medicine Info */}
+                          <div className="mb-4">
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                               {item.medicineName}
-                            </p>
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Liều lượng:
+                                </span>
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {item.dosage} {item.dosageUnit}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Tần suất:
+                                </span>
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {item.frequency} lần/ngày
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Thời gian:
+                                </span>
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {item.timeOfDay}
+                                </p>
+                              </div>
+                            </div>
+                            {item.instructions && (
+                              <div className="mt-2">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Hướng dẫn sử dụng:
+                                </span>
+                                <p className="text-sm text-blue-600 dark:text-blue-400 italic">
+                                  {item.instructions}
+                                </p>
+                              </div>
+                            )}
                           </div>
-                          <div>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              Tổng liều lượng
-                            </span>
-                            <p className="text-sm text-gray-900 dark:text-gray-100">
-                              {item.dosage}{" "}
-                              {item.dosageUnit ||
-                                getMedicineUnit(item.medicineName)}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              Liều lượng mỗi lần
-                            </span>
-                            <p className="text-sm text-gray-900 dark:text-gray-100">
-                              {item.dosage && item.frequency
-                                ? `${(item.dosage / item.frequency).toFixed(
-                                    item.dosage % item.frequency === 0 ? 0 : 1
-                                  )} ${
-                                    item.dosageUnit ||
-                                    getMedicineUnit(item.medicineName)
-                                  }/lần`
-                                : `${item.dosagePerTime || "1"} ${
-                                    item.dosageUnit ||
-                                    getMedicineUnit(item.medicineName)
-                                  }/lần`}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              Tần suất uống
-                            </span>
-                            <p className="text-sm text-gray-900 dark:text-gray-100">
-                              {item.frequency} lần/ngày
-                            </p>
-                          </div>
+
+                          {/* Assigned Periods */}
+                          {item.assignedPeriods &&
+                            item.assignedPeriods.length > 0 && (
+                              <div>
+                                <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                  Buổi được phân công:
+                                </h5>
+                                <div className="space-y-2">
+                                  {item.assignedPeriods.map(
+                                    (period, periodIndex) => (
+                                      <div
+                                        key={periodIndex}
+                                        className="flex items-center justify-between p-2 bg-white dark:bg-neutral-600 rounded border"
+                                      >
+                                        <div className="flex items-center space-x-3">
+                                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                            {period.period}
+                                          </span>
+                                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                            {period.status}
+                                          </span>
+                                        </div>
+                                        <div className="text-right">
+                                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                                            Phân công lúc:
+                                          </div>
+                                          <div className="text-xs text-gray-900 dark:text-gray-100">
+                                            {formatDateTime(period.timestamp)}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
                         </div>
-
-                        {(item.timeOfDay || item.schedule) && (
-                          <div className="mt-3">
-                            <span className="text-xs text-gray-500 dark:text-gray-400 mb-2 block">
-                              Lịch uống thuốc:
-                            </span>
-                            <p className="text-sm text-gray-900 dark:text-gray-100 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
-                              {formatTimeOfDay(item.timeOfDay) || item.schedule}
-                            </p>
-                          </div>
-                        )}
-
-                        {item.instructions && (
-                          <div className="mt-3">
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              Hướng dẫn:
-                            </span>
-                            <p className="text-sm text-gray-900 dark:text-gray-100">
-                              {item.instructions}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+
+              {/* Fallback for old schema */}
+              {(!selectedRequest.assignedItems ||
+                selectedRequest.assignedItems.length === 0) &&
+                selectedRequest.medicineRequestItems && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Thông tin thuốc (Schema cũ)
+                    </label>
+                    <div className="space-y-3">
+                      {selectedRequest.medicineRequestItems.map(
+                        (item, index) => (
+                          <div
+                            key={index}
+                            className="border border-gray-200 dark:border-gray-600 rounded-lg p-3"
+                          >
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Tên thuốc:
+                                </span>
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                  {item.medicineName}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Tổng liều lượng
+                                </span>
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {item.dosage}{" "}
+                                  {item.dosageUnit ||
+                                    getMedicineUnit(item.medicineName)}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Tần suất uống
+                                </span>
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {item.frequency} lần/ngày
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Thời gian uống
+                                </span>
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {item.timeOfDay || "N/A"}
+                                </p>
+                              </div>
+                            </div>
+                            {item.instructions && (
+                              <div className="mt-2">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Hướng dẫn:
+                                </span>
+                                <p className="text-sm text-blue-600 dark:text-blue-400">
+                                  {item.instructions}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
         </div>
