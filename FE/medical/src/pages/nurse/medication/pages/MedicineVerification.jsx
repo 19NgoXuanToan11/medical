@@ -13,6 +13,7 @@ import {
   FiClock,
   FiInfo,
   FiXCircle,
+  FiActivity, // Thêm icon cho nút cho uống thuốc
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../../utils/auth/AuthContext";
@@ -40,6 +41,7 @@ import {
   getRefusedPeriodsWithReasons,
   debugRequestStatus,
   PERIOD_STATUSES,
+  VIETNAMESE_PERIODS,
 } from "../../../../utils/medicationRequestUtils";
 
 const MedicineVerification = () => {
@@ -54,8 +56,12 @@ const MedicineVerification = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showRefuseModal, setShowRefuseModal] = useState(false);
-  const [periodReasons, setPeriodReasons] = useState({});
+  // Thêm state cho modal cho uống thuốc
+  const [showAdministerModal, setShowAdministerModal] = useState(false);
+  const [selectedAdministerRequest, setSelectedAdministerRequest] =
+    useState(null);
   const [selectedPeriods, setSelectedPeriods] = useState([]);
+  const [periodReasons, setPeriodReasons] = useState({});
   const [availablePeriods, setAvailablePeriods] = useState([]);
 
   const { user } = useAuth();
@@ -64,30 +70,38 @@ const MedicineVerification = () => {
   // Function to get available periods from request
   const getAvailablePeriodsFromRequest = (request) => {
     const periods = new Set();
-    request.medicineRequestItems?.forEach((item) => {
+
+    request.medicineRequestItems?.forEach((item, index) => {
       // Parse timeOfDay to determine which time periods to show
       const timeOfDay = item.timeOfDay || "";
+
       const timeSlots = timeOfDay.split(",").map((time) => time.trim());
 
-      // Map time slots to Vietnamese periods
-      const periodMap = {
-        morning: "Sáng",
-        noon: "Trưa",
-        afternoon: "Chiều",
-        evening: "Tối",
-      };
-
       timeSlots.forEach((slot) => {
-        const period = periodMap[slot.toLowerCase()];
+        // Use VIETNAMESE_PERIODS mapping to handle Vietnamese lowercase -> proper case
+        const period = VIETNAMESE_PERIODS[slot.toLowerCase()];
         if (period) {
           periods.add(period);
         }
       });
     });
-    return Array.from(periods).map((period) => ({
+
+    const result = Array.from(periods).map((period) => ({
       value: period,
       label: period,
     }));
+
+    // Fallback: if no periods found, provide default periods based on verified status
+    if (result.length === 0) {
+      const fallbackPeriods = getAllPeriodsFromRequest(request);
+
+      return fallbackPeriods.map((period) => ({
+        value: period,
+        label: period,
+      }));
+    }
+
+    return result;
   };
 
   // Handle period selection (checkbox toggle)
@@ -140,6 +154,69 @@ const MedicineVerification = () => {
     setSelectedPeriods([]);
     setPeriodReasons({});
     setShowRefuseModal(true);
+  };
+
+  // Function để mở modal cho uống thuốc
+  const openAdministerModal = (request) => {
+    setSelectedAdministerRequest(request);
+    const periods = getAvailablePeriodsFromRequest(request);
+
+    setAvailablePeriods(periods);
+    setSelectedPeriods([]);
+    setShowAdministerModal(true);
+  };
+
+  // Function xử lý assign nurse cho medicine request item
+  const handleAdministerMedicine = async (request) => {
+    if (selectedPeriods.length === 0) {
+      alert("Vui lòng chọn ít nhất một buổi để cho uống thuốc");
+      return;
+    }
+
+    try {
+      // Assign nurse for each medicine item in the request for all selected periods
+      const assignPromises = [];
+
+      for (const period of selectedPeriods) {
+        for (const item of request.medicineRequestItems || []) {
+          assignPromises.push(
+            medicationService.assignNurseToRequestItem(
+              item.medicineRequestItemId,
+              currentStaffId,
+              period
+            )
+          );
+        }
+      }
+
+      const responses = await Promise.all(assignPromises);
+
+      // Check if all assignments were successful
+      const allSuccessful = responses.every((response) => response.success);
+
+      if (allSuccessful) {
+        const periodsText = selectedPeriods.join(", ");
+        alert(`Phân công cho uống thuốc buổi ${periodsText} thành công!`);
+        setShowAdministerModal(false);
+        setSelectedPeriods([]);
+        loadAllData();
+      } else {
+        const failedResponses = responses.filter(
+          (response) => !response.success
+        );
+        alert(
+          `Có lỗi khi phân công: ${failedResponses
+            .map((r) => r.message)
+            .join(", ")}`
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Error assigning nurse for medicine administration:",
+        error
+      );
+      alert("Có lỗi xảy ra khi phân công cho uống thuốc");
+    }
   };
 
   useEffect(() => {
@@ -1105,6 +1182,15 @@ const MedicineVerification = () => {
                             </button>
                           </>
                         )}
+                        {activeSubTab === "verified" && (
+                          <button
+                            onClick={() => openAdministerModal(request)}
+                            className="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
+                            title="Cho uống thuốc"
+                          >
+                            <FiActivity className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1257,95 +1343,6 @@ const MedicineVerification = () => {
                 </div>
               </div>
 
-              {/* Request Status Overview */}
-              <div className="mb-6">
-                <h4 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">
-                  Tổng quan trạng thái yêu cầu
-                </h4>
-                <div className="bg-gray-50 dark:bg-neutral-750 p-4 rounded-lg">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {(() => {
-                      const requestStatus = getRequestStatus(selectedRequest);
-                      const periods = requestStatus.periods;
-
-                      const pendingCount = periods.filter(
-                        (p) => p.status === PERIOD_STATUSES.PENDING
-                      ).length;
-                      const verifiedCount = periods.filter(
-                        (p) => p.status === PERIOD_STATUSES.VERIFIED
-                      ).length;
-                      const refusedCount = periods.filter(
-                        (p) => p.status === PERIOD_STATUSES.REFUSED
-                      ).length;
-                      const completedCount = periods.filter(
-                        (p) => p.status === PERIOD_STATUSES.COMPLETED
-                      ).length;
-
-                      return (
-                        <>
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                              {pendingCount}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              Chờ kiểm tra
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                              {verifiedCount}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              Đã xác nhận
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                              {refusedCount}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              Bị từ chối
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                              {completedCount}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              Đã hoàn thành
-                            </div>
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-
-                  {/* Status classification */}
-                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                    <div className="text-center">
-                      {isPartiallyRefused(selectedRequest) && (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                          <FiAlertTriangle className="h-4 w-4 mr-1" />
-                          Yêu cầu từ chối một phần
-                        </span>
-                      )}
-                      {isFullyRefused(selectedRequest) && (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                          <FiXCircle className="h-4 w-4 mr-1" />
-                          Yêu cầu từ chối hoàn toàn
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Enhanced Refusal Reason Section - Show for any request with refused periods
-                This section displays detailed refusal reasons for each period that was refused.
-                It extracts period-specific refusal reasons from the periodVerificationStatus
-                data structure and presents them in a clear, organized format for nurses to understand
-                exactly why each period was refused and by whom.
-              */}
               {(() => {
                 const refusedPeriods =
                   getRefusedPeriodsWithReasons(selectedRequest);
@@ -1879,6 +1876,139 @@ const MedicineVerification = () => {
                   className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   Từ chối ({selectedPeriods.length} buổi)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Administer Medicine Modal */}
+      {showAdministerModal && selectedAdministerRequest && (
+        <div
+          className="fixed inset-0 z-50"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            margin: 0,
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full border border-gray-300 dark:border-gray-600 flex flex-col"
+            style={{
+              maxWidth: "28rem",
+              maxHeight: "calc(100vh - 2rem)",
+              margin: "1rem",
+            }}
+          >
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600 flex-shrink-0">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                Cho uống thuốc
+              </h3>
+            </div>
+            <div className="px-6 py-4 flex-1 overflow-y-auto">
+              {/* Period Status Overview */}
+              <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Tổng quan trạng thái các buổi:
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {getAllPeriodsFromRequest(selectedAdministerRequest).map(
+                    (period) => {
+                      const status = getPeriodStatus(
+                        selectedAdministerRequest,
+                        period
+                      );
+                      const statusClass = getStatusClass(status);
+                      const statusLabel = getPeriodStatusLabel(status);
+
+                      return (
+                        <div
+                          key={period}
+                          className={`period-indicator ${statusClass} px-2 py-1 rounded-full text-xs font-medium`}
+                        >
+                          {period}: {statusLabel}
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center mb-4">
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    Phân công cho uống thuốc cho học sinh:{" "}
+                    <span className="font-medium">
+                      {selectedAdministerRequest.student?.firstName}{" "}
+                      {selectedAdministerRequest.student?.lastName}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Chọn buổi cần cho uống thuốc *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {availablePeriods.map((period) => (
+                    <label
+                      key={period.value}
+                      className="flex items-center space-x-2 p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPeriods.includes(period.value)}
+                        onChange={() => handlePeriodToggle(period.value)}
+                        className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {period.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {selectedPeriods.length > 0 && (
+                  <div className="mt-2 text-sm text-purple-600 dark:text-purple-400">
+                    Đã chọn: {selectedPeriods.join(", ")}
+                  </div>
+                )}
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg mb-4">
+                <p className="text-sm text-purple-800 dark:text-purple-200">
+                  {selectedPeriods.length > 0
+                    ? `Bạn sẽ được phân công cho uống thuốc cho ${
+                        selectedPeriods.length > 1 ? "các buổi" : "buổi"
+                      } ${selectedPeriods.join(
+                        ", "
+                      )}. Việc này sẽ chuyển yêu cầu sang trạng thái "Assigned".`
+                    : "Vui lòng chọn ít nhất một buổi để phân công cho uống thuốc."}
+                </p>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-600 flex-shrink-0">
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setShowAdministerModal(false);
+                    setSelectedPeriods([]);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={() =>
+                    handleAdministerMedicine(selectedAdministerRequest)
+                  }
+                  disabled={selectedPeriods.length === 0}
+                  className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+                >
+                  <FiActivity className="h-4 w-4 mr-2" />
+                  Cho uống thuốc ({selectedPeriods.length} buổi)
                 </button>
               </div>
             </div>

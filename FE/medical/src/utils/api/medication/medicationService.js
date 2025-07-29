@@ -433,51 +433,13 @@ export const medicationService = {
   // Get assigned medication requests
   getAssignedMedicationRequests: async () => {
     try {
-      // First try to get all requests and filter by status
-      const response = await api.get("/MedicineRequest");
-
-      if (response.data) {
-        // Filter for assigned status
-        const assignedRequests = response.data.filter(
-          (req) => req.status === "Assigned" || req.status === "assigned"
-        );
-
-        // For any requests missing medicineRequestItems, fetch them individually
-        const requestsWithCompleteData = await Promise.all(
-          assignedRequests.map(async (request) => {
-            if (
-              !request.medicineRequestItems ||
-              request.medicineRequestItems.length === 0
-            ) {
-              try {
-                const detailResponse = await api.get(
-                  `/MedicineRequest/${request.requestId}`
-                );
-                if (detailResponse.data) {
-                  return { ...request, ...detailResponse.data };
-                }
-              } catch (error) {
-                console.error(
-                  `Error fetching detail for request ${request.requestId}:`,
-                  error
-                );
-              }
-            }
-            return request;
-          })
-        );
-
-        return {
-          success: true,
-          data: requestsWithCompleteData,
-          message: "Lấy danh sách yêu cầu thuốc đã giao nhiệm vụ thành công",
-        };
-      }
+      // Use the dedicated assigned endpoint
+      const response = await api.get("/MedicineRequest/assigned");
 
       return {
-        success: false,
-        data: [],
-        message: "Không có dữ liệu từ API",
+        success: true,
+        data: response.data || [],
+        message: "Lấy danh sách yêu cầu thuốc đã phân công thành công",
       };
     } catch (error) {
       console.error("Error fetching assigned medication requests:", error);
@@ -486,7 +448,7 @@ export const medicationService = {
         data: [],
         message:
           error.response?.data?.message ||
-          "Không thể lấy danh sách yêu cầu thuốc đã giao nhiệm vụ",
+          "Không thể lấy danh sách yêu cầu thuốc đã phân công",
         error: error.response?.data || error.message,
       };
     }
@@ -495,51 +457,13 @@ export const medicationService = {
   // Get completed medication requests
   getCompletedMedicationRequests: async () => {
     try {
-      // First try to get all requests and filter by status
-      const response = await api.get("/MedicineRequest");
-
-      if (response.data) {
-        // Filter for completed status
-        const completedRequests = response.data.filter(
-          (req) => req.status === "Completed" || req.status === "completed"
-        );
-
-        // For any requests missing medicineRequestItems, fetch them individually
-        const requestsWithCompleteData = await Promise.all(
-          completedRequests.map(async (request) => {
-            if (
-              !request.medicineRequestItems ||
-              request.medicineRequestItems.length === 0
-            ) {
-              try {
-                const detailResponse = await api.get(
-                  `/MedicineRequest/${request.requestId}`
-                );
-                if (detailResponse.data) {
-                  return { ...request, ...detailResponse.data };
-                }
-              } catch (error) {
-                console.error(
-                  `Error fetching detail for request ${request.requestId}:`,
-                  error
-                );
-              }
-            }
-            return request;
-          })
-        );
-
-        return {
-          success: true,
-          data: requestsWithCompleteData,
-          message: "Lấy danh sách yêu cầu thuốc đã hoàn thành thành công",
-        };
-      }
+      // Use the dedicated completed endpoint
+      const response = await api.get("/MedicineRequest/completed");
 
       return {
-        success: false,
-        data: [],
-        message: "Không có dữ liệu từ API",
+        success: true,
+        data: response.data || [],
+        message: "Lấy danh sách yêu cầu thuốc đã hoàn thành thành công",
       };
     } catch (error) {
       console.error("Error fetching completed medication requests:", error);
@@ -842,14 +766,21 @@ export const medicationService = {
   },
 
   // Complete medication request
-  completeMedicationRequest: async (id, staffId, notes = "") => {
+  completeMedicationRequest: async (
+    medicineRequestItemId,
+    staffId,
+    period,
+    notes = ""
+  ) => {
     try {
-      // Use the specific completion endpoint
+      // Use the specific completion endpoint with period parameter (using axios params to handle encoding)
       const response = await api.post(
-        `/MedicineRequest/${id}/complete/${staffId}`,
+        `/MedicineRequest/${medicineRequestItemId}/complete/${staffId}`,
+        {}, // Empty body as backend expects
         {
-          completionNotes: notes,
-          completedDate: new Date().toISOString(),
+          params: {
+            period: period, // Let axios handle the encoding properly
+          },
         }
       );
 
@@ -864,7 +795,9 @@ export const medicationService = {
       // Fallback to the old method if the new endpoint doesn't exist
       try {
         // First get the current request data to preserve all fields
-        const currentRequest = await api.get(`/MedicineRequest/${id}`);
+        const currentRequest = await api.get(
+          `/MedicineRequest/${medicineRequestItemId}`
+        );
 
         if (currentRequest.data) {
           const requestData = {
@@ -876,7 +809,7 @@ export const medicationService = {
           };
 
           const fallbackResponse = await api.put(
-            `/MedicineRequest/${id}`,
+            `/MedicineRequest/${medicineRequestItemId}`,
             requestData
           );
           return {

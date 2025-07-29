@@ -11,6 +11,7 @@ import MedicineVerification from "./pages/MedicineVerification";
 import MedicineAdministration from "./pages/MedicineAdministration";
 import InProgressManagement from "./pages/InProgressManagement";
 import FailedRequestManagement from "./pages/FailedRequestManagement";
+import CompletedMedication from "./pages/CompletedMedication";
 
 const MedicationManagement = () => {
   const [activeTab, setActiveTab] = useState("verification");
@@ -37,6 +38,13 @@ const MedicationManagement = () => {
       icon: FiClock,
       component: InProgressManagement,
       description: "Theo dõi và ghi nhận tiến độ uống thuốc",
+    },
+    {
+      key: "completed",
+      label: "Hoàn thành",
+      icon: FiActivity,
+      component: CompletedMedication,
+      description: "Danh sách yêu cầu thuốc đã hoàn thành",
     },
     {
       key: "failed",

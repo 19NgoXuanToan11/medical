@@ -15,6 +15,9 @@ public static class MedicineRequestDto
         public int ParentId { get; set; }
         public int? StaffId { get; set; }
         public DateOnly Date { get; set; }
+        public int? AdministrationStartedBy { get; set; }
+        public DateTime? AdministrationStartedDate { get; set; }
+        public string? AdministrationNotes { get; set; }
         public StudentDto.ViewModel? Student { get; set; }
         public ParentDto.ViewModel? Parent { get; set; }
         public StaffDto.ViewModel? Staff { get; set; }
@@ -48,6 +51,13 @@ public static class MedicineRequestDto
         public string? ClassName { get; set; }
 
         public DateOnly? Date { get; set; }
+
+        public int? AdministrationStartedBy { get; set; }
+
+        public DateTime? AdministrationStartedDate { get; set; }
+
+        [StringLength(1000)]
+        public string? AdministrationNotes { get; set; }
 
         public ICollection<MedicineRequestItemDto.Update>? MedicineRequestItems { get; set; }
     }
