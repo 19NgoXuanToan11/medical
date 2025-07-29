@@ -18,7 +18,7 @@ import { formatDate, formatTime } from "../../../utils/timeUtils";
 
 const HealthEventsList = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("health_events");
+  const [activeTab, setActiveTab] = useState("incidents"); // "incidents" or "updates"
 
   // Use notification polling hook to get real data
   const { notifications, loading, error, markAsRead, refreshNotifications } =
@@ -30,6 +30,34 @@ const HealthEventsList = () => {
       notification.type === "health_event" ||
       notification.type === "health_event_follow_up"
   );
+
+  // Separate notifications by type
+  const incidentNotifications = healthEventNotifications.filter(
+    (notification) => notification.type === "health_event"
+  );
+
+  const updateNotifications = healthEventNotifications.filter(
+    (notification) => notification.type === "health_event_follow_up"
+  );
+
+  // Sort notifications by createdAt date (newest first)
+  const sortedIncidentNotifications = incidentNotifications.sort((a, b) => {
+    const dateA = new Date(a.createdAt);
+    const dateB = new Date(b.createdAt);
+    return dateB - dateA; // Descending order (newest first)
+  });
+
+  const sortedUpdateNotifications = updateNotifications.sort((a, b) => {
+    const dateA = new Date(a.createdAt);
+    const dateB = new Date(b.createdAt);
+    return dateB - dateA; // Descending order (newest first)
+  });
+
+  // Get current notifications based on active tab
+  const currentNotifications =
+    activeTab === "incidents"
+      ? sortedIncidentNotifications
+      : sortedUpdateNotifications;
 
   // Use imported formatDate and formatTime from timeUtils.js which handle Vietnam timezone
 
@@ -329,20 +357,68 @@ const HealthEventsList = () => {
           </p>
         </div>
 
+        {/* Tabs */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab("incidents")}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === "incidents"
+                    ? "border-primary-500 text-primary-600 dark:text-primary-400"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <FaExclamationTriangle className="w-4 h-4" />
+                  <span>Thông báo sự cố y tế</span>
+                  {sortedIncidentNotifications.length > 0 && (
+                    <span className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-xs font-medium px-2 py-0.5 rounded-full">
+                      {sortedIncidentNotifications.length}
+                    </span>
+                  )}
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab("updates")}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === "updates"
+                    ? "border-primary-500 text-primary-600 dark:text-primary-400"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <FaInfoCircle className="w-4 h-4" />
+                  <span>Cập nhật tình trạng sức khỏe</span>
+                  {sortedUpdateNotifications.length > 0 && (
+                    <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-medium px-2 py-0.5 rounded-full">
+                      {sortedUpdateNotifications.length}
+                    </span>
+                  )}
+                </div>
+              </button>
+            </nav>
+          </div>
+        </div>
+
         {/* Health Events List */}
         <div className="space-y-4">
-          {healthEventNotifications.length === 0 ? (
+          {currentNotifications.length === 0 ? (
             <div className="text-center py-8">
               <FaExclamationTriangle className="mx-auto text-4xl text-gray-400 dark:text-gray-500 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                Không có sự cố y tế nào
+                {activeTab === "incidents"
+                  ? "Không có sự cố y tế nào"
+                  : "Không có cập nhật tình trạng nào"}
               </h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Hiện tại chưa có sự cố y tế nào được ghi nhận cho con bạn.
+                {activeTab === "incidents"
+                  ? "Hiện tại chưa có sự cố y tế nào được ghi nhận cho con bạn."
+                  : "Hiện tại chưa có cập nhật tình trạng sức khỏe nào cho con bạn."}
               </p>
             </div>
           ) : (
-            healthEventNotifications.map((notification) =>
+            currentNotifications.map((notification) =>
               renderHealthEventCard(notification)
             )
           )}
