@@ -24,6 +24,7 @@ public static class NotificationDto
         // Navigation properties
         public string? StudentName { get; set; }
         public string? StaffName { get; set; }
+        public string? ClassName { get; set; }
     }
 
     public class Create

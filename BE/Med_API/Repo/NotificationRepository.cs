@@ -17,6 +17,7 @@ public class NotificationRepository : INotificationRepository
         return await _context.Notifications
             .Include(n => n.Parent)
             .Include(n => n.Student)
+                .ThenInclude(s => s.Class)
             .Include(n => n.Staff)
             .Include(n => n.HealthEvent)
             .OrderByDescending(n => n.CreatedAt)
@@ -28,6 +29,7 @@ public class NotificationRepository : INotificationRepository
         return await _context.Notifications
             .Include(n => n.Parent)
             .Include(n => n.Student)
+                .ThenInclude(s => s.Class)
             .Include(n => n.Staff)
             .Include(n => n.HealthEvent)
             .FirstOrDefaultAsync(n => n.NotificationId == id);
@@ -38,6 +40,7 @@ public class NotificationRepository : INotificationRepository
         return await _context.Notifications
             .Include(n => n.Parent)
             .Include(n => n.Student)
+                .ThenInclude(s => s.Class)
             .Include(n => n.Staff)
             .Include(n => n.HealthEvent)
             .Where(n => n.ParentId == parentId && n.Status != "deleted")
@@ -50,6 +53,7 @@ public class NotificationRepository : INotificationRepository
         return await _context.Notifications
             .Include(n => n.Parent)
             .Include(n => n.Student)
+                .ThenInclude(s => s.Class)
             .Include(n => n.Staff)
             .Include(n => n.HealthEvent)
             .Where(n => n.ParentId == parentId && !n.IsRead && n.Status != "deleted")

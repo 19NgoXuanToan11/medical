@@ -67,6 +67,7 @@ const HealthEventNotificationDetail = () => {
           ...eventData,
           studentName: data.studentName,
           staffName: data.staffName,
+          className: data.className, // Add className from API response
           createdAt: data.createdAt,
           status: data.status,
           message: data.message,
@@ -300,7 +301,7 @@ const HealthEventNotificationDetail = () => {
                       Xử lý
                     </h3>
                     <p className="text-gray-900 dark:text-white">
-                      {event.Treatment || "-"}
+                      {event.Treatment || "Không có mô tả"}
                     </p>
                   </div>
                 </div>
@@ -373,7 +374,7 @@ const HealthEventNotificationDetail = () => {
                       Lớp
                     </h3>
                     <p className="text-gray-900 dark:text-white">
-                      {event.ClassName || "-"}
+                      {event.className || "-"}
                     </p>
                   </div>
                 </div>

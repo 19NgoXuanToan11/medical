@@ -13,7 +13,9 @@ public class NotificationProfile : Profile
             .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src => 
                 src.Student != null ? $"{src.Student.FirstName} {src.Student.LastName}" : null))
             .ForMember(dest => dest.StaffName, opt => opt.MapFrom(src => 
-                src.Staff != null ? $"{src.Staff.FirstName} {src.Staff.LastName}" : null));
+                src.Staff != null ? $"{src.Staff.FirstName} {src.Staff.LastName}" : null))
+            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => 
+                src.Student != null && src.Student.Class != null ? src.Student.Class.ClassName : null));
 
         // Map from NotificationDto.Create to Notification
         CreateMap<NotificationDto.Create, Notification>()

@@ -26,7 +26,9 @@ const HealthEventsList = () => {
 
   // Filter notifications to get only health events and follow-ups
   const healthEventNotifications = notifications.filter(
-    (notification) => notification.type === "health_event" || notification.type === "health_event_follow_up"
+    (notification) =>
+      notification.type === "health_event" ||
+      notification.type === "health_event_follow_up"
   );
 
   // Use imported formatDate and formatTime from timeUtils.js which handle Vietnam timezone
@@ -136,7 +138,11 @@ const HealthEventsList = () => {
         key={notification.notificationId}
         className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700 ${
           isUnread ? "border-l-4 border-l-red-500 dark:border-l-red-400" : ""
-        } ${isFollowUp ? "border-l-4 border-l-blue-500 dark:border-l-blue-400" : ""}`}
+        } ${
+          isFollowUp
+            ? "border-l-4 border-l-blue-500 dark:border-l-blue-400"
+            : ""
+        }`}
       >
         <div className="p-5">
           <div className="flex justify-between items-start mb-2">
@@ -237,9 +243,10 @@ const HealthEventsList = () => {
                     <strong>Xử lý:</strong> {additionalData.Treatment}
                   </p>
                 )}
-                {additionalData.ClassName && (
+                {(notification.className || additionalData.ClassName) && (
                   <p>
-                    <strong>Lớp:</strong> {additionalData.ClassName}
+                    <strong>Lớp:</strong>{" "}
+                    {notification.className || additionalData.ClassName}
                   </p>
                 )}
               </div>
@@ -260,7 +267,9 @@ const HealthEventsList = () => {
             </button>
             <Link
               to={`/parent/health-events/${
-                additionalData?.EventId || additionalData?.HealthEventId || notification.notificationId
+                additionalData?.EventId ||
+                additionalData?.HealthEventId ||
+                notification.notificationId
               }/notification`}
               className="text-sm bg-primary-600 text-white px-3 py-1 rounded hover:bg-primary-700 transition-colors"
             >
