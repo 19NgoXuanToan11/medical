@@ -491,14 +491,6 @@ const MedicineAdministration = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
-                      Mã yêu cầu
-                    </label>
-                    <p className="mt-1 text-sm font-mono text-blue-900 dark:text-blue-100">
-                      #{selectedRequest.requestId}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
                       Trạng thái
                     </label>
                     <div className="mt-1">
@@ -507,34 +499,10 @@ const MedicineAdministration = () => {
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
-                      Ngày gửi yêu cầu
-                    </label>
-                    <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
-                      {formatDateTime(selectedRequest.requestDate)}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
                       Ngày uống thuốc
                     </label>
                     <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
                       {formatDate(selectedRequest.date)}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
-                      Mã phụ huynh
-                    </label>
-                    <p className="mt-1 text-sm font-mono text-blue-900 dark:text-blue-100">
-                      #{selectedRequest.parentId || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
-                      Mã nhân viên
-                    </label>
-                    <p className="mt-1 text-sm font-mono text-blue-900 dark:text-blue-100">
-                      #{selectedRequest.staffId || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -580,71 +548,6 @@ const MedicineAdministration = () => {
                 </div>
               </div>
 
-              {/* Parent Information */}
-              <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
-                <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-3 flex items-center">
-                  <FiUser className="mr-2" />
-                  Thông tin phụ huynh
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-purple-700 dark:text-purple-300">
-                      Họ và tên phụ huynh
-                    </label>
-                    <p className="mt-1 text-sm font-medium text-purple-900 dark:text-purple-100">
-                      {selectedRequest.parentName || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-purple-700 dark:text-purple-300">
-                      Mã phụ huynh
-                    </label>
-                    <p className="mt-1 text-sm font-mono text-purple-900 dark:text-purple-100">
-                      #{selectedRequest.parentId || "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Staff Information */}
-              {selectedRequest.staff && (
-                <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
-                  <h4 className="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-3 flex items-center">
-                    <FiActivity className="mr-2" />
-                    Thông tin nhân viên phụ trách
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-orange-700 dark:text-orange-300">
-                        Họ và tên
-                      </label>
-                      <p className="mt-1 text-sm font-medium text-orange-900 dark:text-orange-100">
-                        {selectedRequest.staff.firstName}{" "}
-                        {selectedRequest.staff.lastName}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-orange-700 dark:text-orange-300">
-                        Tên đăng nhập
-                      </label>
-                      <p className="mt-1 text-sm font-mono text-orange-900 dark:text-orange-100">
-                        {selectedRequest.staff.username || "N/A"}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-orange-700 dark:text-orange-300">
-                        Mã nhân viên
-                      </label>
-                      <p className="mt-1 text-sm font-mono text-orange-900 dark:text-orange-100">
-                        #
-                        {selectedRequest.staff.staffId ||
-                          selectedRequest.staffId}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Assigned Items - Comprehensive Display */}
               {selectedRequest.assignedItems &&
                 selectedRequest.assignedItems.length > 0 && (
@@ -665,9 +568,6 @@ const MedicineAdministration = () => {
                             <h5 className="text-base font-semibold text-gray-900 dark:text-gray-100">
                               {item.medicineName}
                             </h5>
-                            <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                              ID: #{item.medicineRequestItemId}
-                            </span>
                           </div>
 
                           {/* Medicine Details Grid */}
@@ -739,26 +639,9 @@ const MedicineAdministration = () => {
                                             <span className="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
                                               {period.period}
                                             </span>
-                                            <span
-                                              className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                                period.status === "Assigned"
-                                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                                  : period.status ===
-                                                    "Completed"
-                                                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                                  : period.status === "Failed"
-                                                  ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                                                  : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                                              }`}
-                                            >
-                                              {period.status}
-                                            </span>
                                           </div>
                                         </div>
                                         <div className="text-right">
-                                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                                            Nhân viên: #{period.staffId}
-                                          </div>
                                           <div className="text-xs text-gray-500 dark:text-gray-400">
                                             Thời gian:
                                           </div>

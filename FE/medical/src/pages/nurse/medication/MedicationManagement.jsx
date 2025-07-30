@@ -4,11 +4,15 @@ import {
   FiCheck,
   FiPlayCircle,
   FiAlertTriangle,
+  FiCode,
+  FiFileText
 } from "react-icons/fi";
 import { useMedicationRequests } from "./hooks/useMedicationRequests";
 import MedicineVerification from "./pages/MedicineVerification";
 import MedicineAdministration from "./pages/MedicineAdministration";
 import FailedRequestManagement from "./pages/FailedRequestManagement";
+import AdvancedFailureManagement from "./pages/AdvancedFailureManagement";
+import FailureManagementDemo from "./pages/FailureManagementDemo";
 import CompletedMedication from "./pages/CompletedMedication";
 
 const MedicationManagement = () => {
@@ -43,6 +47,20 @@ const MedicationManagement = () => {
       icon: FiAlertTriangle,
       component: FailedRequestManagement,
       description: "Quản lý thất bại và tạo yêu cầu lại",
+    },
+    {
+      key: "advanced-failure",
+      label: "Quản lý nâng cao",
+      icon: FiActivity,
+      component: AdvancedFailureManagement,
+      description: "Hệ thống tích hợp đầy đủ 5 API xử lý thất bại và tạo lại",
+    },
+    {
+      key: "demo",
+      label: "Demo API",
+      icon: FiCode,
+      component: FailureManagementDemo,
+      description: "Hướng dẫn và ví dụ sử dụng 5 API",
     },
   ];
 

@@ -172,111 +172,56 @@ const VaccinationDetail = () => {
           {/* Basic Information Card */}
           <div className="bg-white dark:bg-neutral-800 shadow-sm rounded-lg border border-gray-200 dark:border-neutral-700">
             <div className="px-6 py-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-                    Thông tin cơ bản
-                  </h4>
-                  <div className="space-y-3">
-                    <div className="flex items-start">
-                      <FiActivity className="h-4 w-4 text-gray-400 mr-2 mt-1" />
-                      <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Tên tiêm chủng
-                        </span>
-                        <p className="text-sm text-gray-900 dark:text-white font-medium">
-                          {vaccinationData.injectionName ||
-                            "Không có thông tin"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <FiCalendar className="h-4 w-4 text-gray-400 mr-2 mt-1" />
-                      <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Ngày thực hiện
-                        </span>
-                        <p className="text-sm text-gray-900 dark:text-white font-medium">
-                          {vaccinationData.scheduledDate
-                            ? new Date(
-                                vaccinationData.scheduledDate
-                              ).toLocaleDateString("vi-VN")
-                            : "Chưa xác định"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <FiClock className="h-4 w-4 text-gray-400 mr-2 mt-1" />
-                      <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Thời gian
-                        </span>
-                        <p className="text-sm text-gray-900 dark:text-white font-medium">
-                          {vaccinationData.startTime || "Chưa xác định"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <FiMapPin className="h-4 w-4 text-gray-400 mr-2 mt-1" />
-                      <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Địa điểm
-                        </span>
-                        <p className="text-sm text-gray-900 dark:text-white font-medium">
-                          {vaccinationData.location || "Phòng y tế trường"}
-                        </p>
-                      </div>
+                  <div className="flex items-start">
+                    <div>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Tên tiêm chủng
+                      </span>
+                      <p className="text-sm text-gray-900 dark:text-white font-medium">
+                        {vaccinationData.injectionName || "Không có thông tin"}
+                      </p>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-                    Trạng thái & Tiến độ
-                  </h4>
-                  <div className="space-y-3">
-                    <div className="flex items-start">
-                      <FiCheckCircle className="h-4 w-4 text-gray-400 mr-2 mt-1" />
-                      <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Trạng thái hiện tại
-                        </span>
-                        <div className="mt-1">
-                          {getStatusBadge(vaccinationData.status)}
-                        </div>
-                      </div>
+                  <div className="flex items-start">
+                    <div>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Ngày thực hiện
+                      </span>
+                      <p className="text-sm text-gray-900 dark:text-white font-medium">
+                        {vaccinationData.scheduledDate
+                          ? new Date(
+                              vaccinationData.scheduledDate
+                            ).toLocaleDateString("vi-VN")
+                          : "Chưa xác định"}
+                      </p>
                     </div>
-                    <div className="flex items-start">
-                      <FiUsers className="h-4 w-4 text-gray-400 mr-2 mt-1" />
-                      <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Tổng học sinh
-                        </span>
-                        <p className="text-sm text-gray-900 dark:text-white font-medium">
-                          {vaccinationData.totalStudents || 0}
-                        </p>
-                      </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-start">
+                    <div>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Thời gian
+                      </span>
+                      <p className="text-sm text-gray-900 dark:text-white font-medium">
+                        {vaccinationData.startTime || "Chưa xác định"}
+                      </p>
                     </div>
-                    <div className="flex items-start">
-                      <FiUser className="h-4 w-4 text-gray-400 mr-2 mt-1" />
-                      <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Trạng thái đồng ý
-                        </span>
-                        <p className="text-sm text-gray-900 dark:text-white font-medium">
-                          {vaccinationData.consentStatus || "Chưa xác định"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <FiFileText className="h-4 w-4 text-gray-400 mr-2 mt-1" />
-                      <div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          Trạng thái xác nhận
-                        </span>
-                        <p className="text-sm text-gray-900 dark:text-white font-medium">
-                          {vaccinationData.confirmStatus || "Chưa xác định"}
-                        </p>
-                      </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-start">
+                    <div>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Địa điểm
+                      </span>
+                      <p className="text-sm text-gray-900 dark:text-white font-medium">
+                        {vaccinationData.location || "Phòng y tế trường"}
+                      </p>
                     </div>
                   </div>
                 </div>
