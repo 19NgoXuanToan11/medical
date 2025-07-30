@@ -1299,6 +1299,29 @@ export const medicationService = {
     }
   },
 
+  // Report medication failure with new API structure (according to Note.txt)
+  reportMedicationFailure: async (failureData) => {
+    try {
+      const response = await api.post(
+        "/MedicineRequest/report-failure",
+        failureData
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Báo cáo thất bại thành công",
+      };
+    } catch (error) {
+      console.error("Error reporting medication failure:", error);
+      return {
+        success: false,
+        data: null,
+        message: error.response?.data?.message || "Không thể báo cáo thất bại",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
   // Create re-request
   createReRequest: async (
     originalRequestResultId,
@@ -1541,6 +1564,30 @@ export const medicationService = {
         message:
           error.response?.data?.message ||
           "Không thể lấy danh sách yêu cầu thuốc thất bại",
+        error: error.response?.data || error.message,
+      };
+    }
+  },
+
+  // Get completed medication requests by parent
+  getCompletedMedicineRequestsByParent: async (parentId) => {
+    try {
+      const response = await api.get(
+        `/Parent/${parentId}/completed-medicine-requests`
+      );
+      return {
+        success: true,
+        data: response.data,
+        message: "Lấy danh sách yêu cầu thuốc đã hoàn thành thành công",
+      };
+    } catch (error) {
+      console.error("Error fetching completed medication requests:", error);
+      return {
+        success: false,
+        data: [],
+        message:
+          error.response?.data?.message ||
+          "Không thể lấy danh sách yêu cầu thuốc đã hoàn thành",
         error: error.response?.data || error.message,
       };
     }

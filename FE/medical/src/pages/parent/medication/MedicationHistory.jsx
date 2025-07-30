@@ -47,6 +47,10 @@ const MedicationHistory = () => {
         result = await medicationService.getFailedMedicationRequestsByParent(
           user.id
         );
+      } else if (filterStatus === "completed") {
+        result = await medicationService.getCompletedMedicineRequestsByParent(
+          user.id
+        );
       } else if (filterStatus === "confirmed") {
         // For confirmed status, we'll filter from the main API data
         result = await medicationService.getMedicationRequestsByParent(user.id);
@@ -60,6 +64,8 @@ const MedicationHistory = () => {
           transformedData = transformFailedMedicationData(result.data);
         } else if (filterStatus === "rejected") {
           transformedData = transformRejectedMedicationData(result.data);
+        } else if (filterStatus === "completed") {
+          transformedData = transformParentMedicationData(result.data);
         } else {
           transformedData = transformParentMedicationData(result.data);
         }
@@ -91,13 +97,17 @@ const MedicationHistory = () => {
   }, [searchParams]);
 
   const filteredMedications =
-    filterStatus === "failed" || filterStatus === "rejected"
-      ? medications // For failed and rejected tabs, show all data from specific API directly
+    filterStatus === "failed" ||
+    filterStatus === "rejected" ||
+    filterStatus === "completed"
+      ? medications // For failed, rejected, and completed tabs, show all data from specific API directly
       : filterMedications(medications, filterStatus, searchTerm);
 
-  // Apply filtering logic for failed and rejected tabs
+  // Apply filtering logic for failed, rejected, and completed tabs
   const finalFilteredMedications =
-    filterStatus === "failed" || filterStatus === "rejected"
+    filterStatus === "failed" ||
+    filterStatus === "rejected" ||
+    filterStatus === "completed"
       ? medications.filter((med) => {
           if (!searchTerm) return true; // Show all if no search term
 
@@ -129,7 +139,6 @@ const MedicationHistory = () => {
   const stats =
     filterStatus === "rejected"
       ? {
-          pending: 0,
           confirmed: 0,
           active: 0,
           completed: 0,
@@ -139,12 +148,20 @@ const MedicationHistory = () => {
         }
       : filterStatus === "failed"
       ? {
-          pending: 0,
           confirmed: 0,
           active: 0,
           completed: 0,
           rejected: 0,
           failed: medications.length, // All medications in failed tab are failed
+          total: medications.length,
+        }
+      : filterStatus === "completed"
+      ? {
+          confirmed: 0,
+          active: 0,
+          completed: medications.length, // All medications in completed tab are completed
+          rejected: 0,
+          failed: 0,
           total: medications.length,
         }
       : calculateMedicationStats(medications);
@@ -169,206 +186,6 @@ const MedicationHistory = () => {
           </div>
         </div>
       </div>
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-7 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-600 dark:text-gray-400 text-xs">
-                Chờ xác nhận
-              </p>
-              <p className="text-xl font-bold mt-1 text-yellow-600 dark:text-yellow-400">
-                {stats.pending}
-              </p>
-            </div>
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-              <svg
-                className="h-5 w-5 text-yellow-600 dark:text-yellow-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-600 dark:text-gray-400 text-xs">
-                Đã xác nhận
-              </p>
-              <p className="text-xl font-bold mt-1 text-purple-600 dark:text-purple-400">
-                {stats.confirmed}
-              </p>
-            </div>
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-              <svg
-                className="h-5 w-5 text-purple-600 dark:text-purple-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-600 dark:text-gray-400 text-xs">
-                Đang thực hiện
-              </p>
-              <p className="text-xl font-bold mt-1 text-blue-600 dark:text-blue-400">
-                {stats.active}
-              </p>
-            </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-              <svg
-                className="h-5 w-5 text-blue-600 dark:text-blue-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-600 dark:text-gray-400 text-xs">
-                Đã hoàn thành
-              </p>
-              <p className="text-xl font-bold mt-1 text-green-600 dark:text-green-400">
-                {stats.completed}
-              </p>
-            </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
-              <svg
-                className="h-5 w-5 text-green-600 dark:text-green-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-600 dark:text-gray-400 text-xs">
-                Từ chối
-              </p>
-              <p className="text-xl font-bold mt-1 text-red-600 dark:text-red-400">
-                {stats.rejected}
-              </p>
-            </div>
-            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
-              <svg
-                className="h-5 w-5 text-red-600 dark:text-red-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-600 dark:text-gray-400 text-xs">
-                Thất bại
-              </p>
-              <p className="text-xl font-bold mt-1 text-orange-600 dark:text-orange-400">
-                {stats.failed}
-              </p>
-            </div>
-            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-full">
-              <svg
-                className="h-5 w-5 text-orange-600 dark:text-orange-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-600 dark:text-gray-400 text-xs">
-                Tổng yêu cầu
-              </p>
-              <p className="text-xl font-bold mt-1 text-gray-800 dark:text-gray-200">
-                {stats.total}
-              </p>
-            </div>
-            <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full">
-              <svg
-                className="h-5 w-5 text-gray-800 dark:text-gray-200"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Filter Section */}
       <div className="flex flex-wrap justify-between items-center mb-6">
         <div className="flex space-x-2 mb-4 sm:mb-0 overflow-x-auto pb-2">
@@ -383,26 +200,6 @@ const MedicationHistory = () => {
             Tất cả
           </button>
           <button
-            onClick={() => setFilterStatus("pending")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap transition-colors duration-200 ${
-              filterStatus === "pending"
-                ? "bg-blue-600 dark:bg-blue-500 text-white"
-                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
-            }`}
-          >
-            Chờ xác nhận
-          </button>
-          <button
-            onClick={() => setFilterStatus("confirmed")}
-            className={`px-4 py-2 rounded-md whitespace-nowrap transition-colors duration-200 ${
-              filterStatus === "confirmed"
-                ? "bg-blue-600 dark:bg-blue-500 text-white"
-                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
-            }`}
-          >
-            Đã xác nhận
-          </button>
-          <button
             onClick={() => setFilterStatus("active")}
             className={`px-4 py-2 rounded-md whitespace-nowrap transition-colors duration-200 ${
               filterStatus === "active"
@@ -410,7 +207,7 @@ const MedicationHistory = () => {
                 : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
             }`}
           >
-            Đang thực hiện
+            Tiến độ
           </button>
           <button
             onClick={() => setFilterStatus("completed")}
@@ -563,221 +360,326 @@ const MedicationHistory = () => {
               />
             ) : (
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                        >
-                          Mã yêu cầu
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                        >
-                          Học sinh
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                        >
-                          Thuốc
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                        >
-                          Ngày gửi yêu cầu
-                        </th>
-                        {filterStatus !== "failed" && (
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                          >
-                            Ngày uống thuốc
+                {filterStatus === "completed" ? (
+                  // Enhanced display for completed medications showing all schema fields
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                      <thead className="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Mã học sinh
                           </th>
-                        )}
-                        {filterStatus === "failed" && (
-                          <>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                            >
-                              Thời gian thất bại
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                            >
-                              Số lần thử
-                            </th>
-                          </>
-                        )}
-                        {/* Xóa cột Trạng thái nếu là tab Tất cả */}
-                        {filterStatus !== "all" && (
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                          >
+                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Học sinh & Lớp
+                          </th>
+                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Thuốc
+                          </th>
+                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Thời gian uống
+                          </th>
+                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Hướng dẫn
+                          </th>
+                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Trạng thái
                           </th>
-                        )}
-                        {filterStatus === "failed" && (
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                          >
-                            Lý do thất bại
+                          <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Thời gian hoàn thành
                           </th>
-                        )}
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                        >
-                          Hành động
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                      {finalFilteredMedications.map((medication, idx) => {
-                        // Normalize verifiedStatus for each medicine item
-                        const normalizedMedicineItems =
-                          medication.medicineItems?.map((item) => ({
-                            ...item,
-                            verifiedStatus: normalizeVerifiedStatus(
-                              item.verifiedStatus
-                            ),
-                          })) || [];
-
-                        // Get status based on normalized verifiedStatus for display
-                        const displayStatus =
-                          getMedicationStatusFromVerifiedStatus(
-                            normalizedMedicineItems
-                          );
-
-                        return (
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {finalFilteredMedications.map((medication, idx) => (
                           <tr
                             key={idx}
                             className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                           >
-                            <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-blue-600 dark:text-blue-400">
-                              #{medication.id}
+                            <td className="px-4 py-4 whitespace-nowrap text-center">
+                              <div className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                                {medication.originalData?.studentCode ||
+                                  medication.studentCode ||
+                                  "N/A"}
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <td className="px-4 py-4 whitespace-nowrap text-center">
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                {medication.studentName}
+                                {medication.originalData?.studentName ||
+                                  medication.studentName ||
+                                  "N/A"}
                               </div>
                               <div className="text-sm text-gray-500 dark:text-gray-400">
-                                {medication.class}
+                                {medication.originalData?.className ||
+                                  medication.class ||
+                                  "N/A"}
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-center">
-                              {medication.medicationCount >= 2 ? (
-                                <div className="space-y-1">
-                                  {medication.medicationDisplay.map(
-                                    (name, index) => (
-                                      <div
-                                        key={index}
-                                        className="text-sm font-medium"
-                                      >
-                                        {name}
-                                      </div>
-                                    )
-                                  )}
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Tổng: {medication.medicationCount} loại
-                                    thuốc
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                  {medication.medicationName}
-                                </div>
-                              )}
+                            <td className="px-4 py-4 text-center">
+                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {medication.originalData?.medicineName ||
+                                  medication.medicationName ||
+                                  "N/A"}
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <td className="px-4 py-4 whitespace-nowrap text-center">
                               <div className="text-sm text-gray-900 dark:text-gray-100">
-                                {new Date(
-                                  medication.requestDate
-                                ).toLocaleDateString("vi-VN")}
+                                {medication.originalData?.timeOfDay ||
+                                  medication.timeOfDay ||
+                                  "N/A"}
                               </div>
                             </td>
-                            {filterStatus !== "failed" && (
+                            <td className="px-4 py-4 text-center max-w-xs">
+                              <div
+                                className="text-sm text-gray-900 dark:text-gray-100 truncate"
+                                title={
+                                  medication.originalData?.instructions ||
+                                  medication.instructions ||
+                                  "N/A"
+                                }
+                              >
+                                {medication.originalData?.instructions ||
+                                  medication.instructions ||
+                                  "N/A"}
+                              </div>
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-center">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 ring-1 ring-green-600/20 dark:ring-green-400/20">
+                                {medication.originalData?.status ===
+                                  "Completed" ||
+                                medication.status === "Completed"
+                                  ? "Đã hoàn thành"
+                                  : medication.originalData?.status ||
+                                    medication.status ||
+                                    "Đã hoàn thành"}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-center">
+                              <div className="text-sm text-gray-900 dark:text-gray-100">
+                                {medication.originalData?.timestamp
+                                  ? new Date(
+                                      medication.originalData.timestamp
+                                    ).toLocaleString("vi-VN")
+                                  : medication.timestamp
+                                  ? new Date(
+                                      medication.timestamp
+                                    ).toLocaleString("vi-VN")
+                                  : "N/A"}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  // Original table for other statuses
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                      <thead className="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            Mã yêu cầu
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            Học sinh & Lớp
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            Thuốc
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            Ngày gửi yêu cầu
+                          </th>
+                          {filterStatus !== "failed" && (
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                            >
+                              Ngày uống thuốc
+                            </th>
+                          )}
+                          {filterStatus === "failed" && (
+                            <>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                              >
+                                Thời gian thất bại
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                              >
+                                Hướng dẫn dùng thuốc
+                              </th>
+                            </>
+                          )}
+                          {filterStatus === "failed" && (
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                            >
+                              Lý do thất bại
+                            </th>
+                          )}
+                          {filterStatus !== "failed" &&
+                            filterStatus !== "completed" && (
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                              >
+                                Hành động
+                              </th>
+                            )}
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {finalFilteredMedications.map((medication, idx) => {
+                          // Normalize verifiedStatus for each medicine item
+                          const normalizedMedicineItems =
+                            medication.medicineItems?.map((item) => ({
+                              ...item,
+                              verifiedStatus: normalizeVerifiedStatus(
+                                item.verifiedStatus
+                              ),
+                            })) || [];
+
+                          // Get status for display
+                          // For completed and failed tabs, use the medication's status directly
+                          // For other tabs, calculate from Status
+                          const displayStatus =
+                            filterStatus === "completed" ||
+                            filterStatus === "failed"
+                              ? medication.status
+                              : getMedicationStatusFromVerifiedStatus(
+                                  normalizedMedicineItems
+                                );
+
+                          return (
+                            <tr
+                              key={idx}
+                              className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-blue-600 dark:text-blue-400">
+                                #{medication.id}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                  {medication.studentName}
+                                </div>
+                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                  {medication.class}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 text-center">
+                                {medication.medicationCount >= 2 ? (
+                                  <div className="space-y-1">
+                                    {medication.medicationDisplay.map(
+                                      (name, index) => (
+                                        <div
+                                          key={index}
+                                          className="text-sm font-medium"
+                                        >
+                                          {name}
+                                        </div>
+                                      )
+                                    )}
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                      Tổng: {medication.medicationCount} loại
+                                      thuốc
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                    {medication.medicationName}
+                                  </div>
+                                )}
+                              </td>
                               <td className="px-6 py-4 whitespace-nowrap text-center">
                                 <div className="text-sm text-gray-900 dark:text-gray-100">
                                   {new Date(
-                                    medication.startDate
+                                    medication.requestDate
                                   ).toLocaleDateString("vi-VN")}
                                 </div>
                               </td>
-                            )}
-                            {filterStatus === "failed" && (
-                              <>
+                              {filterStatus !== "failed" && (
                                 <td className="px-6 py-4 whitespace-nowrap text-center">
                                   <div className="text-sm text-gray-900 dark:text-gray-100">
-                                    {medication.lastAttemptTime || "N/A"}
-                                  </div>
-                                  {medication.administeredTime && (
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                      Bắt đầu: {medication.administeredTime}
-                                    </div>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-center">
-                                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    {medication.failedAttempts}
-                                  </div>
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    {medication.currentDayCount}/
-                                    {medication.timesPerDay} lần
+                                    {new Date(
+                                      medication.startDate
+                                    ).toLocaleDateString("vi-VN")}
                                   </div>
                                 </td>
-                              </>
-                            )}
-                            {/* Cột Trạng thái chỉ hiển thị nếu không phải tab Tất cả */}
-                            {filterStatus !== "all" && (
-                              <td className="px-6 py-4 whitespace-nowrap text-center">
-                                {renderStatusBadge(displayStatus)}
-                              </td>
-                            )}
-                            {filterStatus === "failed" && (
-                              <td className="px-6 py-4 text-center">
-                                <div className="text-sm text-gray-900 dark:text-gray-100 max-w-xs">
-                                  {medication.failureReasons ||
-                                    "Không có lý do cụ thể"}
-                                </div>
-                                {medication.staffName &&
-                                  medication.staffName !== "N/A" && (
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                      Xử lý bởi: {medication.staffName}
-                                    </div>
-                                  )}
-                              </td>
-                            )}
-                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                              {medication.id &&
-                              medication.id !== "undefined" &&
-                              !medication.id.includes("undefined") ? (
-                                <Link
-                                  to={`/parent/medication/detail/${medication.id}`}
-                                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
-                                >
-                                  Chi tiết
-                                </Link>
-                              ) : (
-                                <span className="text-gray-400 cursor-not-allowed">
-                                  Chi tiết
-                                </span>
                               )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                              {filterStatus === "failed" && (
+                                <>
+                                  <td className="px-6 py-4 text-center">
+                                    <div className="text-sm text-gray-900 dark:text-gray-100">
+                                      {medication.timestamp
+                                        ? new Date(
+                                            medication.timestamp
+                                          ).toLocaleString("vi-VN")
+                                        : "N/A"}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4 text-center max-w-xs">
+                                    <div className="text-sm text-gray-900 dark:text-gray-100">
+                                      {medication.instructions ||
+                                        "Không có hướng dẫn"}
+                                    </div>
+                                  </td>
+                                </>
+                              )}
+                              {filterStatus === "failed" && (
+                                <td className="px-6 py-4 text-center">
+                                  <div className="text-sm text-gray-900 dark:text-gray-100 max-w-xs">
+                                    {medication.failureReason ||
+                                      "Không có lý do cụ thể"}
+                                  </div>
+                                  {medication.notes && (
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
+                                      Ghi chú: {medication.notes}
+                                    </div>
+                                  )}
+                                </td>
+                              )}
+                              {filterStatus !== "failed" &&
+                                filterStatus !== "completed" && (
+                                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                                    {medication.id &&
+                                    medication.id !== "undefined" &&
+                                    !medication.id.includes("undefined") ? (
+                                      <Link
+                                        to={`/parent/medication/detail/${medication.id}`}
+                                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
+                                      >
+                                        Chi tiết
+                                      </Link>
+                                    ) : (
+                                      <span className="text-gray-400 cursor-not-allowed">
+                                        Chi tiết
+                                      </span>
+                                    )}
+                                  </td>
+                                )}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </>
