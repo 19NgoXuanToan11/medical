@@ -29,5 +29,8 @@ public partial class Vaccine
     [StringLength(500)]
     public string? Description { get; set; }
 
+    [StringLength(200)]
+    public string? DiseaseType { get; set; } // Loại bệnh mà vaccine phòng ngừa
+
     public bool? IsActive { get; set; } = true;
 } 
