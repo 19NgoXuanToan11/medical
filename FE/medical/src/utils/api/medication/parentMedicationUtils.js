@@ -157,6 +157,12 @@ export const getStatusBadge = (status) => {
           "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 ring-1 ring-yellow-600/20 dark:ring-yellow-400/20",
         text: "Chờ xác nhận",
       };
+    case "confirmed":
+      return {
+        className:
+          "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 ring-1 ring-purple-600/20 dark:ring-purple-400/20",
+        text: "Đã xác nhận",
+      };
     case "rejected":
       return {
         className:
@@ -178,10 +184,172 @@ export const getStatusBadge = (status) => {
   }
 };
 
-// Calculate medication statistics for dashboard
+// Helper function to normalize verifiedStatus keys
+export const normalizeVerifiedStatus = (verifiedStatus) => {
+  if (!verifiedStatus || typeof verifiedStatus !== "object") {
+    return {};
+  }
+
+  const normalized = {};
+
+  // Helper function to capitalize first letter
+  const capitalizeFirst = (str) => {
+    if (!str || typeof str !== "string") return str;
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  // Process each key-value pair
+  Object.entries(verifiedStatus).forEach(([key, value]) => {
+    const normalizedKey = capitalizeFirst(key);
+
+    // If key already exists, prioritize the object/array version over string version
+    if (normalizedKey in normalized) {
+      // If current value is an array and existing value is a string, keep the array
+      if (
+        Array.isArray(value) &&
+        typeof normalized[normalizedKey] === "string"
+      ) {
+        normalized[normalizedKey] = value;
+      }
+      // If current value is an object and existing value is a string, keep the object
+      else if (
+        typeof value === "object" &&
+        value !== null &&
+        !Array.isArray(value) &&
+        typeof normalized[normalizedKey] === "string"
+      ) {
+        normalized[normalizedKey] = value;
+      }
+      // If both are objects (not arrays), merge them (object takes precedence)
+      else if (
+        typeof value === "object" &&
+        value !== null &&
+        !Array.isArray(value) &&
+        typeof normalized[normalizedKey] === "object" &&
+        !Array.isArray(normalized[normalizedKey])
+      ) {
+        normalized[normalizedKey] = { ...normalized[normalizedKey], ...value };
+      }
+      // If both are arrays, keep the current one (more recent)
+      else if (
+        Array.isArray(value) &&
+        Array.isArray(normalized[normalizedKey])
+      ) {
+        normalized[normalizedKey] = value;
+      }
+      // If both are strings, keep the one that's not "Pending"
+      else if (
+        typeof value === "string" &&
+        typeof normalized[normalizedKey] === "string"
+      ) {
+        if (value !== "Pending" && normalized[normalizedKey] === "Pending") {
+          normalized[normalizedKey] = value;
+        }
+      }
+    } else {
+      normalized[normalizedKey] = value;
+    }
+  });
+
+  return normalized;
+};
+
+// Helper function to determine medication status based on verifiedStatus
+export const getMedicationStatusFromVerifiedStatus = (medicineItems) => {
+  if (!medicineItems || medicineItems.length === 0) {
+    return "pending";
+  }
+
+  let hasPending = false;
+  let hasConfirmed = false;
+  let hasActive = false;
+  let hasCompleted = false;
+  let hasRejected = false;
+  let hasFailed = false;
+
+  medicineItems.forEach((item) => {
+    // Normalize the verifiedStatus to remove duplicates and standardize keys
+    const normalizedVerifiedStatus = normalizeVerifiedStatus(
+      item.verifiedStatus || {}
+    );
+
+    // Check each time period in normalized verifiedStatus
+    Object.values(normalizedVerifiedStatus).forEach((status) => {
+      let statusStr = "";
+
+      // Handle different status formats
+      if (typeof status === "string") {
+        statusStr = status.toLowerCase();
+      } else if (Array.isArray(status)) {
+        // Handle array format like [{ Status: "Assigned", StaffId: 11, Timestamp: "..." }]
+        if (status.length > 0) {
+          const firstItem = status[0];
+          if (typeof firstItem === "object" && firstItem !== null) {
+            if (firstItem.Status) {
+              statusStr = firstItem.Status.toLowerCase();
+            } else if (firstItem.status) {
+              statusStr = firstItem.status.toLowerCase();
+            }
+          }
+        }
+      } else if (typeof status === "object" && status !== null) {
+        // Handle object format like { Status: "Verified", StaffId: 11, Timestamp: "..." }
+        if (status.Status) {
+          statusStr = status.Status.toLowerCase();
+        } else if (status.status) {
+          statusStr = status.status.toLowerCase();
+        } else {
+          // If no Status property, try to convert to string
+          statusStr = String(status).toLowerCase();
+        }
+      } else {
+        statusStr = String(status).toLowerCase();
+      }
+
+      switch (statusStr) {
+        case "pending":
+          hasPending = true;
+          break;
+        case "verified":
+        case "confirmed":
+          hasConfirmed = true;
+          break;
+        case "assigned":
+        case "in_progress":
+        case "administering":
+          hasActive = true;
+          break;
+        case "completed":
+        case "done":
+          hasCompleted = true;
+          break;
+        case "rejected":
+        case "refused":
+          hasRejected = true;
+          break;
+        case "failed":
+          hasFailed = true;
+          break;
+      }
+    });
+  });
+
+  // Priority order: failed > rejected > completed > active > confirmed > pending
+  if (hasFailed) return "failed";
+  if (hasRejected) return "rejected";
+  if (hasCompleted) return "completed";
+  if (hasActive) return "active";
+  if (hasConfirmed) return "confirmed";
+  if (hasPending) return "pending";
+
+  return "pending"; // Default fallback
+};
+
+// Calculate medication statistics for dashboard based on verifiedStatus
 export const calculateMedicationStats = (medications) => {
   const stats = {
     pending: 0,
+    confirmed: 0,
     active: 0,
     completed: 0,
     rejected: 0,
@@ -190,9 +358,15 @@ export const calculateMedicationStats = (medications) => {
   };
 
   medications.forEach((med) => {
-    switch (med.status) {
+    // Use verifiedStatus-based status instead of overall request status
+    const status = getMedicationStatusFromVerifiedStatus(med.medicineItems);
+
+    switch (status) {
       case "pending":
         stats.pending++;
+        break;
+      case "confirmed":
+        stats.confirmed++;
         break;
       case "active":
         stats.active++;
@@ -287,10 +461,16 @@ export const transformFailedMedicationData = (failedResults) => {
   });
 };
 
-// Filter medications by status and search term
+// Filter medications by status and search term using verifiedStatus
 export const filterMedications = (medications, filterStatus, searchTerm) => {
   return medications.filter((med) => {
-    const matchesStatus = filterStatus === "all" || med.status === filterStatus;
+    // Use verifiedStatus-based status instead of overall request status
+    const medicationStatus = getMedicationStatusFromVerifiedStatus(
+      med.medicineItems
+    );
+    const matchesStatus =
+      filterStatus === "all" || medicationStatus === filterStatus;
+
     const matchesSearch =
       med.medicationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (med.id && med.id.toLowerCase().includes(searchTerm.toLowerCase())) ||
