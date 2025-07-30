@@ -487,6 +487,8 @@ public class InjectionFormController : ControllerBase
         try
         {
             _logger.LogInformation("Creating vaccination schedule with Title: {Title}", scheduleDto.InjectionName ?? "Unknown");
+            _logger.LogInformation("Received data - Title: {Title}, ScheduledDate: {Date}, StartTime: {StartTime}, GradeIds: {GradeIds}", 
+                scheduleDto.InjectionName, scheduleDto.ScheduledDate, scheduleDto.StartTime, scheduleDto.GradeIds);
             
             // Set default values
             if (scheduleDto.CreatedDate == null)
@@ -509,6 +511,22 @@ public class InjectionFormController : ControllerBase
                 return BadRequest(new { error = "Valid vaccine ID is required" });
             
             var schedule = _mapper.Map<InjectionForm>(scheduleDto);
+            
+            // Convert StartTime from string to TimeSpan for mapping
+            if (!string.IsNullOrEmpty(scheduleDto.StartTime))
+            {
+                if (TimeSpan.TryParse(scheduleDto.StartTime, out var startTime))
+                {
+                    schedule.StartTime = startTime;
+                    _logger.LogInformation("StartTime converted successfully: {StartTime}", startTime);
+                }
+                else
+                {
+                    _logger.LogError("Invalid start time format: {StartTime}", scheduleDto.StartTime);
+                    return BadRequest(new { error = "Invalid start time format. Expected HH:mm:ss" });
+                }
+            }
+            
             var createdSchedule = await _injectionFormService.CreateVaccinationScheduleAsync(schedule);
             
             if (createdSchedule == null)
@@ -517,6 +535,8 @@ public class InjectionFormController : ControllerBase
             }
             
             _logger.LogInformation("Vaccination schedule created successfully with ID: {FormId}", createdSchedule.FormId);
+            _logger.LogInformation("Created schedule - StartTime: {StartTime}, ScheduledDate: {ScheduledDate}", 
+                createdSchedule.StartTime, createdSchedule.ScheduledDate);
             
             var responseDto = _mapper.Map<InjectionFormDTO>(createdSchedule);
             
@@ -552,6 +572,20 @@ public class InjectionFormController : ControllerBase
         try
         {
             var schedule = _mapper.Map<InjectionForm>(scheduleDto);
+            
+            // Convert StartTime from string to TimeSpan for mapping
+            if (!string.IsNullOrEmpty(scheduleDto.StartTime))
+            {
+                if (TimeSpan.TryParse(scheduleDto.StartTime, out var startTime))
+                {
+                    schedule.StartTime = startTime;
+                }
+                else
+                {
+                    return BadRequest(new { error = "Invalid start time format. Expected HH:mm:ss" });
+                }
+            }
+            
             var success = await _injectionFormService.UpdateVaccinationScheduleAsync(schedule);
             if (!success)
             {

@@ -1938,20 +1938,116 @@ public class MedicineRequestController : ControllerBase
 
     private static Dictionary<string, string> ParsePeriodVerificationStatus(string? json, string? period = null)
     {
-        if (string.IsNullOrEmpty(json)) return new Dictionary<string, string>();
+        if (string.IsNullOrEmpty(json))
+            return new Dictionary<string, string>();
+
         try
         {
-            var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new Dictionary<string, string>();
-            if (!string.IsNullOrEmpty(period) && dict.ContainsKey(period))
+            var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+            if (dict == null) return new Dictionary<string, string>();
+
+            // Normalize the dictionary to remove duplicates and standardize keys
+            var normalizedDict = NormalizePeriodVerificationStatus(dict);
+            
+            var result = new Dictionary<string, string>();
+            foreach (var kv in normalizedDict)
             {
-                dict[period] = "Assigned"; // Ensure it's "Assigned" for the specific period
+                if (kv.Value is string strVal)
+                {
+                    result[kv.Key] = strVal;
+                }
+                else if (kv.Value is System.Text.Json.JsonElement elem)
+                {
+                    if (elem.ValueKind == System.Text.Json.JsonValueKind.String)
+                    {
+                        result[kv.Key] = elem.GetString() ?? "Pending";
+                    }
+                    else
+                    {
+                        result[kv.Key] = "Pending";
+                    }
+                }
+                else
+                {
+                    result[kv.Key] = "Pending";
+                }
             }
-            return dict;
+            return result;
         }
         catch
         {
             return new Dictionary<string, string>();
         }
+    }
+
+    // Helper function to normalize period verification status keys
+    private static Dictionary<string, object> NormalizePeriodVerificationStatus(Dictionary<string, object> dict)
+    {
+        var normalized = new Dictionary<string, object>();
+        
+        foreach (var kv in dict)
+        {
+            var normalizedKey = NormalizePeriodKey(kv.Key);
+            
+            // If key already exists, prioritize the object version over string version
+            if (normalized.ContainsKey(normalizedKey))
+            {
+                // If current value is an object and existing value is a string, keep the object
+                if (kv.Value is System.Text.Json.JsonElement elem && elem.ValueKind == System.Text.Json.JsonValueKind.Object && 
+                    normalized[normalizedKey] is string)
+                {
+                    normalized[normalizedKey] = kv.Value;
+                }
+                // If both are objects, merge them (object takes precedence)
+                else if (kv.Value is System.Text.Json.JsonElement elem1 && elem1.ValueKind == System.Text.Json.JsonValueKind.Object && 
+                         normalized[normalizedKey] is System.Text.Json.JsonElement elem2 && elem2.ValueKind == System.Text.Json.JsonValueKind.Object)
+                {
+                    // Keep the current value as it's more recent
+                    normalized[normalizedKey] = kv.Value;
+                }
+                // If both are strings, keep the one that's not "Pending"
+                else if (kv.Value is string currentStr && normalized[normalizedKey] is string existingStr)
+                {
+                    if (currentStr != "Pending" && existingStr == "Pending")
+                    {
+                        normalized[normalizedKey] = kv.Value;
+                    }
+                }
+            }
+            else
+            {
+                normalized[normalizedKey] = kv.Value;
+            }
+        }
+        
+        return normalized;
+    }
+
+    // Helper function to normalize period key (capitalize first letter)
+    private static string NormalizePeriodKey(string key)
+    {
+        if (string.IsNullOrEmpty(key)) return key;
+        
+        // Handle common period names
+        var periodMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "sáng", "Sáng" },
+            { "trưa", "Trưa" },
+            { "chiều", "Chiều" },
+            { "khi cần thiết", "Khi cần thiết" },
+            { "morning", "Sáng" },
+            { "noon", "Trưa" },
+            { "afternoon", "Chiều" },
+            { "as_needed", "Khi cần thiết" }
+        };
+        
+        if (periodMappings.ContainsKey(key))
+        {
+            return periodMappings[key];
+        }
+        
+        // General case: capitalize first letter
+        return char.ToUpper(key[0]) + key.Substring(1).ToLower();
     }
 
     private static List<Dictionary<string, object>> GetStatusHistory(Dictionary<string, object> periodStatus, string period)

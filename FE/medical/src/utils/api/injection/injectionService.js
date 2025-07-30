@@ -50,6 +50,18 @@ export const injectionFormService = {
       }
 
       // Map vaccination data to InjectionForm schedule structure
+      const startTimeValue = vaccinationData.scheduledDateTime
+        ? new Date(vaccinationData.scheduledDateTime)
+            .toTimeString()
+            .split(" ")[0]
+        : "08:00:00";
+
+      console.log(
+        "Frontend - scheduledDateTime:",
+        vaccinationData.scheduledDateTime
+      );
+      console.log("Frontend - startTime value:", startTimeValue);
+
       const vaccinationSchedule = {
         formId: 0, // Always 0 for new forms
         // For vaccination schedules, these can be null or omitted
@@ -71,11 +83,7 @@ export const injectionFormService = {
               .toISOString()
               .split("T")[0]
           : null,
-        startTime: vaccinationData.scheduledDateTime
-          ? new Date(vaccinationData.scheduledDateTime)
-              .toTimeString()
-              .split(" ")[0]
-          : "08:00:00",
+        startTime: startTimeValue,
         estimatedDuration: 60, // Default duration for vaccination
         location: vaccinationData.location?.trim() || "Phòng y tế trường",
         gradeIds: JSON.stringify(
@@ -91,6 +99,10 @@ export const injectionFormService = {
       };
 
       // Create vaccination schedule using InjectionForm schedules endpoint
+      console.log(
+        "Frontend - Sending payload:",
+        JSON.stringify(vaccinationSchedule, null, 2)
+      );
       const response = await api.post(
         "/InjectionForm/schedules",
         vaccinationSchedule

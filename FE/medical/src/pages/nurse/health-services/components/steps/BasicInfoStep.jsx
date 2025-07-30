@@ -138,9 +138,6 @@ const BasicInfoStep = ({
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Ngày thực hiện *
-                <span className="text-xs text-neutral-500 dark:text-neutral-400 ml-1">
-                  (Tối thiểu 1 tuần sau hôm nay)
-                </span>
               </label>
               <input
                 type="date"
