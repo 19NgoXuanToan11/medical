@@ -1,7 +1,7 @@
+using System.Linq;
+using System.Text.Json;
 using DB;
 using Repo;
-using System.Text.Json;
-using System.Linq;
 
 namespace Service;
 
@@ -12,7 +12,12 @@ public class MedicineRequestService : IMedicineRequestService
     private readonly IStaffRepository _staffRepository;
     private readonly IStudentRepository _studentRepository;
 
-    public MedicineRequestService(IMedicineRequestRepository medicineRequestRepository, IMedicineRepository medicineRepository, IStaffRepository staffRepository, IStudentRepository studentRepository)
+    public MedicineRequestService(
+        IMedicineRequestRepository medicineRequestRepository,
+        IMedicineRepository medicineRepository,
+        IStaffRepository staffRepository,
+        IStudentRepository studentRepository
+    )
     {
         _medicineRequestRepository = medicineRequestRepository;
         _medicineRepository = medicineRepository;
@@ -73,7 +78,9 @@ public class MedicineRequestService : IMedicineRequestService
 
     public async Task<bool> UpdateMedicineRequestAsync(MedicineRequest medicineRequest)
     {
-        var existing = await _medicineRequestRepository.GetMedicineRequestByIdAsync(medicineRequest.RequestId);
+        var existing = await _medicineRequestRepository.GetMedicineRequestByIdAsync(
+            medicineRequest.RequestId
+        );
         if (existing == null)
         {
             return false;
@@ -92,7 +99,7 @@ public class MedicineRequestService : IMedicineRequestService
         {
             existing.ClassName = medicineRequest.ClassName;
         }
-        
+
         // Assign the updated collection of items to the existing request object
         // The repository will handle the logic for adding, updating, and removing items.
         existing.MedicineRequestItems = medicineRequest.MedicineRequestItems;
@@ -107,7 +114,9 @@ public class MedicineRequestService : IMedicineRequestService
     }
 
     // Filtering methods
-    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStudentCodeAsync(string studentCode)
+    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStudentCodeAsync(
+        string studentCode
+    )
     {
         return await _medicineRequestRepository.GetMedicineRequestsByStudentCodeAsync(studentCode);
     }
@@ -134,9 +143,11 @@ public class MedicineRequestService : IMedicineRequestService
         return await _medicineRequestRepository.GetAllMedicineRequestsAsync();
     }
 
-    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByAssignedGradeAsync(int staffId, string? status = null)
+    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByAssignedGradeAsync(
+        int staffId,
+        string? status = null
+    )
     {
-        
         // Get nurse's assigned grades
         var gradeNurses = await _staffRepository.GetGradeNursesByStaffIdAsync(staffId);
         var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
@@ -149,29 +160,40 @@ public class MedicineRequestService : IMedicineRequestService
         {
             if (!string.IsNullOrEmpty(status))
             {
-                var statusFilteredRequests = allRequests.Where(request => 
-                    request.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+                var statusFilteredRequests = allRequests
+                    .Where(request =>
+                        request.Status.Equals(status, StringComparison.OrdinalIgnoreCase)
+                    )
+                    .ToList();
                 return statusFilteredRequests;
             }
             return allRequests;
         }
 
         // Filter requests by assigned grades and status
-        var filteredRequests = allRequests.Where(request =>
-        {
-            // Check if request belongs to a student in assigned grades
-            if (request.Student?.Class?.GradeLevel != null && assignedGrades.Contains(request.Student.Class.GradeLevel))
+        var filteredRequests = allRequests
+            .Where(request =>
             {
-                // If status filter is provided, apply it
-                if (!string.IsNullOrEmpty(status))
+                // Check if request belongs to a student in assigned grades
+                if (
+                    request.Student?.Class?.GradeLevel != null
+                    && assignedGrades.Contains(request.Student.Class.GradeLevel)
+                )
                 {
-                    bool statusMatch = request.Status.Equals(status, StringComparison.OrdinalIgnoreCase);
-                    return statusMatch;
+                    // If status filter is provided, apply it
+                    if (!string.IsNullOrEmpty(status))
+                    {
+                        bool statusMatch = request.Status.Equals(
+                            status,
+                            StringComparison.OrdinalIgnoreCase
+                        );
+                        return statusMatch;
+                    }
+                    return true;
                 }
-                return true;
-            }
-            return false;
-        }).ToList();
+                return false;
+            })
+            .ToList();
 
         return filteredRequests;
     }
@@ -211,20 +233,20 @@ public class MedicineRequestService : IMedicineRequestService
         try
         {
             var student = await _studentRepository.GetStudentByCodeAsync(studentCode);
-            
+
             if (student == null)
             {
                 return null;
             }
-            
+
             if (student.Class == null)
             {
                 return null;
             }
-            
+
             return student.Class.GradeLevel;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return null;
         }
@@ -259,25 +281,38 @@ public class MedicineRequestService : IMedicineRequestService
     // Helper to update the main status of a MedicineRequest
     private async Task UpdateMedicineRequestMainStatus(int medicineRequestId)
     {
-        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(medicineRequestId);
-        if (request == null) return;
+        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(
+            medicineRequestId
+        );
+        if (request == null)
+            return;
 
-        var allLatestStatuses = request.MedicineRequestItems
-            .SelectMany(item =>
+        var allLatestStatuses = request
+            .MedicineRequestItems.SelectMany(item =>
             {
                 var periodStatus = new Dictionary<string, object>();
                 try
                 {
-                    periodStatus = JsonSerializer.Deserialize<Dictionary<string, object>>(item.VerificationStatus ?? "") ?? new Dictionary<string, object>();
+                    periodStatus =
+                        JsonSerializer.Deserialize<Dictionary<string, object>>(
+                            item.VerificationStatus ?? ""
+                        ) ?? new Dictionary<string, object>();
                 }
                 catch { }
                 // For each period, get the last status
-                return periodStatus.Values
-                    .Select(val =>
+                return periodStatus
+                    .Values.Select(val =>
                     {
                         if (val is string strVal && strVal.StartsWith("{"))
-                            return JsonSerializer.Deserialize<JsonElement>(strVal).GetProperty("Status").GetString();
-                        if (val is JsonElement elem && elem.ValueKind == JsonValueKind.Object && elem.TryGetProperty("Status", out var statusProp))
+                            return JsonSerializer
+                                .Deserialize<JsonElement>(strVal)
+                                .GetProperty("Status")
+                                .GetString();
+                        if (
+                            val is JsonElement elem
+                            && elem.ValueKind == JsonValueKind.Object
+                            && elem.TryGetProperty("Status", out var statusProp)
+                        )
                             return statusProp.GetString();
                         return val?.ToString();
                     })
@@ -287,9 +322,18 @@ public class MedicineRequestService : IMedicineRequestService
             .SelectMany(x => x)
             .ToList();
 
-        if (allLatestStatuses.Count == 0 || allLatestStatuses.All(s => new List<string> { "Pending", "Refused" }.Contains(Convert.ToString(s))))
+        if (
+            allLatestStatuses.Count == 0
+            || allLatestStatuses.All(s =>
+                new List<string> { "Pending", "Refused" }.Contains(Convert.ToString(s))
+            )
+        )
             request.Status = "Pending";
-        else if (allLatestStatuses.All(s => new List<string> { "Completed", "Failed", "Refused" }.Contains(Convert.ToString(s))))
+        else if (
+            allLatestStatuses.All(s =>
+                new List<string> { "Completed", "Failed", "Refused" }.Contains(Convert.ToString(s))
+            )
+        )
             request.Status = "Done";
         else if (allLatestStatuses.Any(s => Convert.ToString(s) == "Verified"))
             request.Status = "In-Progress";
@@ -299,5 +343,3 @@ public class MedicineRequestService : IMedicineRequestService
         await _medicineRequestRepository.UpdateMedicineRequestAsync(request);
     }
 }
-
- 

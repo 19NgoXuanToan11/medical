@@ -40,7 +40,7 @@ public static class StaffDto
         public int HealthEventCount { get; set; }
         public int ParentCount { get; set; }
         public int MedicineRequestCount { get; set; }
-        
+
         // Grade assignments for nurses
         public List<int> AssignedGrades { get; set; } = new List<int>();
     }
@@ -49,7 +49,10 @@ public static class StaffDto
     {
         [Required]
         [StringLength(50)]
-        [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "Username can only contain letters, numbers, and underscores")]
+        [RegularExpression(
+            @"^[a-zA-Z0-9_]+$",
+            ErrorMessage = "Username can only contain letters, numbers, and underscores"
+        )]
         public string Username { get; set; } = null!;
 
         [Required]
@@ -64,12 +67,18 @@ public static class StaffDto
 
         [Required]
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "First name can only contain letters and spaces"
+        )]
         public string FirstName { get; set; } = null!;
 
         [Required]
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Last name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "Last name can only contain letters and spaces"
+        )]
         public string LastName { get; set; } = null!;
 
         [StringLength(20)]
@@ -86,7 +95,10 @@ public static class StaffDto
         public int StaffId { get; set; }
 
         [StringLength(50)]
-        [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "Username can only contain letters, numbers, and underscores")]
+        [RegularExpression(
+            @"^[a-zA-Z0-9_]+$",
+            ErrorMessage = "Username can only contain letters, numbers, and underscores"
+        )]
         public string? Username { get; set; }
 
         [StringLength(100)]
@@ -98,11 +110,17 @@ public static class StaffDto
         public string? Email { get; set; }
 
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "First name can only contain letters and spaces"
+        )]
         public string? FirstName { get; set; }
 
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Last name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "Last name can only contain letters and spaces"
+        )]
         public string? LastName { get; set; }
 
         [StringLength(20)]
@@ -125,4 +143,4 @@ public static class StaffDto
         public int StaffId { get; set; }
         public int Grade { get; set; }
     }
-} 
+}

@@ -15,4 +15,4 @@ public interface IParentService
     Task<IEnumerable<DB.MedicineRequest>> GetRefusedMedicineRequestsByParentIdAsync(int parentId);
     Task<IEnumerable<RequestResult>> GetFailedRequestResultsByParentIdAsync(int parentId);
     Task<ParentStatisticsDto> GetParentStatisticsAsync(int parentId);
-} 
+}

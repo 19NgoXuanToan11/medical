@@ -1,8 +1,8 @@
 using API.ViewModels;
 using AutoMapper;
+using DB;
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using DB;
 
 namespace API.Controllers;
 
@@ -38,7 +38,9 @@ public class InjectionResultController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<InjectionResultDTO>> CreateInjectionResult(InjectionResultDTO resultDto)
+    public async Task<ActionResult<InjectionResultDTO>> CreateInjectionResult(
+        InjectionResultDTO resultDto
+    )
     {
         try
         {
@@ -47,7 +49,8 @@ public class InjectionResultController : ControllerBase
             return CreatedAtAction(
                 nameof(GetInjectionResultById),
                 new { id = createdResult.ResultId },
-                _mapper.Map<InjectionResultDTO>(createdResult));
+                _mapper.Map<InjectionResultDTO>(createdResult)
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -91,14 +94,18 @@ public class InjectionResultController : ControllerBase
     }
 
     [HttpGet("form/{formId}")]
-    public async Task<ActionResult<IEnumerable<InjectionResultDTO>>> GetInjectionResultsByFormId(int formId)
+    public async Task<ActionResult<IEnumerable<InjectionResultDTO>>> GetInjectionResultsByFormId(
+        int formId
+    )
     {
         var results = await _injectionResultService.GetInjectionResultsByFormIdAsync(formId);
         return Ok(_mapper.Map<IEnumerable<InjectionResultDTO>>(results));
     }
 
     [HttpGet("student/{studentId}")]
-    public async Task<ActionResult<IEnumerable<InjectionResultDTO>>> GetInjectionResultsByStudentId(int studentId)
+    public async Task<ActionResult<IEnumerable<InjectionResultDTO>>> GetInjectionResultsByStudentId(
+        int studentId
+    )
     {
         var results = await _injectionResultService.GetInjectionResultsByStudentIdAsync(studentId);
         return Ok(_mapper.Map<IEnumerable<InjectionResultDTO>>(results));
@@ -114,4 +121,4 @@ public class InjectionResultController : ControllerBase
         }
         return Ok(_mapper.Map<InjectionResultDTO>(result));
     }
-} 
+}

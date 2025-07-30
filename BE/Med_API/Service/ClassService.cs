@@ -33,10 +33,11 @@ public class ClassService : IClassService
 
         // Check for duplicate class name
         var exists = await _classRepository.ClassNameExistsAsync(
-            classEntity.ClassName, 
-            classEntity.GradeLevel, 
-            classEntity.Section);
-        
+            classEntity.ClassName,
+            classEntity.GradeLevel,
+            classEntity.Section
+        );
+
         if (exists)
             return null;
 
@@ -52,16 +53,17 @@ public class ClassService : IClassService
 
         // Check for duplicate class name (excluding current class)
         var exists = await _classRepository.ClassNameExistsAsync(
-            classEntity.ClassName, 
-            classEntity.GradeLevel, 
+            classEntity.ClassName,
+            classEntity.GradeLevel,
             classEntity.Section,
-            classEntity.ClassId);
-        
+            classEntity.ClassId
+        );
+
         if (exists)
             return false;
 
         var success = await _classRepository.UpdateClassAsync(classEntity);
-        
+
         if (success)
         {
             // Update student count after successful update
@@ -101,8 +103,10 @@ public class ClassService : IClassService
                 return false;
 
             // Check if class has capacity
-            if (classEntity.MaxStudents.HasValue && 
-                classEntity.CurrentStudentCount >= classEntity.MaxStudents.Value)
+            if (
+                classEntity.MaxStudents.HasValue
+                && classEntity.CurrentStudentCount >= classEntity.MaxStudents.Value
+            )
                 return false;
 
             // Update student's class
@@ -135,7 +139,7 @@ public class ClassService : IClassService
 
             var oldClassId = student.ClassId;
             student.ClassId = null;
-            
+
             var success = await _studentRepository.UpdateStudentAsync(student);
 
             if (success && oldClassId.HasValue)
@@ -157,19 +161,19 @@ public class ClassService : IClassService
         return await _classRepository.GetActiveClassesAsync();
     }
 
-    public async Task<bool> ValidateClassDataAsync(Class classEntity)
+    public Task<bool> ValidateClassDataAsync(Class classEntity)
     {
         // Basic validation
         if (string.IsNullOrWhiteSpace(classEntity.ClassName))
-            return false;
+            return Task.FromResult(false);
 
         if (classEntity.GradeLevel < 1 || classEntity.GradeLevel > 12)
-            return false;
+            return Task.FromResult(false);
 
         if (classEntity.MaxStudents.HasValue && classEntity.MaxStudents.Value <= 0)
-            return false;
+            return Task.FromResult(false);
 
-        return true;
+        return Task.FromResult(true);
     }
 
     // Automatically promote students to the next class at the start of a new school year
@@ -193,12 +197,15 @@ public class ClassService : IClassService
 
         foreach (var currentClass in classes)
         {
-            if (currentClass.GradeLevel >= maxGrade) continue; // Skip highest grade
+            if (currentClass.GradeLevel >= maxGrade)
+                continue; // Skip highest grade
             // Find next grade's class with the same section (if section is used)
             var nextClass = classes.FirstOrDefault(c =>
-                c.GradeLevel == currentClass.GradeLevel + 1 &&
-                (string.IsNullOrEmpty(c.Section) || c.Section == currentClass.Section));
-            if (nextClass == null) continue;
+                c.GradeLevel == currentClass.GradeLevel + 1
+                && (string.IsNullOrEmpty(c.Section) || c.Section == currentClass.Section)
+            );
+            if (nextClass == null)
+                continue;
 
             // Get students in this class
             var students = currentClass.Students.ToList();
@@ -214,4 +221,4 @@ public class ClassService : IClassService
         }
         return promotedCount;
     }
-} 
+}

@@ -1,7 +1,7 @@
-using Service.DTOs;
 using AutoMapper;
 using DB;
 using Repo;
+using Service.DTOs;
 
 namespace Service;
 
@@ -27,7 +27,8 @@ public class HealthEventFollowUpService : IHealthEventFollowUpService
         IHealthEventRepository healthEventRepository,
         IStudentRepository studentRepository,
         INotificationRepository notificationRepository,
-        IMapper mapper)
+        IMapper mapper
+    )
     {
         _followUpRepository = followUpRepository;
         _healthEventRepository = healthEventRepository;
@@ -36,7 +37,9 @@ public class HealthEventFollowUpService : IHealthEventFollowUpService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<HealthEventFollowUpDto.ViewModel>> GetFollowUpsByEventIdAsync(int eventId)
+    public async Task<IEnumerable<HealthEventFollowUpDto.ViewModel>> GetFollowUpsByEventIdAsync(
+        int eventId
+    )
     {
         var followUps = await _followUpRepository.GetFollowUpsByEventIdAsync(eventId);
         return _mapper.Map<IEnumerable<HealthEventFollowUpDto.ViewModel>>(followUps);
@@ -48,7 +51,9 @@ public class HealthEventFollowUpService : IHealthEventFollowUpService
         return _mapper.Map<HealthEventFollowUpDto.ViewModel?>(followUp);
     }
 
-    public async Task<HealthEventFollowUpDto.ViewModel> CreateAsync(HealthEventFollowUpDto.Create createDto)
+    public async Task<HealthEventFollowUpDto.ViewModel> CreateAsync(
+        HealthEventFollowUpDto.Create createDto
+    )
     {
         // Validate that the health event exists
         var healthEvent = await _healthEventRepository.GetHealthEventByIdAsync(createDto.EventId);
@@ -59,19 +64,21 @@ public class HealthEventFollowUpService : IHealthEventFollowUpService
 
         var followUp = _mapper.Map<HealthEventFollowUp>(createDto);
         var createdFollowUp = await _followUpRepository.CreateAsync(followUp);
-        
+
         // Create notification for parents
         await CreateFollowUpNotificationAsync(healthEvent, createdFollowUp);
-        
+
         // Update health event status for severe/emergency cases
         await UpdateHealthEventStatusAsync(healthEvent, createdFollowUp);
-        
+
         // Reload with navigation properties
         var reloadedFollowUp = await _followUpRepository.GetByIdAsync(createdFollowUp.FollowUpId);
         return _mapper.Map<HealthEventFollowUpDto.ViewModel>(reloadedFollowUp);
     }
 
-    public async Task<HealthEventFollowUpDto.ViewModel> UpdateAsync(HealthEventFollowUpDto.Update updateDto)
+    public async Task<HealthEventFollowUpDto.ViewModel> UpdateAsync(
+        HealthEventFollowUpDto.Update updateDto
+    )
     {
         var existingFollowUp = await _followUpRepository.GetByIdAsync(updateDto.FollowUpId);
         if (existingFollowUp == null)
@@ -81,7 +88,7 @@ public class HealthEventFollowUpService : IHealthEventFollowUpService
 
         _mapper.Map(updateDto, existingFollowUp);
         var updatedFollowUp = await _followUpRepository.UpdateAsync(existingFollowUp);
-        
+
         // Reload with navigation properties
         var reloadedFollowUp = await _followUpRepository.GetByIdAsync(updatedFollowUp.FollowUpId);
         return _mapper.Map<HealthEventFollowUpDto.ViewModel>(reloadedFollowUp);
@@ -92,21 +99,27 @@ public class HealthEventFollowUpService : IHealthEventFollowUpService
         await _followUpRepository.DeleteAsync(followUpId);
     }
 
-    private async Task CreateFollowUpNotificationAsync(HealthEvent healthEvent, HealthEventFollowUp followUp)
+    private async Task CreateFollowUpNotificationAsync(
+        HealthEvent healthEvent,
+        HealthEventFollowUp followUp
+    )
     {
         try
         {
             // Get student's parents
             var student = await _studentRepository.GetStudentByCodeAsync(healthEvent.StudentCode);
-            if (student?.StudentParents == null) return;
+            if (student?.StudentParents == null)
+                return;
 
             foreach (var studentParent in student.StudentParents)
             {
                 var notification = new Notification
                 {
                     Type = "health_event_follow_up",
-                    Title = $"Cập nhật tình trạng sức khỏe - {student.FirstName} {student.LastName}",
-                    Message = $"Học sinh {student.FirstName} {student.LastName} có cập nhật tình trạng: {followUp.Status}. {followUp.Note}",
+                    Title =
+                        $"Cập nhật tình trạng sức khỏe - {student.FirstName} {student.LastName}",
+                    Message =
+                        $"Học sinh {student.FirstName} {student.LastName} có cập nhật tình trạng: {followUp.Status}. {followUp.Note}",
                     ParentId = studentParent.ParentId,
                     StudentCode = healthEvent.StudentCode,
                     StaffId = followUp.StaffId,
@@ -115,13 +128,15 @@ public class HealthEventFollowUpService : IHealthEventFollowUpService
                     Status = "sent",
                     IsRead = false,
                     CreatedAt = DateTime.Now,
-                    AdditionalData = System.Text.Json.JsonSerializer.Serialize(new
-                    {
-                        FollowUpId = followUp.FollowUpId,
-                        FollowUpStatus = followUp.Status,
-                        FollowUpNote = followUp.Note,
-                        HealthEventSeverity = healthEvent.Severity
-                    })
+                    AdditionalData = System.Text.Json.JsonSerializer.Serialize(
+                        new
+                        {
+                            FollowUpId = followUp.FollowUpId,
+                            FollowUpStatus = followUp.Status,
+                            FollowUpNote = followUp.Note,
+                            HealthEventSeverity = healthEvent.Severity,
+                        }
+                    ),
                 };
 
                 await _notificationRepository.CreateNotificationAsync(notification);
@@ -134,7 +149,10 @@ public class HealthEventFollowUpService : IHealthEventFollowUpService
         }
     }
 
-    private async Task UpdateHealthEventStatusAsync(HealthEvent healthEvent, HealthEventFollowUp followUp)
+    private async Task UpdateHealthEventStatusAsync(
+        HealthEvent healthEvent,
+        HealthEventFollowUp followUp
+    )
     {
         try
         {
@@ -160,7 +178,7 @@ public class HealthEventFollowUpService : IHealthEventFollowUpService
             "Cấp cứu" => "urgent",
             "Nặng" => "high",
             "Trung bình" => "medium",
-            _ => "low"
+            _ => "low",
         };
     }
-} 
+}

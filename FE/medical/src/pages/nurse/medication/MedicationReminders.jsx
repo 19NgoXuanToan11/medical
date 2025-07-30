@@ -15,7 +15,7 @@ import {
   formatDateTime,
   formatDateWithContext,
   formatDuration,
-  formatRelativeTime
+  formatRelativeTime,
 } from "../../../utils/timeUtils";
 
 const MedicationReminders = () => {
@@ -148,8 +148,7 @@ const MedicationReminders = () => {
           <FiBell className="mr-2 text-primary-500" /> Lịch cấp thuốc hôm nay
         </h2>
         <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
-          <FiCalendar className="mr-1" />{" "}
-          {formatDate(new Date())}
+          <FiCalendar className="mr-1" /> {formatDate(new Date())}
         </div>
       </div>
 

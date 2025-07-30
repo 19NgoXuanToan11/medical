@@ -25,7 +25,7 @@ public partial class RequestResult
     public int? CurrentDayCount { get; set; } // How many times administered today
     public DateOnly? CurrentDate { get; set; } // Current date being tracked
     public string? AdministeredFrequencies { get; set; } // JSON string to track which frequencies were administered today
-    
+
     // New fields for failure handling and re-requests
     public string? FailedFrequencies { get; set; } // JSON string to track which frequencies failed
     public string? FailureReasons { get; set; } // JSON string to track reasons for failures

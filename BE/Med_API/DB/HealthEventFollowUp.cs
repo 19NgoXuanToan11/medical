@@ -19,4 +19,4 @@ public partial class HealthEventFollowUp
     public virtual HealthEvent Event { get; set; } = null!;
 
     public virtual Staff Staff { get; set; } = null!;
-} 
+}

@@ -12,4 +12,4 @@ public interface IHealthCheckFormRepository
     Task<IEnumerable<HealthCheckForm>> GetHealthCheckFormsByStudentIdAsync(int studentId);
     Task<IEnumerable<HealthCheckForm>> GetHealthCheckFormsByParentIdAsync(int parentId);
     Task<IEnumerable<HealthCheckForm>> GetHealthCheckFormsByStatusAsync(string status);
-} 
+}

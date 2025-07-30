@@ -44,4 +44,4 @@ public class HealthEventDTO
     // Navigation properties
     public StudentDto.ViewModel? Student { get; set; }
     public StaffDto.ViewModel? Staff { get; set; }
-} 
+}

@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
 using DB;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Service;
 
 namespace API.Attributes;
@@ -35,11 +35,11 @@ public class RequirePermissionAttribute : Attribute, IAuthorizationFilter
         // Lấy role từ database và kiểm tra quyền
         var roleService = context.HttpContext.RequestServices.GetRequiredService<IRoleService>();
         var role = roleService.GetRoleByNameAsync(roleClaim.Value).Result;
-        
+
         if (role == null || !role.Permissions.HasFlag(_requiredPermission))
         {
             context.Result = new ForbidResult();
             return;
         }
     }
-} 
+}

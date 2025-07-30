@@ -45,7 +45,7 @@ public class InjectionFormDTO
     public bool? NotifyParents { get; set; } = true;
     public bool? RequireParentConfirmation { get; set; } = true;
     public string? Status { get; set; }
-    
+
     [StringLength(1000)]
     public string? Notes { get; set; } // Ghi chú từ manager khi duyệt/từ chối
 
@@ -61,4 +61,4 @@ public class InjectionFormDTO
     public List<ClassDto.ViewModel>? Classes { get; set; } // Danh sách lớp
     public List<StudentDto.ViewModel>? Students { get; set; } // Danh sách học sinh
     public List<HealthProfileDto.ViewModel>? StudentHealthProfiles { get; set; } // Hồ sơ sức khỏe học sinh
-} 
+}

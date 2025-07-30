@@ -18,4 +18,4 @@ public partial class StudentParent
     public virtual Student Student { get; set; } = null!;
 
     public virtual Parent Parent { get; set; } = null!;
-} 
+}

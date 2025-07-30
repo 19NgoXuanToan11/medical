@@ -23,8 +23,8 @@ public class HealthEventFollowUpRepository : IHealthEventFollowUpRepository
 
     public async Task<IEnumerable<HealthEventFollowUp>> GetFollowUpsByEventIdAsync(int eventId)
     {
-        return await _context.HealthEventFollowUps
-            .Include(f => f.Staff)
+        return await _context
+            .HealthEventFollowUps.Include(f => f.Staff)
             .Where(f => f.EventId == eventId)
             .OrderByDescending(f => f.Timestamp)
             .ToListAsync();
@@ -32,8 +32,8 @@ public class HealthEventFollowUpRepository : IHealthEventFollowUpRepository
 
     public async Task<HealthEventFollowUp?> GetByIdAsync(int followUpId)
     {
-        return await _context.HealthEventFollowUps
-            .Include(f => f.Staff)
+        return await _context
+            .HealthEventFollowUps.Include(f => f.Staff)
             .FirstOrDefaultAsync(f => f.FollowUpId == followUpId);
     }
 
@@ -61,4 +61,4 @@ public class HealthEventFollowUpRepository : IHealthEventFollowUpRepository
             await _context.SaveChangesAsync();
         }
     }
-} 
+}

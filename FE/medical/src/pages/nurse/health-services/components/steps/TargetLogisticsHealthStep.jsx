@@ -145,7 +145,9 @@ const TargetLogisticsHealthStep = ({
                     }`}
                     onClick={() => {
                       // Multiple selection logic - toggle selection
-                      const newSelectedGrades = formData.targetGrades.includes(grade.id)
+                      const newSelectedGrades = formData.targetGrades.includes(
+                        grade.id
+                      )
                         ? formData.targetGrades.filter((id) => id !== grade.id)
                         : [...formData.targetGrades, grade.id];
                       onInputChange("targetGrades", newSelectedGrades);
@@ -159,7 +161,9 @@ const TargetLogisticsHealthStep = ({
                           // Multiple selection logic - toggle selection
                           const newSelectedGrades = e.target.checked
                             ? [...formData.targetGrades, grade.id]
-                            : formData.targetGrades.filter((id) => id !== grade.id);
+                            : formData.targetGrades.filter(
+                                (id) => id !== grade.id
+                              );
                           onInputChange("targetGrades", newSelectedGrades);
                         }}
                         className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 mt-1 bg-white dark:bg-neutral-900 rounded"

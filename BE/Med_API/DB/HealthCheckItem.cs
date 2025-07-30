@@ -23,5 +23,6 @@ public partial class HealthCheckItem
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual ICollection<HealthCheckItemMedicalSupply> HealthCheckItemMedicalSupplies { get; set; } = new List<HealthCheckItemMedicalSupply>();
-} 
+    public virtual ICollection<HealthCheckItemMedicalSupply> HealthCheckItemMedicalSupplies { get; set; } =
+        new List<HealthCheckItemMedicalSupply>();
+}

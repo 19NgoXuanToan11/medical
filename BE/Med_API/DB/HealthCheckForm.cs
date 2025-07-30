@@ -52,5 +52,6 @@ public partial class HealthCheckForm
     public virtual Student? Student { get; set; }
     public virtual Parent? Parent { get; set; }
     public virtual Staff? ConfirmedByStaff { get; set; }
-    public virtual ICollection<HealthCheckResult> Results { get; set; } = new List<HealthCheckResult>();
+    public virtual ICollection<HealthCheckResult> Results { get; set; } =
+        new List<HealthCheckResult>();
 }

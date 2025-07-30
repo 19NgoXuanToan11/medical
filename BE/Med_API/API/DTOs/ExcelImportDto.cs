@@ -11,7 +11,9 @@ public static class ExcelImportDto
     public class FileUploadModel
     {
         [Required(ErrorMessage = "File is required")]
-        [SwaggerSchema(Description = "Excel file (.xlsx) containing student data following the template format")]
+        [SwaggerSchema(
+            Description = "Excel file (.xlsx) containing student data following the template format"
+        )]
         public IFormFile File { get; set; } = null!;
     }
 
@@ -20,19 +22,28 @@ public static class ExcelImportDto
     {
         [Required(ErrorMessage = "Student code is required")]
         [StringLength(20, ErrorMessage = "Student code cannot exceed 20 characters")]
-        [RegularExpression(@"^[A-Z0-9]+$", ErrorMessage = "Student code can only contain uppercase letters and numbers")]
+        [RegularExpression(
+            @"^[A-Z0-9]+$",
+            ErrorMessage = "Student code can only contain uppercase letters and numbers"
+        )]
         [SwaggerSchema(Description = "Unique identifier for the student")]
         public string StudentCode { get; set; } = null!;
 
         [Required(ErrorMessage = "First name is required")]
         [StringLength(50, ErrorMessage = "First name cannot exceed 50 characters")]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "First name can only contain letters and spaces"
+        )]
         [SwaggerSchema(Description = "Student's first name")]
         public string FirstName { get; set; } = null!;
 
         [Required(ErrorMessage = "Last name is required")]
         [StringLength(50, ErrorMessage = "Last name cannot exceed 50 characters")]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Last name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "Last name can only contain letters and spaces"
+        )]
         [SwaggerSchema(Description = "Student's last name")]
         public string LastName { get; set; } = null!;
 
@@ -65,18 +76,27 @@ public static class ExcelImportDto
     {
         [Required(ErrorMessage = "First name is required")]
         [StringLength(50, ErrorMessage = "First name cannot exceed 50 characters")]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "First name can only contain letters and spaces"
+        )]
         [SwaggerSchema(Description = "Parent's first name")]
         public string FirstName { get; set; } = null!;
 
         [Required(ErrorMessage = "Last name is required")]
         [StringLength(50, ErrorMessage = "Last name cannot exceed 50 characters")]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Last name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "Last name can only contain letters and spaces"
+        )]
         [SwaggerSchema(Description = "Parent's last name")]
         public string LastName { get; set; } = null!;
 
         [Required(ErrorMessage = "Relationship is required")]
-        [RegularExpression(@"^(Mother|Father|Guardian|Other)$", ErrorMessage = "Relationship must be one of: Mother, Father, Guardian, Other")]
+        [RegularExpression(
+            @"^(Mother|Father|Guardian|Other)$",
+            ErrorMessage = "Relationship must be one of: Mother, Father, Guardian, Other"
+        )]
         [SwaggerSchema(Description = "Parent's relationship to the student")]
         public string Relationship { get; set; } = null!;
 
@@ -114,7 +134,10 @@ public static class ExcelImportDto
     {
         [Required(ErrorMessage = "Student code is required")]
         [StringLength(20, ErrorMessage = "Student code cannot exceed 20 characters")]
-        [RegularExpression(@"^[A-Z0-9]+$", ErrorMessage = "Student code can only contain uppercase letters and numbers")]
+        [RegularExpression(
+            @"^[A-Z0-9]+$",
+            ErrorMessage = "Student code can only contain uppercase letters and numbers"
+        )]
         [SwaggerSchema(Description = "Student code for this relationship")]
         public string StudentCode { get; set; } = null!;
 
@@ -125,7 +148,10 @@ public static class ExcelImportDto
         public string ParentEmail { get; set; } = null!;
 
         [Required(ErrorMessage = "Relationship is required")]
-        [RegularExpression(@"^(Mother|Father|Guardian|Other)$", ErrorMessage = "Relationship must be one of: Mother, Father, Guardian, Other")]
+        [RegularExpression(
+            @"^(Mother|Father|Guardian|Other)$",
+            ErrorMessage = "Relationship must be one of: Mother, Father, Guardian, Other"
+        )]
         [SwaggerSchema(Description = "Parent's relationship to the student")]
         public string Relationship { get; set; } = null!;
     }
@@ -135,7 +161,10 @@ public static class ExcelImportDto
     {
         [Required(ErrorMessage = "Student code is required")]
         [StringLength(20, ErrorMessage = "Student code cannot exceed 20 characters")]
-        [RegularExpression(@"^[A-Z0-9]+$", ErrorMessage = "Student code can only contain uppercase letters and numbers")]
+        [RegularExpression(
+            @"^[A-Z0-9]+$",
+            ErrorMessage = "Student code can only contain uppercase letters and numbers"
+        )]
         [SwaggerSchema(Description = "Student code this health profile is associated with")]
         public string StudentCode { get; set; } = null!;
 
@@ -193,7 +222,10 @@ public static class ExcelImportDto
         public string? RightEar { get; set; }
 
         [Required(ErrorMessage = "Vaccination status is required")]
-        [RegularExpression(@"^(Yes|No|Partial)$", ErrorMessage = "Vaccination status must be Yes, No, or Partial")]
+        [RegularExpression(
+            @"^(Yes|No|Partial)$",
+            ErrorMessage = "Vaccination status must be Yes, No, or Partial"
+        )]
         [SwaggerSchema(Description = "Student's vaccination status")]
         public string HasCompleteVaccinations { get; set; } = null!;
 
@@ -253,4 +285,4 @@ public static class ExcelImportDto
         [SwaggerSchema(Description = "List of errors encountered during import")]
         public List<string> Errors { get; set; } = new();
     }
-} 
+}

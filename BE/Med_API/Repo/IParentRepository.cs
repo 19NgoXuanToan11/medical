@@ -9,12 +9,10 @@ public interface IParentRepository
     Task<Parent> CreateParentAsync(Parent parent);
     Task<bool> UpdateParentAsync(Parent parent);
     Task<bool> DeleteParentAsync(int id);
-   
+
     Task<Parent?> GetParentByEmailAsync(string email);
     Task<Parent?> GetParentByPhoneAsync(string phone);
     Task<IEnumerable<DB.MedicineRequest>> GetMedicineRequestProgressAsync(int parentId);
     Task<IEnumerable<DB.MedicineRequest>> GetRefusedMedicineRequestsByParentIdAsync(int parentId);
     Task<IEnumerable<RequestResult>> GetFailedRequestResultsByParentIdAsync(int parentId);
-
-
-} 
+}

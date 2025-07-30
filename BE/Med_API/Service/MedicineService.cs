@@ -58,7 +58,8 @@ public class MedicineService : IMedicineService
         existing.ExpiryDate = medicine.ExpiryDate ?? existing.ExpiryDate;
         existing.Manufacturer = medicine.Manufacturer ?? existing.Manufacturer;
         existing.Dose = medicine.Dose ?? existing.Dose;
-        existing.AdministrationMethod = medicine.AdministrationMethod ?? existing.AdministrationMethod;
+        existing.AdministrationMethod =
+            medicine.AdministrationMethod ?? existing.AdministrationMethod;
         await _medicineRepository.UpdateMedicineAsync(existing);
         return true;
     }
@@ -96,4 +97,4 @@ public class MedicineService : IMedicineService
         // Gọi repository để cập nhật số lượng
         return await _medicineRepository.UpdateStockQuantityAsync(medicineId, quantityUsed);
     }
-} 
+}

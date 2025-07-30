@@ -34,13 +34,17 @@ public static class MedicineDto
         // Vaccine-specific fields
         [StringLength(50)]
         public string? Type { get; set; }
+
         [StringLength(100)]
         public string? BatchNumber { get; set; }
         public DateTime? ExpiryDate { get; set; }
+
         [StringLength(100)]
         public string? Manufacturer { get; set; }
+
         [StringLength(50)]
         public string? Dose { get; set; }
+
         [StringLength(50)]
         public string? AdministrationMethod { get; set; }
     }
@@ -58,14 +62,18 @@ public static class MedicineDto
         // Vaccine-specific fields
         [StringLength(50)]
         public string? Type { get; set; }
+
         [StringLength(100)]
         public string? BatchNumber { get; set; }
         public DateTime? ExpiryDate { get; set; }
+
         [StringLength(100)]
         public string? Manufacturer { get; set; }
+
         [StringLength(50)]
         public string? Dose { get; set; }
+
         [StringLength(50)]
         public string? AdministrationMethod { get; set; }
     }
-} 
+}

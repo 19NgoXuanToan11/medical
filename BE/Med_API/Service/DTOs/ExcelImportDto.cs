@@ -37,7 +37,11 @@ public class ExcelImportDto
         public int GradeLevel { get; set; }
 
         [Required(ErrorMessage = "Password is required")]
-        [StringLength(255, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long")]
+        [StringLength(
+            255,
+            MinimumLength = 6,
+            ErrorMessage = "Password must be at least 6 characters long"
+        )]
         public string Password { get; set; } = null!;
     }
 
@@ -52,7 +56,10 @@ public class ExcelImportDto
         public string LastName { get; set; } = null!;
 
         [Required(ErrorMessage = "Relationship is required")]
-        [RegularExpression("^(Mother|Father|Guardian|Other)$", ErrorMessage = "Relationship must be Mother, Father, Guardian, or Other")]
+        [RegularExpression(
+            "^(Mother|Father|Guardian|Other)$",
+            ErrorMessage = "Relationship must be Mother, Father, Guardian, or Other"
+        )]
         public string Relationship { get; set; } = null!;
 
         [Required(ErrorMessage = "Phone number is required")]
@@ -77,7 +84,11 @@ public class ExcelImportDto
         public bool IsMainContact { get; set; }
 
         [Required(ErrorMessage = "Password is required")]
-        [StringLength(255, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long")]
+        [StringLength(
+            255,
+            MinimumLength = 6,
+            ErrorMessage = "Password must be at least 6 characters long"
+        )]
         public string Password { get; set; } = null!;
     }
 
@@ -93,7 +104,10 @@ public class ExcelImportDto
         public string ParentEmail { get; set; } = null!;
 
         [Required(ErrorMessage = "Relationship is required")]
-        [RegularExpression("^(Mother|Father|Guardian|Other)$", ErrorMessage = "Relationship must be Mother, Father, Guardian, or Other")]
+        [RegularExpression(
+            "^(Mother|Father|Guardian|Other)$",
+            ErrorMessage = "Relationship must be Mother, Father, Guardian, or Other"
+        )]
         public string Relationship { get; set; } = null!;
     }
 
@@ -144,7 +158,10 @@ public class ExcelImportDto
         public string? RightEar { get; set; }
 
         [Required(ErrorMessage = "Vaccination status is required")]
-        [RegularExpression("^(Yes|No|Partial)$", ErrorMessage = "Vaccination status must be Yes, No, or Partial")]
+        [RegularExpression(
+            "^(Yes|No|Partial)$",
+            ErrorMessage = "Vaccination status must be Yes, No, or Partial"
+        )]
         public string HasCompleteVaccinations { get; set; } = null!;
 
         [StringLength(1000, ErrorMessage = "Vaccinations list cannot exceed 1000 characters")]
@@ -185,4 +202,4 @@ public class ExcelImportDto
         public int FailedRows { get; set; }
         public List<string> Errors { get; set; } = new();
     }
-} 
+}

@@ -82,7 +82,7 @@ public class HealthProfileDTO
 
     // Navigation property
     public StudentDto.ViewModel? Student { get; set; }
-    
+
     // Parent information
     public ICollection<ParentSummary>? Parents { get; set; }
 }
@@ -98,4 +98,4 @@ public class ParentSummary
     public bool? IsEmergencyContact { get; set; }
     public bool? IsMainContact { get; set; }
     public bool? IsActive { get; set; }
-} 
+}

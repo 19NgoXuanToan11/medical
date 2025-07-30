@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Service;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using Service;
 
 namespace API.Controllers;
 
@@ -25,7 +25,8 @@ public class AuthController : ControllerBase
         IStaffService staffService,
         IStudentService studentService,
         IParentService parentService,
-        IConfiguration configuration)
+        IConfiguration configuration
+    )
     {
         _staffService = staffService;
         _studentService = studentService;
@@ -42,26 +43,33 @@ public class AuthController : ControllerBase
             // Validate that the requested role is admin for the static admin account
             if (request.Role.ToLower() != "admin")
             {
-                return BadRequest(new { message = "Tài khoản của bạn không có quyền truy cập vai trò này. Vui lòng chọn đúng vai trò" });
+                return BadRequest(
+                    new
+                    {
+                        message = "Tài khoản của bạn không có quyền truy cập vai trò này. Vui lòng chọn đúng vai trò",
+                    }
+                );
             }
-            
-            return Ok(new
-            {
-                Token = GenerateJwtToken(0, ADMIN_USERNAME, "admin@school.com", "Admin"),
-                Role = "Admin",
-                Id = 0,
-                Username = ADMIN_USERNAME,
-                Email = "admin@school.com",
-                FirstName = "System",
-                LastName = "Administrator"
-            });
+
+            return Ok(
+                new
+                {
+                    Token = GenerateJwtToken(0, ADMIN_USERNAME, "admin@school.com", "Admin"),
+                    Role = "Admin",
+                    Id = 0,
+                    Username = ADMIN_USERNAME,
+                    Email = "admin@school.com",
+                    FirstName = "System",
+                    LastName = "Administrator",
+                }
+            );
         }
 
         // Kiểm tra role và thực hiện đăng nhập tương ứng
         switch (request.Role.ToLower())
         {
             case "staff":
-            case "admin":    
+            case "admin":
             case "manager":
             case "nurse":
                 var staff = await _staffService.GetStaffByUsernameAsync(request.Username);
@@ -70,26 +78,37 @@ public class AuthController : ControllerBase
                     // Validate that the requested role matches the user's actual role
                     var requestedRole = request.Role.ToLower();
                     var userActualRole = staff.Role.RoleName.ToLower();
-                    
+
                     // Allow "staff" as a generic role that matches any staff role
-                    bool roleMatches = requestedRole == "staff" || 
-                                     requestedRole == userActualRole;
-                    
+                    bool roleMatches = requestedRole == "staff" || requestedRole == userActualRole;
+
                     if (!roleMatches)
                     {
-                        return BadRequest(new { message = "Tài khoản của bạn không có quyền truy cập vai trò này. Vui lòng chọn đúng vai trò" });
+                        return BadRequest(
+                            new
+                            {
+                                message = "Tài khoản của bạn không có quyền truy cập vai trò này. Vui lòng chọn đúng vai trò",
+                            }
+                        );
                     }
-                    
-                    return Ok(new
-                    {
-                        Token = GenerateJwtToken(staff.StaffId, request.Username, staff.Email, staff.Role.RoleName),
-                        Role = staff.Role.RoleName,
-                        Id = staff.StaffId,
-                        Username = staff.Username,
-                        Email = staff.Email,
-                        FirstName = staff.FirstName,
-                        LastName = staff.LastName
-                    });
+
+                    return Ok(
+                        new
+                        {
+                            Token = GenerateJwtToken(
+                                staff.StaffId,
+                                request.Username,
+                                staff.Email,
+                                staff.Role.RoleName
+                            ),
+                            Role = staff.Role.RoleName,
+                            Id = staff.StaffId,
+                            Username = staff.Username,
+                            Email = staff.Email,
+                            FirstName = staff.FirstName,
+                            LastName = staff.LastName,
+                        }
+                    );
                 }
                 break;
 
@@ -97,15 +116,22 @@ public class AuthController : ControllerBase
                 var student = await _studentService.GetStudentByCodeAsync(request.Username);
                 if (student != null && student.Password == HashPassword(request.Password))
                 {
-                    return Ok(new
-                    {
-                        Token = GenerateJwtToken(student.StudentId, student.StudentCode, "", "Student"),
-                        Role = "Student",
-                        Id = student.StudentId,
-                        Username = student.StudentCode,
-                        FirstName = student.FirstName,
-                        LastName = student.LastName
-                    });
+                    return Ok(
+                        new
+                        {
+                            Token = GenerateJwtToken(
+                                student.StudentId,
+                                student.StudentCode,
+                                "",
+                                "Student"
+                            ),
+                            Role = "Student",
+                            Id = student.StudentId,
+                            Username = student.StudentCode,
+                            FirstName = student.FirstName,
+                            LastName = student.LastName,
+                        }
+                    );
                 }
                 break;
 
@@ -113,16 +139,23 @@ public class AuthController : ControllerBase
                 var parent = await _parentService.GetParentByPhoneAsync(request.Username);
                 if (parent != null && parent.Password == HashPassword(request.Password))
                 {
-                    return Ok(new
-                    {
-                        Token = GenerateJwtToken(parent.ParentId, parent.Phone, parent.Email ?? "", "Parent"),
-                        Role = "Parent",
-                        Id = parent.ParentId,
-                        Username = parent.Phone,
-                        Email = parent.Email,
-                        FirstName = parent.FirstName,
-                        LastName = parent.LastName
-                    });
+                    return Ok(
+                        new
+                        {
+                            Token = GenerateJwtToken(
+                                parent.ParentId,
+                                parent.Phone,
+                                parent.Email ?? "",
+                                "Parent"
+                            ),
+                            Role = "Parent",
+                            Id = parent.ParentId,
+                            Username = parent.Phone,
+                            Email = parent.Email,
+                            FirstName = parent.FirstName,
+                            LastName = parent.LastName,
+                        }
+                    );
                 }
                 break;
 
@@ -143,14 +176,16 @@ public class AuthController : ControllerBase
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Name, username),
             new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.Role, role)
+            new Claim(ClaimTypes.Role, role),
         };
 
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:DurationInMinutes"])),
+            expires: DateTime.Now.AddMinutes(
+                Convert.ToDouble(_configuration["Jwt:DurationInMinutes"])
+            ),
             signingCredentials: credentials
         );
 

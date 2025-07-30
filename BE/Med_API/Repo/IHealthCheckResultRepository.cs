@@ -12,4 +12,4 @@ public interface IHealthCheckResultRepository
     Task<IEnumerable<HealthCheckResult>> GetHealthCheckResultsByFormIdAsync(int formId);
     Task<IEnumerable<HealthCheckResult>> GetHealthCheckResultsByStudentIdAsync(int studentId);
     Task<HealthCheckResult?> GetLatestHealthCheckResultByFormIdAsync(int formId);
-} 
+}

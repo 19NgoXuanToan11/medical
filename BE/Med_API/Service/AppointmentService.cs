@@ -72,4 +72,4 @@ public class AppointmentService : IAppointmentService
 
         await _repository.DeleteAsync(id);
     }
-} 
+}

@@ -13,9 +13,18 @@ public class HealthMappingProfile : Profile
             .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src => src.StudentCode))
             .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Student))
             .ForMember(dest => dest.Staff, opt => opt.MapFrom(src => src.Staff))
-            .ForMember(dest => dest.HealthEventMedicines, opt => opt.MapFrom(src => src.HealthEventMedicines))
-            .ForMember(dest => dest.HealthEventMedicalSupplies, opt => opt.MapFrom(src => src.HealthEventMedicalSupplies))
-            .ForMember(dest => dest.HealthEventFollowUps, opt => opt.MapFrom(src => src.HealthEventFollowUps));
+            .ForMember(
+                dest => dest.HealthEventMedicines,
+                opt => opt.MapFrom(src => src.HealthEventMedicines)
+            )
+            .ForMember(
+                dest => dest.HealthEventMedicalSupplies,
+                opt => opt.MapFrom(src => src.HealthEventMedicalSupplies)
+            )
+            .ForMember(
+                dest => dest.HealthEventFollowUps,
+                opt => opt.MapFrom(src => src.HealthEventFollowUps)
+            );
 
         CreateMap<HealthEventDto.Create, HealthEvent>()
             .ForMember(dest => dest.EventId, opt => opt.Ignore())
@@ -28,7 +37,10 @@ public class HealthMappingProfile : Profile
 
         // HealthEventMedicine Mappings
         CreateMap<HealthEventMedicine, HealthEventMedicineDto.ViewModel>()
-            .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.MedicineName ?? src.Medicine.Name));
+            .ForMember(
+                dest => dest.MedicineName,
+                opt => opt.MapFrom(src => src.MedicineName ?? src.Medicine.Name)
+            );
 
         CreateMap<HealthEventMedicineDto.Create, HealthEventMedicine>()
             .ForMember(dest => dest.HealthEventMedicineId, opt => opt.Ignore())
@@ -41,13 +53,19 @@ public class HealthMappingProfile : Profile
 
         // HealthEventMedicalSupply Mappings
         CreateMap<HealthEventMedicalSupply, HealthEventMedicalSupplyDto.ViewModel>()
-            .ForMember(dest => dest.MedicalSupplyName, opt => opt.MapFrom(src => src.MedicalSupplyName ?? src.MedicalSupply.Name));
+            .ForMember(
+                dest => dest.MedicalSupplyName,
+                opt => opt.MapFrom(src => src.MedicalSupplyName ?? src.MedicalSupply.Name)
+            );
 
         CreateMap<HealthEventMedicalSupplyDto.Create, HealthEventMedicalSupply>()
             .ForMember(dest => dest.HealthEventMedicalSupplyId, opt => opt.Ignore())
             .ForMember(dest => dest.HealthEvent, opt => opt.Ignore())
             .ForMember(dest => dest.MedicalSupply, opt => opt.Ignore())
-            .ForMember(dest => dest.MedicalSupplyName, opt => opt.MapFrom(src => src.MedicalSupplyName));
+            .ForMember(
+                dest => dest.MedicalSupplyName,
+                opt => opt.MapFrom(src => src.MedicalSupplyName)
+            );
 
         CreateMap<HealthEventMedicalSupplyDto.Update, HealthEventMedicalSupply>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
@@ -55,7 +73,15 @@ public class HealthMappingProfile : Profile
         // HealthProfile Mappings
         CreateMap<HealthProfile, HealthProfileDto.ViewModel>()
             .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Student))
-            .ForMember(dest => dest.Parents, opt => opt.MapFrom(src => src.Student != null ? src.Student.StudentParents.Select(sp => sp.Parent) : null));
+            .ForMember(
+                dest => dest.Parents,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Student != null
+                            ? src.Student.StudentParents.Select(sp => sp.Parent)
+                            : null
+                    )
+            );
 
         CreateMap<HealthProfileDto.Create, HealthProfile>();
 
@@ -67,7 +93,15 @@ public class HealthMappingProfile : Profile
 
         // HealthEventFollowUp Mappings
         CreateMap<HealthEventFollowUp, Service.DTOs.HealthEventFollowUpDto.ViewModel>()
-            .ForMember(dest => dest.StaffName, opt => opt.MapFrom(src => src.Staff != null ? $"{src.Staff.FirstName} {src.Staff.LastName}" : string.Empty));
+            .ForMember(
+                dest => dest.StaffName,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Staff != null
+                            ? $"{src.Staff.FirstName} {src.Staff.LastName}"
+                            : string.Empty
+                    )
+            );
 
         CreateMap<Service.DTOs.HealthEventFollowUpDto.Create, HealthEventFollowUp>()
             .ForMember(dest => dest.FollowUpId, opt => opt.Ignore())
@@ -83,4 +117,4 @@ public class HealthMappingProfile : Profile
             .ForMember(dest => dest.Staff, opt => opt.Ignore())
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
-} 
+}

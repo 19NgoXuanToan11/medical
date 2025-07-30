@@ -12,4 +12,4 @@ public interface IBlogService
     Task<Blog?> UpdateAsync(int id, Blog blog);
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<Blog>> SearchAsync(string? query);
-} 
+}

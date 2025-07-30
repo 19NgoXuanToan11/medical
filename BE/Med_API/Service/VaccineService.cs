@@ -54,7 +54,8 @@ public class VaccineService : IVaccineService
         existing.BatchNumber = vaccine.BatchNumber ?? existing.BatchNumber;
         existing.ExpiryDate = vaccine.ExpiryDate ?? existing.ExpiryDate;
         existing.Dose = vaccine.Dose ?? existing.Dose;
-        existing.AdministrationMethod = vaccine.AdministrationMethod ?? existing.AdministrationMethod;
+        existing.AdministrationMethod =
+            vaccine.AdministrationMethod ?? existing.AdministrationMethod;
         existing.Description = vaccine.Description ?? existing.Description;
         existing.IsActive = vaccine.IsActive ?? existing.IsActive;
         await _vaccineRepository.UpdateVaccineAsync(existing);
@@ -75,4 +76,4 @@ public class VaccineService : IVaccineService
     {
         return await _vaccineRepository.GetActiveVaccinesAsync();
     }
-} 
+}

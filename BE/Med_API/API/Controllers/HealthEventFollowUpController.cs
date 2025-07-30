@@ -1,8 +1,8 @@
-using Service.DTOs;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using System.Security.Claims;
+using Service.DTOs;
 
 namespace API.Controllers;
 
@@ -19,7 +19,9 @@ public class HealthEventFollowUpController : ControllerBase
     }
 
     [HttpGet("event/{eventId}")]
-    public async Task<ActionResult<IEnumerable<HealthEventFollowUpDto.ViewModel>>> GetFollowUpsByEventId(int eventId)
+    public async Task<
+        ActionResult<IEnumerable<HealthEventFollowUpDto.ViewModel>>
+    > GetFollowUpsByEventId(int eventId)
     {
         try
         {
@@ -51,7 +53,9 @@ public class HealthEventFollowUpController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<HealthEventFollowUpDto.ViewModel>> Create([FromBody] HealthEventFollowUpDto.Create createDto)
+    public async Task<ActionResult<HealthEventFollowUpDto.ViewModel>> Create(
+        [FromBody] HealthEventFollowUpDto.Create createDto
+    )
     {
         try
         {
@@ -66,7 +70,11 @@ public class HealthEventFollowUpController : ControllerBase
             createDto.StaffId = staffId;
 
             var createdFollowUp = await _followUpService.CreateAsync(createDto);
-            return CreatedAtAction(nameof(GetById), new { followUpId = createdFollowUp.FollowUpId }, createdFollowUp);
+            return CreatedAtAction(
+                nameof(GetById),
+                new { followUpId = createdFollowUp.FollowUpId },
+                createdFollowUp
+            );
         }
         catch (ArgumentException ex)
         {
@@ -79,7 +87,10 @@ public class HealthEventFollowUpController : ControllerBase
     }
 
     [HttpPut("{followUpId}")]
-    public async Task<ActionResult<HealthEventFollowUpDto.ViewModel>> Update(int followUpId, [FromBody] HealthEventFollowUpDto.Update updateDto)
+    public async Task<ActionResult<HealthEventFollowUpDto.ViewModel>> Update(
+        int followUpId,
+        [FromBody] HealthEventFollowUpDto.Update updateDto
+    )
     {
         try
         {
@@ -114,4 +125,4 @@ public class HealthEventFollowUpController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-} 
+}

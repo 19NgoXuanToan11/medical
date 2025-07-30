@@ -48,8 +48,11 @@ public class RoleController : ControllerBase
             return BadRequest("Role name already exists");
         }
 
-        return CreatedAtAction(nameof(GetRole), new { id = createdRole.RoleId }, 
-            _mapper.Map<RoleDto.ViewModel>(createdRole));
+        return CreatedAtAction(
+            nameof(GetRole),
+            new { id = createdRole.RoleId },
+            _mapper.Map<RoleDto.ViewModel>(createdRole)
+        );
     }
 
     [HttpPut("{id}")]
@@ -82,4 +85,4 @@ public class RoleController : ControllerBase
 
         return NoContent();
     }
-} 
+}

@@ -12,14 +12,32 @@ public class StaffProfile : Profile
         // Map from Staff to StaffDto.ViewModel
         CreateMap<Staff, StaffDto.ViewModel>()
             .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName))
-            .ForMember(dest => dest.StudentCount, opt => opt.MapFrom(src => 
-                src.HealthEvents.Select(e => e.StudentCode).Distinct().Count()))
-            .ForMember(dest => dest.HealthEventCount, opt => opt.MapFrom(src => src.HealthEvents.Count))
-            .ForMember(dest => dest.ParentCount, opt => opt.MapFrom(src => 
-                src.MedicineRequests.Select(m => m.ParentId).Distinct().Count()))
-            .ForMember(dest => dest.MedicineRequestCount, opt => opt.MapFrom(src => src.MedicineRequests.Count))
-            .ForMember(dest => dest.AssignedGrades, opt => opt.MapFrom(src => 
-                src.GradeNurses.Select(gn => gn.Grade).ToList()));
+            .ForMember(
+                dest => dest.StudentCount,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.HealthEvents.Select(e => e.StudentCode).Distinct().Count()
+                    )
+            )
+            .ForMember(
+                dest => dest.HealthEventCount,
+                opt => opt.MapFrom(src => src.HealthEvents.Count)
+            )
+            .ForMember(
+                dest => dest.ParentCount,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.MedicineRequests.Select(m => m.ParentId).Distinct().Count()
+                    )
+            )
+            .ForMember(
+                dest => dest.MedicineRequestCount,
+                opt => opt.MapFrom(src => src.MedicineRequests.Count)
+            )
+            .ForMember(
+                dest => dest.AssignedGrades,
+                opt => opt.MapFrom(src => src.GradeNurses.Select(gn => gn.Grade).ToList())
+            );
 
         // Map from StaffDto.Create to Staff
         CreateMap<StaffDto.Create, Staff>()
@@ -46,4 +64,4 @@ public class StaffProfile : Profile
             .ForMember(dest => dest.Nurse, opt => opt.MapFrom(src => src.Nurse));
         CreateMap<StaffDto.GradeNurseCreate, GradeNurse>();
     }
-} 
+}

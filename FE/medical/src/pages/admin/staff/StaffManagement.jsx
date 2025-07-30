@@ -652,11 +652,6 @@ const StaffManagement = () => {
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider align-middle">
                   <div className="flex items-center justify-center h-full">
-                    Khối phụ trách
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider align-middle">
-                  <div className="flex items-center justify-center h-full">
                     Số điện thoại
                   </div>
                 </th>
@@ -707,20 +702,6 @@ const StaffManagement = () => {
                         >
                           {roleInfo.label}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap align-middle text-center">
-                      <div className="flex items-center justify-center h-full">
-                        {staff.roleId === 3 ? (
-                          (() => {
-                            const grades = getAssignedGrades(staff.staffId);
-                            return formatAssignedGrades(grades);
-                          })()
-                        ) : (
-                          <span className="text-gray-400 text-sm">
-                            Không áp dụng
-                          </span>
-                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-100 align-middle text-center">

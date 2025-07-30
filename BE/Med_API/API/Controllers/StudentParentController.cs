@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using AutoMapper;
-using Service;
-using API.DTOs;
-using DB;
 using System.Linq;
+using System.Threading.Tasks;
+using API.DTOs;
+using AutoMapper;
+using DB;
+using Microsoft.AspNetCore.Mvc;
+using Service;
 
 namespace API.Controllers
 {
@@ -44,32 +44,48 @@ namespace API.Controllers
         }
 
         [HttpGet("student/{studentCode}")]
-        public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetStudentParentsByStudentCode(string studentCode)
+        public async Task<
+            ActionResult<IEnumerable<StudentParentDto.ViewModel>>
+        > GetStudentParentsByStudentCode(string studentCode)
         {
-            var studentParents = await _studentParentService.GetStudentParentsByStudentCodeAsync(studentCode);
+            var studentParents = await _studentParentService.GetStudentParentsByStudentCodeAsync(
+                studentCode
+            );
             var viewModels = _mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(studentParents);
             return Ok(viewModels);
         }
 
         [HttpGet("parent/{parentId}")]
-        public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetStudentParentsByParentId(int parentId)
+        public async Task<
+            ActionResult<IEnumerable<StudentParentDto.ViewModel>>
+        > GetStudentParentsByParentId(int parentId)
         {
-            var studentParents = await _studentParentService.GetStudentParentsByParentIdAsync(parentId);
+            var studentParents = await _studentParentService.GetStudentParentsByParentIdAsync(
+                parentId
+            );
             var viewModels = _mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(studentParents);
             return Ok(viewModels);
         }
 
         [HttpGet("by-grade/{grade}")]
-        public async Task<ActionResult<IEnumerable<StudentParentDto.ViewModel>>> GetStudentParentsByGrade(int grade)
+        public async Task<
+            ActionResult<IEnumerable<StudentParentDto.ViewModel>>
+        > GetStudentParentsByGrade(int grade)
         {
             var studentParents = await _studentParentService.GetAllStudentParentsAsync();
-            var filtered = studentParents.Where(sp => sp.Student != null && sp.Student.Class != null && sp.Student.Class.GradeLevel == grade);
+            var filtered = studentParents.Where(sp =>
+                sp.Student != null
+                && sp.Student.Class != null
+                && sp.Student.Class.GradeLevel == grade
+            );
             var viewModels = _mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(filtered);
             return Ok(viewModels);
         }
 
         [HttpPost]
-        public async Task<ActionResult<StudentParentDto.ViewModel>> CreateStudentParent(StudentParentDto.Create createDto)
+        public async Task<ActionResult<StudentParentDto.ViewModel>> CreateStudentParent(
+            StudentParentDto.Create createDto
+        )
         {
             if (!ModelState.IsValid)
             {
@@ -77,7 +93,9 @@ namespace API.Controllers
             }
 
             var studentParent = _mapper.Map<StudentParent>(createDto);
-            var createdStudentParent = await _studentParentService.CreateStudentParentAsync(studentParent);
+            var createdStudentParent = await _studentParentService.CreateStudentParentAsync(
+                studentParent
+            );
 
             if (createdStudentParent == null)
             {
@@ -85,11 +103,18 @@ namespace API.Controllers
             }
 
             var viewModel = _mapper.Map<StudentParentDto.ViewModel>(createdStudentParent);
-            return CreatedAtAction(nameof(GetStudentParent), new { id = viewModel.StudentParentId }, viewModel);
+            return CreatedAtAction(
+                nameof(GetStudentParent),
+                new { id = viewModel.StudentParentId },
+                viewModel
+            );
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateStudentParent(int id, StudentParentDto.Update updateDto)
+        public async Task<IActionResult> UpdateStudentParent(
+            int id,
+            StudentParentDto.Update updateDto
+        )
         {
             if (id != updateDto.StudentParentId)
             {
@@ -124,4 +149,4 @@ namespace API.Controllers
             return NoContent();
         }
     }
-} 
+}

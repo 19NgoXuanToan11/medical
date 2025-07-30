@@ -12,7 +12,8 @@ public class HealthCheckFormService : IHealthCheckFormService
     public HealthCheckFormService(
         IHealthCheckFormRepository healthCheckFormRepository,
         IStudentRepository studentRepository,
-        IParentRepository parentRepository)
+        IParentRepository parentRepository
+    )
     {
         _healthCheckFormRepository = healthCheckFormRepository;
         _studentRepository = studentRepository;
@@ -69,15 +70,18 @@ public class HealthCheckFormService : IHealthCheckFormService
     public async Task<bool> UpdateHealthCheckFormAsync(HealthCheckForm healthCheckForm)
     {
         // Validate that the form exists
-        var existingForm = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(healthCheckForm.FormId);
+        var existingForm = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(
+            healthCheckForm.FormId
+        );
         if (existingForm == null)
         {
             return false;
         }
 
         // For schedule-type forms (those with Title and ScheduledDate), use different validation
-        bool isScheduleForm = !string.IsNullOrEmpty(healthCheckForm.Title) && healthCheckForm.ScheduledDate.HasValue;
-        
+        bool isScheduleForm =
+            !string.IsNullOrEmpty(healthCheckForm.Title) && healthCheckForm.ScheduledDate.HasValue;
+
         if (!isScheduleForm)
         {
             // Original validation for regular health check forms
@@ -87,7 +91,9 @@ public class HealthCheckFormService : IHealthCheckFormService
                 throw new InvalidOperationException("StudentId is required");
             }
 
-            var student = await _studentRepository.GetStudentByIdAsync(healthCheckForm.StudentId.Value);
+            var student = await _studentRepository.GetStudentByIdAsync(
+                healthCheckForm.StudentId.Value
+            );
             if (student == null)
             {
                 throw new InvalidOperationException("Student not found");
@@ -96,7 +102,9 @@ public class HealthCheckFormService : IHealthCheckFormService
             // Validate ParentId if provided
             if (healthCheckForm.ParentId.HasValue)
             {
-                var parent = await _parentRepository.GetParentByIdAsync(healthCheckForm.ParentId.Value);
+                var parent = await _parentRepository.GetParentByIdAsync(
+                    healthCheckForm.ParentId.Value
+                );
                 if (parent == null)
                 {
                     throw new InvalidOperationException("Parent not found");
@@ -105,7 +113,10 @@ public class HealthCheckFormService : IHealthCheckFormService
         }
 
         // Validate ConsentStatus only if provided
-        if (!string.IsNullOrEmpty(healthCheckForm.ConsentStatus) && !IsValidConsentStatus(healthCheckForm.ConsentStatus))
+        if (
+            !string.IsNullOrEmpty(healthCheckForm.ConsentStatus)
+            && !IsValidConsentStatus(healthCheckForm.ConsentStatus)
+        )
         {
             throw new InvalidOperationException("Invalid consent status value");
         }
@@ -118,7 +129,9 @@ public class HealthCheckFormService : IHealthCheckFormService
         return await _healthCheckFormRepository.DeleteHealthCheckFormAsync(id);
     }
 
-    public async Task<IEnumerable<HealthCheckForm>> GetHealthCheckFormsByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<HealthCheckForm>> GetHealthCheckFormsByStudentIdAsync(
+        int studentId
+    )
     {
         return await _healthCheckFormRepository.GetHealthCheckFormsByStudentIdAsync(studentId);
     }
@@ -158,7 +171,11 @@ public class HealthCheckFormService : IHealthCheckFormService
     public async Task<HealthCheckForm?> GetHealthCheckScheduleByIdAsync(int id)
     {
         var schedule = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(id);
-        if (schedule != null && !string.IsNullOrEmpty(schedule.Title) && schedule.ScheduledDate.HasValue)
+        if (
+            schedule != null
+            && !string.IsNullOrEmpty(schedule.Title)
+            && schedule.ScheduledDate.HasValue
+        )
         {
             return schedule;
         }
@@ -175,7 +192,9 @@ public class HealthCheckFormService : IHealthCheckFormService
 
         if (!schedule.ScheduledDate.HasValue)
         {
-            throw new InvalidOperationException("Scheduled date is required for health check schedule");
+            throw new InvalidOperationException(
+                "Scheduled date is required for health check schedule"
+            );
         }
 
         // Check if GradeIds is empty or contains only empty array
@@ -186,26 +205,28 @@ public class HealthCheckFormService : IHealthCheckFormService
 
         // Set default values
         schedule.CreatedDate = DateTime.UtcNow;
-        
+
         // FORCE STATUS TO PENDING - TEST FIX
         schedule.Status = "pending";
-        
+
         schedule.ConsentStatus = "Pending";
 
         var result = await _healthCheckFormRepository.CreateHealthCheckFormAsync(schedule);
-        
+
         return result;
     }
 
     public async Task<bool> UpdateHealthCheckScheduleAsync(HealthCheckForm schedule)
     {
         // Validate that the schedule exists
-        var existingSchedule = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(schedule.FormId);
+        var existingSchedule = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(
+            schedule.FormId
+        );
         if (existingSchedule == null)
         {
             return false;
         }
-        
+
         // Validate required fields for scheduling
         if (string.IsNullOrEmpty(schedule.Title))
         {
@@ -214,7 +235,9 @@ public class HealthCheckFormService : IHealthCheckFormService
 
         if (!schedule.ScheduledDate.HasValue)
         {
-            throw new InvalidOperationException("Scheduled date is required for health check schedule");
+            throw new InvalidOperationException(
+                "Scheduled date is required for health check schedule"
+            );
         }
 
         // Check if GradeIds is empty or contains only empty array
@@ -224,17 +247,20 @@ public class HealthCheckFormService : IHealthCheckFormService
         }
 
         // Validate ConsentStatus only if it's provided (not Status field)
-        if (!string.IsNullOrEmpty(schedule.ConsentStatus) && !IsValidConsentStatus(schedule.ConsentStatus))
+        if (
+            !string.IsNullOrEmpty(schedule.ConsentStatus)
+            && !IsValidConsentStatus(schedule.ConsentStatus)
+        )
         {
             throw new InvalidOperationException("Invalid consent status value");
         }
 
-        try 
+        try
         {
             var result = await _healthCheckFormRepository.UpdateHealthCheckFormAsync(schedule);
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }
@@ -244,4 +270,4 @@ public class HealthCheckFormService : IHealthCheckFormService
     {
         return await _healthCheckFormRepository.DeleteHealthCheckFormAsync(id);
     }
-} 
+}

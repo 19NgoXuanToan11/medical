@@ -34,7 +34,7 @@ public partial class InjectionForm
     public int? VaccineId { get; set; } // Liên kết với Vaccine
 
     public string? Status { get; set; } // Trạng thái duyệt: pending, approved, rejected, etc
-    
+
     public string? Notes { get; set; } // Ghi chú từ manager khi duyệt/từ chối
 
     // Vaccination schedule fields (added to support schedule creation)
@@ -57,5 +57,6 @@ public partial class InjectionForm
     public virtual Parent? Parent { get; set; }
     public virtual Staff? ConfirmedByStaff { get; set; }
     public virtual Vaccine? Vaccine { get; set; }
-    public virtual ICollection<InjectionResult> InjectionResults { get; set; } = new List<InjectionResult>();
+    public virtual ICollection<InjectionResult> InjectionResults { get; set; } =
+        new List<InjectionResult>();
 }

@@ -1,12 +1,12 @@
-using AutoMapper;
-using DB;
-using API.DTOs;
-using Service.DTOs;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Linq;
-using System.Collections.Generic;
 using System.Text.Json;
+using API.DTOs;
+using AutoMapper;
+using DB;
+using Service.DTOs;
 
 namespace API.MappingProfiles;
 
@@ -18,18 +18,32 @@ public class ParentProfile : Profile
         CreateMap<Parent, ParentDto.ViewModel>()
             .ForMember(dest => dest.Students, opt => opt.MapFrom(src => src.Students))
             .ForMember(dest => dest.StudentParents, opt => opt.MapFrom(src => src.StudentParents))
-            .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src =>
-                src.StudentParents != null
-                    ? src.StudentParents
-                        .Where(sp => sp.Student != null && !string.IsNullOrEmpty(sp.Student.StudentCode))
-                        .Select(sp => sp.Student.StudentCode)
-                        .FirstOrDefault()
-                    : null));
+            .ForMember(
+                dest => dest.StudentCode,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.StudentParents != null
+                            ? src
+                                .StudentParents.Where(sp =>
+                                    sp.Student != null
+                                    && !string.IsNullOrEmpty(sp.Student.StudentCode)
+                                )
+                                .Select(sp => sp.Student.StudentCode)
+                                .FirstOrDefault()
+                            : null
+                    )
+            );
 
         // Map from Student to ParentDto.StudentSummary
         CreateMap<Student, ParentDto.StudentSummary>()
-            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Class != null ? src.Class.ClassName : null))
-            .ForMember(dest => dest.GradeLevel, opt => opt.MapFrom(src => src.Class != null ? src.Class.GradeLevel : 0));
+            .ForMember(
+                dest => dest.ClassName,
+                opt => opt.MapFrom(src => src.Class != null ? src.Class.ClassName : null)
+            )
+            .ForMember(
+                dest => dest.GradeLevel,
+                opt => opt.MapFrom(src => src.Class != null ? src.Class.GradeLevel : 0)
+            );
 
         // Map from ParentDto.Create to Parent
         CreateMap<ParentDto.Create, Parent>()
@@ -51,13 +65,41 @@ public class ParentProfile : Profile
         // Map from MedicineRequest to ParentDto.MedicineRequestProgress
         CreateMap<MedicineRequest, ParentDto.MedicineRequestProgress>()
             .ForMember(dest => dest.RequestId, opt => opt.MapFrom(src => src.RequestId))
-            .ForMember(dest => dest.StudentCode, opt => opt.MapFrom(src => src.StudentCode ?? (src.Student != null ? src.Student.StudentCode : null)))
-            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.ClassName ?? (src.Student != null && src.Student.Class != null ? src.Student.Class.ClassName : null)))
-            .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src => src.Student != null ? (src.Student.FirstName + " " + src.Student.LastName).Trim() : null))
+            .ForMember(
+                dest => dest.StudentCode,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.StudentCode ?? (src.Student != null ? src.Student.StudentCode : null)
+                    )
+            )
+            .ForMember(
+                dest => dest.ClassName,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.ClassName
+                        ?? (
+                            src.Student != null && src.Student.Class != null
+                                ? src.Student.Class.ClassName
+                                : null
+                        )
+                    )
+            )
+            .ForMember(
+                dest => dest.StudentName,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Student != null
+                            ? (src.Student.FirstName + " " + src.Student.LastName).Trim()
+                            : null
+                    )
+            )
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.RequestDate, opt => opt.MapFrom(src => src.RequestDate))
-            .ForMember(dest => dest.MedicineItems, opt => opt.MapFrom(src => src.MedicineRequestItems));
+            .ForMember(
+                dest => dest.MedicineItems,
+                opt => opt.MapFrom(src => src.MedicineRequestItems)
+            );
 
         // Map from MedicineRequestItem to ParentDto.MedicineRequestItemProgress
         CreateMap<MedicineRequestItem, ParentDto.MedicineRequestItemProgress>()
@@ -67,7 +109,10 @@ public class ParentProfile : Profile
             .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency))
             .ForMember(dest => dest.TimeOfDay, opt => opt.MapFrom(src => src.TimeOfDay))
             .ForMember(dest => dest.Instructions, opt => opt.MapFrom(src => src.Instructions))
-            .ForMember(dest => dest.VerifiedStatus, opt => opt.MapFrom(src => DeserializeAndParseVerifiedStatus(src.VerificationStatus)));
+            .ForMember(
+                dest => dest.VerifiedStatus,
+                opt => opt.MapFrom(src => DeserializeAndParseVerifiedStatus(src.VerificationStatus))
+            );
 
         // Map from Service DTOs to API DTOs
         CreateMap<ParentStatisticsDto, ParentDto.ParentStatistics>();
@@ -86,21 +131,29 @@ public class ParentProfile : Profile
         }
         try
         {
-            var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(verificationStatus);
-            if (dict == null) return new Dictionary<string, object>();
+            var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(
+                verificationStatus
+            );
+            if (dict == null)
+                return new Dictionary<string, object>();
 
             var formattedDict = new Dictionary<string, object>();
-            foreach(var kvp in dict)
+            foreach (var kvp in dict)
             {
-                if(kvp.Value.ValueKind == JsonValueKind.String)
+                if (kvp.Value.ValueKind == JsonValueKind.String)
                 {
                     var stringVal = kvp.Value.GetString();
-                    if (!string.IsNullOrEmpty(stringVal) && (stringVal.StartsWith("{") || stringVal.StartsWith("[")))
+                    if (
+                        !string.IsNullOrEmpty(stringVal)
+                        && (stringVal.StartsWith("{") || stringVal.StartsWith("["))
+                    )
                     {
                         try
                         {
                             // It's a stringified JSON object or array, parse it.
-                            formattedDict[kvp.Key] = JsonSerializer.Deserialize<JsonElement>(stringVal);
+                            formattedDict[kvp.Key] = JsonSerializer.Deserialize<JsonElement>(
+                                stringVal
+                            );
                         }
                         catch
                         {
@@ -120,7 +173,7 @@ public class ParentProfile : Profile
                     formattedDict[kvp.Key] = kvp.Value;
                 }
             }
-            
+
             // Normalize the dictionary to remove duplicates and standardize keys
             return NormalizeVerifiedStatusKeys(formattedDict);
         }
@@ -135,29 +188,39 @@ public class ParentProfile : Profile
     private Dictionary<string, object> NormalizeVerifiedStatusKeys(Dictionary<string, object> dict)
     {
         var normalized = new Dictionary<string, object>();
-        
+
         foreach (var kv in dict)
         {
             var normalizedKey = NormalizePeriodKey(kv.Key);
-            
+
             // If key already exists, prioritize the object version over string version
             if (normalized.ContainsKey(normalizedKey))
             {
                 // If current value is an object and existing value is a string, keep the object
-                if (kv.Value is JsonElement elem && elem.ValueKind == JsonValueKind.Object && 
-                    normalized[normalizedKey] is string)
+                if (
+                    kv.Value is JsonElement elem
+                    && elem.ValueKind == JsonValueKind.Object
+                    && normalized[normalizedKey] is string
+                )
                 {
                     normalized[normalizedKey] = kv.Value;
                 }
                 // If both are objects, merge them (object takes precedence)
-                else if (kv.Value is JsonElement elem1 && elem1.ValueKind == JsonValueKind.Object && 
-                         normalized[normalizedKey] is JsonElement elem2 && elem2.ValueKind == JsonValueKind.Object)
+                else if (
+                    kv.Value is JsonElement elem1
+                    && elem1.ValueKind == JsonValueKind.Object
+                    && normalized[normalizedKey] is JsonElement elem2
+                    && elem2.ValueKind == JsonValueKind.Object
+                )
                 {
                     // Keep the current value as it's more recent
                     normalized[normalizedKey] = kv.Value;
                 }
                 // If both are strings, keep the one that's not "Pending"
-                else if (kv.Value is string currentStr && normalized[normalizedKey] is string existingStr)
+                else if (
+                    kv.Value is string currentStr
+                    && normalized[normalizedKey] is string existingStr
+                )
                 {
                     if (currentStr != "Pending" && existingStr == "Pending")
                     {
@@ -170,15 +233,16 @@ public class ParentProfile : Profile
                 normalized[normalizedKey] = kv.Value;
             }
         }
-        
+
         return normalized;
     }
 
     // Helper function to normalize period key (capitalize first letter)
     private string NormalizePeriodKey(string key)
     {
-        if (string.IsNullOrEmpty(key)) return key;
-        
+        if (string.IsNullOrEmpty(key))
+            return key;
+
         // Handle common period names
         var periodMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -189,14 +253,14 @@ public class ParentProfile : Profile
             { "morning", "Sáng" },
             { "noon", "Trưa" },
             { "afternoon", "Chiều" },
-            { "as_needed", "Khi cần thiết" }
+            { "as_needed", "Khi cần thiết" },
         };
-        
+
         if (periodMappings.ContainsKey(key))
         {
             return periodMappings[key];
         }
-        
+
         // General case: capitalize first letter
         return char.ToUpper(key[0]) + key.Substring(1).ToLower();
     }
@@ -209,4 +273,4 @@ public class ParentProfile : Profile
             return Convert.ToBase64String(hashedBytes);
         }
     }
-} 
+}

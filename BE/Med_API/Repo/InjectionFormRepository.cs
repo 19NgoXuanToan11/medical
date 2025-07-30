@@ -14,8 +14,8 @@ public class InjectionFormRepository : IInjectionFormRepository
 
     public async Task<IEnumerable<InjectionForm>> GetAllInjectionFormsAsync()
     {
-        return await _context.InjectionForms
-            .Include(f => f.Student)
+        return await _context
+            .InjectionForms.Include(f => f.Student)
             .Include(f => f.Parent)
             .Include(f => f.Vaccine)
             .ToListAsync();
@@ -23,8 +23,8 @@ public class InjectionFormRepository : IInjectionFormRepository
 
     public async Task<InjectionForm?> GetInjectionFormByIdAsync(int id)
     {
-        return await _context.InjectionForms
-            .Include(f => f.Student)
+        return await _context
+            .InjectionForms.Include(f => f.Student)
             .Include(f => f.Parent)
             .Include(f => f.Vaccine)
             .FirstOrDefaultAsync(f => f.FormId == id);
@@ -55,13 +55,13 @@ public class InjectionFormRepository : IInjectionFormRepository
             existingForm.ConsentDate = injectionForm.ConsentDate;
             existingForm.ConfirmStatus = injectionForm.ConfirmStatus;
             existingForm.ConfirmedBy = injectionForm.ConfirmedBy;
-            
+
             // Ensure status consistency - if Status is updated, also update ConsentStatus
             if (!string.IsNullOrEmpty(injectionForm.Status))
             {
                 existingForm.ConsentStatus = injectionForm.Status;
             }
-            
+
             // Only update other fields if they are provided
             if (!string.IsNullOrEmpty(injectionForm.InjectionName))
                 existingForm.InjectionName = injectionForm.InjectionName;
@@ -89,7 +89,7 @@ public class InjectionFormRepository : IInjectionFormRepository
             await _context.SaveChangesAsync();
             return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw; // Re-throw to let the service layer handle it
         }
@@ -109,8 +109,8 @@ public class InjectionFormRepository : IInjectionFormRepository
 
     public async Task<IEnumerable<InjectionForm>> GetInjectionFormsByStudentIdAsync(int studentId)
     {
-        return await _context.InjectionForms
-            .Include(f => f.Student)
+        return await _context
+            .InjectionForms.Include(f => f.Student)
             .Include(f => f.Parent)
             .Include(f => f.Vaccine)
             .Where(f => f.StudentId == studentId)
@@ -120,8 +120,8 @@ public class InjectionFormRepository : IInjectionFormRepository
 
     public async Task<IEnumerable<InjectionForm>> GetInjectionFormsByParentIdAsync(int parentId)
     {
-        return await _context.InjectionForms
-            .Include(f => f.Student)
+        return await _context
+            .InjectionForms.Include(f => f.Student)
             .Include(f => f.Parent)
             .Include(f => f.Vaccine)
             .Where(f => f.ParentId == parentId)
@@ -131,8 +131,8 @@ public class InjectionFormRepository : IInjectionFormRepository
 
     public async Task<IEnumerable<InjectionForm>> GetInjectionFormsByStatusAsync(string status)
     {
-        return await _context.InjectionForms
-            .Include(f => f.Student)
+        return await _context
+            .InjectionForms.Include(f => f.Student)
             .Include(f => f.Parent)
             .Include(f => f.Vaccine)
             .Where(f => f.Status == status || f.ConsentStatus == status)
@@ -143,8 +143,8 @@ public class InjectionFormRepository : IInjectionFormRepository
     // New methods for vaccination schedules
     public async Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesAsync()
     {
-        return await _context.InjectionForms
-            .Include(f => f.Vaccine)
+        return await _context
+            .InjectionForms.Include(f => f.Vaccine)
             .Where(f => f.StudentId == null) // Vaccination schedules have no specific student
             .OrderByDescending(f => f.CreatedDate)
             .ToListAsync();
@@ -152,62 +152,76 @@ public class InjectionFormRepository : IInjectionFormRepository
 
     public async Task<InjectionForm?> GetVaccinationScheduleByIdAsync(int id)
     {
-        return await _context.InjectionForms
-            .Include(f => f.Vaccine)
+        return await _context
+            .InjectionForms.Include(f => f.Vaccine)
             .FirstOrDefaultAsync(f => f.FormId == id && f.StudentId == null);
     }
 
-    public async Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByStatusAsync(string status)
+    public async Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByStatusAsync(
+        string status
+    )
     {
-        return await _context.InjectionForms
-            .Include(f => f.Vaccine)
+        return await _context
+            .InjectionForms.Include(f => f.Vaccine)
             .Where(f => f.StudentId == null && f.Status == status)
             .OrderByDescending(f => f.CreatedDate)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByDateRangeAsync(DateTime startDate, DateTime endDate)
+    public async Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate
+    )
     {
-        return await _context.InjectionForms
-            .Include(f => f.Vaccine)
-            .Where(f => f.StudentId == null && 
-                       f.ScheduledDate >= startDate && 
-                       f.ScheduledDate <= endDate)
+        return await _context
+            .InjectionForms.Include(f => f.Vaccine)
+            .Where(f =>
+                f.StudentId == null && f.ScheduledDate >= startDate && f.ScheduledDate <= endDate
+            )
             .OrderBy(f => f.ScheduledDate)
             .ThenBy(f => f.StartTime)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByGradeAsync(string gradeId)
+    public async Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByGradeAsync(
+        string gradeId
+    )
     {
-        return await _context.InjectionForms
-            .Include(f => f.Vaccine)
-            .Where(f => f.StudentId == null && 
-                       f.GradeIds != null && 
-                       f.GradeIds.Contains(gradeId))
+        return await _context
+            .InjectionForms.Include(f => f.Vaccine)
+            .Where(f => f.StudentId == null && f.GradeIds != null && f.GradeIds.Contains(gradeId))
             .OrderByDescending(f => f.CreatedDate)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByVaccineAsync(int vaccineId)
+    public async Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByVaccineAsync(
+        int vaccineId
+    )
     {
-        return await _context.InjectionForms
-            .Include(f => f.Vaccine)
+        return await _context
+            .InjectionForms.Include(f => f.Vaccine)
             .Where(f => f.StudentId == null && f.VaccineId == vaccineId)
             .OrderByDescending(f => f.CreatedDate)
             .ToListAsync();
     }
 
-    public async Task<bool> HasScheduleConflictAsync(DateTime scheduledDate, TimeSpan startTime, string location)
+    public async Task<bool> HasScheduleConflictAsync(
+        DateTime scheduledDate,
+        TimeSpan startTime,
+        string location
+    )
     {
         // Check for any schedules that overlap with the given time and location
-        var existingSchedules = await _context.InjectionForms
-            .Where(f => f.StudentId == null && // Only check vaccination schedules
-                       f.ScheduledDate == scheduledDate &&
-                       f.Location == location &&
-                       f.StartTime == startTime)
+        var existingSchedules = await _context
+            .InjectionForms.Where(f =>
+                f.StudentId == null
+                && // Only check vaccination schedules
+                f.ScheduledDate == scheduledDate
+                && f.Location == location
+                && f.StartTime == startTime
+            )
             .AnyAsync();
 
         return existingSchedules;
     }
-} 
+}

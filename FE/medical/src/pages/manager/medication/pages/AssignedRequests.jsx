@@ -25,7 +25,7 @@ const AssignedRequests = () => {
     try {
       const response = await medicationService.getAssignedMedicationRequests();
 
-      if (response.success) { 
+      if (response.success) {
         const assignedOnly = filterByStatus(response.data, [
           "Assigned",
           "assigned",

@@ -26,4 +26,4 @@ public partial class Blog
 
     // Navigation property
     public virtual Staff? Staff { get; set; }
-} 
+}

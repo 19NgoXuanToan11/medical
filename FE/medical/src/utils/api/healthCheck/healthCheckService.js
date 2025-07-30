@@ -193,25 +193,28 @@ export const getHealthCheckFormsByStatus = async (status) => {
 export const uploadHealthCheckResults = async (healthCheckId, file) => {
   try {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('healthCheckId', healthCheckId);
+    formData.append("file", file);
+    formData.append("healthCheckId", healthCheckId);
 
-    const response = await fetch(`${API_BASE_URL}/api/HealthCheckForm/upload-results`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${getAuthToken()}`,
-      },
-      body: formData,
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/HealthCheckForm/upload-results`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: formData,
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || 'Upload failed');
+      throw new Error(errorData.error || "Upload failed");
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Error uploading health check results:', error);
+    console.error("Error uploading health check results:", error);
     throw error;
   }
 };
@@ -219,32 +222,37 @@ export const uploadHealthCheckResults = async (healthCheckId, file) => {
 // Download Excel template for health check results
 export const downloadHealthCheckTemplate = async (healthCheckId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/HealthCheckForm/download-template/${healthCheckId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${getAuthToken()}`,
-      },
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/HealthCheckForm/download-template/${healthCheckId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      }
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to download template');
+      throw new Error("Failed to download template");
     }
 
     // Get filename from response headers
-    const contentDisposition = response.headers.get('Content-Disposition');
+    const contentDisposition = response.headers.get("Content-Disposition");
     let filename = `Mau_KetQua_KhamSucKhoe_${healthCheckId}.xlsx`;
-    
+
     if (contentDisposition) {
-      const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+      const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(
+        contentDisposition
+      );
       if (matches != null && matches[1]) {
-        filename = matches[1].replace(/['"]/g, '');
+        filename = matches[1].replace(/['"]/g, "");
       }
     }
 
     // Create blob and download
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
@@ -254,34 +262,40 @@ export const downloadHealthCheckTemplate = async (healthCheckId) => {
 
     return { success: true, filename };
   } catch (error) {
-    console.error('Error downloading health check template:', error);
+    console.error("Error downloading health check template:", error);
     throw error;
   }
 };
 
 // Mark health check as completed
-export const markHealthCheckCompleted = async (healthCheckId, resultData = null) => {
+export const markHealthCheckCompleted = async (
+  healthCheckId,
+  resultData = null
+) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/HealthCheckForm/complete/${healthCheckId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getAuthToken()}`,
-      },
-      body: JSON.stringify({
-        completedDate: new Date().toISOString(),
-        resultData: resultData,
-      }),
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/HealthCheckForm/complete/${healthCheckId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify({
+          completedDate: new Date().toISOString(),
+          resultData: resultData,
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to complete health check');
+      throw new Error(errorData.error || "Failed to complete health check");
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Error completing health check:', error);
+    console.error("Error completing health check:", error);
     throw error;
   }
 };

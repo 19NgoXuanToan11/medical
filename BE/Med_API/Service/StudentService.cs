@@ -44,9 +44,14 @@ public class StudentService : IStudentService
         }
 
         // Check for unique student code if it's being updated
-        if (!string.IsNullOrEmpty(student.StudentCode) && existingStudent.StudentCode != student.StudentCode)
+        if (
+            !string.IsNullOrEmpty(student.StudentCode)
+            && existingStudent.StudentCode != student.StudentCode
+        )
         {
-            var studentWithSameCode = await _studentRepository.GetStudentByCodeAsync(student.StudentCode);
+            var studentWithSameCode = await _studentRepository.GetStudentByCodeAsync(
+                student.StudentCode
+            );
             if (studentWithSameCode != null && studentWithSameCode.StudentId != student.StudentId)
             {
                 return false; // Student code not unique
@@ -66,8 +71,16 @@ public class StudentService : IStudentService
         return await _studentRepository.GetStudentByCodeAsync(studentCode);
     }
 
-    public async Task<IEnumerable<Student>> GetEligibleStudentsForVaccineAsync(int vaccineId, DateTime injectionDate, IEnumerable<int> studentIds)
+    public async Task<IEnumerable<Student>> GetEligibleStudentsForVaccineAsync(
+        int vaccineId,
+        DateTime injectionDate,
+        IEnumerable<int> studentIds
+    )
     {
-        return await _studentRepository.GetEligibleStudentsForVaccineAsync(vaccineId, injectionDate, studentIds);
+        return await _studentRepository.GetEligibleStudentsForVaccineAsync(
+            vaccineId,
+            injectionDate,
+            studentIds
+        );
     }
-} 
+}

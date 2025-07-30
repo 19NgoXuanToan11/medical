@@ -117,11 +117,11 @@ export const isFutureDate = (dateString) => {
   const selectedDate = new Date(dateString);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   // Calculate minimum date (1 week from today)
   const minDate = new Date(today);
   minDate.setDate(today.getDate() + 7);
-  
+
   return selectedDate >= minDate;
 };
 
@@ -131,25 +131,25 @@ export const isFutureDate = (dateString) => {
  */
 export const validateScheduleDate = (dateString) => {
   if (!dateString) return "Ngày thực hiện là bắt buộc";
-  
+
   const selectedDate = new Date(dateString);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   // Check if date is in the past
   if (selectedDate < today) {
     return "Ngày thực hiện không thể trong quá khứ";
   }
-  
+
   // Calculate minimum date (1 week from today)
   const minDate = new Date(today);
   minDate.setDate(today.getDate() + 7);
-  
+
   if (selectedDate < minDate) {
     const minDateStr = minDate.toLocaleDateString("vi-VN");
     return `Ngày thực hiện phải cách tối thiểu 1 tuần (từ ${minDateStr})`;
   }
-  
+
   return null;
 };
 

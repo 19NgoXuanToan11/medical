@@ -67,17 +67,19 @@ const HealthCheckCompletionModal = ({
         });
       }, 200);
 
-      const result = await uploadHealthCheckResults(selectedRequest.formId || selectedRequest.id, file);
-      
+      const result = await uploadHealthCheckResults(
+        selectedRequest.formId || selectedRequest.id,
+        file
+      );
+
       clearInterval(progressInterval);
       setUploadProgress(100);
       setSuccess(true);
-      
+
       setTimeout(() => {
         onSuccess?.(result);
         handleClose();
       }, 1500);
-
     } catch (error) {
       console.error("Upload error:", error);
       setError(error.message || "Có lỗi xảy ra khi upload file");
@@ -98,9 +100,9 @@ const HealthCheckCompletionModal = ({
 
   const downloadTemplate = () => {
     // Create a link to download the template
-    const link = document.createElement('a');
-    link.href = '/templates/health-check-results-template.xlsx'; // You need to add this file to public/templates/
-    link.download = 'health-check-results-template.xlsx';
+    const link = document.createElement("a");
+    link.href = "/templates/health-check-results-template.xlsx"; // You need to add this file to public/templates/
+    link.download = "health-check-results-template.xlsx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -279,4 +281,4 @@ const HealthCheckCompletionModal = ({
   );
 };
 
-export default HealthCheckCompletionModal; 
+export default HealthCheckCompletionModal;

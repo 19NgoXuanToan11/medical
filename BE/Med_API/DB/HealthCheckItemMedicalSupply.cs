@@ -20,4 +20,4 @@ public partial class HealthCheckItemMedicalSupply
     public virtual HealthCheckItem HealthCheckItem { get; set; } = null!;
 
     public virtual MedicalSupply MedicalSupply { get; set; } = null!;
-} 
+}

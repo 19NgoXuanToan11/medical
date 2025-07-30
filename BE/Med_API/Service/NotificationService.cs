@@ -1,7 +1,7 @@
-using DB;
-using Repo;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using DB;
+using Microsoft.EntityFrameworkCore;
+using Repo;
 
 namespace Service;
 
@@ -18,7 +18,8 @@ public class NotificationService : INotificationService
         IHealthEventRepository healthEventRepository,
         IStudentRepository studentRepository,
         IStudentParentRepository studentParentRepository,
-        MedicalContext context)
+        MedicalContext context
+    )
     {
         _notificationRepository = notificationRepository;
         _healthEventRepository = healthEventRepository;
@@ -98,7 +99,10 @@ public class NotificationService : INotificationService
         return await _notificationRepository.GetUnreadCountByParentIdAsync(parentId);
     }
 
-    public async Task<Notification> CreateHealthEventNotificationAsync(int healthEventId, string studentCode)
+    public async Task<Notification> CreateHealthEventNotificationAsync(
+        int healthEventId,
+        string studentCode
+    )
     {
         // Get health event details
         var healthEvent = await _healthEventRepository.GetHealthEventByIdAsync(healthEventId);
@@ -115,8 +119,10 @@ public class NotificationService : INotificationService
         }
 
         // Get all parents of this student
-        var studentParents = await _studentParentRepository.GetStudentParentsByStudentCodeAsync(studentCode);
-        
+        var studentParents = await _studentParentRepository.GetStudentParentsByStudentCodeAsync(
+            studentCode
+        );
+
         var notifications = new List<Notification>();
 
         foreach (var studentParent in studentParents)
@@ -126,35 +132,41 @@ public class NotificationService : INotificationService
             {
                 Type = "health_event",
                 Title = $"Thông báo sự cố y tế - {student.FirstName} {student.LastName}",
-                Message = $"Học sinh {student.FirstName} {student.LastName} đã có sự cố y tế: {healthEvent.Symptoms}. " +
-                         $"{(string.IsNullOrEmpty(healthEvent.Treatment) ? "" : $"Đã xử lý: {healthEvent.Treatment}. ")}" +
-                         "Vui lòng liên hệ với trường để biết thêm chi tiết.",
+                Message =
+                    $"Học sinh {student.FirstName} {student.LastName} đã có sự cố y tế: {healthEvent.Symptoms}. "
+                    + $"{(string.IsNullOrEmpty(healthEvent.Treatment) ? "" : $"Đã xử lý: {healthEvent.Treatment}. ")}"
+                    + "Vui lòng liên hệ với trường để biết thêm chi tiết.",
                 ParentId = studentParent.ParentId,
                 StudentCode = studentCode,
                 StaffId = healthEvent.StaffId,
                 HealthEventId = healthEventId,
                 Priority = GetPriorityFromSeverity(healthEvent.Severity),
-                AdditionalData = JsonSerializer.Serialize(new
-                {
-                    StudentName = $"{student.FirstName} {student.LastName}",
-                    EventType = healthEvent.EventType,
-                    Severity = healthEvent.Severity,
-                    Symptoms = healthEvent.Symptoms,
-                    Treatment = healthEvent.Treatment,
-                    EventDate = healthEvent.EventDate,
-                    ClassName = student.Class?.ClassName
-                }),
+                AdditionalData = JsonSerializer.Serialize(
+                    new
+                    {
+                        StudentName = $"{student.FirstName} {student.LastName}",
+                        EventType = healthEvent.EventType,
+                        Severity = healthEvent.Severity,
+                        Symptoms = healthEvent.Symptoms,
+                        Treatment = healthEvent.Treatment,
+                        EventDate = healthEvent.EventDate,
+                        ClassName = student.Class?.ClassName,
+                    }
+                ),
                 CreatedAt = DateTime.UtcNow,
                 Status = "sent",
-                IsRead = false
+                IsRead = false,
             };
 
-            var createdNotification = await _notificationRepository.CreateNotificationAsync(notification);
+            var createdNotification = await _notificationRepository.CreateNotificationAsync(
+                notification
+            );
             notifications.Add(createdNotification);
         }
 
         // Return the first notification (all are similar, just for different parents)
-        return notifications.FirstOrDefault() ?? throw new InvalidOperationException("No notifications created");
+        return notifications.FirstOrDefault()
+            ?? throw new InvalidOperationException("No notifications created");
     }
 
     private string GetPriorityFromSeverity(string severity)
@@ -162,10 +174,10 @@ public class NotificationService : INotificationService
         return severity?.ToLower() switch
         {
             "emergency" => "urgent",
-            "severe" => "high", 
+            "severe" => "high",
             "moderate" => "medium",
             "light" => "low",
-            _ => "medium"
+            _ => "medium",
         };
     }
-} 
+}

@@ -1,6 +1,6 @@
+using API.DTOs;
 using AutoMapper;
 using DB;
-using API.DTOs;
 
 namespace API.MappingProfiles;
 
@@ -14,4 +14,4 @@ public class VaccineProfile : Profile
         CreateMap<VaccineDto.Update, Vaccine>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
-} 
+}

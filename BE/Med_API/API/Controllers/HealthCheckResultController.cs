@@ -1,8 +1,8 @@
 using API.ViewModels;
 using AutoMapper;
+using DB;
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using DB;
 
 namespace API.Controllers;
 
@@ -13,7 +13,10 @@ public class HealthCheckResultController : ControllerBase
     private readonly IHealthCheckResultService _healthCheckResultService;
     private readonly IMapper _mapper;
 
-    public HealthCheckResultController(IHealthCheckResultService healthCheckResultService, IMapper mapper)
+    public HealthCheckResultController(
+        IHealthCheckResultService healthCheckResultService,
+        IMapper mapper
+    )
     {
         _healthCheckResultService = healthCheckResultService;
         _mapper = mapper;
@@ -38,16 +41,21 @@ public class HealthCheckResultController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<HealthCheckResultDTO>> CreateHealthCheckResult(HealthCheckResultDTO resultDto)
+    public async Task<ActionResult<HealthCheckResultDTO>> CreateHealthCheckResult(
+        HealthCheckResultDTO resultDto
+    )
     {
         try
         {
             var result = _mapper.Map<HealthCheckResult>(resultDto);
-            var createdResult = await _healthCheckResultService.CreateHealthCheckResultAsync(result);
+            var createdResult = await _healthCheckResultService.CreateHealthCheckResultAsync(
+                result
+            );
             return CreatedAtAction(
                 nameof(GetHealthCheckResultById),
                 new { id = createdResult.ResultId },
-                _mapper.Map<HealthCheckResultDTO>(createdResult));
+                _mapper.Map<HealthCheckResultDTO>(createdResult)
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -91,27 +99,37 @@ public class HealthCheckResultController : ControllerBase
     }
 
     [HttpGet("form/{formId}")]
-    public async Task<ActionResult<IEnumerable<HealthCheckResultDTO>>> GetHealthCheckResultsByFormId(int formId)
+    public async Task<
+        ActionResult<IEnumerable<HealthCheckResultDTO>>
+    > GetHealthCheckResultsByFormId(int formId)
     {
         var results = await _healthCheckResultService.GetHealthCheckResultsByFormIdAsync(formId);
         return Ok(_mapper.Map<IEnumerable<HealthCheckResultDTO>>(results));
     }
 
     [HttpGet("student/{studentId}")]
-    public async Task<ActionResult<IEnumerable<HealthCheckResultDTO>>> GetHealthCheckResultsByStudentId(int studentId)
+    public async Task<
+        ActionResult<IEnumerable<HealthCheckResultDTO>>
+    > GetHealthCheckResultsByStudentId(int studentId)
     {
-        var results = await _healthCheckResultService.GetHealthCheckResultsByStudentIdAsync(studentId);
+        var results = await _healthCheckResultService.GetHealthCheckResultsByStudentIdAsync(
+            studentId
+        );
         return Ok(_mapper.Map<IEnumerable<HealthCheckResultDTO>>(results));
     }
 
     [HttpGet("form/{formId}/latest")]
-    public async Task<ActionResult<HealthCheckResultDTO>> GetLatestHealthCheckResultByFormId(int formId)
+    public async Task<ActionResult<HealthCheckResultDTO>> GetLatestHealthCheckResultByFormId(
+        int formId
+    )
     {
-        var result = await _healthCheckResultService.GetLatestHealthCheckResultByFormIdAsync(formId);
+        var result = await _healthCheckResultService.GetLatestHealthCheckResultByFormIdAsync(
+            formId
+        );
         if (result == null)
         {
             return NotFound();
         }
         return Ok(_mapper.Map<HealthCheckResultDTO>(result));
     }
-} 
+}

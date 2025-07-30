@@ -29,4 +29,4 @@ public class InjectionResultDTO
     public InjectionFormDTO? Form { get; set; }
     public StudentDto.ViewModel? Student { get; set; }
     public StaffDto.ViewModel? AdministeredByStaff { get; set; }
-} 
+}

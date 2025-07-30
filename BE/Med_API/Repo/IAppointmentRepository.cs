@@ -13,4 +13,4 @@ public interface IAppointmentRepository
     Task<Appointment> UpdateAsync(Appointment appointment);
     Task DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
-} 
+}

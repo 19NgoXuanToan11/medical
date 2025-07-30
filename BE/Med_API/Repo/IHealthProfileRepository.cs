@@ -10,4 +10,4 @@ public interface IHealthProfileRepository
     Task<HealthProfile> CreateHealthProfileAsync(HealthProfile healthProfile);
     Task<bool> UpdateHealthProfileAsync(HealthProfile healthProfile);
     Task<bool> DeleteHealthProfileAsync(int id);
-} 
+}

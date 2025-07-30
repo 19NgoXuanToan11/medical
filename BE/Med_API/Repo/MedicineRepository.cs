@@ -59,7 +59,9 @@ public class MedicineRepository : IMedicineRepository
 
     public async Task<bool> UpdateStockQuantityAsync(int medicineId, decimal quantityUsed)
     {
-        var medicine = await _context.Medicines.FirstOrDefaultAsync(m => m.MedicineId == medicineId);
+        var medicine = await _context.Medicines.FirstOrDefaultAsync(m =>
+            m.MedicineId == medicineId
+        );
         if (medicine == null)
         {
             return false;
@@ -76,4 +78,4 @@ public class MedicineRepository : IMedicineRepository
         await _context.SaveChangesAsync();
         return true;
     }
-} 
+}

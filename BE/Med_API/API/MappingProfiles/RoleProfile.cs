@@ -22,4 +22,4 @@ public class RoleProfile : Profile
             .ForMember(dest => dest.Staff, opt => opt.Ignore())
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
-} 
+}

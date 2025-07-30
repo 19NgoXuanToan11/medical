@@ -1,8 +1,8 @@
-using AutoMapper;
-using DB;
-using API.DTOs;
 using System.Security.Cryptography;
 using System.Text;
+using API.DTOs;
+using AutoMapper;
+using DB;
 
 namespace API.MappingProfiles;
 
@@ -12,22 +12,44 @@ public class StudentProfile : Profile
     {
         // Map from Student to StudentDto.ViewModel
         CreateMap<Student, StudentDto.ViewModel>()
-            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => 
-                src.Class != null ? src.Class.ClassName : "Unknown"))
-            .ForMember(dest => dest.GradeLevel, opt => opt.MapFrom(src => 
-                src.Class != null ? src.Class.GradeLevel : 0))
-            .ForMember(dest => dest.HealthProfileCount, opt => opt.MapFrom(src => 
-                src.HealthProfiles != null ? src.HealthProfiles.Count : 0))
-            .ForMember(dest => dest.HealthEventCount, opt => opt.MapFrom(src => 
-                src.HealthEvents != null ? src.HealthEvents.Count : 0))
-            .ForMember(dest => dest.ParentCount, opt => opt.MapFrom(src => 
-                src.StudentParents != null ? src.StudentParents.Count : 0))
+            .ForMember(
+                dest => dest.ClassName,
+                opt => opt.MapFrom(src => src.Class != null ? src.Class.ClassName : "Unknown")
+            )
+            .ForMember(
+                dest => dest.GradeLevel,
+                opt => opt.MapFrom(src => src.Class != null ? src.Class.GradeLevel : 0)
+            )
+            .ForMember(
+                dest => dest.HealthProfileCount,
+                opt => opt.MapFrom(src => src.HealthProfiles != null ? src.HealthProfiles.Count : 0)
+            )
+            .ForMember(
+                dest => dest.HealthEventCount,
+                opt => opt.MapFrom(src => src.HealthEvents != null ? src.HealthEvents.Count : 0)
+            )
+            .ForMember(
+                dest => dest.ParentCount,
+                opt => opt.MapFrom(src => src.StudentParents != null ? src.StudentParents.Count : 0)
+            )
             .ForMember(dest => dest.Parents, opt => opt.MapFrom(src => src.Parents))
             .ForMember(dest => dest.StudentParents, opt => opt.MapFrom(src => src.StudentParents))
-            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => src.Class != null ? src.Class.ClassName : null))
-            .ForMember(dest => dest.GradeLevel, opt => opt.MapFrom(src => src.Class != null ? src.Class.GradeLevel : 0))
+            .ForMember(
+                dest => dest.ClassName,
+                opt => opt.MapFrom(src => src.Class != null ? src.Class.ClassName : null)
+            )
+            .ForMember(
+                dest => dest.GradeLevel,
+                opt => opt.MapFrom(src => src.Class != null ? src.Class.GradeLevel : 0)
+            )
             // Map HealthProfile đầu tiên (nếu có)
-            .ForMember(dest => dest.HealthProfile, opt => opt.MapFrom(src => src.HealthProfiles != null ? src.HealthProfiles.FirstOrDefault() : null));
+            .ForMember(
+                dest => dest.HealthProfile,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.HealthProfiles != null ? src.HealthProfiles.FirstOrDefault() : null
+                    )
+            );
 
         // Map from Parent to StudentDto.ParentSummary
         CreateMap<Parent, StudentDto.ParentSummary>();
@@ -64,4 +86,4 @@ public class StudentProfile : Profile
             return Convert.ToBase64String(hashedBytes);
         }
     }
-} 
+}

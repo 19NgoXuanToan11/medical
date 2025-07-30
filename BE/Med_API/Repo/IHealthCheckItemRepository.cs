@@ -16,4 +16,4 @@ public interface IHealthCheckItemRepository
     Task<bool> CodeExistsAsync(string code, int? excludeId = null);
     Task<IEnumerable<HealthCheckItem>> GetHealthCheckItemsWithMedicalSuppliesAsync();
     Task<HealthCheckItem?> GetHealthCheckItemWithMedicalSuppliesAsync(int id);
-} 
+}

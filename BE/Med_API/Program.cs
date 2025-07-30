@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
+using API.MappingProfiles;
 using DB;
+using Microsoft.EntityFrameworkCore;
 using Repo;
 using Service;
-using API.MappingProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure DbContext
 builder.Services.AddDbContext<MedicalContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
 // Register Repositories
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
@@ -31,13 +32,13 @@ builder.Services.AddSwaggerGen();
 // Add CORS if needed
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
+    options.AddPolicy(
+        "AllowAll",
         builder =>
         {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
+            builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        }
+    );
 });
 
 var app = builder.Build();
@@ -58,4 +59,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run(); 
+app.Run();

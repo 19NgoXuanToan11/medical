@@ -1,6 +1,6 @@
+using API.DTOs;
 using AutoMapper;
 using DB;
-using API.DTOs;
 
 namespace API.MappingProfiles;
 
@@ -33,10 +33,16 @@ public class AppointmentProfile : Profile
             .ForMember(dest => dest.Student, opt => opt.Ignore())
             .ForMember(dest => dest.Parent, opt => opt.Ignore())
             .ForMember(dest => dest.Staff, opt => opt.Ignore())
-            .ForMember(dest => dest.AppointmentDate, opt => opt.MapFrom(src => src.AppointmentDate ?? default))
-            .ForMember(dest => dest.AppointmentType, opt => opt.MapFrom(src => src.AppointmentType ?? string.Empty))
+            .ForMember(
+                dest => dest.AppointmentDate,
+                opt => opt.MapFrom(src => src.AppointmentDate ?? default)
+            )
+            .ForMember(
+                dest => dest.AppointmentType,
+                opt => opt.MapFrom(src => src.AppointmentType ?? string.Empty)
+            )
             .ForMember(dest => dest.Reason, opt => opt.MapFrom(src => src.Reason ?? string.Empty))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status ?? string.Empty))
             .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes ?? string.Empty));
     }
-} 
+}

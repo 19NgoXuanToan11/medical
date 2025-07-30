@@ -14,34 +14,34 @@ public class HealthProfileRepository : IHealthProfileRepository
 
     public async Task<IEnumerable<HealthProfile>> GetAllHealthProfilesAsync()
     {
-        return await _context.HealthProfiles
+        return await _context
+            .HealthProfiles.Include(p => p.Student)
+            .ThenInclude(s => s.Class)
             .Include(p => p.Student)
-                .ThenInclude(s => s.Class)
-            .Include(p => p.Student)
-                .ThenInclude(s => s.StudentParents)
-                    .ThenInclude(sp => sp.Parent)
+            .ThenInclude(s => s.StudentParents)
+            .ThenInclude(sp => sp.Parent)
             .ToListAsync();
     }
 
     public async Task<HealthProfile?> GetHealthProfileByIdAsync(int id)
     {
-        return await _context.HealthProfiles
+        return await _context
+            .HealthProfiles.Include(p => p.Student)
+            .ThenInclude(s => s.Class)
             .Include(p => p.Student)
-                .ThenInclude(s => s.Class)
-            .Include(p => p.Student)
-                .ThenInclude(s => s.StudentParents)
-                    .ThenInclude(sp => sp.Parent)
+            .ThenInclude(s => s.StudentParents)
+            .ThenInclude(sp => sp.Parent)
             .FirstOrDefaultAsync(p => p.HealthProfileId == id);
     }
 
     public async Task<HealthProfile?> GetHealthProfileByStudentCodeAsync(string studentCode)
     {
-        return await _context.HealthProfiles
+        return await _context
+            .HealthProfiles.Include(p => p.Student)
+            .ThenInclude(s => s.Class)
             .Include(p => p.Student)
-                .ThenInclude(s => s.Class)
-            .Include(p => p.Student)
-                .ThenInclude(s => s.StudentParents)
-                    .ThenInclude(sp => sp.Parent)
+            .ThenInclude(s => s.StudentParents)
+            .ThenInclude(sp => sp.Parent)
             .FirstOrDefaultAsync(p => p.StudentCode == studentCode);
     }
 
@@ -54,7 +54,9 @@ public class HealthProfileRepository : IHealthProfileRepository
 
     public async Task<bool> UpdateHealthProfileAsync(HealthProfile healthProfile)
     {
-        var existingProfile = await _context.HealthProfiles.FindAsync(healthProfile.HealthProfileId);
+        var existingProfile = await _context.HealthProfiles.FindAsync(
+            healthProfile.HealthProfileId
+        );
         if (existingProfile == null)
         {
             return false;
@@ -76,4 +78,4 @@ public class HealthProfileRepository : IHealthProfileRepository
         await _context.SaveChangesAsync();
         return true;
     }
-} 
+}

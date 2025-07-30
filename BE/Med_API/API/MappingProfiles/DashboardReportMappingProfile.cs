@@ -13,4 +13,4 @@ public class DashboardSummaryMappingProfile : Profile
 
         CreateMap<DashboardSummaryDTO, DashboardSummary>();
     }
-} 
+}

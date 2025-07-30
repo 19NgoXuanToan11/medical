@@ -38,9 +38,12 @@ public partial class HealthEvent
 
     public virtual Student? Student { get; set; }
 
-    public virtual ICollection<HealthEventMedicine> HealthEventMedicines { get; set; } = new List<HealthEventMedicine>();
+    public virtual ICollection<HealthEventMedicine> HealthEventMedicines { get; set; } =
+        new List<HealthEventMedicine>();
 
-    public virtual ICollection<HealthEventMedicalSupply> HealthEventMedicalSupplies { get; set; } = new List<HealthEventMedicalSupply>();
+    public virtual ICollection<HealthEventMedicalSupply> HealthEventMedicalSupplies { get; set; } =
+        new List<HealthEventMedicalSupply>();
 
-    public virtual ICollection<HealthEventFollowUp> HealthEventFollowUps { get; set; } = new List<HealthEventFollowUp>();
+    public virtual ICollection<HealthEventFollowUp> HealthEventFollowUps { get; set; } =
+        new List<HealthEventFollowUp>();
 }

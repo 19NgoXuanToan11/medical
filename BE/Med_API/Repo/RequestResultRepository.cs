@@ -14,47 +14,47 @@ public class RequestResultRepository : IRequestResultRepository
 
     public async Task<IEnumerable<RequestResult>> GetAllRequestResultsAsync()
     {
-        return await _context.RequestResults
+        return await _context
+            .RequestResults.Include(r => r.Request)
+            .ThenInclude(rq => rq.Student)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Student)
+            .ThenInclude(rq => rq.Parent)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-                    .ThenInclude(p => p.StudentParents)
-                        .ThenInclude(sp => sp.Student)
+            .ThenInclude(rq => rq.Parent)
+            .ThenInclude(p => p.Students)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-                    .ThenInclude(p => p.Students)
+            .ThenInclude(rq => rq.Staff)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Staff)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.MedicineRequestItems)
+            .ThenInclude(rq => rq.MedicineRequestItems)
             .Include(r => r.AdministeredByStaff)
-                .ThenInclude(staff => staff.Role)
+            .ThenInclude(staff => staff.Role)
             .Include(r => r.ActionByStaff)
-                .ThenInclude(staff => staff.Role)
+            .ThenInclude(staff => staff.Role)
             .ToListAsync();
     }
 
     public async Task<RequestResult?> GetRequestResultByIdAsync(int id)
     {
-        return await _context.RequestResults
+        return await _context
+            .RequestResults.Include(r => r.Request)
+            .ThenInclude(rq => rq.Student)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Student)
+            .ThenInclude(rq => rq.Parent)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-                    .ThenInclude(p => p.StudentParents)
-                        .ThenInclude(sp => sp.Student)
+            .ThenInclude(rq => rq.Parent)
+            .ThenInclude(p => p.Students)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-                    .ThenInclude(p => p.Students)
+            .ThenInclude(rq => rq.Staff)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Staff)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.MedicineRequestItems)
+            .ThenInclude(rq => rq.MedicineRequestItems)
             .Include(r => r.AdministeredByStaff)
-                .ThenInclude(staff => staff.Role)
+            .ThenInclude(staff => staff.Role)
             .Include(r => r.ActionByStaff)
-                .ThenInclude(staff => staff.Role)
+            .ThenInclude(staff => staff.Role)
             .FirstOrDefaultAsync(r => r.ResultId == id);
     }
 
@@ -67,8 +67,8 @@ public class RequestResultRepository : IRequestResultRepository
 
     public async Task<bool> UpdateRequestResultAsync(RequestResult requestResult)
     {
-        var existingResult = await _context.RequestResults
-            .Include(r => r.Request)
+        var existingResult = await _context
+            .RequestResults.Include(r => r.Request)
             .FirstOrDefaultAsync(r => r.ResultId == requestResult.ResultId);
         if (existingResult == null)
         {
@@ -79,10 +79,16 @@ public class RequestResultRepository : IRequestResultRepository
 
         // Only synchronize MedicineRequest status if RequestResult is being marked as completed
         // AND the MedicineRequest is not already completed
-        if (requestResult.Status == "Completed" && existingResult.Request != null && existingResult.Request.Status != "Completed")
+        if (
+            requestResult.Status == "Completed"
+            && existingResult.Request != null
+            && existingResult.Request.Status != "Completed"
+        )
         {
             // Check if the RequestResult is actually completed based on frequency
-            var isActuallyCompleted = await IsRequestResultActuallyCompletedAsync(requestResult.ResultId);
+            var isActuallyCompleted = await IsRequestResultActuallyCompletedAsync(
+                requestResult.ResultId
+            );
             if (isActuallyCompleted)
             {
                 existingResult.Request.Status = requestResult.Status;
@@ -100,8 +106,8 @@ public class RequestResultRepository : IRequestResultRepository
 
     private async Task<bool> IsRequestResultActuallyCompletedAsync(int requestResultId)
     {
-        var requestResult = await _context.RequestResults
-            .Include(r => r.Request)
+        var requestResult = await _context
+            .RequestResults.Include(r => r.Request)
             .ThenInclude(r => r!.MedicineRequestItems)
             .FirstOrDefaultAsync(r => r.ResultId == requestResultId);
 
@@ -118,7 +124,9 @@ public class RequestResultRepository : IRequestResultRepository
 
         // Parse frequency to determine required times per day
         var timesPerDay = ParseFrequencyToTimesPerDay(medicineItem.Frequency);
-        var administeredFrequencies = ParseAdministeredFrequencies(requestResult.AdministeredFrequencies);
+        var administeredFrequencies = ParseAdministeredFrequencies(
+            requestResult.AdministeredFrequencies
+        );
 
         return administeredFrequencies.Count >= timesPerDay;
     }
@@ -146,7 +154,9 @@ public class RequestResultRepository : IRequestResultRepository
 
         try
         {
-            return System.Text.Json.JsonSerializer.Deserialize<List<string>>(administeredFrequenciesJson) ?? new List<string>();
+            return System.Text.Json.JsonSerializer.Deserialize<List<string>>(
+                    administeredFrequenciesJson
+                ) ?? new List<string>();
         }
         catch
         {
@@ -168,24 +178,24 @@ public class RequestResultRepository : IRequestResultRepository
 
     public async Task<IEnumerable<RequestResult>> GetRequestResultsByRequestIdAsync(int requestId)
     {
-        return await _context.RequestResults
+        return await _context
+            .RequestResults.Include(r => r.Request)
+            .ThenInclude(rq => rq.Student)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Student)
+            .ThenInclude(rq => rq.Parent)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-                    .ThenInclude(p => p.StudentParents)
-                        .ThenInclude(sp => sp.Student)
+            .ThenInclude(rq => rq.Parent)
+            .ThenInclude(p => p.Students)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-                    .ThenInclude(p => p.Students)
+            .ThenInclude(rq => rq.Staff)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Staff)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.MedicineRequestItems)
+            .ThenInclude(rq => rq.MedicineRequestItems)
             .Include(r => r.AdministeredByStaff)
-                .ThenInclude(staff => staff.Role)
+            .ThenInclude(staff => staff.Role)
             .Include(r => r.ActionByStaff)
-                .ThenInclude(staff => staff.Role)
+            .ThenInclude(staff => staff.Role)
             .Where(r => r.RequestId == requestId)
             .OrderByDescending(r => r.SubmittedAt)
             .ToListAsync();
@@ -193,24 +203,24 @@ public class RequestResultRepository : IRequestResultRepository
 
     public async Task<IEnumerable<RequestResult>> GetRequestResultsByStatusAsync(string status)
     {
-        return await _context.RequestResults
+        return await _context
+            .RequestResults.Include(r => r.Request)
+            .ThenInclude(rq => rq.Student)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Student)
+            .ThenInclude(rq => rq.Parent)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-                    .ThenInclude(p => p.StudentParents)
-                        .ThenInclude(sp => sp.Student)
+            .ThenInclude(rq => rq.Parent)
+            .ThenInclude(p => p.Students)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-                    .ThenInclude(p => p.Students)
+            .ThenInclude(rq => rq.Staff)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Staff)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.MedicineRequestItems)
+            .ThenInclude(rq => rq.MedicineRequestItems)
             .Include(r => r.AdministeredByStaff)
-                .ThenInclude(staff => staff.Role)
+            .ThenInclude(staff => staff.Role)
             .Include(r => r.ActionByStaff)
-                .ThenInclude(staff => staff.Role)
+            .ThenInclude(staff => staff.Role)
             .Where(r => r.Status == status)
             .OrderByDescending(r => r.SubmittedAt)
             .ToListAsync();
@@ -218,26 +228,26 @@ public class RequestResultRepository : IRequestResultRepository
 
     public async Task<RequestResult?> GetLatestRequestResultByRequestIdAsync(int requestId)
     {
-        return await _context.RequestResults
+        return await _context
+            .RequestResults.Include(r => r.Request)
+            .ThenInclude(rq => rq.Student)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Student)
+            .ThenInclude(rq => rq.Parent)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-                    .ThenInclude(p => p.StudentParents)
-                        .ThenInclude(sp => sp.Student)
+            .ThenInclude(rq => rq.Parent)
+            .ThenInclude(p => p.Students)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
-                    .ThenInclude(p => p.Students)
+            .ThenInclude(rq => rq.Staff)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Staff)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.MedicineRequestItems)
+            .ThenInclude(rq => rq.MedicineRequestItems)
             .Include(r => r.AdministeredByStaff)
-                .ThenInclude(staff => staff.Role)
+            .ThenInclude(staff => staff.Role)
             .Include(r => r.ActionByStaff)
-                .ThenInclude(staff => staff.Role)
+            .ThenInclude(staff => staff.Role)
             .Where(r => r.RequestId == requestId)
             .OrderByDescending(r => r.SubmittedAt)
             .FirstOrDefaultAsync();
     }
-} 
+}

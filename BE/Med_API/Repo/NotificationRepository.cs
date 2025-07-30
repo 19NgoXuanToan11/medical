@@ -14,10 +14,10 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<IEnumerable<Notification>> GetAllNotificationsAsync()
     {
-        return await _context.Notifications
-            .Include(n => n.Parent)
+        return await _context
+            .Notifications.Include(n => n.Parent)
             .Include(n => n.Student)
-                .ThenInclude(s => s.Class)
+            .ThenInclude(s => s.Class)
             .Include(n => n.Staff)
             .Include(n => n.HealthEvent)
             .OrderByDescending(n => n.CreatedAt)
@@ -26,10 +26,10 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<Notification?> GetNotificationByIdAsync(int id)
     {
-        return await _context.Notifications
-            .Include(n => n.Parent)
+        return await _context
+            .Notifications.Include(n => n.Parent)
             .Include(n => n.Student)
-                .ThenInclude(s => s.Class)
+            .ThenInclude(s => s.Class)
             .Include(n => n.Staff)
             .Include(n => n.HealthEvent)
             .FirstOrDefaultAsync(n => n.NotificationId == id);
@@ -37,10 +37,10 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<IEnumerable<Notification>> GetNotificationsByParentIdAsync(int parentId)
     {
-        return await _context.Notifications
-            .Include(n => n.Parent)
+        return await _context
+            .Notifications.Include(n => n.Parent)
             .Include(n => n.Student)
-                .ThenInclude(s => s.Class)
+            .ThenInclude(s => s.Class)
             .Include(n => n.Staff)
             .Include(n => n.HealthEvent)
             .Where(n => n.ParentId == parentId && n.Status != "deleted")
@@ -50,10 +50,10 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<IEnumerable<Notification>> GetUnreadNotificationsByParentIdAsync(int parentId)
     {
-        return await _context.Notifications
-            .Include(n => n.Parent)
+        return await _context
+            .Notifications.Include(n => n.Parent)
             .Include(n => n.Student)
-                .ThenInclude(s => s.Class)
+            .ThenInclude(s => s.Class)
             .Include(n => n.Staff)
             .Include(n => n.HealthEvent)
             .Where(n => n.ParentId == parentId && !n.IsRead && n.Status != "deleted")
@@ -70,7 +70,9 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<bool> UpdateNotificationAsync(Notification notification)
     {
-        var existingNotification = await _context.Notifications.FindAsync(notification.NotificationId);
+        var existingNotification = await _context.Notifications.FindAsync(
+            notification.NotificationId
+        );
         if (existingNotification == null)
         {
             return false;
@@ -112,8 +114,8 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<bool> MarkAllAsReadAsync(int parentId)
     {
-        var notifications = await _context.Notifications
-            .Where(n => n.ParentId == parentId && !n.IsRead && n.Status != "deleted")
+        var notifications = await _context
+            .Notifications.Where(n => n.ParentId == parentId && !n.IsRead && n.Status != "deleted")
             .ToListAsync();
 
         foreach (var notification in notifications)
@@ -129,7 +131,8 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<int> GetUnreadCountByParentIdAsync(int parentId)
     {
-        return await _context.Notifications
-            .CountAsync(n => n.ParentId == parentId && !n.IsRead && n.Status != "deleted");
+        return await _context.Notifications.CountAsync(n =>
+            n.ParentId == parentId && !n.IsRead && n.Status != "deleted"
+        );
     }
-} 
+}

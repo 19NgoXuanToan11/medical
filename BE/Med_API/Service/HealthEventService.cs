@@ -20,7 +20,8 @@ public class HealthEventService : IHealthEventService
         INotificationService notificationService,
         IMedicineService medicineService,
         IMedicalSupplyService medicalSupplyService,
-        MedicalContext context)
+        MedicalContext context
+    )
     {
         _healthEventRepository = healthEventRepository;
         _studentRepository = studentRepository;
@@ -41,7 +42,9 @@ public class HealthEventService : IHealthEventService
         return await _healthEventRepository.GetHealthEventByIdAsync(id);
     }
 
-    public async Task<BatchResult> CreateBatchHealthEventsAsync(IEnumerable<HealthEvent> healthEvents)
+    public async Task<BatchResult> CreateBatchHealthEventsAsync(
+        IEnumerable<HealthEvent> healthEvents
+    )
     {
         var result = new BatchResult();
         var createdEvents = new List<HealthEvent>();
@@ -100,24 +103,31 @@ public class HealthEventService : IHealthEventService
             var studentGrade = await GetGradeByStudentCodeAsync(healthEvent.StudentCode);
             if (studentGrade.HasValue)
             {
-                var hasGradePermission = staff.GradeNurses?.Any(gn => gn.Grade == studentGrade.Value) ?? false;
+                var hasGradePermission =
+                    staff.GradeNurses?.Any(gn => gn.Grade == studentGrade.Value) ?? false;
                 if (!hasGradePermission)
                 {
-                    throw new InvalidOperationException($"Nurse does not have permission to create health events for grade {studentGrade.Value} students");
+                    throw new InvalidOperationException(
+                        $"Nurse does not have permission to create health events for grade {studentGrade.Value} students"
+                    );
                 }
             }
         }
 
         // Validate and check stock availability before creating the health event
         var insufficientItemsList = new List<string>();
-        
-        var medicineStockValidation = await ValidateMedicineStockAsync(healthEvent.HealthEventMedicines);
+
+        var medicineStockValidation = await ValidateMedicineStockAsync(
+            healthEvent.HealthEventMedicines
+        );
         if (!medicineStockValidation.IsValid)
         {
             insufficientItemsList.Add($"Thuốc: {medicineStockValidation.ErrorMessage}");
         }
 
-        var supplyStockValidation = await ValidateMedicalSupplyStockAsync(healthEvent.HealthEventMedicalSupplies);
+        var supplyStockValidation = await ValidateMedicalSupplyStockAsync(
+            healthEvent.HealthEventMedicalSupplies
+        );
         if (!supplyStockValidation.IsValid)
         {
             insufficientItemsList.Add($"Vật tư y tế: {supplyStockValidation.ErrorMessage}");
@@ -168,15 +178,16 @@ public class HealthEventService : IHealthEventService
         // Send notification to parent after successful creation
         try
         {
-            await _notificationService.CreateHealthEventNotificationAsync(createdHealthEvent.EventId, createdHealthEvent.StudentCode!);
-            
+            await _notificationService.CreateHealthEventNotificationAsync(
+                createdHealthEvent.EventId,
+                createdHealthEvent.StudentCode!
+            );
+
             // Update parentNotified to true after successful notification
             createdHealthEvent.ParentNotified = true;
             await _healthEventRepository.UpdateHealthEventAsync(createdHealthEvent);
         }
-        catch 
-        {
-        }
+        catch { }
 
         return createdHealthEvent;
     }
@@ -191,7 +202,9 @@ public class HealthEventService : IHealthEventService
         return await _healthEventRepository.DeleteHealthEventAsync(id);
     }
 
-    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByStudentCodeAsync(string studentCode)
+    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByStudentCodeAsync(
+        string studentCode
+    )
     {
         return await _healthEventRepository.GetHealthEventsByStudentCodeAsync(studentCode);
     }
@@ -201,7 +214,10 @@ public class HealthEventService : IHealthEventService
         return await _healthEventRepository.GetHealthEventsByStaffIdAsync(staffId);
     }
 
-    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByDateRangeAsync(DateTime startDate, DateTime endDate)
+    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate
+    )
     {
         return await _healthEventRepository.GetHealthEventsByDateRangeAsync(startDate, endDate);
     }
@@ -226,14 +242,18 @@ public class HealthEventService : IHealthEventService
         return await _healthEventRepository.GetHealthEventsForNurseByGradeAsync(staffId);
     }
 
-    public async Task<IEnumerable<HealthEvent>> GetCriticalIncidentsByStudentAsync(string studentCode)
+    public async Task<IEnumerable<HealthEvent>> GetCriticalIncidentsByStudentAsync(
+        string studentCode
+    )
     {
         // Lấy tất cả sự cố y tế của học sinh có mức độ nghiêm trọng "severe" hoặc "emergency"
         var allEvents = await _healthEventRepository.GetHealthEventsByStudentCodeAsync(studentCode);
-        
-        var criticalIncidents = allEvents.Where(he => 
-            he.Severity != null && 
-            (he.Severity.ToLower() == "severe" || he.Severity.ToLower() == "emergency"))
+
+        var criticalIncidents = allEvents
+            .Where(he =>
+                he.Severity != null
+                && (he.Severity.ToLower() == "severe" || he.Severity.ToLower() == "emergency")
+            )
             .OrderByDescending(he => he.EventDate)
             .ToList();
 
@@ -241,7 +261,9 @@ public class HealthEventService : IHealthEventService
     }
 
     // Phương thức helper để validate số lượng thuốc trong kho
-    private async Task<(bool IsValid, string ErrorMessage)> ValidateMedicineStockAsync(ICollection<HealthEventMedicine>? medicines)
+    private async Task<(bool IsValid, string ErrorMessage)> ValidateMedicineStockAsync(
+        ICollection<HealthEventMedicine>? medicines
+    )
     {
         if (medicines == null || !medicines.Any())
         {
@@ -264,7 +286,10 @@ public class HealthEventService : IHealthEventService
             var quantityNeeded = ExtractQuantityFromDosage(medicine.Dosage);
             if (medicineInfo.StockQuantity < quantityNeeded)
             {
-                return (false, $"Thuốc {medicineInfo.Name} không đủ số lượng trong kho (Cần: {quantityNeeded}, Có: {medicineInfo.StockQuantity})");
+                return (
+                    false,
+                    $"Thuốc {medicineInfo.Name} không đủ số lượng trong kho (Cần: {quantityNeeded}, Có: {medicineInfo.StockQuantity})"
+                );
             }
         }
 
@@ -272,7 +297,9 @@ public class HealthEventService : IHealthEventService
     }
 
     // Phương thức helper để validate số lượng vật tư y tế trong kho
-    private async Task<(bool IsValid, string ErrorMessage)> ValidateMedicalSupplyStockAsync(ICollection<HealthEventMedicalSupply>? supplies)
+    private async Task<(bool IsValid, string ErrorMessage)> ValidateMedicalSupplyStockAsync(
+        ICollection<HealthEventMedicalSupply>? supplies
+    )
     {
         if (supplies == null || !supplies.Any())
         {
@@ -281,7 +308,9 @@ public class HealthEventService : IHealthEventService
 
         foreach (var supply in supplies)
         {
-            var supplyInfo = await _medicalSupplyService.GetMedicalSupplyByIdAsync(supply.MedicalSupplyId);
+            var supplyInfo = await _medicalSupplyService.GetMedicalSupplyByIdAsync(
+                supply.MedicalSupplyId
+            );
             if (supplyInfo == null)
             {
                 return (false, $"Vật tư y tế với ID {supply.MedicalSupplyId} không tồn tại");
@@ -295,7 +324,10 @@ public class HealthEventService : IHealthEventService
             var quantityNeeded = supply.Quantity ?? 1;
             if (supplyInfo.StockQuantity < quantityNeeded)
             {
-                return (false, $"Vật tư y tế {supplyInfo.Name} không đủ số lượng trong kho (Cần: {quantityNeeded}, Có: {supplyInfo.StockQuantity})");
+                return (
+                    false,
+                    $"Vật tư y tế {supplyInfo.Name} không đủ số lượng trong kho (Cần: {quantityNeeded}, Có: {supplyInfo.StockQuantity})"
+                );
             }
         }
 
@@ -313,47 +345,58 @@ public class HealthEventService : IHealthEventService
                 foreach (var medicine in healthEvent.HealthEventMedicines)
                 {
                     var quantityUsed = ExtractQuantityFromDosage(medicine.Dosage);
-                    
+
                     // Kiểm tra lại số lượng có sẵn trước khi trừ
-                    var medicineInfo = await _medicineService.GetMedicineByIdAsync(medicine.MedicineId);
-                    if (medicineInfo != null && medicineInfo.IsActive == true && medicineInfo.StockQuantity >= quantityUsed)
+                    var medicineInfo = await _medicineService.GetMedicineByIdAsync(
+                        medicine.MedicineId
+                    );
+                    if (
+                        medicineInfo != null
+                        && medicineInfo.IsActive == true
+                        && medicineInfo.StockQuantity >= quantityUsed
+                    )
                     {
-                        var success = await _medicineService.UpdateStockQuantityAsync(medicine.MedicineId, quantityUsed);
-                        if (!success)
-                        {
-                        }
+                        var success = await _medicineService.UpdateStockQuantityAsync(
+                            medicine.MedicineId,
+                            quantityUsed
+                        );
+                        if (!success) { }
                     }
-                    else
-                    {
-                    }
+                    else { }
                 }
             }
 
             // Cập nhật số lượng vật tư y tế - chỉ trừ những gì có đủ
-            if (healthEvent.HealthEventMedicalSupplies != null && healthEvent.HealthEventMedicalSupplies.Any())
+            if (
+                healthEvent.HealthEventMedicalSupplies != null
+                && healthEvent.HealthEventMedicalSupplies.Any()
+            )
             {
                 foreach (var supply in healthEvent.HealthEventMedicalSupplies)
                 {
                     var quantityUsed = supply.Quantity ?? 1;
-                    
+
                     // Kiểm tra lại số lượng có sẵn trước khi trừ
-                    var supplyInfo = await _medicalSupplyService.GetMedicalSupplyByIdAsync(supply.MedicalSupplyId);
-                    if (supplyInfo != null && supplyInfo.IsActive == true && supplyInfo.StockQuantity >= quantityUsed)
+                    var supplyInfo = await _medicalSupplyService.GetMedicalSupplyByIdAsync(
+                        supply.MedicalSupplyId
+                    );
+                    if (
+                        supplyInfo != null
+                        && supplyInfo.IsActive == true
+                        && supplyInfo.StockQuantity >= quantityUsed
+                    )
                     {
-                        var success = await _medicalSupplyService.UpdateStockQuantityAsync(supply.MedicalSupplyId, quantityUsed);
-                        if (!success)
-                        {
-                        }
+                        var success = await _medicalSupplyService.UpdateStockQuantityAsync(
+                            supply.MedicalSupplyId,
+                            quantityUsed
+                        );
+                        if (!success) { }
                     }
-                    else
-                    {
-                    }
+                    else { }
                 }
             }
         }
-        catch
-        {
-        }
+        catch { }
     }
 
     // Phương thức helper để extract số lượng từ dosage string
@@ -380,20 +423,20 @@ public class HealthEventService : IHealthEventService
         try
         {
             var student = await _studentRepository.GetStudentByCodeAsync(studentCode);
-            
+
             if (student == null)
             {
                 return null;
             }
-            
+
             if (student.Class == null)
             {
                 return null;
             }
-            
+
             return student.Class.GradeLevel;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return null;
         }
@@ -413,20 +456,19 @@ public class HealthEventService : IHealthEventService
                 Title = $"Sự cố y tế - {GetEventTypeVietnamese(healthEvent.EventType)}",
                 EventType = healthEvent.EventType,
                 Severity = healthEvent.Severity!,
-                Description = $"Triệu chứng: {healthEvent.Symptoms}\nĐánh giá: {healthEvent.Assessment}",
+                Description =
+                    $"Triệu chứng: {healthEvent.Symptoms}\nĐánh giá: {healthEvent.Assessment}",
                 Treatment = healthEvent.Treatment,
                 EventDate = healthEvent.EventDate,
                 CreatedBy = healthEvent.StaffId,
                 Notes = healthEvent.Notes,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
             };
 
             _context.HealthRecords.Add(healthRecord);
             await _context.SaveChangesAsync();
         }
-        catch
-        {
-        }
+        catch { }
     }
 
     private string GetEventTypeVietnamese(string eventType)
@@ -434,10 +476,10 @@ public class HealthEventService : IHealthEventService
         return eventType?.ToLower() switch
         {
             "illness" => "Bệnh tật",
-            "injury" => "Chấn thương", 
+            "injury" => "Chấn thương",
             "allergy" => "Dị ứng",
             "chronic" => "Bệnh mãn tính",
-            _ => "Khác"
+            _ => "Khác",
         };
     }
-} 
+}

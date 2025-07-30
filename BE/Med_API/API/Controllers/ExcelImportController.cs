@@ -1,13 +1,13 @@
 using API.DTOs;
 using AutoMapper;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
 using OfficeOpenXml;
 using Service;
 using Service.DTOs;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Hosting;
 
 namespace API.Controllers;
 
@@ -26,7 +26,8 @@ public class ExcelImportController : ControllerBase
         IExcelImportService excelImportService,
         IMapper mapper,
         ILogger<ExcelImportController> logger,
-        IWebHostEnvironment environment)
+        IWebHostEnvironment environment
+    )
     {
         _excelImportService = excelImportService;
         _mapper = mapper;
@@ -43,13 +44,20 @@ public class ExcelImportController : ControllerBase
         try
         {
             using var package = new ExcelPackage();
-            
+
             // Add Students sheet
             var studentSheet = package.Workbook.Worksheets.Add("Students");
             var studentHeaders = new[]
             {
-                "StudentCode*", "FirstName*", "LastName*", "DateOfBirth*", "Gender*", 
-                "Address", "ClassName*", "GradeLevel*", "Password*"
+                "StudentCode*",
+                "FirstName*",
+                "LastName*",
+                "DateOfBirth*",
+                "Gender*",
+                "Address",
+                "ClassName*",
+                "GradeLevel*",
+                "Password*",
             };
             AddHeaders(studentSheet, studentHeaders);
             AddStudentExampleData(studentSheet);
@@ -60,8 +68,16 @@ public class ExcelImportController : ControllerBase
             var parentSheet = package.Workbook.Worksheets.Add("Parents");
             var parentHeaders = new[]
             {
-                "FirstName*", "LastName*", "Relationship*", "Phone*", "Email*", "Address", 
-                "Occupation", "IsEmergencyContact*", "IsMainContact*", "Password*"
+                "FirstName*",
+                "LastName*",
+                "Relationship*",
+                "Phone*",
+                "Email*",
+                "Address",
+                "Occupation",
+                "IsEmergencyContact*",
+                "IsMainContact*",
+                "Password*",
             };
             AddHeaders(parentSheet, parentHeaders);
             AddParentExampleData(parentSheet);
@@ -70,10 +86,7 @@ public class ExcelImportController : ControllerBase
 
             // Add StudentParentRelationships sheet
             var relationshipSheet = package.Workbook.Worksheets.Add("StudentParentRelationships");
-            var relationshipHeaders = new[]
-            {
-                "StudentCode*", "ParentEmail*"
-            };
+            var relationshipHeaders = new[] { "StudentCode*", "ParentEmail*" };
             AddHeaders(relationshipSheet, relationshipHeaders);
             AddRelationshipExampleData(relationshipSheet);
             AddRelationshipValidations(relationshipSheet);
@@ -83,12 +96,31 @@ public class ExcelImportController : ControllerBase
             var healthSheet = package.Workbook.Worksheets.Add("HealthProfiles");
             var healthHeaders = new[]
             {
-                "StudentCode*", "HasAllergies*", "AllergyDetails", "HasChronicDiseases*", 
-                "ChronicDetails", "BloodType", "HasVisionIssues*", "VisionNotes", 
-                "LeftEye", "RightEye", "HasHearingIssues*", "HearingNotes", 
-                "LeftEar", "RightEar", "HasCompleteVaccinations*", "Vaccinations", 
-                "VaccinationDetails", "HasPreviousTreatment*", "TreatmentDetails", 
-                "Height", "Weight", "EmergencyContact", "OtherInfo", "BloodPressure", "HeartRate"
+                "StudentCode*",
+                "HasAllergies*",
+                "AllergyDetails",
+                "HasChronicDiseases*",
+                "ChronicDetails",
+                "BloodType",
+                "HasVisionIssues*",
+                "VisionNotes",
+                "LeftEye",
+                "RightEye",
+                "HasHearingIssues*",
+                "HearingNotes",
+                "LeftEar",
+                "RightEar",
+                "HasCompleteVaccinations*",
+                "Vaccinations",
+                "VaccinationDetails",
+                "HasPreviousTreatment*",
+                "TreatmentDetails",
+                "Height",
+                "Weight",
+                "EmergencyContact",
+                "OtherInfo",
+                "BloodPressure",
+                "HeartRate",
             };
             AddHeaders(healthSheet, healthHeaders);
             AddHealthProfileExampleData(healthSheet);
@@ -107,7 +139,11 @@ public class ExcelImportController : ControllerBase
             var content = package.GetAsByteArray();
             var fileName = $"StudentImportTemplate_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
 
-            return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            return File(
+                content,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileName
+            );
         }
         catch (Exception ex)
         {
@@ -124,8 +160,13 @@ public class ExcelImportController : ControllerBase
             worksheet.Cells[1, i + 1].Style.Font.Bold = true;
             if (headers[i].EndsWith("*"))
             {
-                worksheet.Cells[1, i + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightYellow);
+                worksheet.Cells[1, i + 1].Style.Fill.PatternType = OfficeOpenXml
+                    .Style
+                    .ExcelFillStyle
+                    .Solid;
+                worksheet
+                    .Cells[1, i + 1]
+                    .Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightYellow);
             }
         }
     }
@@ -141,7 +182,7 @@ public class ExcelImportController : ControllerBase
         worksheet.Cells[2, 7].Value = "Class 5A";
         worksheet.Cells[2, 8].Value = "5";
         worksheet.Cells[2, 9].Value = "password123";
-        
+
         // Set date format for the DateOfBirth column
         worksheet.Cells[2, 4].Style.Numberformat.Format = "yyyy-mm-dd";
         // Apply the same format to the entire column
@@ -222,7 +263,10 @@ public class ExcelImportController : ControllerBase
 
         // Password validation (minimum 6 characters)
         var passwordValidation = worksheet.DataValidations.AddTextLengthValidation("I2:I1000");
-        passwordValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.greaterThanOrEqual;
+        passwordValidation.Operator = OfficeOpenXml
+            .DataValidation
+            .ExcelDataValidationOperator
+            .greaterThanOrEqual;
         passwordValidation.Formula.Value = 6;
         passwordValidation.ShowErrorMessage = true;
         passwordValidation.Error = "Password must be at least 6 characters long";
@@ -252,14 +296,20 @@ public class ExcelImportController : ControllerBase
 
         // Phone validation (numbers only)
         var phoneValidation = worksheet.DataValidations.AddTextLengthValidation("D2:D1000");
-        phoneValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.greaterThanOrEqual;
+        phoneValidation.Operator = OfficeOpenXml
+            .DataValidation
+            .ExcelDataValidationOperator
+            .greaterThanOrEqual;
         phoneValidation.Formula.Value = 10;
         phoneValidation.ShowErrorMessage = true;
         phoneValidation.Error = "Phone number must be at least 10 digits";
 
         // Password validation (minimum 6 characters)
         var passwordValidation = worksheet.DataValidations.AddTextLengthValidation("J2:J1000");
-        passwordValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.greaterThanOrEqual;
+        passwordValidation.Operator = OfficeOpenXml
+            .DataValidation
+            .ExcelDataValidationOperator
+            .greaterThanOrEqual;
         passwordValidation.Formula.Value = 6;
         passwordValidation.ShowErrorMessage = true;
         passwordValidation.Error = "Password must be at least 6 characters long";
@@ -330,7 +380,10 @@ public class ExcelImportController : ControllerBase
 
         // HeartRate validation (0-250)
         var heartRateValidation = worksheet.DataValidations.AddIntegerValidation("Y2:Y1000");
-        heartRateValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.between;
+        heartRateValidation.Operator = OfficeOpenXml
+            .DataValidation
+            .ExcelDataValidationOperator
+            .between;
         heartRateValidation.Formula.Value = 0;
         heartRateValidation.Formula2.Value = 250;
         heartRateValidation.ShowErrorMessage = true;
@@ -338,7 +391,10 @@ public class ExcelImportController : ControllerBase
 
         // Height validation (0-300 cm)
         var heightValidation = worksheet.DataValidations.AddDecimalValidation("T2:T1000");
-        heightValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.between;
+        heightValidation.Operator = OfficeOpenXml
+            .DataValidation
+            .ExcelDataValidationOperator
+            .between;
         heightValidation.Formula.Value = 0;
         heightValidation.Formula2.Value = 300;
         heightValidation.ShowErrorMessage = true;
@@ -346,7 +402,10 @@ public class ExcelImportController : ControllerBase
 
         // Weight validation (0-500 kg)
         var weightValidation = worksheet.DataValidations.AddDecimalValidation("U2:U1000");
-        weightValidation.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.between;
+        weightValidation.Operator = OfficeOpenXml
+            .DataValidation
+            .ExcelDataValidationOperator
+            .between;
         weightValidation.Formula.Value = 0;
         weightValidation.Formula2.Value = 500;
         weightValidation.ShowErrorMessage = true;
@@ -354,10 +413,10 @@ public class ExcelImportController : ControllerBase
 
         // EmergencyContact validation - text only, no restrictions
         // Column V (22) is EmergencyContact - no validation needed for free text
-        
+
         // Set EmergencyContact column to text format to prevent Excel from auto-formatting as numbers
         worksheet.Column(22).Style.Numberformat.Format = "@";
-        
+
         // Set OtherInfo column to text format as well
         worksheet.Column(23).Style.Numberformat.Format = "@";
     }
@@ -370,37 +429,55 @@ public class ExcelImportController : ControllerBase
 
         int row = 3;
         worksheet.Cells[row++, 1].Value = "General Instructions:";
-        worksheet.Cells[row++, 1].Value = "1. All sheets (Students, Parents, StudentParentRelationships, HealthProfiles) must be filled out completely.";
+        worksheet.Cells[row++, 1].Value =
+            "1. All sheets (Students, Parents, StudentParentRelationships, HealthProfiles) must be filled out completely.";
         worksheet.Cells[row++, 1].Value = "2. Fields marked with * are required.";
-        worksheet.Cells[row++, 1].Value = "3. Each student must have at least one parent relationship and one health profile.";
-        worksheet.Cells[row++, 1].Value = "4. StudentCode must be unique and will be used to link students with their parents and health profiles.";
-        worksheet.Cells[row++, 1].Value = "5. Passwords for both students and parents must be at least 6 characters long.";
+        worksheet.Cells[row++, 1].Value =
+            "3. Each student must have at least one parent relationship and one health profile.";
+        worksheet.Cells[row++, 1].Value =
+            "4. StudentCode must be unique and will be used to link students with their parents and health profiles.";
+        worksheet.Cells[row++, 1].Value =
+            "5. Passwords for both students and parents must be at least 6 characters long.";
         worksheet.Cells[row++, 1].Value = "6. Grade level must be between 1 and 5.";
         worksheet.Cells[row++, 1].Value = "7. Gender must be either 'Nam' or 'Nữ'.";
-        worksheet.Cells[row++, 1].Value = "8. Relationship must be one of: Mother, Father, Guardian, Other.";
+        worksheet.Cells[row++, 1].Value =
+            "8. Relationship must be one of: Mother, Father, Guardian, Other.";
         worksheet.Cells[row++, 1].Value = "9. Email addresses must be in a valid format.";
         worksheet.Cells[row++, 1].Value = "10. Phone numbers must be at least 10 digits.";
-        worksheet.Cells[row++, 1].Value = "11. Blood type must be in the format: A+, A-, B+, B-, AB+, AB-, O+, O-";
+        worksheet.Cells[row++, 1].Value =
+            "11. Blood type must be in the format: A+, A-, B+, B-, AB+, AB-, O+, O-";
         worksheet.Cells[row++, 1].Value = "12. Height should be in centimeters (0-300).";
         worksheet.Cells[row++, 1].Value = "13. Weight should be in kilograms (0-500).";
-        worksheet.Cells[row++, 1].Value = "14. Blood pressure should be in XXX/YYY format (e.g., 120/80).";
+        worksheet.Cells[row++, 1].Value =
+            "14. Blood pressure should be in XXX/YYY format (e.g., 120/80).";
         worksheet.Cells[row++, 1].Value = "15. Heart rate should be in beats per minute (0-250).";
-        worksheet.Cells[row++, 1].Value = "16. Boolean fields (HasAllergies, HasChronicDiseases, etc.) must be TRUE or FALSE.";
-        worksheet.Cells[row++, 1].Value = "17. Date of birth: Enter in YYYY-MM-DD format (e.g., 2010-01-15) or let Excel format it automatically.";
-        worksheet.Cells[row++, 1].Value = "18. Blood pressure: Enter in any format (e.g., 120/80, 120-80, or just text).";
+        worksheet.Cells[row++, 1].Value =
+            "16. Boolean fields (HasAllergies, HasChronicDiseases, etc.) must be TRUE or FALSE.";
+        worksheet.Cells[row++, 1].Value =
+            "17. Date of birth: Enter in YYYY-MM-DD format (e.g., 2010-01-15) or let Excel format it automatically.";
+        worksheet.Cells[row++, 1].Value =
+            "18. Blood pressure: Enter in any format (e.g., 120/80, 120-80, or just text).";
         worksheet.Cells[row++, 1].Value = "19. Heart rate should be in beats per minute (0-250).";
         worksheet.Cells[row++, 1].Value = "20. Height should be in centimeters (0-300).";
         worksheet.Cells[row++, 1].Value = "21. Weight should be in kilograms (0-500).";
-        worksheet.Cells[row++, 1].Value = "22. Emergency contact can be any text (e.g., 'Jane Doe (Mother) - 1234567890').";
+        worksheet.Cells[row++, 1].Value =
+            "22. Emergency contact can be any text (e.g., 'Jane Doe (Mother) - 1234567890').";
         worksheet.Cells[row++, 1].Value = "";
         worksheet.Cells[row++, 1].Value = "Many-to-Many Relationship Support:";
-        worksheet.Cells[row++, 1].Value = "23. One parent can have multiple students (e.g., siblings).";
-        worksheet.Cells[row++, 1].Value = "24. One student can have multiple parents (e.g., mother and father).";
-        worksheet.Cells[row++, 1].Value = "25. Use the StudentParentRelationships sheet to define these relationships.";
-        worksheet.Cells[row++, 1].Value = "26. ParentEmail in relationships must match Email in Parents sheet.";
-        worksheet.Cells[row++, 1].Value = "27. StudentCode in relationships must match StudentCode in Students sheet.";
-        worksheet.Cells[row++, 1].Value = "28. Relationship type is defined in the Parents sheet (Mother, Father, Guardian, Other).";
-        worksheet.Cells[row++, 1].Value = "29. For siblings with same parents, create separate parent records with same email but different relationships.";
+        worksheet.Cells[row++, 1].Value =
+            "23. One parent can have multiple students (e.g., siblings).";
+        worksheet.Cells[row++, 1].Value =
+            "24. One student can have multiple parents (e.g., mother and father).";
+        worksheet.Cells[row++, 1].Value =
+            "25. Use the StudentParentRelationships sheet to define these relationships.";
+        worksheet.Cells[row++, 1].Value =
+            "26. ParentEmail in relationships must match Email in Parents sheet.";
+        worksheet.Cells[row++, 1].Value =
+            "27. StudentCode in relationships must match StudentCode in Students sheet.";
+        worksheet.Cells[row++, 1].Value =
+            "28. Relationship type is defined in the Parents sheet (Mother, Father, Guardian, Other).";
+        worksheet.Cells[row++, 1].Value =
+            "29. For siblings with same parents, create separate parent records with same email but different relationships.";
 
         // Format the instructions
         var range = worksheet.Cells[1, 1, row - 1, 1];
@@ -420,7 +497,8 @@ public class ExcelImportController : ControllerBase
         Tags = new[] { "Excel Import" }
     )]
     public async Task<ActionResult<API.DTOs.ExcelImportDto.ImportResult>> ImportStudentData(
-        [FromForm] API.DTOs.ExcelImportDto.FileUploadModel model)
+        [FromForm] API.DTOs.ExcelImportDto.FileUploadModel model
+    )
     {
         try
         {
@@ -433,29 +511,43 @@ public class ExcelImportController : ControllerBase
             var file = model.File;
             if (!file.FileName.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogWarning("Import attempt with invalid file type: {FileName}", file.FileName);
+                _logger.LogWarning(
+                    "Import attempt with invalid file type: {FileName}",
+                    file.FileName
+                );
                 return BadRequest("Only .xlsx files are supported");
             }
 
             // Log request details for debugging
-            _logger.LogInformation("Request details - ContentType: {ContentType}, Length: {Length}, FileName: {FileName}",
-                file.ContentType, file.Length, file.FileName);
+            _logger.LogInformation(
+                "Request details - ContentType: {ContentType}, Length: {Length}, FileName: {FileName}",
+                file.ContentType,
+                file.Length,
+                file.FileName
+            );
 
-            _logger.LogInformation("Starting import process for file: {FileName}, Size: {FileSize} bytes", 
-                file.FileName, file.Length);
+            _logger.LogInformation(
+                "Starting import process for file: {FileName}, Size: {FileSize} bytes",
+                file.FileName,
+                file.Length
+            );
 
             var serviceResult = await _excelImportService.ImportStudentDataAsync(file);
-            
-            _logger.LogInformation("Import completed. Total: {Total}, Success: {Success}, Failed: {Failed}, Errors: {ErrorCount}", 
-                serviceResult.TotalRows, 
-                serviceResult.SuccessfullyImported, 
+
+            _logger.LogInformation(
+                "Import completed. Total: {Total}, Success: {Success}, Failed: {Failed}, Errors: {ErrorCount}",
+                serviceResult.TotalRows,
+                serviceResult.SuccessfullyImported,
                 serviceResult.FailedRows,
-                serviceResult.Errors.Count);
+                serviceResult.Errors.Count
+            );
 
             if (serviceResult.Errors.Any())
             {
-                _logger.LogWarning("Import completed with errors: {Errors}", 
-                    string.Join(", ", serviceResult.Errors));
+                _logger.LogWarning(
+                    "Import completed with errors: {Errors}",
+                    string.Join(", ", serviceResult.Errors)
+                );
             }
 
             var apiResult = _mapper.Map<API.DTOs.ExcelImportDto.ImportResult>(serviceResult);
@@ -467,4 +559,4 @@ public class ExcelImportController : ControllerBase
             return StatusCode(500, $"Error importing student data: {ex.Message}");
         }
     }
-} 
+}

@@ -57,4 +57,4 @@ public partial class HealthRecord
     public virtual HealthEvent? HealthEvent { get; set; }
     public virtual Staff? CreatedByStaff { get; set; }
     public virtual Staff? UpdatedByStaff { get; set; }
-} 
+}

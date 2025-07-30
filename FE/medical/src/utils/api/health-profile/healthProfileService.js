@@ -13,7 +13,7 @@ const healthProfileService = {
   getAll: async () => {
     try {
       const response = await axios.get(`${API_URL}/HealthProfile`, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
       return response.data;
     } catch (error) {
@@ -40,7 +40,7 @@ const healthProfileService = {
   getById: async (id) => {
     try {
       const response = await axios.get(`${API_URL}/HealthProfile/${id}`, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
       return response.data;
     } catch (error) {
@@ -83,7 +83,7 @@ const healthProfileService = {
   delete: async (id) => {
     try {
       await axios.delete(`${API_URL}/HealthProfile/${id}`, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
       return true;
     } catch (error) {

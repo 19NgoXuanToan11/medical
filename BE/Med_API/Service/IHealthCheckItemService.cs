@@ -16,5 +16,8 @@ public interface IHealthCheckItemService
     Task<bool> CodeExistsAsync(string code, int? excludeId = null);
     Task<IEnumerable<HealthCheckItem>> GetHealthCheckItemsWithMedicalSuppliesAsync();
     Task<HealthCheckItem?> GetHealthCheckItemWithMedicalSuppliesAsync(int id);
-    Task<bool> UpdateHealthCheckItemMedicalSuppliesAsync(int healthCheckItemId, IList<HealthCheckItemMedicalSupply> medicalSupplies);
-} 
+    Task<bool> UpdateHealthCheckItemMedicalSuppliesAsync(
+        int healthCheckItemId,
+        IList<HealthCheckItemMedicalSupply> medicalSupplies
+    );
+}

@@ -1,6 +1,6 @@
+using API.DTOs;
 using AutoMapper;
 using DB;
-using API.DTOs;
 
 namespace API.MappingProfiles;
 
@@ -19,4 +19,4 @@ public class MedicineProfile : Profile
         CreateMap<MedicineDto.Update, Medicine>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
-} 
+}

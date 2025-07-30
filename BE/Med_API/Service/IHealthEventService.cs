@@ -12,7 +12,10 @@ public interface IHealthEventService
     Task<bool> DeleteHealthEventAsync(int id);
     Task<IEnumerable<HealthEvent>> GetHealthEventsByStudentCodeAsync(string studentCode);
     Task<IEnumerable<HealthEvent>> GetHealthEventsByStaffIdAsync(int staffId);
-    Task<IEnumerable<HealthEvent>> GetHealthEventsByDateRangeAsync(DateTime startDate, DateTime endDate);
+    Task<IEnumerable<HealthEvent>> GetHealthEventsByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate
+    );
     Task<IEnumerable<HealthEvent>> GetHealthEventsByTypeAsync(string eventType);
     Task<IEnumerable<HealthEvent>> GetRecentHealthEventsAsync(int count);
     Task<IEnumerable<HealthEvent>> GetHealthEventsByGradeAsync(int grade);
@@ -30,4 +33,4 @@ public class BatchResult
     public int FailedCount { get; set; }
     public List<string> FailedDetails { get; set; } = new List<string>();
     public List<HealthEvent> CreatedEvents { get; set; } = new List<HealthEvent>();
-} 
+}

@@ -2,12 +2,7 @@ import React from "react";
 import { FiEye, FiHeadphones } from "react-icons/fi";
 import { InfoCard, DataRow, EditableField } from "./SharedComponents";
 
-const SensoryTab = ({ 
-  healthProfile, 
-  isEditing, 
-  editData, 
-  onInputChange 
-}) => {
+const SensoryTab = ({ healthProfile, isEditing, editData, onInputChange }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <InfoCard title="Thị lực" icon={FiEye}>
@@ -57,4 +52,4 @@ const SensoryTab = ({
   );
 };
 
-export default SensoryTab; 
+export default SensoryTab;

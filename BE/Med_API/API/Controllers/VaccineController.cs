@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using API.DTOs;
 using AutoMapper;
 using DB;
+using Microsoft.AspNetCore.Mvc;
 using Service;
 
 namespace API.Controllers;
@@ -97,4 +97,4 @@ public class VaccineController : ControllerBase
         }
         return NoContent();
     }
-} 
+}

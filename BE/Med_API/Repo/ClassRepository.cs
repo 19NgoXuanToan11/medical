@@ -14,8 +14,8 @@ public class ClassRepository : IClassRepository
 
     public async Task<IEnumerable<Class>> GetAllClassesAsync()
     {
-        return await _context.Classes
-            .Include(c => c.Students)
+        return await _context
+            .Classes.Include(c => c.Students)
             .ThenInclude(s => s.StudentParents)
             .ThenInclude(sp => sp.Parent)
             .OrderBy(c => c.GradeLevel)
@@ -25,8 +25,8 @@ public class ClassRepository : IClassRepository
 
     public async Task<Class?> GetClassByIdAsync(int id)
     {
-        return await _context.Classes
-            .Include(c => c.Students)
+        return await _context
+            .Classes.Include(c => c.Students)
             .ThenInclude(s => s.StudentParents)
             .ThenInclude(sp => sp.Parent)
             .FirstOrDefaultAsync(c => c.ClassId == id);
@@ -38,7 +38,7 @@ public class ClassRepository : IClassRepository
         {
             classEntity.CreatedAt = DateTime.Now;
             classEntity.CurrentStudentCount = 0;
-            
+
             _context.Classes.Add(classEntity);
             await _context.SaveChangesAsync();
             return classEntity;
@@ -108,8 +108,8 @@ public class ClassRepository : IClassRepository
 
     public async Task<IEnumerable<Class>> GetClassesByGradeLevelAsync(int gradeLevel)
     {
-        return await _context.Classes
-            .Include(c => c.Students)
+        return await _context
+            .Classes.Include(c => c.Students)
             .Where(c => c.GradeLevel == gradeLevel && c.IsActive)
             .OrderBy(c => c.Section)
             .ToListAsync();
@@ -117,8 +117,8 @@ public class ClassRepository : IClassRepository
 
     public async Task<IEnumerable<Student>> GetStudentsByClassIdAsync(int classId)
     {
-        return await _context.Students
-            .Include(s => s.HealthProfiles)
+        return await _context
+            .Students.Include(s => s.HealthProfiles)
             .Include(s => s.StudentParents)
             .ThenInclude(sp => sp.Parent)
             .Where(s => s.ClassId == classId && s.IsActive == true)
@@ -135,8 +135,9 @@ public class ClassRepository : IClassRepository
             if (classEntity == null)
                 return false;
 
-            var studentCount = await _context.Students
-                .CountAsync(s => s.ClassId == classId && s.IsActive == true);
+            var studentCount = await _context.Students.CountAsync(s =>
+                s.ClassId == classId && s.IsActive == true
+            );
 
             classEntity.CurrentStudentCount = studentCount;
             classEntity.UpdatedAt = DateTime.Now;
@@ -152,18 +153,24 @@ public class ClassRepository : IClassRepository
 
     public async Task<IEnumerable<Class>> GetActiveClassesAsync()
     {
-        return await _context.Classes
-            .Include(c => c.Students)
+        return await _context
+            .Classes.Include(c => c.Students)
             .Where(c => c.IsActive)
             .OrderBy(c => c.GradeLevel)
             .ThenBy(c => c.Section)
             .ToListAsync();
     }
 
-    public async Task<bool> ClassNameExistsAsync(string className, int gradeLevel, string? section = null, int? excludeClassId = null)
+    public async Task<bool> ClassNameExistsAsync(
+        string className,
+        int gradeLevel,
+        string? section = null,
+        int? excludeClassId = null
+    )
     {
-        var query = _context.Classes
-            .Where(c => c.ClassName == className && c.GradeLevel == gradeLevel);
+        var query = _context.Classes.Where(c =>
+            c.ClassName == className && c.GradeLevel == gradeLevel
+        );
 
         if (section != null)
         {
@@ -177,4 +184,4 @@ public class ClassRepository : IClassRepository
 
         return await query.AnyAsync();
     }
-} 
+}

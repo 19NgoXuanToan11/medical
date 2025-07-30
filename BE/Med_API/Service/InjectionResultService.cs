@@ -12,7 +12,8 @@ public class InjectionResultService : IInjectionResultService
     public InjectionResultService(
         IInjectionResultRepository injectionResultRepository,
         IInjectionFormRepository injectionFormRepository,
-        IStudentRepository studentRepository)
+        IStudentRepository studentRepository
+    )
     {
         _injectionResultRepository = injectionResultRepository;
         _injectionFormRepository = injectionFormRepository;
@@ -37,7 +38,9 @@ public class InjectionResultService : IInjectionResultService
             throw new InvalidOperationException("FormId is required");
         }
 
-        var form = await _injectionFormRepository.GetInjectionFormByIdAsync(injectionResult.FormId.Value);
+        var form = await _injectionFormRepository.GetInjectionFormByIdAsync(
+            injectionResult.FormId.Value
+        );
         if (form == null)
         {
             throw new InvalidOperationException("Injection form not found");
@@ -70,7 +73,9 @@ public class InjectionResultService : IInjectionResultService
     public async Task<bool> UpdateInjectionResultAsync(InjectionResult injectionResult)
     {
         // Validate that the result exists
-        var existingResult = await _injectionResultRepository.GetInjectionResultByIdAsync(injectionResult.ResultId);
+        var existingResult = await _injectionResultRepository.GetInjectionResultByIdAsync(
+            injectionResult.ResultId
+        );
         if (existingResult == null)
         {
             return false;
@@ -82,7 +87,9 @@ public class InjectionResultService : IInjectionResultService
             throw new InvalidOperationException("FormId is required");
         }
 
-        var form = await _injectionFormRepository.GetInjectionFormByIdAsync(injectionResult.FormId.Value);
+        var form = await _injectionFormRepository.GetInjectionFormByIdAsync(
+            injectionResult.FormId.Value
+        );
         if (form == null)
         {
             throw new InvalidOperationException("Injection form not found");
@@ -119,7 +126,9 @@ public class InjectionResultService : IInjectionResultService
         return await _injectionResultRepository.GetInjectionResultsByFormIdAsync(formId);
     }
 
-    public async Task<IEnumerable<InjectionResult>> GetInjectionResultsByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<InjectionResult>> GetInjectionResultsByStudentIdAsync(
+        int studentId
+    )
     {
         return await _injectionResultRepository.GetInjectionResultsByStudentIdAsync(studentId);
     }
@@ -128,4 +137,4 @@ public class InjectionResultService : IInjectionResultService
     {
         return await _injectionResultRepository.GetLatestInjectionResultByFormIdAsync(formId);
     }
-} 
+}

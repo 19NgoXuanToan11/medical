@@ -1,6 +1,6 @@
 using DB;
-using Repo;
 using Microsoft.EntityFrameworkCore;
+using Repo;
 
 namespace Service;
 
@@ -9,7 +9,10 @@ public class HealthCheckItemService : IHealthCheckItemService
     private readonly IHealthCheckItemRepository _healthCheckItemRepository;
     private readonly MedicalContext _context;
 
-    public HealthCheckItemService(IHealthCheckItemRepository healthCheckItemRepository, MedicalContext context)
+    public HealthCheckItemService(
+        IHealthCheckItemRepository healthCheckItemRepository,
+        MedicalContext context
+    )
     {
         _healthCheckItemRepository = healthCheckItemRepository;
         _context = context;
@@ -33,7 +36,9 @@ public class HealthCheckItemService : IHealthCheckItemService
     public async Task<HealthCheckItem?> CreateHealthCheckItemAsync(HealthCheckItem healthCheckItem)
     {
         // Check for unique code
-        var existingItem = await _healthCheckItemRepository.GetHealthCheckItemByCodeAsync(healthCheckItem.Code);
+        var existingItem = await _healthCheckItemRepository.GetHealthCheckItemByCodeAsync(
+            healthCheckItem.Code
+        );
         if (existingItem != null)
         {
             return null; // Code must be unique
@@ -42,9 +47,13 @@ public class HealthCheckItemService : IHealthCheckItemService
         // Validate medical supplies if provided
         if (healthCheckItem.HealthCheckItemMedicalSupplies?.Any() == true)
         {
-            var medicalSupplyIds = healthCheckItem.HealthCheckItemMedicalSupplies.Select(ms => ms.MedicalSupplyId).ToList();
-            var existingSupplies = await _context.MedicalSupplies
-                .Where(ms => medicalSupplyIds.Contains(ms.SupplyId) && ms.IsActive == true)
+            var medicalSupplyIds = healthCheckItem
+                .HealthCheckItemMedicalSupplies.Select(ms => ms.MedicalSupplyId)
+                .ToList();
+            var existingSupplies = await _context
+                .MedicalSupplies.Where(ms =>
+                    medicalSupplyIds.Contains(ms.SupplyId) && ms.IsActive == true
+                )
                 .Select(ms => ms.SupplyId)
                 .ToListAsync();
 
@@ -57,7 +66,10 @@ public class HealthCheckItemService : IHealthCheckItemService
         return await _healthCheckItemRepository.CreateHealthCheckItemAsync(healthCheckItem);
     }
 
-    public async Task<HealthCheckItem?> UpdateHealthCheckItemAsync(int id, HealthCheckItem healthCheckItem)
+    public async Task<HealthCheckItem?> UpdateHealthCheckItemAsync(
+        int id,
+        HealthCheckItem healthCheckItem
+    )
     {
         var existingItem = await _healthCheckItemRepository.GetHealthCheckItemByIdAsync(id);
         if (existingItem == null)
@@ -66,9 +78,15 @@ public class HealthCheckItemService : IHealthCheckItemService
         }
 
         // Check for unique code (excluding current item)
-        if (!string.IsNullOrEmpty(healthCheckItem.Code) && healthCheckItem.Code != existingItem.Code)
+        if (
+            !string.IsNullOrEmpty(healthCheckItem.Code)
+            && healthCheckItem.Code != existingItem.Code
+        )
         {
-            var codeExists = await _healthCheckItemRepository.CodeExistsAsync(healthCheckItem.Code, id);
+            var codeExists = await _healthCheckItemRepository.CodeExistsAsync(
+                healthCheckItem.Code,
+                id
+            );
             if (codeExists)
             {
                 return null; // Code must be unique
@@ -86,7 +104,7 @@ public class HealthCheckItemService : IHealthCheckItemService
             existingItem.Description = healthCheckItem.Description;
         if (healthCheckItem.EstimatedTimeMinutes > 0)
             existingItem.EstimatedTimeMinutes = healthCheckItem.EstimatedTimeMinutes;
-        
+
         existingItem.IsActive = healthCheckItem.IsActive;
 
         await _healthCheckItemRepository.UpdateHealthCheckItemAsync(existingItem);
@@ -103,7 +121,9 @@ public class HealthCheckItemService : IHealthCheckItemService
         return await _healthCheckItemRepository.GetActiveHealthCheckItemsAsync();
     }
 
-    public async Task<IEnumerable<HealthCheckItem>> GetHealthCheckItemsByCategoryAsync(string category)
+    public async Task<IEnumerable<HealthCheckItem>> GetHealthCheckItemsByCategoryAsync(
+        string category
+    )
     {
         return await _healthCheckItemRepository.GetHealthCheckItemsByCategoryAsync(category);
     }
@@ -128,9 +148,15 @@ public class HealthCheckItemService : IHealthCheckItemService
         return await _healthCheckItemRepository.GetHealthCheckItemWithMedicalSuppliesAsync(id);
     }
 
-    public async Task<bool> UpdateHealthCheckItemMedicalSuppliesAsync(int healthCheckItemId, IList<HealthCheckItemMedicalSupply> medicalSupplies)
+    public async Task<bool> UpdateHealthCheckItemMedicalSuppliesAsync(
+        int healthCheckItemId,
+        IList<HealthCheckItemMedicalSupply> medicalSupplies
+    )
     {
-        var healthCheckItem = await _healthCheckItemRepository.GetHealthCheckItemWithMedicalSuppliesAsync(healthCheckItemId);
+        var healthCheckItem =
+            await _healthCheckItemRepository.GetHealthCheckItemWithMedicalSuppliesAsync(
+                healthCheckItemId
+            );
         if (healthCheckItem == null)
         {
             return false;
@@ -140,10 +166,12 @@ public class HealthCheckItemService : IHealthCheckItemService
         try
         {
             // Remove existing medical supplies
-            var existingSupplies = await _context.HealthCheckItemMedicalSupplies
-                .Where(ms => ms.HealthCheckItemId == healthCheckItemId)
+            var existingSupplies = await _context
+                .HealthCheckItemMedicalSupplies.Where(ms =>
+                    ms.HealthCheckItemId == healthCheckItemId
+                )
                 .ToListAsync();
-            
+
             _context.HealthCheckItemMedicalSupplies.RemoveRange(existingSupplies);
 
             // Add new medical supplies
@@ -151,8 +179,10 @@ public class HealthCheckItemService : IHealthCheckItemService
             {
                 // Validate medical supplies
                 var medicalSupplyIds = medicalSupplies.Select(ms => ms.MedicalSupplyId).ToList();
-                var validSupplies = await _context.MedicalSupplies
-                    .Where(ms => medicalSupplyIds.Contains(ms.SupplyId) && ms.IsActive == true)
+                var validSupplies = await _context
+                    .MedicalSupplies.Where(ms =>
+                        medicalSupplyIds.Contains(ms.SupplyId) && ms.IsActive == true
+                    )
                     .Select(ms => ms.SupplyId)
                     .ToListAsync();
 
@@ -180,4 +210,4 @@ public class HealthCheckItemService : IHealthCheckItemService
             return false;
         }
     }
-} 
+}

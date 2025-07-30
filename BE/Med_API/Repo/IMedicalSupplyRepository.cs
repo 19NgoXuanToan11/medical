@@ -12,4 +12,4 @@ public interface IMedicalSupplyRepository
     Task<MedicalSupply?> GetMedicalSupplyByNameAsync(string name);
     Task<IEnumerable<MedicalSupply>> GetActiveMedicalSuppliesAsync();
     Task<bool> UpdateStockQuantityAsync(int supplyId, decimal quantityUsed);
-} 
+}

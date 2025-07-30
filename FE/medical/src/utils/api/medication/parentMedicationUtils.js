@@ -65,16 +65,22 @@ export const transformParentMedicationData = (requests) => {
       studentCode: req.studentCode,
       class: req.className,
       medicationName: req.medicineName || firstMedicine.medicineName || "N/A", // Keep for backward compatibility
-      medicationNames: req.medicineName ? [req.medicineName] : allMedicationNames, // Array of all medication names
-      medicationDisplay: req.medicineName ? [req.medicineName] : medicationDisplay, // For easy display in components
+      medicationNames: req.medicineName
+        ? [req.medicineName]
+        : allMedicationNames, // Array of all medication names
+      medicationDisplay: req.medicineName
+        ? [req.medicineName]
+        : medicationDisplay, // For easy display in components
       medicationCount: req.medicineName ? 1 : medicineItems.length, // Number of medications in this request
       requestDate: req.requestDate
         ? new Date(req.requestDate).toISOString().split("T")[0]
         : req.timestamp
         ? new Date(req.timestamp).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0],
-      startDate: req.date || req.timestamp || new Date().toISOString().split("T")[0],
-      endDate: req.date || req.timestamp || new Date().toISOString().split("T")[0], // Using same date as start for now
+      startDate:
+        req.date || req.timestamp || new Date().toISOString().split("T")[0],
+      endDate:
+        req.date || req.timestamp || new Date().toISOString().split("T")[0], // Using same date as start for now
       status: getUIStatus(req.status),
       dosage: req.dosage || firstMedicine.dosage || "N/A",
       dosageUnit: req.dosageUnit || firstMedicine.dosageUnit || "viên",

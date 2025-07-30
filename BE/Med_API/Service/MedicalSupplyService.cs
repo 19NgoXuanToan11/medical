@@ -25,7 +25,9 @@ public class MedicalSupplyService : IMedicalSupplyService
     public async Task<MedicalSupply?> CreateMedicalSupplyAsync(MedicalSupply medicalSupply)
     {
         // Check for unique name
-        var existing = await _medicalSupplyRepository.GetMedicalSupplyByNameAsync(medicalSupply.Name);
+        var existing = await _medicalSupplyRepository.GetMedicalSupplyByNameAsync(
+            medicalSupply.Name
+        );
         if (existing != null)
         {
             return null; // Name must be unique
@@ -35,7 +37,9 @@ public class MedicalSupplyService : IMedicalSupplyService
 
     public async Task<bool> UpdateMedicalSupplyAsync(MedicalSupply medicalSupply)
     {
-        var existing = await _medicalSupplyRepository.GetMedicalSupplyByIdAsync(medicalSupply.SupplyId);
+        var existing = await _medicalSupplyRepository.GetMedicalSupplyByIdAsync(
+            medicalSupply.SupplyId
+        );
         if (existing == null)
         {
             return false;
@@ -43,7 +47,9 @@ public class MedicalSupplyService : IMedicalSupplyService
         // Check for unique name if changed
         if (!string.IsNullOrEmpty(medicalSupply.Name) && existing.Name != medicalSupply.Name)
         {
-            var withSameName = await _medicalSupplyRepository.GetMedicalSupplyByNameAsync(medicalSupply.Name);
+            var withSameName = await _medicalSupplyRepository.GetMedicalSupplyByNameAsync(
+                medicalSupply.Name
+            );
             if (withSameName != null && withSameName.SupplyId != medicalSupply.SupplyId)
             {
                 return false;
@@ -91,4 +97,4 @@ public class MedicalSupplyService : IMedicalSupplyService
         // Gọi repository để cập nhật số lượng
         return await _medicalSupplyRepository.UpdateStockQuantityAsync(supplyId, quantityUsed);
     }
-} 
+}

@@ -12,13 +12,13 @@ import {
   FiAlertCircle,
   FiInfo,
 } from "react-icons/fi";
-import { 
-  formatDate, 
-  formatTime, 
-  formatDateTime, 
+import {
+  formatDate,
+  formatTime,
+  formatDateTime,
   formatDateWithContext,
   formatDuration,
-  formatRelativeTime 
+  formatRelativeTime,
 } from "../../../../utils/timeUtils";
 
 const RejectedTab = ({
@@ -242,7 +242,8 @@ const RejectedTab = ({
               </p>
               {rejectedDate && (
                 <p className="text-xs text-red-600 dark:text-red-400 mt-2">
-                  Từ chối lúc: {formatDateTime(rejectedDate)} ({formatRelativeTime(rejectedDate)})
+                  Từ chối lúc: {formatDateTime(rejectedDate)} (
+                  {formatRelativeTime(rejectedDate)})
                 </p>
               )}
             </div>

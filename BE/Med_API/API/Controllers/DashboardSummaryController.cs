@@ -1,8 +1,8 @@
 using API.ViewModels;
 using AutoMapper;
+using DB;
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using DB;
 
 namespace API.Controllers;
 
@@ -13,7 +13,10 @@ public class DashboardSummaryController : ControllerBase
     private readonly IDashboardSummaryService _dashboardSummaryService;
     private readonly IMapper _mapper;
 
-    public DashboardSummaryController(IDashboardSummaryService dashboardSummaryService, IMapper mapper)
+    public DashboardSummaryController(
+        IDashboardSummaryService dashboardSummaryService,
+        IMapper mapper
+    )
     {
         _dashboardSummaryService = dashboardSummaryService;
         _mapper = mapper;
@@ -38,16 +41,21 @@ public class DashboardSummaryController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<DashboardSummaryDTO>> CreateDashboardSummary(DashboardSummaryDTO summaryDto)
+    public async Task<ActionResult<DashboardSummaryDTO>> CreateDashboardSummary(
+        DashboardSummaryDTO summaryDto
+    )
     {
         try
         {
             var dashboardSummary = _mapper.Map<DashboardSummary>(summaryDto);
-            var createdSummary = await _dashboardSummaryService.CreateDashboardSummaryAsync(dashboardSummary);
+            var createdSummary = await _dashboardSummaryService.CreateDashboardSummaryAsync(
+                dashboardSummary
+            );
             return CreatedAtAction(
                 nameof(GetDashboardSummaryById),
                 new { id = createdSummary.SummaryId },
-                _mapper.Map<DashboardSummaryDTO>(createdSummary));
+                _mapper.Map<DashboardSummaryDTO>(createdSummary)
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -66,7 +74,9 @@ public class DashboardSummaryController : ControllerBase
         try
         {
             var dashboardSummary = _mapper.Map<DashboardSummary>(summaryDto);
-            var success = await _dashboardSummaryService.UpdateDashboardSummaryAsync(dashboardSummary);
+            var success = await _dashboardSummaryService.UpdateDashboardSummaryAsync(
+                dashboardSummary
+            );
             if (!success)
             {
                 return NotFound();
@@ -91,20 +101,25 @@ public class DashboardSummaryController : ControllerBase
     }
 
     [HttpGet("staff/{staffId}")]
-    public async Task<ActionResult<IEnumerable<DashboardSummaryDTO>>> GetDashboardSummariesByStaffId(int staffId)
+    public async Task<
+        ActionResult<IEnumerable<DashboardSummaryDTO>>
+    > GetDashboardSummariesByStaffId(int staffId)
     {
         var summaries = await _dashboardSummaryService.GetDashboardSummariesByStaffIdAsync(staffId);
         return Ok(_mapper.Map<IEnumerable<DashboardSummaryDTO>>(summaries));
     }
 
     [HttpGet("daterange")]
-    public async Task<ActionResult<IEnumerable<DashboardSummaryDTO>>> GetDashboardSummariesByDateRange(
-        [FromQuery] DateTime startDate,
-        [FromQuery] DateTime endDate)
+    public async Task<
+        ActionResult<IEnumerable<DashboardSummaryDTO>>
+    > GetDashboardSummariesByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
         try
         {
-            var summaries = await _dashboardSummaryService.GetDashboardSummariesByDateRangeAsync(startDate, endDate);
+            var summaries = await _dashboardSummaryService.GetDashboardSummariesByDateRangeAsync(
+                startDate,
+                endDate
+            );
             return Ok(_mapper.Map<IEnumerable<DashboardSummaryDTO>>(summaries));
         }
         catch (InvalidOperationException ex)
@@ -130,11 +145,12 @@ public class DashboardSummaryController : ControllerBase
             return File(
                 excelBytes,
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                fileName);
+                fileName
+            );
         }
         catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);
         }
     }
-} 
+}

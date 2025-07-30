@@ -24,13 +24,13 @@ public partial class Notification
 
     // Target recipient information
     public int? ParentId { get; set; }
-    
+
     [StringLength(20)]
     public string? StudentCode { get; set; }
 
     // Source information
     public int? StaffId { get; set; }
-    
+
     public int? HealthEventId { get; set; }
 
     // Status and priority
@@ -55,4 +55,4 @@ public partial class Notification
     public virtual Student? Student { get; set; }
     public virtual Staff? Staff { get; set; }
     public virtual HealthEvent? HealthEvent { get; set; }
-} 
+}

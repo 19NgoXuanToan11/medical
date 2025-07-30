@@ -24,7 +24,7 @@ import {
   formatDateTime,
   formatDateWithContext,
   formatDuration,
-  formatRelativeTime
+  formatRelativeTime,
 } from "../../../utils/timeUtils";
 
 const StudentHealthRecords = () => {

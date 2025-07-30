@@ -21,7 +21,8 @@ public static class MedicineRequestDto
         public StudentDto.ViewModel? Student { get; set; }
         public ParentDto.ViewModel? Parent { get; set; }
         public StaffDto.ViewModel? Staff { get; set; }
-        public ICollection<MedicineRequestItemDto.ViewModel> MedicineRequestItems { get; set; } = new List<MedicineRequestItemDto.ViewModel>();
+        public ICollection<MedicineRequestItemDto.ViewModel> MedicineRequestItems { get; set; } =
+            new List<MedicineRequestItemDto.ViewModel>();
     }
 
     public class Create
@@ -39,7 +40,8 @@ public static class MedicineRequestDto
 
         public DateOnly Date { get; set; }
 
-        public ICollection<MedicineRequestItemDto.Create> MedicineRequestItems { get; set; } = new List<MedicineRequestItemDto.Create>();
+        public ICollection<MedicineRequestItemDto.Create> MedicineRequestItems { get; set; } =
+            new List<MedicineRequestItemDto.Create>();
     }
 
     public class Update
@@ -93,6 +95,7 @@ public static class MedicineRequestItemDto
         public string? TimeOfDay { get; set; }
         public string? Instructions { get; set; }
         public string? Period { get; set; } // e.g., 'Morning', 'Lunch', 'Afternoon'
+
         [JsonIgnore]
         public string VerificationStatus { get; set; } = "Pending"; // 'Pending', 'Verified', 'Refused'
         public Dictionary<string, object>? PeriodVerificationStatus { get; set; } // period => status or object
@@ -175,4 +178,4 @@ public class ReportFailureDto
     public int StaffId { get; set; }
     public string FailureReason { get; set; } = null!;
     public string? Notes { get; set; }
-} 
+}

@@ -1,6 +1,6 @@
 using DB;
-using Repo;
 using OfficeOpenXml;
+using Repo;
 
 namespace Service;
 
@@ -11,7 +11,8 @@ public class DashboardSummaryService : IDashboardSummaryService
 
     public DashboardSummaryService(
         IDashboardSummaryRepository dashboardSummaryRepository,
-        IStaffRepository staffRepository)
+        IStaffRepository staffRepository
+    )
     {
         _dashboardSummaryRepository = dashboardSummaryRepository;
         _staffRepository = staffRepository;
@@ -27,7 +28,9 @@ public class DashboardSummaryService : IDashboardSummaryService
         return await _dashboardSummaryRepository.GetDashboardSummaryByIdAsync(id);
     }
 
-    public async Task<DashboardSummary?> CreateDashboardSummaryAsync(DashboardSummary dashboardSummary)
+    public async Task<DashboardSummary?> CreateDashboardSummaryAsync(
+        DashboardSummary dashboardSummary
+    )
     {
         // Validate StaffId
         if (!dashboardSummary.StaffId.HasValue)
@@ -65,7 +68,9 @@ public class DashboardSummaryService : IDashboardSummaryService
     public async Task<bool> UpdateDashboardSummaryAsync(DashboardSummary dashboardSummary)
     {
         // Validate that the summary exists
-        var existingSummary = await _dashboardSummaryRepository.GetDashboardSummaryByIdAsync(dashboardSummary.SummaryId);
+        var existingSummary = await _dashboardSummaryRepository.GetDashboardSummaryByIdAsync(
+            dashboardSummary.SummaryId
+        );
         if (existingSummary == null)
         {
             return false;
@@ -91,19 +96,27 @@ public class DashboardSummaryService : IDashboardSummaryService
         return await _dashboardSummaryRepository.DeleteDashboardSummaryAsync(id);
     }
 
-    public async Task<IEnumerable<DashboardSummary>> GetDashboardSummariesByStaffIdAsync(int staffId)
+    public async Task<IEnumerable<DashboardSummary>> GetDashboardSummariesByStaffIdAsync(
+        int staffId
+    )
     {
         return await _dashboardSummaryRepository.GetDashboardSummariesByStaffIdAsync(staffId);
     }
 
-    public async Task<IEnumerable<DashboardSummary>> GetDashboardSummariesByDateRangeAsync(DateTime startDate, DateTime endDate)
+    public async Task<IEnumerable<DashboardSummary>> GetDashboardSummariesByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate
+    )
     {
         if (startDate > endDate)
         {
             throw new InvalidOperationException("Start date must be before end date");
         }
 
-        return await _dashboardSummaryRepository.GetDashboardSummariesByDateRangeAsync(startDate, endDate);
+        return await _dashboardSummaryRepository.GetDashboardSummariesByDateRangeAsync(
+            startDate,
+            endDate
+        );
     }
 
     public async Task<byte[]> ExportDashboardSummaryToExcelAsync(int id)
@@ -168,4 +181,4 @@ public class DashboardSummaryService : IDashboardSummaryService
 
         return await package.GetAsByteArrayAsync();
     }
-} 
+}

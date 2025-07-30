@@ -64,4 +64,4 @@ public static class AppointmentDto
         public string? Status { get; set; }
         public string? Notes { get; set; }
     }
-} 
+}

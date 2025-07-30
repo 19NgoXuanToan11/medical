@@ -10,4 +10,4 @@ public interface IRoleService
     Task<bool> UpdateRoleAsync(Role role);
     Task<bool> DeleteRoleAsync(int id);
     Task<Role?> GetRoleByNameAsync(string roleName);
-} 
+}

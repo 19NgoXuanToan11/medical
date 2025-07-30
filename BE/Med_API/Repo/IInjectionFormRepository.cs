@@ -17,8 +17,15 @@ public interface IInjectionFormRepository
     Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesAsync();
     Task<InjectionForm?> GetVaccinationScheduleByIdAsync(int id);
     Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByStatusAsync(string status);
-    Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByDateRangeAsync(DateTime startDate, DateTime endDate);
+    Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate
+    );
     Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByGradeAsync(string gradeId);
     Task<IEnumerable<InjectionForm>> GetVaccinationSchedulesByVaccineAsync(int vaccineId);
-    Task<bool> HasScheduleConflictAsync(DateTime scheduledDate, TimeSpan startTime, string location);
-} 
+    Task<bool> HasScheduleConflictAsync(
+        DateTime scheduledDate,
+        TimeSpan startTime,
+        string location
+    );
+}

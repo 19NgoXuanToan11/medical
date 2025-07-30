@@ -44,7 +44,7 @@ public static class StudentDto
         public int HealthProfileCount { get; set; }
         public int HealthEventCount { get; set; }
         public int ParentCount { get; set; }
-        
+
         // Navigation properties - using simplified DTOs to avoid circular references
         public ICollection<ParentSummary>? Parents { get; set; }
         public ICollection<StudentParentDto.ViewModel>? StudentParents { get; set; }
@@ -70,17 +70,26 @@ public static class StudentDto
     {
         [Required]
         [StringLength(20)]
-        [RegularExpression(@"^[A-Za-z0-9]+$", ErrorMessage = "Student code can only contain letters and numbers")]
+        [RegularExpression(
+            @"^[A-Za-z0-9]+$",
+            ErrorMessage = "Student code can only contain letters and numbers"
+        )]
         public string StudentCode { get; set; } = null!;
 
         [Required]
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "First name can only contain letters and spaces"
+        )]
         public string FirstName { get; set; } = null!;
 
         [Required]
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Last name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "Last name can only contain letters and spaces"
+        )]
         public string LastName { get; set; } = null!;
 
         [Required]
@@ -106,8 +115,10 @@ public static class StudentDto
 
         [Required]
         [StringLength(255, MinimumLength = 6)]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$", 
-            ErrorMessage = "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character")]
+        [RegularExpression(
+            @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$",
+            ErrorMessage = "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character"
+        )]
         public string Password { get; set; } = null!;
 
         public bool IsActive { get; set; } = true;
@@ -119,15 +130,24 @@ public static class StudentDto
         public int StudentId { get; set; }
 
         [StringLength(20)]
-        [RegularExpression(@"^[A-Za-z0-9]+$", ErrorMessage = "Student code can only contain letters and numbers")]
+        [RegularExpression(
+            @"^[A-Za-z0-9]+$",
+            ErrorMessage = "Student code can only contain letters and numbers"
+        )]
         public string? StudentCode { get; set; }
 
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "First name can only contain letters and spaces"
+        )]
         public string? FirstName { get; set; }
 
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Last name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "Last name can only contain letters and spaces"
+        )]
         public string? LastName { get; set; }
 
         [DataType(DataType.Date)]
@@ -149,4 +169,4 @@ public static class StudentDto
 
         public bool? IsActive { get; set; }
     }
-} 
+}

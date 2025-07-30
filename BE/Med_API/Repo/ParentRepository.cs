@@ -14,12 +14,12 @@ public class ParentRepository : IParentRepository
 
     public async Task<IEnumerable<Parent>> GetAllParentsAsync()
     {
-        return await _context.Parents
-            .Include(p => p.StudentParents)
-                .ThenInclude(sp => sp.Student)
-                    .ThenInclude(s => s.Class)
+        return await _context
+            .Parents.Include(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
+            .ThenInclude(s => s.Class)
             .Include(p => p.Students)
-                .ThenInclude(s => s.Class)
+            .ThenInclude(s => s.Class)
             .Include(p => p.MedicineRequests)
             .Include(p => p.InjectionForms)
             .ToListAsync();
@@ -27,12 +27,12 @@ public class ParentRepository : IParentRepository
 
     public async Task<Parent?> GetParentByIdAsync(int id)
     {
-        return await _context.Parents
-            .Include(p => p.StudentParents)
-                .ThenInclude(sp => sp.Student)
-                    .ThenInclude(s => s.Class)
+        return await _context
+            .Parents.Include(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
+            .ThenInclude(s => s.Class)
             .Include(p => p.Students)
-                .ThenInclude(s => s.Class)
+            .ThenInclude(s => s.Class)
             .Include(p => p.MedicineRequests)
             .Include(p => p.InjectionForms)
             .FirstOrDefaultAsync(p => p.ParentId == id);
@@ -73,8 +73,8 @@ public class ParentRepository : IParentRepository
 
     public async Task<bool> DeleteParentAsync(int id)
     {
-        var parent = await _context.Parents
-            .Include(p => p.StudentParents)
+        var parent = await _context
+            .Parents.Include(p => p.StudentParents)
             .Include(p => p.Students)
             .Include(p => p.MedicineRequests)
             .Include(p => p.InjectionForms)
@@ -86,7 +86,11 @@ public class ParentRepository : IParentRepository
         }
 
         // Check if parent has any associated records
-        if (parent.StudentParents.Any() || parent.MedicineRequests.Any() || parent.InjectionForms.Any())
+        if (
+            parent.StudentParents.Any()
+            || parent.MedicineRequests.Any()
+            || parent.InjectionForms.Any()
+        )
         {
             return false; // Parent has associated records, cannot delete
         }
@@ -98,12 +102,12 @@ public class ParentRepository : IParentRepository
 
     public async Task<Parent?> GetParentByEmailAsync(string email)
     {
-        return await _context.Parents
-            .Include(p => p.StudentParents)
-                .ThenInclude(sp => sp.Student)
-                    .ThenInclude(s => s.Class)
+        return await _context
+            .Parents.Include(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
+            .ThenInclude(s => s.Class)
             .Include(p => p.Students)
-                .ThenInclude(s => s.Class)
+            .ThenInclude(s => s.Class)
             .Include(p => p.MedicineRequests)
             .Include(p => p.InjectionForms)
             .FirstOrDefaultAsync(p => p.Email == email);
@@ -111,8 +115,8 @@ public class ParentRepository : IParentRepository
 
     public async Task<Parent?> GetParentByPhoneAsync(string phone)
     {
-        return await _context.Parents
-            .Include(p => p.StudentParents)
+        return await _context
+            .Parents.Include(p => p.StudentParents)
             // .ThenInclude(sp => sp.Student)
             .Include(p => p.Students)
             .Include(p => p.MedicineRequests)
@@ -122,20 +126,22 @@ public class ParentRepository : IParentRepository
 
     public async Task<IEnumerable<DB.MedicineRequest>> GetMedicineRequestProgressAsync(int parentId)
     {
-        return await _context.MedicineRequests
-            .Where(r => r.ParentId == parentId)
+        return await _context
+            .MedicineRequests.Where(r => r.ParentId == parentId)
             .Include(r => r.Student)
             .Include(r => r.Parent) // Ensure parent is included
-            .Include(r => r.Staff)  // Ensure staff is included
+            .Include(r => r.Staff) // Ensure staff is included
             .Include(r => r.MedicineRequestItems)
             .Include(r => r.RequestResults)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<DB.MedicineRequest>> GetRefusedMedicineRequestsByParentIdAsync(int parentId)
+    public async Task<IEnumerable<DB.MedicineRequest>> GetRefusedMedicineRequestsByParentIdAsync(
+        int parentId
+    )
     {
-        return await _context.MedicineRequests
-            .Where(r => r.ParentId == parentId && r.Status == "Refused")
+        return await _context
+            .MedicineRequests.Where(r => r.ParentId == parentId && r.Status == "Refused")
             .Include(r => r.Student)
             .ThenInclude(s => s.Class)
             .Include(r => r.Parent)
@@ -146,11 +152,15 @@ public class ParentRepository : IParentRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<DB.MedicineRequest>> GetFailedMedicineRequestsByParentIdAsync(int parentId)
+    public async Task<IEnumerable<DB.MedicineRequest>> GetFailedMedicineRequestsByParentIdAsync(
+        int parentId
+    )
     {
         // Only return requests where the main status is Failed or Partially Failed
-        return await _context.MedicineRequests
-        .Where(r => r.ParentId == parentId && (r.Status == "Failed" || r.Status == "Partially Failed"))
+        return await _context
+            .MedicineRequests.Where(r =>
+                r.ParentId == parentId && (r.Status == "Failed" || r.Status == "Partially Failed")
+            )
             .Include(r => r.Student)
             .ThenInclude(s => s.Class)
             .Include(r => r.Parent)
@@ -161,19 +171,25 @@ public class ParentRepository : IParentRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<RequestResult>> GetFailedRequestResultsByParentIdAsync(int parentId)
+    public async Task<IEnumerable<RequestResult>> GetFailedRequestResultsByParentIdAsync(
+        int parentId
+    )
     {
-        return await _context.RequestResults
+        return await _context
+            .RequestResults.Include(r => r.Request)
+            .ThenInclude(rq => rq.Student)
+            .ThenInclude(s => s.Class)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Student)
-                    .ThenInclude(s => s.Class)
+            .ThenInclude(rq => rq.Parent)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.Parent)
+            .ThenInclude(rq => rq.MedicineRequestItems)
             .Include(r => r.Request)
-                .ThenInclude(rq => rq.MedicineRequestItems)
-            .Include(r => r.Request)
-                .ThenInclude(rq => rq.Staff)
-            .Where(r => (r.Status == "Failed" || r.Status == "Partially Failed") && r.Request.ParentId == parentId)
-            .OrderByDescending(r => r.SubmittedAt).ToListAsync();
+            .ThenInclude(rq => rq.Staff)
+            .Where(r =>
+                (r.Status == "Failed" || r.Status == "Partially Failed")
+                && r.Request.ParentId == parentId
+            )
+            .OrderByDescending(r => r.SubmittedAt)
+            .ToListAsync();
     }
-} 
+}

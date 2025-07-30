@@ -18,7 +18,7 @@ public static class ParentDto
         public bool? IsEmergencyContact { get; set; }
         public bool? IsMainContact { get; set; }
         public bool? IsActive { get; set; }
-        
+
         // Navigation properties - using simplified DTOs to avoid circular references
         public ICollection<StudentSummary>? Students { get; set; }
         public ICollection<StudentParentDto.ViewModel>? StudentParents { get; set; }
@@ -43,12 +43,18 @@ public static class ParentDto
 
         [Required]
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "First name can only contain letters and spaces"
+        )]
         public string FirstName { get; set; } = null!;
 
         [Required]
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Last name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "Last name can only contain letters and spaces"
+        )]
         public string LastName { get; set; } = null!;
 
         [Required]
@@ -72,8 +78,10 @@ public static class ParentDto
 
         [Required]
         [StringLength(255, MinimumLength = 6)]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$", 
-            ErrorMessage = "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character")]
+        [RegularExpression(
+            @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$",
+            ErrorMessage = "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character"
+        )]
         public string Password { get; set; } = null!;
 
         public bool? IsEmergencyContact { get; set; }
@@ -91,11 +99,17 @@ public static class ParentDto
         public string StudentCode { get; set; } = null!;
 
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "First name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "First name can only contain letters and spaces"
+        )]
         public string? FirstName { get; set; }
 
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Last name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "Last name can only contain letters and spaces"
+        )]
         public string? LastName { get; set; }
 
         [StringLength(20)]
@@ -129,7 +143,7 @@ public static class ParentDto
         public DateOnly Date { get; set; }
         public string? Status { get; set; }
         public DateTime? RequestDate { get; set; }
-        
+
         // Add medicine items
         public ICollection<MedicineRequestItemProgress>? MedicineItems { get; set; }
     }
@@ -152,15 +166,16 @@ public static class ParentDto
         public int TotalHealthEvents { get; set; }
         public int TotalHealthChecks { get; set; }
         public int TotalMedicineRequests { get; set; }
-        
+
         // Breakdown by status
         public VaccinationStats VaccinationBreakdown { get; set; } = new();
         public HealthEventStats HealthEventBreakdown { get; set; } = new();
         public HealthCheckStats HealthCheckBreakdown { get; set; } = new();
         public MedicineRequestStats MedicineRequestBreakdown { get; set; } = new();
-        
+
         // Children details
-        public ICollection<ChildStatistic> ChildrenDetails { get; set; } = new List<ChildStatistic>();
+        public ICollection<ChildStatistic> ChildrenDetails { get; set; } =
+            new List<ChildStatistic>();
     }
 
     public class VaccinationStats
@@ -210,4 +225,4 @@ public static class ParentDto
         public DateTime? LastHealthCheck { get; set; }
         public DateTime? LastHealthEvent { get; set; }
     }
-} 
+}

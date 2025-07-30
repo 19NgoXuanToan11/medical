@@ -8,4 +8,4 @@ public class GradeNurse
     public int StaffId { get; set; } // nurse
     public int Grade { get; set; } // 1-5
     public virtual Staff Nurse { get; set; } = null!;
-} 
+}
