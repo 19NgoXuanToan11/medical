@@ -46,6 +46,7 @@ const VaccineSelectionStep = ({
     (vaccine) =>
       vaccine.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vaccine.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vaccine.diseaseType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vaccine.type?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -63,6 +64,7 @@ const VaccineSelectionStep = ({
       administrationMethod: vaccine.administrationMethod,
       batchNumber: vaccine.batchNumber,
       expiryDate: vaccine.expiryDate,
+      diseaseType: vaccine.diseaseType,
     });
   };
 
@@ -97,7 +99,7 @@ const VaccineSelectionStep = ({
         <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
         <input
           type="text"
-          placeholder="Tìm kiếm vaccine theo tên, nhà sản xuất..."
+          placeholder="Tìm kiếm vaccine theo tên, nhà sản xuất, loại bệnh..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-10 pr-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg 
@@ -130,6 +132,9 @@ const VaccineSelectionStep = ({
               <p className="font-medium">{formData.vaccineInfo.name}</p>
               <p>Nhà sản xuất: {formData.vaccineInfo.manufacturer}</p>
               <p>Liều lượng: {formData.vaccineInfo.dose}</p>
+              {formData.vaccineInfo.diseaseType && (
+                <p>Phòng bệnh: {formData.vaccineInfo.diseaseType}</p>
+              )}
             </div>
           )}
         </div>
@@ -175,6 +180,15 @@ const VaccineSelectionStep = ({
                         <FiCheck className="w-5 h-5 text-primary-600 dark:text-primary-400 ml-2" />
                       )}
                     </div>
+
+                    {/* Disease Type */}
+                    {vaccine.diseaseType && (
+                      <div className="mb-3">
+                        <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                          Phòng bệnh: {vaccine.diseaseType}
+                        </span>
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-4 text-sm text-neutral-600 dark:text-neutral-400">
                       <div>

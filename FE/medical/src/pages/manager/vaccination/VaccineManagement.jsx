@@ -17,6 +17,7 @@ import {
 } from "react-icons/fi";
 import { vaccineService } from "../../../utils/api/vaccination/vaccinationService";
 
+
 const VaccineManagement = () => {
   const [vaccines, setVaccines] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +35,7 @@ const VaccineManagement = () => {
     dose: "",
     administrationMethod: "",
     description: "",
+    diseaseType: "",
     isActive: true,
   });
   const [formErrors, setFormErrors] = useState({});
@@ -93,7 +95,8 @@ const VaccineManagement = () => {
     const matchesSearch =
       vaccine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vaccine.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vaccine.batchNumber?.toLowerCase().includes(searchTerm.toLowerCase());
+      vaccine.batchNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vaccine.diseaseType?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" ||
@@ -113,6 +116,7 @@ const VaccineManagement = () => {
       dose: "",
       administrationMethod: "",
       description: "",
+      diseaseType: "",
       isActive: true,
     });
     setFormErrors({});
@@ -242,6 +246,7 @@ const VaccineManagement = () => {
       dose: vaccine.dose || "",
       administrationMethod: vaccine.administrationMethod || "",
       description: vaccine.description || "",
+      diseaseType: vaccine.diseaseType || "",
       isActive: vaccine.isActive,
     });
     setShowEditModal(true);
@@ -370,7 +375,7 @@ const VaccineManagement = () => {
               <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
-                placeholder="Tìm kiếm vaccine..."
+                placeholder="Tìm kiếm vaccine theo tên, nhà sản xuất, loại bệnh..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
@@ -425,6 +430,9 @@ const VaccineManagement = () => {
                   Liều lượng
                 </th>
                 <th className="text-left py-4 px-6 font-medium text-gray-700 dark:text-gray-300">
+                  Loại bệnh
+                </th>
+                <th className="text-left py-4 px-6 font-medium text-gray-700 dark:text-gray-300">
                   Hạn sử dụng
                 </th>
                 <th className="text-left py-4 px-6 font-medium text-gray-700 dark:text-gray-300">
@@ -439,7 +447,7 @@ const VaccineManagement = () => {
               {filteredVaccines.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="8"
                     className="py-8 text-center text-gray-500 dark:text-gray-400"
                   >
                     <FiPackage className="mx-auto h-12 w-12 text-gray-400 mb-4" />
@@ -472,6 +480,9 @@ const VaccineManagement = () => {
                     </td>
                     <td className="py-4 px-6 text-gray-600 dark:text-gray-400">
                       {vaccine.dose || "—"}
+                    </td>
+                    <td className="py-4 px-6 text-gray-600 dark:text-gray-400">
+                      {vaccine.diseaseType || "—"}
                     </td>
                     <td className="py-4 px-6">
                       {vaccine.expiryDate ? (
@@ -699,6 +710,30 @@ const VaccineManagement = () => {
                     </p>
                   )}
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Loại bệnh phòng ngừa
+                </label>
+                <input
+                  type="text"
+                  value={formData.diseaseType}
+                  onChange={(e) =>
+                    setFormData({ ...formData, diseaseType: e.target.value })
+                  }
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 ${
+                    formErrors.diseaseType
+                      ? "border-red-500"
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}
+                  placeholder="VD: Sởi, Rubella, Viêm gan B, Cúm..."
+                />
+                {formErrors.diseaseType && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {formErrors.diseaseType}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -935,6 +970,30 @@ const VaccineManagement = () => {
                     </p>
                   )}
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Loại bệnh phòng ngừa
+                </label>
+                <input
+                  type="text"
+                  value={formData.diseaseType}
+                  onChange={(e) =>
+                    setFormData({ ...formData, diseaseType: e.target.value })
+                  }
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100 ${
+                    formErrors.diseaseType
+                      ? "border-red-500"
+                      : "border-gray-300 dark:border-gray-600"
+                  }`}
+                  placeholder="VD: Sởi, Rubella, Viêm gan B, Cúm..."
+                />
+                {formErrors.diseaseType && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {formErrors.diseaseType}
+                  </p>
+                )}
               </div>
 
               <div>
