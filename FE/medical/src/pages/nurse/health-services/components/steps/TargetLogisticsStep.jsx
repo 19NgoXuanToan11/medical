@@ -174,7 +174,16 @@ const TargetLogisticsStep = ({
                       {grade.name}
                     </h4>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                      {studentCountsByGrade[grade.id] ?? 0} học sinh
+                      {(() => {
+                        const classesInGrade = assignedClasses.filter(
+                          (cls) => `${cls.gradeLevel}` === `${grade.gradeLevel}`
+                        );
+                        const totalStudents = classesInGrade.reduce(
+                          (classSum, cls) => classSum + (cls.students?.length || 0),
+                          0
+                        );
+                        return totalStudents;
+                      })()} học sinh
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       Lớp:{" "}
@@ -236,11 +245,19 @@ const TargetLogisticsStep = ({
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                  {formData.targetGrades.reduce(
-                    (sum, gradeId) =>
-                      sum + (studentCountsByGrade[gradeId] ?? 0),
-                    0
-                  )}
+                  {formData.targetGrades.reduce((sum, gradeId) => {
+                    const grade = availableGrades.find((g) => g.id === gradeId);
+                    if (!grade) return sum;
+                    // Đếm học sinh từ assignedClasses thay vì studentCountsByGrade
+                    const classesInGrade = assignedClasses.filter(
+                      (cls) => `${cls.gradeLevel}` === `${grade.gradeLevel}`
+                    );
+                    const totalStudents = classesInGrade.reduce(
+                      (classSum, cls) => classSum + (cls.students?.length || 0),
+                      0
+                    );
+                    return sum + totalStudents;
+                  }, 0)}
                 </p>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400">
                   Học sinh
@@ -284,7 +301,16 @@ const TargetLogisticsStep = ({
                           {grade.name}
                         </span>
                         <span className="text-xs text-neutral-600 dark:text-neutral-400">
-                          {studentCountsByGrade[gradeId] ?? 0} học sinh
+                          {(() => {
+                            const classesInGrade = assignedClasses.filter(
+                              (cls) => `${cls.gradeLevel}` === `${grade.gradeLevel}`
+                            );
+                            const totalStudents = classesInGrade.reduce(
+                              (classSum, cls) => classSum + (cls.students?.length || 0),
+                              0
+                            );
+                            return totalStudents;
+                          })()} học sinh
                         </span>
                       </div>
                       {expandedGrades[gradeId] && (

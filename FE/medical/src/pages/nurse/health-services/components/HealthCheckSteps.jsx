@@ -21,10 +21,6 @@ export const StepIndicator = ({ currentStep, onStepClick }) => {
       case 1:
         return <FiUser />;
       case 2:
-        return <FiClipboard />;
-      case 3:
-        return <FiUsers />;
-      case 4:
         return <FiEye />;
       default:
         return <FiUser />;
@@ -136,7 +132,7 @@ export const NavigationControls = ({
   isEditMode = false,
 }) => {
   const isFirstStep = currentStep === 1;
-  const isLastStep = currentStep === 4;
+  const isLastStep = currentStep === 2; // Changed from 3 to 2
 
   return (
     <div className="flex items-center justify-between">
@@ -189,7 +185,7 @@ export const NavigationControls = ({
             ) : (
               <>
                 <FiCheck className="w-4 h-4 mr-2" />
-                {isEditMode ? "Cập nhật & Gửi lại" : "Gửi kế hoạch"}
+                {isEditMode ? "Cập nhật & Gửi lại" : "Gửi lịch"}
               </>
             )}
           </button>

@@ -20,10 +20,10 @@ const BasicInfoStep = ({
     });
   };
 
-  // Get minimum date (1 week from now)
+  // Get minimum date (3 days from now)
   const getMinDate = () => {
     const minDate = new Date();
-    minDate.setDate(minDate.getDate() + 7); // 7 days from today
+    minDate.setDate(minDate.getDate() + 3); // 3 days from today
     return minDate.toISOString().split("T")[0];
   };
 
@@ -138,6 +138,9 @@ const BasicInfoStep = ({
             <div>
               <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Ngày thực hiện *
+                <span className="text-xs text-neutral-500 dark:text-neutral-400 ml-1">
+                  (Tối thiểu 1 tuần sau hôm nay)
+                </span>
               </label>
               <input
                 type="date"

@@ -65,16 +65,22 @@ export const transformParentMedicationData = (requests) => {
       studentCode: req.studentCode,
       class: req.className,
       medicationName: req.medicineName || firstMedicine.medicineName || "N/A", // Keep for backward compatibility
-      medicationNames: req.medicineName ? [req.medicineName] : allMedicationNames, // Array of all medication names
-      medicationDisplay: req.medicineName ? [req.medicineName] : medicationDisplay, // For easy display in components
+      medicationNames: req.medicineName
+        ? [req.medicineName]
+        : allMedicationNames, // Array of all medication names
+      medicationDisplay: req.medicineName
+        ? [req.medicineName]
+        : medicationDisplay, // For easy display in components
       medicationCount: req.medicineName ? 1 : medicineItems.length, // Number of medications in this request
       requestDate: req.requestDate
         ? new Date(req.requestDate).toISOString().split("T")[0]
         : req.timestamp
         ? new Date(req.timestamp).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0],
-      startDate: req.date || req.timestamp || new Date().toISOString().split("T")[0],
-      endDate: req.date || req.timestamp || new Date().toISOString().split("T")[0], // Using same date as start for now
+      startDate:
+        req.date || req.timestamp || new Date().toISOString().split("T")[0],
+      endDate:
+        req.date || req.timestamp || new Date().toISOString().split("T")[0], // Using same date as start for now
       status: getUIStatus(req.status),
       dosage: req.dosage || firstMedicine.dosage || "N/A",
       dosageUnit: req.dosageUnit || firstMedicine.dosageUnit || "viên",
@@ -162,11 +168,11 @@ export const getStatusBadge = (status) => {
           "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 ring-1 ring-green-600/20 dark:ring-green-400/20",
         text: "Đã hoàn thành",
       };
-    case "confirmed":
+    case "pending":
       return {
         className:
-          "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 ring-1 ring-purple-600/20 dark:ring-purple-400/20",
-        text: "Đã xác nhận",
+          "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 ring-1 ring-yellow-600/20 dark:ring-yellow-400/20",
+        text: "Chờ xác nhận",
       };
     case "rejected":
       return {
@@ -189,166 +195,10 @@ export const getStatusBadge = (status) => {
   }
 };
 
-// Helper function to normalize verifiedStatus keys
-export const normalizeVerifiedStatus = (verifiedStatus) => {
-  if (!verifiedStatus || typeof verifiedStatus !== "object") {
-    return {};
-  }
-
-  const normalized = {};
-
-  // Helper function to capitalize first letter
-  const capitalizeFirst = (str) => {
-    if (!str || typeof str !== "string") return str;
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-  };
-
-  // Process each key-value pair
-  Object.entries(verifiedStatus).forEach(([key, value]) => {
-    const normalizedKey = capitalizeFirst(key);
-
-    // If key already exists, prioritize the object/array version over string version
-    if (normalizedKey in normalized) {
-      // If current value is an array and existing value is a string, keep the array
-      if (
-        Array.isArray(value) &&
-        typeof normalized[normalizedKey] === "string"
-      ) {
-        normalized[normalizedKey] = value;
-      }
-      // If current value is an object and existing value is a string, keep the object
-      else if (
-        typeof value === "object" &&
-        value !== null &&
-        !Array.isArray(value) &&
-        typeof normalized[normalizedKey] === "string"
-      ) {
-        normalized[normalizedKey] = value;
-      }
-      // If both are objects (not arrays), merge them (object takes precedence)
-      else if (
-        typeof value === "object" &&
-        value !== null &&
-        !Array.isArray(value) &&
-        typeof normalized[normalizedKey] === "object" &&
-        !Array.isArray(normalized[normalizedKey])
-      ) {
-        normalized[normalizedKey] = { ...normalized[normalizedKey], ...value };
-      }
-      // If both are arrays, keep the current one (more recent)
-      else if (
-        Array.isArray(value) &&
-        Array.isArray(normalized[normalizedKey])
-      ) {
-        normalized[normalizedKey] = value;
-      }
-      // If both are strings, keep the one that's not "Pending"
-      else if (
-        typeof value === "string" &&
-        typeof normalized[normalizedKey] === "string"
-      ) {
-        if (value !== "Pending" && normalized[normalizedKey] === "Pending") {
-          normalized[normalizedKey] = value;
-        }
-      }
-    } else {
-      normalized[normalizedKey] = value;
-    }
-  });
-
-  return normalized;
-};
-
-// Helper function to determine medication status based on verifiedStatus
-export const getMedicationStatusFromVerifiedStatus = (medicineItems) => {
-  if (!medicineItems || medicineItems.length === 0) {
-    return "confirmed";
-  }
-
-  let hasConfirmed = false;
-  let hasActive = false;
-  let hasCompleted = false;
-  let hasRejected = false;
-  let hasFailed = false;
-
-  medicineItems.forEach((item) => {
-    // Normalize the verifiedStatus to remove duplicates and standardize keys
-    const normalizedVerifiedStatus = normalizeVerifiedStatus(
-      item.verifiedStatus || {}
-    );
-
-    // Check each time period in normalized verifiedStatus
-    Object.values(normalizedVerifiedStatus).forEach((status) => {
-      let statusStr = "";
-
-      // Handle different status formats
-      if (typeof status === "string") {
-        statusStr = status.toLowerCase();
-      } else if (Array.isArray(status)) {
-        // Handle array format like [{ Status: "Assigned", StaffId: 11, Timestamp: "..." }]
-        if (status.length > 0) {
-          const firstItem = status[0];
-          if (typeof firstItem === "object" && firstItem !== null) {
-            if (firstItem.Status) {
-              statusStr = firstItem.Status.toLowerCase();
-            } else if (firstItem.status) {
-              statusStr = firstItem.status.toLowerCase();
-            }
-          }
-        }
-      } else if (typeof status === "object" && status !== null) {
-        // Handle object format like { Status: "Verified", StaffId: 11, Timestamp: "..." }
-        if (status.Status) {
-          statusStr = status.Status.toLowerCase();
-        } else if (status.status) {
-          statusStr = status.status.toLowerCase();
-        } else {
-          // If no Status property, try to convert to string
-          statusStr = String(status).toLowerCase();
-        }
-      } else {
-        statusStr = String(status).toLowerCase();
-      }
-
-      switch (statusStr) {
-        case "verified":
-        case "confirmed":
-          hasConfirmed = true;
-          break;
-        case "assigned":
-        case "in_progress":
-        case "administering":
-          hasActive = true;
-          break;
-        case "completed":
-        case "done":
-          hasCompleted = true;
-          break;
-        case "rejected":
-        case "refused":
-          hasRejected = true;
-          break;
-        case "failed":
-          hasFailed = true;
-          break;
-      }
-    });
-  });
-
-  // Priority order: failed > rejected > completed > active > confirmed
-  if (hasFailed) return "failed";
-  if (hasRejected) return "rejected";
-  if (hasCompleted) return "completed";
-  if (hasActive) return "active";
-  if (hasConfirmed) return "confirmed";
-
-  return "confirmed"; // Default fallback
-};
-
-// Calculate medication statistics for dashboard based on verifiedStatus
+// Calculate medication statistics for dashboard
 export const calculateMedicationStats = (medications) => {
   const stats = {
-    confirmed: 0,
+    pending: 0,
     active: 0,
     completed: 0,
     rejected: 0,
@@ -357,12 +207,9 @@ export const calculateMedicationStats = (medications) => {
   };
 
   medications.forEach((med) => {
-    // Use verifiedStatus-based status instead of overall request status
-    const status = getMedicationStatusFromVerifiedStatus(med.medicineItems);
-
-    switch (status) {
-      case "confirmed":
-        stats.confirmed++;
+    switch (med.status) {
+      case "pending":
+        stats.pending++;
         break;
       case "active":
         stats.active++;
@@ -445,16 +292,10 @@ export const transformFailedMedicationData = (failedResults) => {
   });
 };
 
-// Filter medications by status and search term using verifiedStatus
+// Filter medications by status and search term
 export const filterMedications = (medications, filterStatus, searchTerm) => {
   return medications.filter((med) => {
-    // Use verifiedStatus-based status instead of overall request status
-    const medicationStatus = getMedicationStatusFromVerifiedStatus(
-      med.medicineItems
-    );
-    const matchesStatus =
-      filterStatus === "all" || medicationStatus === filterStatus;
-
+    const matchesStatus = filterStatus === "all" || med.status === filterStatus;
     const matchesSearch =
       med.medicationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (med.id && med.id.toLowerCase().includes(searchTerm.toLowerCase())) ||

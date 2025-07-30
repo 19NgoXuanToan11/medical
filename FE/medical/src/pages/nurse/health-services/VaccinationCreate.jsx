@@ -92,7 +92,7 @@ const VaccinationCreate = ({ onBack }) => {
     availableGrades,
     loadingGrades,
     gradesError,
-    studentCountsByGrade,
+
 
     // Calculated values
     totalStudents,
@@ -180,7 +180,7 @@ const VaccinationCreate = ({ onBack }) => {
 
         // Show detailed success message
         const successMessage = result.data
-          ? `✅ ${result.message}\n\nChi tiết:\n• Tổng số học sinh: ${result.data.totalStudents}\n• Kế hoạch đã được gửi để phê duyệt`
+          ? `✅ ${result.message}\n\nChi tiết:\n• Đã tạo ${result.data.totalFormsCreated} phiếu tiêm chủng\n• Tổng số học sinh: ${result.data.totalStudents}\n• Kế hoạch đã được gửi để phê duyệt`
           : `✅ ${result.message}`;
 
         alert(successMessage);
@@ -260,7 +260,7 @@ const VaccinationCreate = ({ onBack }) => {
             totalStudents={totalStudents}
             availableGrades={availableGrades}
             scheduleConflicts={scheduleConflicts}
-            studentCountsByGrade={studentCountsByGrade}
+
           />
         );
 

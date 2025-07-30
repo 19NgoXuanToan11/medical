@@ -196,10 +196,12 @@ export const uploadHealthCheckResults = async (healthCheckId, file) => {
     formData.append('file', file);
     formData.append('healthCheckId', healthCheckId);
 
-    const response = await fetch(`${API_BASE_URL}/api/HealthCheckForm/upload-results`, {
+    // Fix URL - remove duplicate path
+    const response = await fetch(`https://localhost:7111/api/HealthCheckForm/upload-results`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${getAuthToken()}`,
+        // Fix getAuthToken() - use localStorage directly
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
       body: formData,
     });
@@ -219,10 +221,12 @@ export const uploadHealthCheckResults = async (healthCheckId, file) => {
 // Download Excel template for health check results
 export const downloadHealthCheckTemplate = async (healthCheckId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/HealthCheckForm/download-template/${healthCheckId}`, {
+    // Fix URL - remove duplicate path
+    const response = await fetch(`https://localhost:7111/api/HealthCheckForm/download-template/${healthCheckId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${getAuthToken()}`,
+        // Fix getAuthToken() - use localStorage directly
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
     });
 
@@ -262,11 +266,13 @@ export const downloadHealthCheckTemplate = async (healthCheckId) => {
 // Mark health check as completed
 export const markHealthCheckCompleted = async (healthCheckId, resultData = null) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/HealthCheckForm/complete/${healthCheckId}`, {
+    // Fix URL - remove duplicate path
+    const response = await fetch(`https://localhost:7111/api/HealthCheckForm/complete/${healthCheckId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getAuthToken()}`,
+        // Fix getAuthToken() - use localStorage directly
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
       body: JSON.stringify({
         completedDate: new Date().toISOString(),

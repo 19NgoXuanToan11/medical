@@ -21,73 +21,6 @@ const BasicInfoHealthStep = ({
 }) => {
   return (
     <div className="space-y-8">
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-6 border border-neutral-200 dark:border-neutral-700">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <FiUsers className="h-8 w-8 text-primary-600 dark:text-primary-400" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Tổng học sinh
-              </p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {totalStudents}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-6 border border-neutral-200 dark:border-neutral-700">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <FiCalendar className="h-8 w-8 text-success-600 dark:text-success-400" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Số buổi khám
-              </p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {sessions}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-6 border border-neutral-200 dark:border-neutral-700">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <FiUsers className="h-8 w-8 text-warning-600 dark:text-warning-400" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Nhân viên y tế
-              </p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {resourceReqs.staffNeeded}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-6 border border-neutral-200 dark:border-neutral-700">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <FiClock className="h-8 w-8 text-info-600 dark:text-info-400" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Thời gian dự kiến
-              </p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {formatDuration(formData.estimatedDuration)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Form */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
         <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
@@ -133,7 +66,7 @@ const BasicInfoHealthStep = ({
                 onChange={(e) => onInputChange("scheduledDate", e.target.value)}
                 min={(() => {
                   const minDate = new Date();
-                  minDate.setDate(minDate.getDate() + 7); // 1 week from today
+                  minDate.setDate(minDate.getDate() + 3); // 3 days from today
                   return minDate.toISOString().split('T')[0];
                 })()}
                 className={`w-full px-3 py-2 border rounded-lg shadow-sm bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500 ${

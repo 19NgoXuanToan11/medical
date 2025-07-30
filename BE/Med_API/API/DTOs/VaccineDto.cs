@@ -14,6 +14,7 @@ public static class VaccineDto
         public string? Dose { get; set; }
         public string? AdministrationMethod { get; set; }
         public string? Description { get; set; }
+        public string? DiseaseType { get; set; }
         public bool? IsActive { get; set; }
     }
 
@@ -40,6 +41,9 @@ public static class VaccineDto
         [StringLength(500)]
         public string? Description { get; set; }
 
+        [StringLength(200)]
+        public string? DiseaseType { get; set; }
+
         public bool? IsActive { get; set; } = true;
     }
 
@@ -64,6 +68,9 @@ public static class VaccineDto
 
         [StringLength(500)]
         public string? Description { get; set; }
+
+        [StringLength(200)]
+        public string? DiseaseType { get; set; }
 
         public bool? IsActive { get; set; }
     }

@@ -41,6 +41,7 @@ export const useVaccinationForm = () => {
   const [loadingGrades, setLoadingGrades] = useState(true);
   const [gradesError, setGradesError] = useState(null);
   const [studentCountsByGrade, setStudentCountsByGrade] = useState({});
+  const [assignedClasses, setAssignedClasses] = useState([]); // Thêm state cho assignedClasses
 
   // Load assigned classes on component mount
   useEffect(() => {
@@ -52,6 +53,9 @@ export const useVaccinationForm = () => {
         const result = await staffService.getMyAssignedClasses();
 
         if (result?.success && result?.data && Array.isArray(result.data)) {
+          // Lưu assignedClasses gốc để tính toán
+          setAssignedClasses(result.data);
+          
           // Group classes by grade level similar to health check pattern
           const gradeGroups = {};
 
@@ -99,6 +103,7 @@ export const useVaccinationForm = () => {
         } else {
           console.warn("No assigned classes found for this nurse");
           setAvailableGrades([]);
+          setAssignedClasses([]);
         }
       } catch (error) {
         console.error("Error loading assigned classes:", error);
@@ -142,7 +147,8 @@ export const useVaccinationForm = () => {
   // Calculated values
   const totalStudents = calculateTotalStudents(
     formData.targetGrades,
-    availableGrades
+    availableGrades,
+    assignedClasses
   );
 
   // Check for schedule conflicts when date/time changes

@@ -17,9 +17,9 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Add auth token if available
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (user.token) {
-      config.headers.Authorization = `Bearer ${user.token}`;
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -50,12 +50,6 @@ export const injectionFormService = {
       }
 
       // Map vaccination data to InjectionForm schedule structure
-      const startTimeValue = vaccinationData.scheduledDateTime
-        ? new Date(vaccinationData.scheduledDateTime)
-            .toTimeString()
-            .split(" ")[0]
-        : "08:00:00";
-
       const vaccinationSchedule = {
         formId: 0, // Always 0 for new forms
         // For vaccination schedules, these can be null or omitted
@@ -77,7 +71,11 @@ export const injectionFormService = {
               .toISOString()
               .split("T")[0]
           : null,
-        startTime: startTimeValue,
+        startTime: vaccinationData.scheduledDateTime
+          ? new Date(vaccinationData.scheduledDateTime)
+              .toTimeString()
+              .split(" ")[0]
+          : "08:00:00",
         estimatedDuration: 60, // Default duration for vaccination
         location: vaccinationData.location?.trim() || "Phòng y tế trường",
         gradeIds: JSON.stringify(
@@ -92,6 +90,7 @@ export const injectionFormService = {
         // Don't include nested objects as they're handled by backend
       };
 
+      // Create vaccination schedule using InjectionForm schedules endpoint
       const response = await api.post(
         "/InjectionForm/schedules",
         vaccinationSchedule

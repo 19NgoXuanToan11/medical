@@ -234,10 +234,22 @@ const TargetInformation = ({ selectedRequest }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div>
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        Lớp học
+        Khối lớp
       </label>
       <p className="text-gray-900 dark:text-white">
-        {selectedRequest.targetGrades.join(", ")}
+        {(() => {
+          // Lấy danh sách khối từ targetGrades
+          if (selectedRequest.targetGrades && Array.isArray(selectedRequest.targetGrades)) {
+            // Giả sử targetGrades chứa ID của lớp, cần map sang khối
+            const gradeLevels = [...new Set(selectedRequest.targetGrades.map(gradeId => {
+              // Tìm khối từ gradeId (có thể cần API call để lấy thông tin chi tiết)
+              // Tạm thời hiển thị theo format hiện tại
+              return gradeId;
+            }))].sort();
+            return gradeLevels.join(", ");
+          }
+          return "Chưa phân công";
+        })()}
       </p>
     </div>
     <div>

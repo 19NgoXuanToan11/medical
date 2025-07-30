@@ -1,23 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  FiCalendar,
-  FiUsers,
-  FiCheckCircle,
-  FiClock,
   FiActivity,
-  FiEye,
-  FiEdit,
-  FiPlay,
+  FiCalendar,
+  FiClock,
   FiMapPin,
-  FiInfo,
-  FiAlertCircle,
-  FiX,
-  FiPlayCircle,
-  FiTrendingUp,
+  FiUsers,
+  FiEye,
   FiUpload,
-  FiFile,
   FiDownload,
+  FiCheckCircle,
+  FiX,
+  FiAlertTriangle,
+  FiPlus,
+  FiFilter,
+  FiSearch,
+  FiFileText,
+  FiBarChart,
+  FiTrendingUp,
+  FiTrendingDown,
+  FiUsers as FiStudents,
+  FiHeart,
+  FiThermometer,
+  FiDroplet,
+  FiActivity as FiPulse,
+  FiEye as FiVision,
+  FiVolume2,
+  FiSmile,
+  FiFrown,
+  FiMeh,
 } from "react-icons/fi";
 import { useNurseHealthCheckData } from "./hooks/useNurseHealthCheckData";
 import { formatDate } from "../../../utils/report/reportUtils";
@@ -26,6 +37,7 @@ import {
   downloadHealthCheckTemplate,
   markHealthCheckCompleted,
 } from "../../../utils/api/healthCheck/healthCheckService";
+import { staffService } from "../../../utils/staff/staffService";
 
 const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
   const [activeTab, setActiveTab] = useState("pending");
@@ -34,18 +46,45 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
   const [uploadFile, setUploadFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [assignedClasses, setAssignedClasses] = useState([]);
+  const [availableGrades, setAvailableGrades] = useState([]);
 
   // Use custom hook for data management
   const {
     loading,
     error,
-    stats,
-    pendingHealthChecks,
-    upcomingHealthChecks,
-    completedHealthChecks,
-    rejectedHealthChecks,
+    healthChecks,
+    nurseAssignment,
     fetchHealthCheckSchedules,
   } = useNurseHealthCheckData();
+
+  // Load assigned classes for nurse
+  useEffect(() => {
+    const loadAssignedClasses = async () => {
+      try {
+        // Load assigned classes for nurse
+        const assignedClassesResponse = await staffService.getMyAssignedClasses();
+        if (assignedClassesResponse?.success && assignedClassesResponse.data) {
+          setAssignedClasses(assignedClassesResponse.data);
+          
+          // Transform to availableGrades format
+          const transformedGrades = assignedClassesResponse.data.map((classItem) => ({
+            id: classItem.classId || classItem.id,
+            name: classItem.className || classItem.name,
+            gradeLevel: classItem.gradeLevel,
+            studentCount: classItem.currentStudentCount || classItem.totalStudents || 0,
+            classTeacher: classItem.classTeacher || null,
+            isActive: classItem.isActive !== false,
+          }));
+          setAvailableGrades(transformedGrades);
+        }
+      } catch (error) {
+        console.error("Error loading assigned classes:", error);
+      }
+    };
+
+    loadAssignedClasses();
+  }, []);
 
   // Function to translate station codes to Vietnamese names
   const translateStationName = (stationKey) => {
@@ -127,7 +166,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
       case "từ chối":
         return "px-2 py-1 text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 rounded-full";
       default:
-        return "px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300 rounded-full";
+        return "px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-full";
     }
   };
 
@@ -154,18 +193,33 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
 
   // Get health checks for current tab
   const getHealthChecksForTab = () => {
-    switch (activeTab) {
-      case "pending":
-        return pendingHealthChecks;
-      case "upcoming":
-        return upcomingHealthChecks;
-      case "completed":
-        return completedHealthChecks;
-      case "rejected":
-        return rejectedHealthChecks;
-      default:
-        return [];
-    }
+    const filteredHealthChecks = healthChecks.filter((healthCheck) => {
+      // Apply search filter
+      if (parentSearchTerm) {
+        const searchLower = parentSearchTerm.toLowerCase();
+        const matchesSearch =
+          healthCheck.title?.toLowerCase().includes(searchLower) ||
+          healthCheck.location?.toLowerCase().includes(searchLower) ||
+          healthCheck.description?.toLowerCase().includes(searchLower);
+        if (!matchesSearch) return false;
+      }
+
+      // Apply tab filter
+      switch (activeTab) {
+        case "pending":
+          return healthCheck.confirmStatus?.toLowerCase() === "pending";
+        case "upcoming":
+          return healthCheck.confirmStatus?.toLowerCase() === "approved";
+        case "completed":
+          return healthCheck.status === "completed";
+        case "rejected":
+          return healthCheck.confirmStatus?.toLowerCase() === "rejected";
+        default:
+          return true;
+      }
+    });
+
+    return filteredHealthChecks;
   };
 
   // Filter health checks by search term
@@ -199,6 +253,48 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
   const handleCompleteHealthCheck = (healthCheckId) => {
     // Refresh data after action
     fetchHealthCheckSchedules();
+  };
+
+  // Upload modal handlers
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setUploadFile(file);
+      setUploadError("");
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      await downloadHealthCheckTemplate(selectedHealthCheck.formId || selectedHealthCheck.id);
+    } catch (error) {
+      console.error("Error downloading template:", error);
+      setUploadError("Không thể tải mẫu file. Vui lòng thử lại.");
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!uploadFile || !selectedHealthCheck) return;
+
+    setUploading(true);
+    setUploadError("");
+
+    try {
+      await uploadHealthCheckResults(
+        selectedHealthCheck.formId || selectedHealthCheck.id,
+        uploadFile
+      );
+      
+      // Close modal and refresh data
+      setShowUploadModal(false);
+      setUploadFile(null);
+      fetchHealthCheckSchedules();
+    } catch (error) {
+      console.error("Error uploading results:", error);
+      setUploadError(error.message || "Không thể upload file. Vui lòng thử lại.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const renderHealthCheckCard = (healthCheck) => (
@@ -235,7 +331,43 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         </div>
         <div className="flex items-center">
           <FiUsers className="w-4 h-4 mr-2" />
-          <span>Khối: {healthCheck.grades?.join(", ")}</span>
+          <span>
+            Lớp học: {(() => {
+              // Lấy danh sách tên lớp từ targetGrades
+              if (healthCheck.targetGrades && Array.isArray(healthCheck.targetGrades)) {
+                // Tìm các lớp thực tế được phân công cho nurse
+                const actualClasses = new Set(); // Sử dụng Set để tránh trùng lặp
+                
+                healthCheck.targetGrades.forEach(gradeId => {
+                  // Tìm các lớp thuộc khối này trong assignedClasses
+                  const classesInGrade = assignedClasses.filter(cls => 
+                    cls.gradeLevel == gradeId || cls.classId == gradeId || cls.id == gradeId
+                  );
+                  
+                  if (classesInGrade.length > 0) {
+                    // Thêm tên các lớp thực tế
+                    classesInGrade.forEach(cls => {
+                      actualClasses.add(cls.className || cls.name);
+                    });
+                  } else {
+                    // Nếu không tìm thấy lớp thực tế, tạo tên lớp mặc định cho khối đó
+                    if (typeof gradeId === 'number' || !isNaN(gradeId)) {
+                      const gradeLevel = parseInt(gradeId);
+                      const classLetters = ['A', 'B', 'C'];
+                      classLetters.forEach(letter => {
+                        actualClasses.add(`${gradeLevel}${letter}`);
+                      });
+                    } else {
+                      actualClasses.add(`Lớp ${gradeId}`);
+                    }
+                  }
+                });
+                
+                return Array.from(actualClasses).join(", ");
+              }
+              return healthCheck.targetClasses?.join(", ") || "Chưa phân công";
+            })()}
+          </span>
         </div>
         <div className="flex items-center">
           <FiMapPin className="w-4 h-4 mr-2" />
@@ -243,37 +375,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         </div>
       </div>
 
-      {/* Check Items */}
-      {healthCheck.checkItems && (
-        <div className="mb-3">
-          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-            Hạng mục:{" "}
-          </span>
-          {(Array.isArray(healthCheck.checkItems)
-            ? healthCheck.checkItems
-            : typeof healthCheck.checkItems === "string"
-            ? JSON.parse(healthCheck.checkItems)
-            : []
-          ).map((item, index) => {
-            const key =
-              typeof item === "string"
-                ? `${item}-${index}`
-                : item && item.name
-                ? `${item.name}-${index}`
-                : index;
-            return (
-              <span
-                key={key}
-                className="inline-block bg-gray-100 dark:bg-gray-700 text-xs px-2 py-1 rounded mr-1 mb-1"
-              >
-                {translateStationName(
-                  typeof item === "string" ? item : item.name || item
-                )}
-              </span>
-            );
-          })}
-        </div>
-      )}
+
 
       {healthCheck.status === "active" && (
         <div className="mb-3">
@@ -351,11 +453,8 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
             <FiEye className="w-3 h-3 mr-1 inline" />
             Xem chi tiết
           </Link>
-          {/* Show edit button for pending, scheduled, or rejected items */}
-          {(healthCheck.status === "scheduled" ||
-            healthCheck.status === "pending" ||
-            healthCheck.confirmStatus?.toLowerCase() === "pending" ||
-            healthCheck.confirmStatus?.toLowerCase() === "rejected") && (
+          {/* Show edit button only for rejected items */}
+          {healthCheck.confirmStatus?.toLowerCase() === "rejected" && (
             <Link
               to={`/nurse/health-services/edit/${
                 healthCheck.formId || healthCheck.id
@@ -363,25 +462,25 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               className="text-xs px-3 py-1 border border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded transition-colors"
             >
               <FiEdit className="w-3 h-3 mr-1 inline" />
-              {healthCheck.confirmStatus?.toLowerCase() === "rejected"
-                ? "Chỉnh sửa & Gửi lại"
-                : "Sửa"}
+              Chỉnh sửa & Gửi lại
             </Link>
           )}
         </div>
 
         {/* Action buttons based on status */}
         <div className="flex space-x-2">
+          {/* Upload results button for approved health checks */}
           {(healthCheck.confirmStatus?.toLowerCase() === "approved" ||
-            healthCheck.status === "Approved") && (
+            healthCheck.status?.toLowerCase() === "approved") && (
             <button
-              onClick={() =>
-                handleStartHealthCheck(healthCheck.formId || healthCheck.id)
-              }
-              className="text-xs px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
+              onClick={() => {
+                setSelectedHealthCheck(healthCheck);
+                setShowUploadModal(true);
+              }}
+              className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
             >
               <FiUpload className="w-3 h-3 mr-1 inline" />
-              Hoàn thành
+              Upload kết quả
             </button>
           )}
           {/* Show completion button for active health checks */}
@@ -390,7 +489,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               onClick={() =>
                 handleCompleteHealthCheck(healthCheck.formId || healthCheck.id)
               }
-              className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+              className="text-xs px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
             >
               <FiCheckCircle className="w-3 h-3 mr-1 inline" />
               Hoàn thành
@@ -402,6 +501,11 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               Chờ Quản lý duyệt
             </span>
           )}
+          
+          {/* Debug: Show current status */}
+          <div className="text-xs text-gray-500 mt-1">
+            Debug: confirmStatus={healthCheck.confirmStatus}, status={healthCheck.status}
+          </div>
         </div>
       </div>
     </div>
@@ -483,7 +587,19 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               {formatDate(selectedHealthCheck.scheduledDate)}
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              <strong>Lớp:</strong> {selectedHealthCheck.grades?.join(", ")}
+              <strong>Khối lớp:</strong> {(() => {
+                // Lấy danh sách khối từ targetGrades
+                if (selectedHealthCheck.targetGrades) {
+                  // Giả sử targetGrades chứa ID của lớp, cần map sang khối
+                  const gradeLevels = [...new Set(selectedHealthCheck.targetGrades.map(gradeId => {
+                    // Tìm khối từ gradeId (có thể cần API call để lấy thông tin chi tiết)
+                    // Tạm thời hiển thị theo format hiện tại
+                    return gradeId;
+                  }))].sort();
+                  return gradeLevels.join(", ");
+                }
+                return "Chưa phân công";
+              })()}
             </p>
           </div>
 
@@ -497,7 +613,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               Tải mẫu file Excel
             </button>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Tải file mẫu chứa danh sách học sinh và các hạng mục khám
+              Tải file mẫu chứa danh sách học sinh và kết quả khám (tai, mắt, mũi, họng, chiều cao, cân nặng)
             </p>
           </div>
 
@@ -518,12 +634,27 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
                 htmlFor="file-upload"
                 className="cursor-pointer flex flex-col items-center"
               >
-                <FiFile className="w-8 h-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {uploadFile
-                    ? uploadFile.name
-                    : "Chọn file Excel (.xlsx, .xls)"}
-                </span>
+                {uploadFile ? (
+                  <div className="text-center">
+                    <FiFile className="w-8 h-8 text-green-500 mb-2" />
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {uploadFile.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {(uploadFile.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Click để chọn file hoặc kéo thả file vào đây
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Hỗ trợ file Excel (.xlsx, .xls)
+                    </p>
+                  </div>
+                )}
               </label>
             </div>
           </div>
@@ -531,7 +662,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
           {/* Error Message */}
           {uploadError && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-700 dark:text-red-300">
+              <p className="text-sm text-red-800 dark:text-red-200">
                 {uploadError}
               </p>
             </div>
@@ -541,26 +672,22 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
           <div className="flex space-x-3">
             <button
               onClick={() => setShowUploadModal(false)}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
-              disabled={uploading}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors"
             >
               Hủy
             </button>
             <button
-              onClick={handleUploadSubmit}
+              onClick={handleUpload}
               disabled={!uploadFile || uploading}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {uploading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2 inline-block" />
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2" />
                   Đang upload...
                 </>
               ) : (
-                <>
-                  <FiUpload className="w-4 h-4 mr-2 inline" />
-                  Upload kết quả
-                </>
+                "Upload"
               )}
             </button>
           </div>
@@ -579,87 +706,14 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
 
   return (
     <div className="space-y-6">
-      {/* Enhanced Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Chờ duyệt
-              </p>
-              <p className="text-2xl font-semibold text-orange-600 dark:text-orange-400">
-                {stats.pending}
-              </p>
-            </div>
-            <FiClock className="w-8 h-8 text-orange-500 dark:text-orange-400" />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Sẵn sàng
-              </p>
-              <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
-                {stats.ready}
-              </p>
-            </div>
-            <FiCheckCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Đang tiến hành
-              </p>
-              <p className="text-2xl font-semibold text-yellow-600 dark:text-yellow-400">
-                {stats.active}
-              </p>
-            </div>
-            <FiPlayCircle className="w-8 h-8 text-yellow-500 dark:text-yellow-400" />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Đã hoàn thành
-              </p>
-              <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
-                {stats.completed}
-              </p>
-            </div>
-            <FiCheckCircle className="w-8 h-8 text-green-500 dark:text-green-400" />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Tổng học sinh
-              </p>
-              <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {stats.totalStudents}
-              </p>
-            </div>
-            <FiUsers className="w-8 h-8 text-gray-500 dark:text-gray-400" />
-          </div>
-        </div>
-      </div>
-
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex space-x-8">
           {[
-            { id: "pending", label: "Chờ duyệt", count: stats.pending },
-            { id: "upcoming", label: "Sắp tới", count: stats.upcoming },
-            { id: "completed", label: "Đã hoàn thành", count: stats.completed },
-            { id: "rejected", label: "Đã từ chối", count: stats.rejected },
+            { id: "pending", label: "Chờ duyệt", count: healthChecks.filter(hc => hc.confirmStatus?.toLowerCase() === "pending").length },
+            { id: "upcoming", label: "Sắp tới", count: healthChecks.filter(hc => hc.confirmStatus?.toLowerCase() === "approved").length },
+            { id: "completed", label: "Đã hoàn thành", count: healthChecks.filter(hc => hc.status === "completed").length },
+            { id: "rejected", label: "Đã từ chối", count: healthChecks.filter(hc => hc.confirmStatus?.toLowerCase() === "rejected").length },
           ].map((tab) => (
             <button
               key={tab.id}
