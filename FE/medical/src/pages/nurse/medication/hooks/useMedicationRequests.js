@@ -11,7 +11,6 @@ export const useMedicationRequests = () => {
     rejected: 0,
     today: 0,
     total: 0,
-    inProgress: 0,
   });
 
   // Load stats for all tabs (filtered by nurse's assigned grades)
@@ -25,11 +24,12 @@ export const useMedicationRequests = () => {
       let pendingCount = 0;
       let completedCount = 0;
       let todayCount = 0;
-      let inProgressCount = 0;
 
       // Calculate pending count
       if (pendingResponse.success && pendingResponse.data) {
-        const pendingData = pendingResponse.data.filter(
+        // Ensure we have an array, even if API returns null/undefined
+        const responseData = pendingResponse.data || [];
+        const pendingData = responseData.filter(
           (req) =>
             req.status === "pending" || req.status === "Pending" || !req.status
         );
@@ -43,27 +43,23 @@ export const useMedicationRequests = () => {
             : new Date().toISOString().split("T")[0];
           return reqDate === todayString;
         }).length;
+      } else {
+        // If API fails, ensure counts are 0
+        pendingCount = 0;
+        todayCount = 0;
       }
 
       // Calculate completed count
       if (completedResponse.success && completedResponse.data) {
-        const completedData = completedResponse.data.filter(
+        // Ensure we have an array, even if API returns null/undefined
+        const responseData = completedResponse.data || [];
+        const completedData = responseData.filter(
           (req) => req.status === "Completed" || req.status === "completed"
         );
         completedCount = completedData.length;
-      }
-
-      // Get in-progress count from a separate API if needed
-      try {
-        const inProgressResponse =
-          await medicationService.getMyAssignedMedicationRequests(
-            "in-progress"
-          );
-        if (inProgressResponse.success && inProgressResponse.data) {
-          inProgressCount = inProgressResponse.data.length;
-        }
-      } catch (error) {
-        inProgressCount = 0;
+      } else {
+        // If API fails, ensure count is 0
+        completedCount = 0;
       }
 
       setStats({
@@ -71,8 +67,7 @@ export const useMedicationRequests = () => {
         completed: completedCount,
         rejected: 0,
         today: todayCount,
-        total: pendingCount + completedCount + inProgressCount,
-        inProgress: inProgressCount,
+        total: pendingCount + completedCount,
       });
     } catch (error) {
       console.error("Error loading stats:", error);

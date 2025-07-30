@@ -83,7 +83,6 @@ const ParentProfile = () => {
           pending: 1,
           approved: 1,
           rejected: 0,
-          inProgress: 0,
           completed: 1,
         },
       });
@@ -695,15 +694,7 @@ const ParentProfile = () => {
                                 0}
                             </span>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-neutral-500">
-                              Đang thực hiện:
-                            </span>
-                            <span className="font-medium text-orange-600">
-                              {statistics.medicineRequestBreakdown
-                                ?.inProgress || 0}
-                            </span>
-                          </div>
+
                           <div className="flex justify-between">
                             <span className="text-neutral-500">
                               Hoàn thành:
