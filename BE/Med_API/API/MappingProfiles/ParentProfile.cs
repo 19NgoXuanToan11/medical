@@ -120,85 +120,13 @@ public class ParentProfile : Profile
                     formattedDict[kvp.Key] = kvp.Value;
                 }
             }
-            
-            // Normalize the dictionary to remove duplicates and standardize keys
-            return NormalizeVerifiedStatusKeys(formattedDict);
+            return formattedDict;
         }
         catch (JsonException)
         {
             // The whole thing is not a JSON object, maybe just a simple status string
             return new Dictionary<string, object> { { "status", verificationStatus } };
         }
-    }
-
-    // Helper function to normalize verified status keys
-    private Dictionary<string, object> NormalizeVerifiedStatusKeys(Dictionary<string, object> dict)
-    {
-        var normalized = new Dictionary<string, object>();
-        
-        foreach (var kv in dict)
-        {
-            var normalizedKey = NormalizePeriodKey(kv.Key);
-            
-            // If key already exists, prioritize the object version over string version
-            if (normalized.ContainsKey(normalizedKey))
-            {
-                // If current value is an object and existing value is a string, keep the object
-                if (kv.Value is JsonElement elem && elem.ValueKind == JsonValueKind.Object && 
-                    normalized[normalizedKey] is string)
-                {
-                    normalized[normalizedKey] = kv.Value;
-                }
-                // If both are objects, merge them (object takes precedence)
-                else if (kv.Value is JsonElement elem1 && elem1.ValueKind == JsonValueKind.Object && 
-                         normalized[normalizedKey] is JsonElement elem2 && elem2.ValueKind == JsonValueKind.Object)
-                {
-                    // Keep the current value as it's more recent
-                    normalized[normalizedKey] = kv.Value;
-                }
-                // If both are strings, keep the one that's not "Pending"
-                else if (kv.Value is string currentStr && normalized[normalizedKey] is string existingStr)
-                {
-                    if (currentStr != "Pending" && existingStr == "Pending")
-                    {
-                        normalized[normalizedKey] = kv.Value;
-                    }
-                }
-            }
-            else
-            {
-                normalized[normalizedKey] = kv.Value;
-            }
-        }
-        
-        return normalized;
-    }
-
-    // Helper function to normalize period key (capitalize first letter)
-    private string NormalizePeriodKey(string key)
-    {
-        if (string.IsNullOrEmpty(key)) return key;
-        
-        // Handle common period names
-        var periodMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "sáng", "Sáng" },
-            { "trưa", "Trưa" },
-            { "chiều", "Chiều" },
-            { "khi cần thiết", "Khi cần thiết" },
-            { "morning", "Sáng" },
-            { "noon", "Trưa" },
-            { "afternoon", "Chiều" },
-            { "as_needed", "Khi cần thiết" }
-        };
-        
-        if (periodMappings.ContainsKey(key))
-        {
-            return periodMappings[key];
-        }
-        
-        // General case: capitalize first letter
-        return char.ToUpper(key[0]) + key.Substring(1).ToLower();
     }
 
     private string HashPassword(string password)

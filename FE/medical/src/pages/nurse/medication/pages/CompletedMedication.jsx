@@ -27,29 +27,20 @@ const CompletedMedication = () => {
 
   useEffect(() => {
     loadCompletedRequests();
-
-    // Cleanup function to clear data when component unmounts
-    return () => {
-      setCompletedRequests([]);
-    };
   }, []);
 
   const loadCompletedRequests = async () => {
     setLoading(true);
-    // Clear any existing data first to ensure fresh data
-    setCompletedRequests([]);
-
     try {
       const response = await medicationService.getCompletedMedicationRequests();
       if (response.success) {
-        // Ensure we always have an array, even if API returns null/undefined
+        // Xử lý dữ liệu nếu có cấu trúc period-based
         let processedData = response.data || [];
 
-        // Only process period-based data if we actually have data
+        // Nếu dữ liệu là array của periods, chuyển đổi thành requests
         if (
           Array.isArray(processedData) &&
           processedData.length > 0 &&
-          processedData[0] &&
           processedData[0].period
         ) {
           processedData = processedData.map((periodData) => ({
@@ -75,16 +66,13 @@ const CompletedMedication = () => {
           }));
         }
 
-        // Always set the processed data, even if it's an empty array
         setCompletedRequests(processedData);
       } else {
         console.error("Error loading completed requests:", response.message);
-        // If API call fails, ensure state is cleared
         setCompletedRequests([]);
       }
     } catch (error) {
       console.error("Error loading completed requests:", error);
-      // If there's an error, ensure state is cleared
       setCompletedRequests([]);
     }
     setLoading(false);
@@ -200,10 +188,7 @@ const CompletedMedication = () => {
       {/* Requests Table */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700">
         <div className="overflow-x-auto">
-          <table
-            key={`completed-requests-${completedRequests.length}-${loading}`}
-            className="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
-          >
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
             <thead className="bg-gray-50 dark:bg-neutral-700">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -227,22 +212,13 @@ const CompletedMedication = () => {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-gray-600">
-              {loading ? (
+              {currentRequests.length === 0 ? (
                 <tr>
                   <td
                     colSpan="9"
                     className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
                   >
-                    Đang tải...
-                  </td>
-                </tr>
-              ) : currentRequests.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="9"
-                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
-                  >
-                    Không có yêu cầu đã hoàn thành
+                    {loading ? "Đang tải..." : "Không có yêu cầu đã hoàn thành"}
                   </td>
                 </tr>
               ) : (
@@ -291,8 +267,14 @@ const CompletedMedication = () => {
                                   {item.medicineName}
                                 </div>
                                 <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  ID: {item.medicineRequestItemId}
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
                                   {item.dosage} {item.dosageUnit} -{" "}
                                   {item.frequency} lần/ngày
+                                </div>
+                                <div className="text-xs text-purple-600 dark:text-purple-400">
+                                  Buổi: {item.timeOfDay} ({item.period})
                                 </div>
                                 {item.instructions && (
                                   <div className="text-xs text-blue-600 dark:text-blue-400 italic">

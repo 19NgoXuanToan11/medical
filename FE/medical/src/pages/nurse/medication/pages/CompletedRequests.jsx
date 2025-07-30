@@ -31,17 +31,11 @@ const CompletedRequests = () => {
   // Load completed requests
   const loadCompletedRequests = async () => {
     setLoading(true);
-    // Clear any existing data first to ensure fresh data
-    setRequests([]);
-
     try {
       const response = await medicationService.getCompletedMedicationRequests();
 
       if (response.success) {
-        // Ensure we always have an array, even if API returns null/undefined
-        const responseData = response.data || [];
-
-        const completedOnly = filterByStatus(responseData, [
+        const completedOnly = filterByStatus(response.data, [
           "Completed",
           "completed",
         ]);
@@ -54,15 +48,12 @@ const CompletedRequests = () => {
           status: "completed",
         }));
 
-        // Always set the processed data, even if it's an empty array
         setRequests(completedRequests);
       } else {
-        // If API call fails, ensure state is cleared
         setRequests([]);
       }
     } catch (error) {
       console.error("Error loading completed medication requests:", error);
-      // If there's an error, ensure state is cleared
       setRequests([]);
     }
     setLoading(false);
@@ -83,11 +74,6 @@ const CompletedRequests = () => {
   // Load data on mount
   useEffect(() => {
     loadCompletedRequests();
-
-    // Cleanup function to clear data when component unmounts
-    return () => {
-      setRequests([]);
-    };
   }, []);
 
   // Filter requests

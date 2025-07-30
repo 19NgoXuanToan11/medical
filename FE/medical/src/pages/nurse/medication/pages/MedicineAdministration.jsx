@@ -3,6 +3,7 @@ import {
   FiSearch,
   FiRefreshCw,
   FiPlay,
+  FiCheck,
   FiEye,
   FiUser,
   FiCalendar,
@@ -14,8 +15,6 @@ import {
   FiFileText,
   FiChevronDown,
   FiChevronUp,
-  FiInfo,
-  FiCheck,
 } from "react-icons/fi";
 import { medicationService } from "../../../../utils/api/medication/medicationService";
 import { useAuth } from "../../../../utils/auth/AuthContext";
@@ -34,25 +33,17 @@ const MedicineAdministration = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showStartModal, setShowStartModal] = useState(false);
-  const [selectedMedicineItem, setSelectedMedicineItem] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState("");
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   const { user } = useAuth();
   const currentStaffId = user?.id || 1; // Fallback to 1 if no user
 
   useEffect(() => {
     loadAllData();
-
-    // Cleanup function to clear data when component unmounts
-    return () => {
-      setAssignedRequests([]);
-    };
   }, []);
 
   const loadAllData = async () => {
     setLoading(true);
-    // Clear any existing data first to ensure fresh data
-    setAssignedRequests([]);
     try {
       await loadAssignedRequests();
     } catch (error) {
@@ -65,16 +56,10 @@ const MedicineAdministration = () => {
     try {
       const response = await medicationService.getAssignedMedicationRequests();
       if (response.success) {
-        // Ensure we always set the data, even if it's an empty array
-        setAssignedRequests(response.data || []);
-      } else {
-        // If API call fails, clear the data
-        setAssignedRequests([]);
+        setAssignedRequests(response.data);
       }
     } catch (error) {
       console.error("Error loading assigned requests:", error);
-      // If there's an error, clear the data
-      setAssignedRequests([]);
     }
   };
 
@@ -84,21 +69,11 @@ const MedicineAdministration = () => {
       return;
     }
 
-    if (!selectedMedicineItem) {
-      alert("Vui lòng chọn thuốc cần cho uống");
-      return;
-    }
-
-    if (!selectedPeriod) {
-      alert("Vui lòng chọn buổi uống thuốc");
-      return;
-    }
-
     // Validate if there's already an in-progress request for this student
     const studentId = selectedRequest.student?.studentId;
     const studentName = selectedRequest.student
       ? `${selectedRequest.student.firstName} ${selectedRequest.student.lastName}`
-      : selectedRequest.studentName || "học sinh này";
+      : "học sinh này";
 
     const validation = await validateMedicationStart(studentId, studentName);
     if (!validation.canStart) {
@@ -107,18 +82,14 @@ const MedicineAdministration = () => {
     }
 
     try {
-      // Use the correct parameters: medicineRequestItemId, staffId, period
       const response = await medicationService.completeMedicationRequest(
-        selectedMedicineItem.medicineRequestItemId,
-        currentStaffId,
-        selectedPeriod
+        selectedRequest.requestId,
+        currentStaffId
       );
 
       if (response.success) {
         alert("Bắt đầu cho uống thuốc thành công!");
         setShowStartModal(false);
-        setSelectedMedicineItem(null);
-        setSelectedPeriod("");
         loadAllData();
       } else {
         alert(response.message);
@@ -126,6 +97,70 @@ const MedicineAdministration = () => {
     } catch (error) {
       alert("Có lỗi xảy ra khi bắt đầu cho uống thuốc");
       console.error("Error starting administration:", error);
+    }
+  };
+
+  const handleCompleteRequest = async () => {
+    if (!selectedRequest) {
+      alert("Không có yêu cầu được chọn");
+      return;
+    }
+
+    try {
+      // Get the first medicine request item
+      const medicineItem =
+        selectedRequest.medicineRequestItems?.[0] ||
+        selectedRequest.assignedItems?.[0];
+      if (!medicineItem) {
+        alert("Không tìm thấy thông tin thuốc");
+        return;
+      }
+
+      // Get the correct medicineRequestItemId
+      const medicineRequestItemId =
+        medicineItem.medicineRequestItemId ||
+        medicineItem.id ||
+        medicineItem.itemId;
+
+      if (!medicineRequestItemId) {
+        alert("Không tìm thấy ID của medicine request item");
+        console.error("No valid ID found in medicineItem:", medicineItem);
+        return;
+      }
+
+      // Determine period based on timeOfDay - use Vietnamese format as backend requires
+      let period = "sáng"; // default
+      if (medicineItem.timeOfDay) {
+        const timeOfDay = medicineItem.timeOfDay.toLowerCase().trim();
+        if (timeOfDay.includes("trưa") || timeOfDay.includes("noon")) {
+          period = "trưa";
+        } else if (
+          timeOfDay.includes("chiều") ||
+          timeOfDay.includes("afternoon")
+        ) {
+          period = "chiều";
+        } else if (timeOfDay.includes("tối") || timeOfDay.includes("evening")) {
+          period = "tối";
+        }
+      }
+
+      const response = await medicationService.completeMedicationRequest(
+        medicineRequestItemId, // medicineRequestItemId
+        currentStaffId,
+        period
+        // Removed notes parameter
+      );
+
+      if (response.success) {
+        alert("Hoàn thành yêu cầu thuốc thành công!");
+        setShowCompleteModal(false);
+        loadAllData();
+      } else {
+        alert(response.message);
+      }
+    } catch (error) {
+      alert("Có lỗi xảy ra khi hoàn thành yêu cầu thuốc");
+      console.error("Error completing request:", error);
     }
   };
 
@@ -179,6 +214,12 @@ const MedicineAdministration = () => {
   const formatDateTime = (dateString) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleString("vi-VN");
+  };
+
+  const isOneTimeFrequency = (frequency) => {
+    if (!frequency) return false;
+    const freq = frequency.toLowerCase();
+    return freq.includes("1 lần") || freq.includes("một lần") || freq === "1";
   };
 
   const formatTimeOfDay = (timeOfDay) => {
@@ -260,10 +301,7 @@ const MedicineAdministration = () => {
       {/* Requests Table */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700">
         <div className="overflow-x-auto">
-          <table
-            key={`assigned-requests-${assignedRequests.length}-${loading}`}
-            className="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
-          >
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
             <thead className="bg-gray-50 dark:bg-neutral-700">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -290,22 +328,13 @@ const MedicineAdministration = () => {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-gray-600">
-              {loading ? (
+              {currentRequests.length === 0 ? (
                 <tr>
                   <td
                     colSpan="7"
                     className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
                   >
-                    Đang tải...
-                  </td>
-                </tr>
-              ) : currentRequests.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="7"
-                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
-                  >
-                    Không có dữ liệu
+                    {loading ? "Đang tải..." : "Không có dữ liệu"}
                   </td>
                 </tr>
               ) : (
@@ -440,18 +469,33 @@ const MedicineAdministration = () => {
                           <FiEye className="h-4 w-4" />
                         </button>
                         {activeSubTab === "assigned" && (
-                          <button
-                            onClick={() => {
-                              setSelectedRequest(request);
-                              setSelectedMedicineItem(null);
-                              setSelectedPeriod("");
-                              setShowStartModal(true);
-                            }}
-                            className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                            title="Bắt đầu cho uống thuốc"
-                          >
-                            <FiPlay className="h-4 w-4" />
-                          </button>
+                          <>
+                            <button
+                              onClick={() => {
+                                setSelectedRequest(request);
+                                setShowStartModal(true);
+                              }}
+                              className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                              title="Bắt đầu cho uống thuốc"
+                            >
+                              <FiPlay className="h-4 w-4" />
+                            </button>
+                            {isOneTimeFrequency(
+                              (request.assignedItems ||
+                                request.medicineRequestItems)?.[0]?.frequency
+                            ) && (
+                              <button
+                                onClick={() => {
+                                  setSelectedRequest(request);
+                                  setShowCompleteModal(true);
+                                }}
+                                className="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
+                                title="Hoàn thành ngay (uống 1 lần)"
+                              >
+                                <FiCheck className="h-4 w-4" />
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </td>
@@ -463,10 +507,10 @@ const MedicineAdministration = () => {
         </div>
       </div>
 
-      {/* Detail Modal - Enhanced with Full Schema */}
+      {/* Detail Modal */}
       {showDetailModal && selectedRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
@@ -480,172 +524,163 @@ const MedicineAdministration = () => {
                 </button>
               </div>
             </div>
-
-            <div className="px-6 py-4 space-y-6">
-              {/* Request Overview */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center">
-                  <FiFileText className="mr-2" />
-                  Thông tin yêu cầu
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
-                      Trạng thái
-                    </label>
-                    <div className="mt-1">
-                      {getStatusBadge(selectedRequest.status, activeSubTab)}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
-                      Ngày uống thuốc
-                    </label>
-                    <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
-                      {formatDate(selectedRequest.date)}
-                    </p>
-                  </div>
+            <div className="px-6 py-4 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Học sinh
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {selectedRequest.studentName ||
+                      `${selectedRequest.student?.firstName || ""} ${
+                        selectedRequest.student?.lastName || ""
+                      }`}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Lớp
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {selectedRequest.className ||
+                      selectedRequest.student?.class?.className ||
+                      "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Mã học sinh
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {selectedRequest.studentCode || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Phụ huynh
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {selectedRequest.parentName || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Y tá phụ trách
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {selectedRequest.staff?.firstName}{" "}
+                    {selectedRequest.staff?.lastName}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Ngày gửi yêu cầu
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {formatDate(selectedRequest.requestDate)}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Ngày uống thuốc
+                  </label>
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {formatDate(selectedRequest.date)}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Trạng thái
+                  </label>
+                  <p className="mt-1">
+                    {getStatusBadge(selectedRequest.status, activeSubTab)}
+                  </p>
                 </div>
               </div>
 
-              {/* Student Information */}
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-                <h4 className="text-sm font-semibold text-green-900 dark:text-green-100 mb-3 flex items-center">
-                  <FiUser className="mr-2" />
-                  Thông tin học sinh
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-green-700 dark:text-green-300">
-                      Họ và tên
-                    </label>
-                    <p className="mt-1 text-sm font-medium text-green-900 dark:text-green-100">
-                      {selectedRequest.studentName ||
-                        `${selectedRequest.student?.firstName || ""} ${
-                          selectedRequest.student?.lastName || ""
-                        }`.trim() ||
-                        "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-green-700 dark:text-green-300">
-                      Mã học sinh
-                    </label>
-                    <p className="mt-1 text-sm font-mono text-green-900 dark:text-green-100">
-                      {selectedRequest.studentCode || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-green-700 dark:text-green-300">
-                      Lớp học
-                    </label>
-                    <p className="mt-1 text-sm text-green-900 dark:text-green-100">
-                      {selectedRequest.className ||
-                        selectedRequest.student?.class?.className ||
-                        "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Assigned Items - Comprehensive Display */}
+              {/* Assigned Items Information */}
               {selectedRequest.assignedItems &&
                 selectedRequest.assignedItems.length > 0 && (
-                  <div className="bg-gray-50 dark:bg-gray-900/20 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                      <FiTablet className="mr-2" />
-                      Danh sách thuốc được phân công (
-                      {selectedRequest.assignedItems.length} loại)
-                    </h4>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                      Thông tin thuốc được phân công
+                    </label>
                     <div className="space-y-4">
                       {selectedRequest.assignedItems.map((item, index) => (
                         <div
-                          key={item.medicineRequestItemId || index}
-                          className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-neutral-700"
+                          key={index}
+                          className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-neutral-700"
                         >
-                          {/* Medicine Header */}
-                          <div className="flex items-center justify-between mb-3">
-                            <h5 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                          {/* Medicine Info */}
+                          <div className="mb-4">
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                               {item.medicineName}
-                            </h5>
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Liều lượng:
+                                </span>
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {item.dosage} {item.dosageUnit}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Tần suất:
+                                </span>
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {item.frequency} lần/ngày
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Thời gian:
+                                </span>
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                  {item.timeOfDay}
+                                </p>
+                              </div>
+                            </div>
+                            {item.instructions && (
+                              <div className="mt-2">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Hướng dẫn sử dụng:
+                                </span>
+                                <p className="text-sm text-blue-600 dark:text-blue-400 italic">
+                                  {item.instructions}
+                                </p>
+                              </div>
+                            )}
                           </div>
 
-                          {/* Medicine Details Grid */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                            <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded">
-                              <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
-                                Liều lượng
-                              </label>
-                              <p className="mt-1 text-sm font-medium text-blue-900 dark:text-blue-100">
-                                {item.dosage} {item.dosageUnit}
-                              </p>
-                            </div>
-                            <div className="bg-green-50 dark:bg-green-900/30 p-3 rounded">
-                              <label className="block text-xs font-medium text-green-700 dark:text-green-300">
-                                Tần suất
-                              </label>
-                              <p className="mt-1 text-sm font-medium text-green-900 dark:text-green-100">
-                                {item.frequency} lần/ngày
-                              </p>
-                            </div>
-                            <div className="bg-yellow-50 dark:bg-yellow-900/30 p-3 rounded">
-                              <label className="block text-xs font-medium text-yellow-700 dark:text-yellow-300">
-                                Thời gian uống
-                              </label>
-                              <p className="mt-1 text-sm font-medium text-yellow-900 dark:text-yellow-100">
-                                {item.timeOfDay}
-                              </p>
-                            </div>
-                            <div className="bg-purple-50 dark:bg-purple-900/30 p-3 rounded">
-                              <label className="block text-xs font-medium text-purple-700 dark:text-purple-300">
-                                Kỳ uống thuốc
-                              </label>
-                              <p className="mt-1 text-sm font-medium text-purple-900 dark:text-purple-100">
-                                {item.period || "N/A"}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Instructions */}
-                          {item.instructions && (
-                            <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-200 dark:border-amber-800">
-                              <label className="block text-xs font-medium text-amber-700 dark:text-amber-300 mb-1">
-                                Hướng dẫn sử dụng:
-                              </label>
-                              <p className="text-sm text-amber-900 dark:text-amber-100 whitespace-pre-wrap">
-                                {item.instructions}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Assigned Periods - Enhanced Display */}
+                          {/* Assigned Periods */}
                           {item.assignedPeriods &&
                             item.assignedPeriods.length > 0 && (
                               <div>
-                                <h6 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
-                                  <FiClock className="mr-2" />
-                                  Lịch trình phân công (
-                                  {item.assignedPeriods.length} buổi)
-                                </h6>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <h5 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                  Buổi được phân công:
+                                </h5>
+                                <div className="space-y-2">
                                   {item.assignedPeriods.map(
                                     (period, periodIndex) => (
                                       <div
                                         key={periodIndex}
-                                        className="flex items-center justify-between p-3 bg-white dark:bg-neutral-600 rounded border border-gray-200 dark:border-gray-500"
+                                        className="flex items-center justify-between p-2 bg-white dark:bg-neutral-600 rounded border"
                                       >
                                         <div className="flex items-center space-x-3">
-                                          <div className="flex flex-col space-y-1">
-                                            <span className="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
-                                              {period.period}
-                                            </span>
-                                          </div>
+                                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                            {period.period}
+                                          </span>
+                                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                            {period.status}
+                                          </span>
                                         </div>
                                         <div className="text-right">
                                           <div className="text-xs text-gray-500 dark:text-gray-400">
-                                            Thời gian:
+                                            Phân công lúc:
                                           </div>
-                                          <div className="text-xs text-gray-900 dark:text-gray-100 font-mono">
+                                          <div className="text-xs text-gray-900 dark:text-gray-100">
                                             {formatDateTime(period.timestamp)}
                                           </div>
                                         </div>
@@ -665,60 +700,59 @@ const MedicineAdministration = () => {
               {(!selectedRequest.assignedItems ||
                 selectedRequest.assignedItems.length === 0) &&
                 selectedRequest.medicineRequestItems && (
-                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                    <h4 className="text-sm font-semibold text-yellow-900 dark:text-yellow-100 mb-3 flex items-center">
-                      <FiAlertCircle className="mr-2" />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Thông tin thuốc (Schema cũ)
-                    </h4>
+                    </label>
                     <div className="space-y-3">
                       {selectedRequest.medicineRequestItems.map(
                         (item, index) => (
                           <div
                             key={index}
-                            className="border border-yellow-200 dark:border-yellow-600 rounded-lg p-3 bg-white dark:bg-neutral-700"
+                            className="border border-gray-200 dark:border-gray-600 rounded-lg p-3"
                           >
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               <div>
-                                <span className="text-xs text-yellow-600 dark:text-yellow-400">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
                                   Tên thuốc:
                                 </span>
-                                <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   {item.medicineName}
                                 </p>
                               </div>
                               <div>
-                                <span className="text-xs text-yellow-600 dark:text-yellow-400">
-                                  Tổng liều lượng:
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Tổng liều lượng
                                 </span>
-                                <p className="text-sm text-yellow-900 dark:text-yellow-100">
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
                                   {item.dosage}{" "}
                                   {item.dosageUnit ||
                                     getMedicineUnit(item.medicineName)}
                                 </p>
                               </div>
                               <div>
-                                <span className="text-xs text-yellow-600 dark:text-yellow-400">
-                                  Tần suất uống:
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Tần suất uống
                                 </span>
-                                <p className="text-sm text-yellow-900 dark:text-yellow-100">
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
                                   {item.frequency} lần/ngày
                                 </p>
                               </div>
                               <div>
-                                <span className="text-xs text-yellow-600 dark:text-yellow-400">
-                                  Thời gian uống:
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  Thời gian uống
                                 </span>
-                                <p className="text-sm text-yellow-900 dark:text-yellow-100">
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
                                   {item.timeOfDay || "N/A"}
                                 </p>
                               </div>
                             </div>
                             {item.instructions && (
                               <div className="mt-2">
-                                <span className="text-xs text-yellow-600 dark:text-yellow-400">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
                                   Hướng dẫn:
                                 </span>
-                                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                                <p className="text-sm text-blue-600 dark:text-blue-400">
                                   {item.instructions}
                                 </p>
                               </div>
@@ -729,28 +763,55 @@ const MedicineAdministration = () => {
                     </div>
                   </div>
                 )}
+            </div>
+          </div>
+        </div>
+      )}
 
-              {/* Action Buttons */}
-              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-600">
-                {activeSubTab === "assigned" && (
-                  <button
-                    onClick={() => {
-                      setShowDetailModal(false);
-                      setSelectedMedicineItem(null);
-                      setSelectedPeriod("");
-                      setShowStartModal(true);
-                    }}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors flex items-center"
-                  >
-                    <FiPlay className="mr-2 h-4 w-4" />
-                    Bắt đầu cho uống thuốc
-                  </button>
-                )}
+      {/* Start Administration Modal */}
+      {showStartModal && selectedRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                Bắt đầu cho uống thuốc
+              </h3>
+            </div>
+            <div className="px-6 py-4">
+              <div className="flex items-center mb-4">
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-100">
+                    Bắt đầu cho học sinh uống thuốc:{" "}
+                    <span className="font-medium">
+                      {selectedRequest.student?.firstName}{" "}
+                      {selectedRequest.student?.lastName}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Thuốc:{" "}
+                    {selectedRequest.medicineRequestItems?.[0]?.medicineName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg mb-4">
+                <p className="text-sm text-green-800 dark:text-green-200">
+                  Bạn sẽ bắt đầu quá trình cho học sinh uống thuốc.
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-3">
                 <button
-                  onClick={() => setShowDetailModal(false)}
-                  className="px-4 py-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 text-sm font-medium rounded-md transition-colors"
+                  onClick={() => setShowStartModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500"
                 >
-                  Đóng
+                  Hủy
+                </button>
+                <button
+                  onClick={handleStartAdministration}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                >
+                  Bắt đầu
                 </button>
               </div>
             </div>
@@ -758,335 +819,51 @@ const MedicineAdministration = () => {
         </div>
       )}
 
-      {/* Start Administration Modal - Enhanced with Full Details */}
-      {showStartModal && selectedRequest && (
+      {/* Complete Modal */}
+      {showCompleteModal && selectedRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-screen overflow-y-auto">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full mx-4">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 flex items-center">
-                  <FiPlay className="mr-2 text-green-600" />
-                  Bắt đầu cho uống thuốc
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowStartModal(false);
-                    setSelectedMedicineItem(null);
-                    setSelectedPeriod("");
-                  }}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  <FiX className="h-6 w-6" />
-                </button>
-              </div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                Hoàn thành cho uống thuốc
+              </h3>
             </div>
-
-            <div className="px-6 py-4 space-y-4">
-              {/* Request Summary */}
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-                <div className="grid grid-cols-3 items-center gap-4">
-                  <div>
-                    <span className="font-medium text-green-700 dark:text-green-300">
-                      Yêu cầu:
+            <div className="px-6 py-4">
+              <div className="mb-4">
+                <div>
+                  <p className="text-sm text-gray-900 dark:text-gray-100 inline">
+                    Hoàn thành cho học sinh uống thuốc:{" "}
+                    <span className="font-medium">
+                      {selectedRequest.student?.firstName}{" "}
+                      {selectedRequest.student?.lastName}
                     </span>
-                    <p className="text-green-900 dark:text-green-100">
-                      #{selectedRequest.requestId}
-                    </p>
-                  </div>
-                  <div className="flex items-center">
-                    <div>
-                      <h4 className="text-sm font-semibold text-green-900 dark:text-green-100">
-                        {selectedRequest.studentName ||
-                          `${selectedRequest.student?.firstName || ""} ${
-                            selectedRequest.student?.lastName || ""
-                          }`.trim() ||
-                          "N/A"}
-                      </h4>
-                      <p className="text-xs text-green-700 dark:text-green-300">
-                        Lớp: {selectedRequest.className} • Mã:{" "}
-                        {selectedRequest.studentCode}
-                      </p>
-                    </div>
-                  </div>
-                  {/* Request ID */}
-
-                  {/* Date */}
-                  <div>
-                    <span className="font-medium text-green-700 dark:text-green-300">
-                      Ngày uống:
-                    </span>
-                    <p className="text-green-900 dark:text-green-100">
-                      {formatDate(selectedRequest.date)}
-                    </p>
-                  </div>
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Thuốc:{" "}
+                    {selectedRequest.medicineRequestItems?.[0]?.medicineName}
+                  </p>
                 </div>
               </div>
 
-              {/* Medicine Selection */}
-              {selectedRequest.assignedItems &&
-              selectedRequest.assignedItems.length > 0 ? (
-                <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-                    <FiTablet className="mr-2 text-blue-600" />
-                    Chọn thuốc cần cho uống (
-                    {selectedRequest.assignedItems.length} loại)
-                  </h4>
-
-                  {selectedRequest.assignedItems.map((item, index) => (
-                    <div
-                      key={item.medicineRequestItemId || index}
-                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                        selectedMedicineItem?.medicineRequestItemId ===
-                        item.medicineRequestItemId
-                          ? "border-blue-500 bg-blue-100 dark:bg-blue-900/40"
-                          : "border-blue-200 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-300"
-                      }`}
-                      onClick={() => {
-                        setSelectedMedicineItem(item);
-                        setSelectedPeriod(""); // Reset period when medicine changes
-                      }}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          <input
-                            type="radio"
-                            name="selectedMedicine"
-                            checked={
-                              selectedMedicineItem?.medicineRequestItemId ===
-                              item.medicineRequestItemId
-                            }
-                            onChange={() => {
-                              setSelectedMedicineItem(item);
-                              setSelectedPeriod(""); // Reset period when medicine changes
-                            }}
-                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
-                          />
-                          <h5 className="text-base font-semibold text-blue-900 dark:text-blue-100">
-                            {item.medicineName}
-                          </h5>
-                        </div>
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                          #{item.medicineRequestItemId}
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
-                        <div className="bg-white dark:bg-neutral-700 p-2 rounded">
-                          <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
-                            Liều lượng
-                          </label>
-                          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                            {item.dosage} {item.dosageUnit}
-                          </p>
-                        </div>
-                        <div className="bg-white dark:bg-neutral-700 p-2 rounded">
-                          <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
-                            Tần suất
-                          </label>
-                          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                            {item.frequency} lần/ngày
-                          </p>
-                        </div>
-                        <div className="bg-white dark:bg-neutral-700 p-2 rounded">
-                          <label className="block text-xs font-medium text-blue-700 dark:text-blue-300">
-                            Thời gian
-                          </label>
-                          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                            {item.timeOfDay}
-                          </p>
-                        </div>
-                      </div>
-
-                      {item.instructions && (
-                        <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded border border-amber-200 dark:border-amber-800 mb-3">
-                          <label className="block text-xs font-medium text-amber-700 dark:text-amber-300 mb-1">
-                            <FiInfo className="inline mr-1" />
-                            Hướng dẫn sử dụng:
-                          </label>
-                          <p className="text-sm text-amber-900 dark:text-amber-100 whitespace-pre-wrap">
-                            {item.instructions}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                /* Fallback for old schema */
-                selectedRequest.medicineRequestItems && (
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-                      <FiTablet className="mr-2 text-yellow-600" />
-                      Danh sách thuốc cần cho uống (Schema cũ)
-                    </h4>
-
-                    {selectedRequest.medicineRequestItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className="border border-yellow-200 dark:border-yellow-600 rounded-lg p-4 bg-yellow-50 dark:bg-yellow-900/20"
-                      >
-                        <h5 className="text-base font-semibold text-yellow-900 dark:text-yellow-100 mb-3">
-                          {item.medicineName}
-                        </h5>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                          <div>
-                            <label className="block text-xs font-medium text-yellow-700 dark:text-yellow-300">
-                              Liều lượng
-                            </label>
-                            <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
-                              {item.dosage}{" "}
-                              {item.dosageUnit ||
-                                getMedicineUnit(item.medicineName)}
-                            </p>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-yellow-700 dark:text-yellow-300">
-                              Tần suất
-                            </label>
-                            <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
-                              {item.frequency} lần/ngày
-                            </p>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-yellow-700 dark:text-yellow-300">
-                              Thời gian
-                            </label>
-                            <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
-                              {item.timeOfDay || "N/A"}
-                            </p>
-                          </div>
-                        </div>
-                        {item.instructions && (
-                          <div className="mt-3 p-2 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-200 dark:border-amber-800">
-                            <label className="block text-xs font-medium text-amber-700 dark:text-amber-300 mb-1">
-                              Hướng dẫn:
-                            </label>
-                            <p className="text-sm text-amber-900 dark:text-amber-100">
-                              {item.instructions}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )
-              )}
-
-              {/* Period Selection */}
-              {selectedMedicineItem && (
-                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
-                  <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-3 flex items-center">
-                    <FiClock className="mr-2 text-purple-600" />
-                    Chọn buổi uống thuốc
-                  </h4>
-
-                  {selectedMedicineItem.assignedPeriods &&
-                  selectedMedicineItem.assignedPeriods.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {selectedMedicineItem.assignedPeriods
-                        .filter((period) => period.status === "Assigned") // Only show assigned periods
-                        .map((period, periodIndex) => (
-                          <div
-                            key={periodIndex}
-                            className={`border rounded-lg p-3 cursor-pointer transition-all ${
-                              selectedPeriod === period.period
-                                ? "border-purple-500 bg-purple-100 dark:bg-purple-900/40"
-                                : "border-purple-200 dark:border-purple-600 bg-white dark:bg-neutral-700 hover:border-purple-300"
-                            }`}
-                            onClick={() => setSelectedPeriod(period.period)}
-                          >
-                            <div className="flex items-center space-x-3">
-                              <input
-                                type="radio"
-                                name="selectedPeriod"
-                                value={period.period}
-                                checked={selectedPeriod === period.period}
-                                onChange={(e) =>
-                                  setSelectedPeriod(e.target.value)
-                                }
-                                className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 focus:ring-purple-500"
-                              />
-                              <div className="flex-1">
-                                <div>
-                                  <span className="px-2 py-1 text-xs font-medium rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
-                                    {period.period}
-                                  </span>
-                                </div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  Phân công lúc:
-                                </div>
-                                <div className="text-xs text-gray-900 dark:text-gray-100 font-mono">
-                                  {formatDateTime(period.timestamp)}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4">
-                      <p className="text-sm text-purple-600 dark:text-purple-400">
-                        Không có buổi uống thuốc nào được phân công cho thuốc
-                        này
-                      </p>
-                    </div>
-                  )}
-
-                  {selectedPeriod && (
-                    <div className="mt-3 p-3 bg-purple-100 dark:bg-purple-900/30 rounded border border-purple-300 dark:border-purple-700">
-                      <div className="flex items-center space-x-2">
-                        <FiCheck className="text-purple-600 dark:text-purple-400 h-4 w-4" />
-                        <span className="text-sm font-medium text-purple-900 dark:text-purple-100">
-                          Đã chọn buổi: {selectedPeriod}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Confirmation Message */}
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-3">
-                    <FiCheck className="text-green-600 dark:text-green-400 h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-green-900 dark:text-green-100">
-                      Xác nhận bắt đầu cho uống thuốc
-                    </h4>
-                    <p className="text-sm text-green-800 dark:text-green-200 mt-1">
-                      Bạn sẽ bắt đầu quá trình cho học sinh uống thuốc theo đúng
-                      hướng dẫn trên. Vui lòng đảm bảo đã kiểm tra kỹ thông tin
-                      thuốc và liều lượng.
-                    </p>
-                  </div>
-                </div>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  Chỉ dùng cho thuốc uống 1 lần. Học sinh đã uống thuốc thành
+                  công và hoàn thành yêu cầu.
+                </p>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-600">
+              <div className="flex justify-end space-x-3">
                 <button
-                  onClick={() => {
-                    setShowStartModal(false);
-                    setSelectedMedicineItem(null);
-                    setSelectedPeriod("");
-                  }}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
+                  onClick={() => setShowCompleteModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500"
                 >
                   Hủy
                 </button>
                 <button
-                  onClick={handleStartAdministration}
-                  disabled={!selectedMedicineItem || !selectedPeriod}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center ${
-                    selectedMedicineItem && selectedPeriod
-                      ? "text-white bg-green-600 hover:bg-green-700"
-                      : "text-gray-400 bg-gray-300 cursor-not-allowed"
-                  }`}
+                  onClick={handleCompleteRequest}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
                 >
-                  <FiPlay className="mr-2 h-4 w-4" />
-                  Bắt đầu cho uống thuốc
+                  Hoàn thành
                 </button>
               </div>
             </div>
