@@ -92,7 +92,7 @@ const VaccinationCreate = ({ onBack }) => {
     availableGrades,
     loadingGrades,
     gradesError,
-    studentCountsByGrade,
+
 
     // Calculated values
     totalStudents,
@@ -260,7 +260,7 @@ const VaccinationCreate = ({ onBack }) => {
             totalStudents={totalStudents}
             availableGrades={availableGrades}
             scheduleConflicts={scheduleConflicts}
-            studentCountsByGrade={studentCountsByGrade}
+
           />
         );
 

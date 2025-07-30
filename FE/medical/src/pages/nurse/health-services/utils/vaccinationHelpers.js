@@ -3,7 +3,7 @@
 /**
  * Calculate total number of students across selected grades
  */
-export const calculateTotalStudents = (selectedGrades, availableGrades) => {
+export const calculateTotalStudents = (selectedGrades, availableGrades, assignedClasses = []) => {
   if (
     !selectedGrades ||
     !Array.isArray(selectedGrades) ||
@@ -17,6 +17,21 @@ export const calculateTotalStudents = (selectedGrades, availableGrades) => {
     const grade = availableGrades.find(
       (g) => g.id === gradeId || g.classId === gradeId
     );
+    if (!grade) return total;
+    
+    // Nếu có assignedClasses, đếm từ data thật
+    if (assignedClasses.length > 0) {
+      const classesInGrade = assignedClasses.filter(
+        (cls) => `${cls.gradeLevel}` === `${grade.gradeLevel}`
+      );
+      const totalStudents = classesInGrade.reduce(
+        (classSum, cls) => classSum + (cls.students?.length || 0),
+        0
+      );
+      return total + totalStudents;
+    }
+    
+    // Fallback về cách cũ nếu không có assignedClasses
     return total + (grade?.studentCount || 0);
   }, 0);
 };

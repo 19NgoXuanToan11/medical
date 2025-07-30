@@ -19,6 +19,7 @@ import {
   createHealthCheck,
   getHealthCheckScheduleById,
   updateHealthCheckSchedule,
+  getHealthCheckSchedules,
 } from "../../../../utils/api/healthCheck/healthCheckService";
 import { checkEquipmentAvailability } from "../../../../utils/api/medicalSupply/medicalSupplyService";
 // Add import for health check items API
@@ -38,9 +39,12 @@ export const useHealthCheckForm = (editId = null) => {
   // Replace mock data with real API data for both items and classes
   const [availableGrades, setAvailableGrades] = useState([]);
   const [loadingGrades, setLoadingGrades] = useState(false);
+  const [gradesError, setGradesError] = useState(null);
   const [healthCheckItems, setHealthCheckItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(false);
   const [equipmentStatus, setEquipmentStatus] = useState(null);
+  const [assignedClasses, setAssignedClasses] = useState([]); // Thêm state cho assignedClasses
+  const [existingSchedules, setExistingSchedules] = useState([]); // Thêm state cho existing schedules
 
   // Load health check items from API on component mount
   useEffect(() => {
@@ -123,12 +127,16 @@ export const useHealthCheckForm = (editId = null) => {
   useEffect(() => {
     const loadAssignedClasses = async () => {
       setLoadingGrades(true);
+      setGradesError(null);
       try {
         // Only nurses can access assigned classes - check will be done by API
 
         const result = await staffService.getMyAssignedClasses();
 
         if (result?.success && result?.data && Array.isArray(result.data)) {
+          // Lưu assignedClasses gốc để tính toán
+          setAssignedClasses(result.data);
+          
           // Transform API data to match expected UI format
           const transformedClasses = result.data.map((classItem) => ({
             id: classItem.classId || classItem.id,
@@ -147,17 +155,43 @@ export const useHealthCheckForm = (editId = null) => {
         } else {
           console.warn("No assigned classes found for this nurse");
           setAvailableGrades([]);
+          setAssignedClasses([]);
         }
       } catch (error) {
         console.error("Error loading assigned classes:", error);
+        setGradesError("Không thể tải danh sách lớp học. Vui lòng thử lại.");
         // Fallback to empty array for nurses with no assigned grades
         setAvailableGrades([]);
+        setAssignedClasses([]);
       } finally {
         setLoadingGrades(false);
       }
     };
 
     loadAssignedClasses();
+  }, []);
+
+  // Load existing health check schedules for conflict checking
+  useEffect(() => {
+    const loadExistingSchedules = async () => {
+      try {
+        const schedules = await getHealthCheckSchedules();
+        if (schedules && Array.isArray(schedules)) {
+          // Filter only approved schedules for conflict checking
+          const approvedSchedules = schedules.filter(
+            schedule => schedule.status === 'approved'
+          );
+          setExistingSchedules(approvedSchedules);
+        } else {
+          setExistingSchedules([]);
+        }
+      } catch (error) {
+        console.error("Error loading existing schedules:", error);
+        setExistingSchedules([]);
+      }
+    };
+
+    loadExistingSchedules();
   }, []);
 
   // Load edit data if editId is provided
@@ -220,7 +254,8 @@ export const useHealthCheckForm = (editId = null) => {
   // Calculated values
   const totalStudents = calculateTotalStudents(
     formData.targetGrades,
-    availableGrades
+    availableGrades,
+    assignedClasses
   );
   const sessions = calculateRequiredSessions(
     totalStudents,
@@ -434,7 +469,7 @@ export const useHealthCheckForm = (editId = null) => {
         formData.scheduledTime &&
         formData.location
       ) {
-        const conflicts = checkScheduleConflicts(formData);
+        const conflicts = checkScheduleConflicts(formData, existingSchedules);
         setScheduleConflicts(conflicts);
       }
     }, 500);
@@ -445,6 +480,7 @@ export const useHealthCheckForm = (editId = null) => {
     formData.scheduledTime,
     formData.location,
     formData.equipmentNeeded,
+    existingSchedules,
   ]);
 
   // Handle input changes
@@ -870,11 +906,17 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
     localStorage.removeItem("healthcheck_draft");
   }, []);
 
+  // Retry function for loading grades
+  const retryLoadGrades = useCallback(() => {
+    loadAssignedClasses();
+  }, []);
+
   return {
     // State
     loading,
     loadingItems,
     loadingGrades,
+    gradesError,
     currentStep,
     formData,
     validationErrors,
@@ -882,6 +924,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
     availableGrades,
     healthCheckItems,
     equipmentStatus,
+    assignedClasses,
 
     // Calculated values
     totalStudents,
@@ -901,5 +944,6 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
     resetForm,
     getSelectedEquipment,
     generateEquipmentReport,
+    retryLoadGrades,
   };
 };

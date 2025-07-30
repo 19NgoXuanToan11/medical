@@ -1,11 +1,29 @@
 import { useState, useEffect } from "react";
 import { getHealthCheckSchedules } from "../../../../utils/api/healthCheck/healthCheckService.js";
 import { getCurrentVietnamTime } from "../../../../utils/timeUtils";
+import { staffService } from "../../../../utils/staff/staffService";
 
 export const useNurseHealthCheckData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [healthChecks, setHealthChecks] = useState([]);
+  const [nurseAssignment, setNurseAssignment] = useState(null);
+
+  // Fetch nurse assignment information
+  const fetchNurseAssignment = async () => {
+    try {
+      const response = await staffService.getMyAssignedGrades();
+      if (response.success && response.data) {
+        setNurseAssignment({
+          assignedGrades: response.data,
+          gradeNames: response.data.map(grade => `Khối ${grade}`).join(", ")
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching nurse assignment:", error);
+      // Don't set error for assignment, as it's not critical
+    }
+  };
 
   // Fetch health check schedules from API
   const fetchHealthCheckSchedules = async () => {
@@ -84,6 +102,7 @@ export const useNurseHealthCheckData = () => {
   // Fetch data on component mount
   useEffect(() => {
     fetchHealthCheckSchedules();
+    fetchNurseAssignment();
   }, []);
 
   // Filter functions based on nurse workflow
@@ -117,12 +136,37 @@ export const useNurseHealthCheckData = () => {
     });
   };
 
+  // Get ready health checks (approved but not yet active)
+  const getReadyHealthChecks = () => {
+    return healthChecks.filter((hc) => {
+      const confirmStatus = hc.confirmStatus?.toLowerCase();
+      const status = hc.status?.toLowerCase();
+      return confirmStatus === "approved" && status === "scheduled";
+    });
+  };
+
+  // Get active health checks (currently in progress)
+  const getActiveHealthChecks = () => {
+    return healthChecks.filter((hc) => {
+      const status = hc.status?.toLowerCase();
+      return status === "active";
+    });
+  };
+
+  // Calculate total students across all health checks
+  const getTotalStudents = () => {
+    return healthChecks.reduce((total, hc) => total + (hc.totalStudents || 0), 0);
+  };
+
   // Calculate stats
   const stats = {
     pending: getPendingHealthChecks().length,
     upcoming: getUpcomingHealthChecks().length,
     completed: getCompletedHealthChecks().length,
     rejected: getRejectedHealthChecks().length,
+    ready: getReadyHealthChecks().length,
+    active: getActiveHealthChecks().length,
+    totalStudents: getTotalStudents(),
   };
 
   return {
@@ -130,10 +174,13 @@ export const useNurseHealthCheckData = () => {
     error,
     healthChecks,
     stats,
+    nurseAssignment,
     pendingHealthChecks: getPendingHealthChecks(),
     upcomingHealthChecks: getUpcomingHealthChecks(),
     completedHealthChecks: getCompletedHealthChecks(),
     rejectedHealthChecks: getRejectedHealthChecks(),
+    readyHealthChecks: getReadyHealthChecks(),
+    activeHealthChecks: getActiveHealthChecks(),
     fetchHealthCheckSchedules,
   };
 };

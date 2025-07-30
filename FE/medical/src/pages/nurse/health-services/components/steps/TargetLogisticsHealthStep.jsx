@@ -1,300 +1,229 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiUsers,
-  FiCalendar,
-  FiClock,
-  FiClipboard,
-  FiMail,
-  FiAlertCircle,
-  FiUser,
-  FiCheckCircle,
-  FiTarget,
+  FiAlertTriangle,
   FiInfo,
+  FiRefreshCw,
+  FiLoader,
 } from "react-icons/fi";
-import { formatDuration } from "../../utils/healthCheckHelpers";
+import { staffService } from "../../../../../utils/staff/staffService";
 
 const TargetLogisticsHealthStep = ({
   formData,
   validationErrors,
   onInputChange,
   onGradeSelection,
-  totalStudents,
-  sessions,
-  resourceReqs,
   availableGrades,
+  totalStudents,
+  loadingGrades = false,
+  gradesError = null,
+  onRetryLoadGrades,
 }) => {
+  const [showDetails, setShowDetails] = useState(false);
+  const [expandedGrades, setExpandedGrades] = useState({}); // { gradeId: true/false }
+  const [expandedClasses, setExpandedClasses] = useState({}); // { classKey: true/false }
+  const [assignedClasses, setAssignedClasses] = useState([]); // [{ classId, className, gradeLevel, students: [] }]
+  const [loadingAssigned, setLoadingAssigned] = useState(true);
+
+  useEffect(() => {
+    const fetchAssigned = async () => {
+      setLoadingAssigned(true);
+      try {
+        const result = await staffService.getMyAssignedClasses();
+        if (result.success && Array.isArray(result.data)) {
+          setAssignedClasses(result.data);
+        } else {
+          setAssignedClasses([]);
+        }
+      } catch (e) {
+        setAssignedClasses([]);
+      } finally {
+        setLoadingAssigned(false);
+      }
+    };
+    fetchAssigned();
+  }, []);
+
+  // Toggle grade expansion
+  const handleToggleGrade = (gradeId) => {
+    setExpandedGrades((prev) => ({
+      ...prev,
+      [gradeId]: !prev[gradeId],
+    }));
+  };
+
   return (
-    <div className="space-y-8">
-      {/* Logistics Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-6 border border-neutral-200 dark:border-neutral-700">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <FiUsers className="h-8 w-8 text-primary-600 dark:text-primary-400" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Tổng số học sinh
-              </p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {totalStudents}
-              </p>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Target Selection */}
+      <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700">
+        <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+          Đối tượng khám sức khỏe
+        </h3>
 
-        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-6 border border-neutral-200 dark:border-neutral-700">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <FiCalendar className="h-8 w-8 text-success-600 dark:text-success-400" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Lớp học đã chọn
-              </p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {formData.targetGrades.reduce((total, gradeId) => {
-                  const grade = availableGrades.find((g) => g.id === gradeId);
-                  return total + (grade?.classCount || 0);
-                }, 0)}
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Grade Selection */}
+        <div>
+          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+            <FiUsers className="inline w-4 h-4 mr-1" />
+            Chọn khối lớp *
+          </label>
 
-        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-6 border border-neutral-200 dark:border-neutral-700">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <FiUser className="h-8 w-8 text-warning-600 dark:text-warning-400" />
+          {/* Loading State */}
+          {loadingGrades && (
+            <div className="flex items-center justify-center py-8">
+              <FiLoader className="w-6 h-6 animate-spin text-primary-600 dark:text-primary-400 mr-3" />
+              <span className="text-neutral-600 dark:text-neutral-400">
+                Đang tải danh sách lớp học...
+              </span>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Nhân viên y tế
-              </p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {resourceReqs?.staffNeeded ?? 0}
-              </p>
-            </div>
-          </div>
-        </div>
+          )}
 
-        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-6 border border-neutral-200 dark:border-neutral-700">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <FiClock className="h-8 w-8 text-info-600 dark:text-info-400" />
+          {/* Error State */}
+          {gradesError && !loadingGrades && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
+                  <span className="text-red-700 dark:text-red-300">
+                    {gradesError}
+                  </span>
+                </div>
+                {onRetryLoadGrades && (
+                  <button
+                    onClick={onRetryLoadGrades}
+                    className="flex items-center px-3 py-1 text-sm bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                  >
+                    <FiRefreshCw className="w-4 h-4 mr-1" />
+                    Thử lại
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                Thời gian dự kiến
-              </p>
-              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                {resourceReqs?.totalTime
-                  ? Math.ceil(resourceReqs.totalTime / 60)
-                  : 0}
-                h
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+          )}
 
-      {/* Validation Error */}
-      {validationErrors.targetGrades && (
-        <div className="bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800 rounded-lg p-4">
-          <div className="flex items-center">
-            <FiAlertCircle className="w-5 h-5 text-error-600 dark:text-error-400 mr-2" />
-            <p className="text-sm text-error-600 dark:text-error-400">
-              {validationErrors.targetGrades}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Target Grade Selection */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
-        <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-          <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 flex items-center">
-            <FiTarget className="mr-2" />
-            Chọn lớp tham gia
-          </h3>
-        </div>
-
-        <div className="p-6">
-          {!availableGrades || availableGrades.length === 0 ? (
-            <div className="text-center py-12">
-              <FiInfo className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                Chưa có khối lớp được phân công
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Bạn chưa được phân công phụ trách khối lớp nào.
-                <br />
-                Vui lòng liên hệ quản trị viên để được phân công khối lớp.
-              </p>
-            </div>
-          ) : (
+          {/* Grade Selection Grid */}
+          {!loadingGrades && !gradesError && availableGrades.length > 0 && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {availableGrades.map((grade) => (
-                  <div
-                    key={grade.id}
-                    className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                      formData.targetGrades.includes(grade.id)
-                        ? "border-primary-500 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 ring-2 ring-primary-200 dark:ring-primary-800"
-                        : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 bg-white dark:bg-neutral-800"
-                    }`}
-                    onClick={() => {
-                      // Multiple selection logic - toggle selection
-                      const newSelectedGrades = formData.targetGrades.includes(grade.id)
-                        ? formData.targetGrades.filter((id) => id !== grade.id)
-                        : [...formData.targetGrades, grade.id];
-                      onInputChange("targetGrades", newSelectedGrades);
-                    }}
-                  >
-                    <div className="flex items-start">
+                  <div key={grade.id} className="relative">
+                    <label className="flex items-start p-4 border border-neutral-200 dark:border-neutral-600 rounded-lg cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors">
                       <input
                         type="checkbox"
                         checked={formData.targetGrades.includes(grade.id)}
-                        onChange={(e) => {
-                          // Multiple selection logic - toggle selection
-                          const newSelectedGrades = e.target.checked
-                            ? [...formData.targetGrades, grade.id]
-                            : formData.targetGrades.filter((id) => id !== grade.id);
-                          onInputChange("targetGrades", newSelectedGrades);
-                        }}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 mt-1 bg-white dark:bg-neutral-900 rounded"
+                        onChange={() => onGradeSelection(grade.id)}
+                        className="mt-1 h-4 w-4 text-primary-600 border-neutral-300 rounded focus:ring-primary-500"
                       />
-                      <div className="ml-3 flex-1">
-                        <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                          {grade.name}
-                        </h4>
-                        <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-                          {grade.studentCount} học sinh
-                        </p>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                          Khối: {grade.gradeLevel || "Không có"}
-                        </p>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                          GVCN: {grade.classTeacher || "Chưa có thông tin"}
-                        </p>
+                      <div className="flex-1 ml-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium text-neutral-900 dark:text-neutral-100">
+                            {grade.name}
+                          </h4>
+                        </div>
                       </div>
-                      <div className="text-xs text-neutral-500 dark:text-neutral-500">
-                        {grade.ageRange}
-                      </div>
-                    </div>
+                    </label>
                   </div>
                 ))}
               </div>
 
-              {/* Selected Grade Summary */}
-              {formData.targetGrades.length > 0 && (
-                <div className="mt-6 bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
-                  <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-3">
-                    Khối lớp đã chọn
-                  </h4>
-                  {formData.targetGrades.map((gradeId) => {
-                    const grade = availableGrades.find((g) => g.id === gradeId);
-                    return grade ? (
-                      <div
-                        key={gradeId}
-                        className="py-2 px-3 bg-primary-50 dark:bg-primary-900/20 rounded border border-primary-200 dark:border-primary-800"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="font-medium text-primary-900 dark:text-primary-200">
-                              {grade.name}
-                            </span>
-                            <span className="text-sm text-primary-700 dark:text-primary-300 ml-2">
-                              (Khối {grade.gradeLevel || "Không có"})
-                            </span>
-                          </div>
-                          <span className="text-sm text-primary-600 dark:text-primary-400">
-                            {grade.studentCount} học sinh
-                          </span>
-                        </div>
-                        {grade.classTeacher && (
-                          <div className="mt-1 text-xs text-primary-600 dark:text-primary-400">
-                            GVCN: {grade.classTeacher}
-                          </div>
-                        )}
-                      </div>
-                    ) : null;
-                  })}
-                </div>
+              {/* Validation Error */}
+              {validationErrors.targetGrades && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {validationErrors.targetGrades}
+                </p>
               )}
             </>
           )}
-        </div>
-      </div>
 
-      {/* Approval Requirements */}
-      {formData.requiresApproval && (
-        <div className="bg-warning-50 dark:bg-warning-900/20 rounded-lg border border-warning-200 dark:border-warning-800">
-          <div className="px-6 py-4 border-b border-warning-200 dark:border-warning-800">
-            <h3 className="text-lg font-medium text-warning-900 dark:text-warning-200 flex items-center">
-              <FiClipboard className="mr-2" />
-              Yêu cầu phê duyệt
-            </h3>
-          </div>
-          <div className="p-6">
-            <div className="flex items-start">
-              <FiAlertCircle className="flex-shrink-0 h-5 w-5 text-warning-600 dark:text-warning-400 mt-0.5" />
-              <div className="ml-3">
-                <p className="text-sm text-warning-800 dark:text-warning-300">
-                  Kế hoạch này cần được phê duyệt bởi{" "}
-                  <strong>
-                    {formData.approvalLevel === "manager"
-                      ? "Quản lý"
-                      : "Trưởng khoa y tế"}
-                  </strong>{" "}
-                  do số lượng học sinh lớn.
+
+        </div>
+
+        {/* Summary */}
+        {formData.targetGrades.length > 0 && (
+          <div className="mt-6 bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                Tổng kết đối tượng khám
+              </h4>
+              <button
+                type="button"
+                onClick={() => setShowDetails(!showDetails)}
+                className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 text-sm font-medium"
+              >
+                {showDetails ? "Ẩn chi tiết" : "Xem chi tiết"}
+              </button>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                  {totalStudents}
+                </p>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  Học sinh
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                  {formData.targetGrades.length}
+                </p>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  Lớp học
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* Communication Settings */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
-        <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-          <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 flex items-center">
-            <FiMail className="mr-2" />
-            Thông báo và liên lạc
-          </h3>
-        </div>
-        <div className="p-6 space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Thông báo cho phụ huynh
-            </label>
-            <textarea
-              rows={4}
-              value={formData.parentNotificationMessage}
-              onChange={(e) =>
-                onInputChange("parentNotificationMessage", e.target.value)
-              }
-              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
-              placeholder="Nội dung thông báo gửi đến phụ huynh..."
-            />
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              Tin nhắn này sẽ được gửi qua SMS/email
-            </p>
+            {showDetails && (
+              <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                {formData.targetGrades.map((classId) => {
+                  // Tìm lớp được chọn trong assignedClasses
+                  const selectedClass = assignedClasses.find((cls) => 
+                    cls.classId === classId || cls.id === classId
+                  );
+                  
+                  if (!selectedClass) return null;
+                  
+                  return (
+                    <div key={classId} className="mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                          {selectedClass.className || selectedClass.name}
+                        </span>
+                        <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                          {selectedClass.students?.length || 0} học sinh
+                        </span>
+                      </div>
+                      
+                      {/* Danh sách học sinh */}
+                      {selectedClass.students && selectedClass.students.length > 0 && (
+                        <div className="ml-4 p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {selectedClass.students.map((student, index) => (
+                              <div key={index} className="flex items-center p-2 bg-white dark:bg-neutral-600 rounded border border-neutral-200 dark:border-neutral-500">
+                                <div className="flex-1">
+                                  <div className="font-medium text-sm text-neutral-900 dark:text-neutral-100">
+                                    {student.hoTen || student.fullName || `Học sinh ${index + 1}`}
+                                  </div>
+                                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                                    {student.maSoHocSinh || student.studentCode || `MS: ${index + 1}`}
+                                  </div>
+                                </div>
+                                {student.sucKhoe && student.sucKhoe !== 'Tốt' && (
+                                  <span className="px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded">
+                                    {student.sucKhoe}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Ghi chú thêm
-            </label>
-            <textarea
-              rows={3}
-              value={formData.additionalNotes}
-              onChange={(e) => onInputChange("additionalNotes", e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
-              placeholder="Các ghi chú thêm cho kế hoạch khám sức khỏe..."
-            />
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

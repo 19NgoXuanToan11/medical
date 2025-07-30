@@ -40,6 +40,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
     loading,
     error,
     stats,
+    nurseAssignment,
     pendingHealthChecks,
     upcomingHealthChecks,
     completedHealthChecks,
@@ -127,7 +128,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
       case "từ chối":
         return "px-2 py-1 text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 rounded-full";
       default:
-        return "px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300 rounded-full";
+        return "px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-full";
     }
   };
 
@@ -201,6 +202,48 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
     fetchHealthCheckSchedules();
   };
 
+  // Upload modal handlers
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setUploadFile(file);
+      setUploadError("");
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      await downloadHealthCheckTemplate(selectedHealthCheck.formId || selectedHealthCheck.id);
+    } catch (error) {
+      console.error("Error downloading template:", error);
+      setUploadError("Không thể tải mẫu file. Vui lòng thử lại.");
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!uploadFile || !selectedHealthCheck) return;
+
+    setUploading(true);
+    setUploadError("");
+
+    try {
+      await uploadHealthCheckResults(
+        selectedHealthCheck.formId || selectedHealthCheck.id,
+        uploadFile
+      );
+      
+      // Close modal and refresh data
+      setShowUploadModal(false);
+      setUploadFile(null);
+      fetchHealthCheckSchedules();
+    } catch (error) {
+      console.error("Error uploading results:", error);
+      setUploadError(error.message || "Không thể upload file. Vui lòng thử lại.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const renderHealthCheckCard = (healthCheck) => (
     <div
       key={healthCheck.id}
@@ -235,7 +278,9 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         </div>
         <div className="flex items-center">
           <FiUsers className="w-4 h-4 mr-2" />
-          <span>Khối: {healthCheck.grades?.join(", ")}</span>
+          <span>
+            Khối: {healthCheck.targetGrades?.join(", ") || "Chưa phân công"}
+          </span>
         </div>
         <div className="flex items-center">
           <FiMapPin className="w-4 h-4 mr-2" />
@@ -243,35 +288,13 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
         </div>
       </div>
 
-      {/* Check Items */}
-      {healthCheck.checkItems && (
-        <div className="mb-3">
-          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-            Hạng mục:{" "}
-          </span>
-          {(Array.isArray(healthCheck.checkItems)
-            ? healthCheck.checkItems
-            : typeof healthCheck.checkItems === "string"
-            ? JSON.parse(healthCheck.checkItems)
-            : []
-          ).map((item, index) => {
-            const key =
-              typeof item === "string"
-                ? `${item}-${index}`
-                : item && item.name
-                ? `${item.name}-${index}`
-                : index;
-            return (
-              <span
-                key={key}
-                className="inline-block bg-gray-100 dark:bg-gray-700 text-xs px-2 py-1 rounded mr-1 mb-1"
-              >
-                {translateStationName(
-                  typeof item === "string" ? item : item.name || item
-                )}
-              </span>
-            );
-          })}
+      {/* Nurse Assignment Info */}
+      {nurseAssignment && (
+        <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="flex items-center text-sm text-blue-700 dark:text-blue-300">
+            <FiInfo className="w-4 h-4 mr-2" />
+            <span>Bạn phụ trách: {nurseAssignment.gradeNames}</span>
+          </div>
         </div>
       )}
 
@@ -372,16 +395,18 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
 
         {/* Action buttons based on status */}
         <div className="flex space-x-2">
+          {/* Upload results button for approved health checks */}
           {(healthCheck.confirmStatus?.toLowerCase() === "approved" ||
-            healthCheck.status === "Approved") && (
+            healthCheck.status === "approved") && (
             <button
-              onClick={() =>
-                handleStartHealthCheck(healthCheck.formId || healthCheck.id)
-              }
-              className="text-xs px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
+              onClick={() => {
+                setSelectedHealthCheck(healthCheck);
+                setShowUploadModal(true);
+              }}
+              className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
             >
               <FiUpload className="w-3 h-3 mr-1 inline" />
-              Hoàn thành
+              Upload kết quả
             </button>
           )}
           {/* Show completion button for active health checks */}
@@ -390,7 +415,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               onClick={() =>
                 handleCompleteHealthCheck(healthCheck.formId || healthCheck.id)
               }
-              className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+              className="text-xs px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
             >
               <FiCheckCircle className="w-3 h-3 mr-1 inline" />
               Hoàn thành
@@ -483,7 +508,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               {formatDate(selectedHealthCheck.scheduledDate)}
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              <strong>Lớp:</strong> {selectedHealthCheck.grades?.join(", ")}
+              <strong>Khối:</strong> {selectedHealthCheck.targetGrades?.join(", ") || "Chưa phân công"}
             </p>
           </div>
 
@@ -497,7 +522,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
               Tải mẫu file Excel
             </button>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Tải file mẫu chứa danh sách học sinh và các hạng mục khám
+              Tải file mẫu chứa danh sách học sinh và kết quả khám (tai, mắt, mũi, họng, chiều cao, cân nặng)
             </p>
           </div>
 
@@ -518,12 +543,27 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
                 htmlFor="file-upload"
                 className="cursor-pointer flex flex-col items-center"
               >
-                <FiFile className="w-8 h-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {uploadFile
-                    ? uploadFile.name
-                    : "Chọn file Excel (.xlsx, .xls)"}
-                </span>
+                {uploadFile ? (
+                  <div className="text-center">
+                    <FiFile className="w-8 h-8 text-green-500 mb-2" />
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {uploadFile.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {(uploadFile.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Click để chọn file hoặc kéo thả file vào đây
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Hỗ trợ file Excel (.xlsx, .xls)
+                    </p>
+                  </div>
+                )}
               </label>
             </div>
           </div>
@@ -531,7 +571,7 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
           {/* Error Message */}
           {uploadError && (
             <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-700 dark:text-red-300">
+              <p className="text-sm text-red-800 dark:text-red-200">
                 {uploadError}
               </p>
             </div>
@@ -541,26 +581,22 @@ const HealthCheckManagement = ({ searchTerm: parentSearchTerm = "" }) => {
           <div className="flex space-x-3">
             <button
               onClick={() => setShowUploadModal(false)}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
-              disabled={uploading}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors"
             >
               Hủy
             </button>
             <button
-              onClick={handleUploadSubmit}
+              onClick={handleUpload}
               disabled={!uploadFile || uploading}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {uploading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2 inline-block" />
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2" />
                   Đang upload...
                 </>
               ) : (
-                <>
-                  <FiUpload className="w-4 h-4 mr-2 inline" />
-                  Upload kết quả
-                </>
+                "Upload"
               )}
             </button>
           </div>

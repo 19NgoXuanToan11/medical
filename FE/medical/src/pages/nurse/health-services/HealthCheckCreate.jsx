@@ -40,6 +40,7 @@ const HealthCheckCreate = () => {
     loading,
     loadingItems,
     loadingGrades,
+    gradesError,
     currentStep,
     formData,
     validationErrors,
@@ -50,6 +51,7 @@ const HealthCheckCreate = () => {
     sessions,
     resourceReqs,
     equipmentStatus,
+    assignedClasses,
     handleInputChange,
     handleGradeSelection,
     handleCheckItemToggle,
@@ -60,6 +62,7 @@ const HealthCheckCreate = () => {
     loadDraft,
     handleSubmit,
     resetForm,
+    retryLoadGrades,
   } = useHealthCheckForm(id);
 
   // Load draft on component mount (only for create mode, not edit mode)
@@ -119,6 +122,7 @@ const HealthCheckCreate = () => {
             totalStudents={totalStudents}
             sessions={sessions}
             resourceReqs={resourceReqs}
+            assignedClasses={assignedClasses}
           />
         );
       case 2:
@@ -143,6 +147,7 @@ const HealthCheckCreate = () => {
             onInputChange={handleInputChange}
             healthCheckItems={healthCheckItems}
             equipmentStatus={equipmentStatus}
+            assignedClasses={assignedClasses}
           />
         );
       case 3:
@@ -166,8 +171,11 @@ const HealthCheckCreate = () => {
             onInputChange={handleInputChange}
             onGradeSelection={handleGradeSelection}
             totalStudents={totalStudents}
-            sessions={sessions}
             availableGrades={availableGrades}
+            loadingGrades={loadingGrades}
+            gradesError={gradesError}
+            onRetryLoadGrades={retryLoadGrades}
+            assignedClasses={assignedClasses}
           />
         );
       case 4:
@@ -179,6 +187,7 @@ const HealthCheckCreate = () => {
             scheduleConflicts={scheduleConflicts}
             availableGrades={availableGrades}
             healthCheckItems={healthCheckItems}
+            assignedClasses={assignedClasses}
           />
         );
       default:

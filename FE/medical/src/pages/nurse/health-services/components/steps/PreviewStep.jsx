@@ -14,7 +14,7 @@ const PreviewStep = ({
   totalStudents,
   scheduleConflicts,
   availableGrades,
-  studentCountsByGrade,
+  assignedClasses = [],
 }) => {
   const hasHighSeverityConflicts = scheduleConflicts.some(
     (c) => c.severity === "error"
@@ -152,48 +152,76 @@ const PreviewStep = ({
           <FiUsers className="w-5 h-5 mr-2 text-purple-500 dark:text-purple-400" />
           Lớp học tham gia
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-          {formData.targetGrades.map((gradeId) => {
-            const grade = availableGrades.find((g) => g.id === gradeId);
-            return grade ? (
-              <div
-                key={gradeId}
-                className="bg-gray-50 dark:bg-neutral-700 border border-gray-200 dark:border-neutral-600 rounded-lg p-4"
-              >
-                <div className="flex flex-col space-y-2">
-                  <span className="font-medium text-gray-900 dark:text-gray-100 text-lg">
-                    {grade.name}
-                  </span>
-                  <div className="space-y-1">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      Số học sinh: {studentCountsByGrade[gradeId] ?? 0}
-                    </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-500 block">
-                      Lớp:{" "}
-                      {grade.classes ? grade.classes.join(", ") : "Không có"}
-                    </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-500 block">
-                      Độ tuổi: {grade.ageRange}
-                    </span>
+        
+        {/* Khối lớp tham gia */}
+        <div className="mb-6">
+          <h4 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+            Khối lớp tham gia
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {formData.targetGrades.map((gradeId) => {
+              const grade = availableGrades.find((g) => g.id === gradeId);
+              if (!grade) return null;
+              
+              // Tính số học sinh cho lớp này từ assignedClasses
+              const classesInGrade = assignedClasses?.filter(
+                (cls) => `${cls.gradeLevel}` === `${grade.gradeLevel}`
+              ) || [];
+              const studentCount = classesInGrade.reduce(
+                (total, cls) => total + (cls.students?.length || 0),
+                0
+              );
+              
+              return (
+                <div key={gradeId} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h5 className="font-semibold text-blue-900 dark:text-blue-100 text-lg">
+                        {grade.name}
+                      </h5>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {studentCount}
+                      </div>
+                      <div className="text-sm text-blue-600 dark:text-blue-400">
+                        học sinh
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : null;
-          })}
+              );
+            })}
+          </div>
         </div>
 
-        <div className="border-t border-gray-200 dark:border-neutral-600 pt-4">
-          <div className="flex justify-between items-center">
-            <span className="text-lg font-medium text-gray-900 dark:text-gray-100">
-              Tổng cộng:
-            </span>
-            <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-              {formData.targetGrades.reduce(
-                (sum, gradeId) => sum + (studentCountsByGrade[gradeId] ?? 0),
-                0
-              )}{" "}
-              học sinh
-            </span>
+        {/* Tổng kết đối tượng khám */}
+        <div className="bg-gray-50 dark:bg-neutral-700 border border-gray-200 dark:border-neutral-600 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">
+              Tổng kết đối tượng khám
+            </h4>
+            <button className="text-blue-600 dark:text-blue-400 text-sm font-medium">
+              Xem chi tiết
+            </button>
+          </div>
+          <div className="flex justify-between">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {totalStudents}
+              </div>
+              <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                Học sinh
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {formData.targetGrades.length}
+              </div>
+              <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                Lớp học
+              </div>
+            </div>
           </div>
         </div>
       </div>
