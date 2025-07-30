@@ -149,12 +149,27 @@ export const classifyOverallStatus = (periodStatuses) => {
     (status) => status === PERIOD_STATUSES.COMPLETED
   );
 
+  // If there are refused periods
+  if (hasRefused) {
+    if (hasPending || hasVerified || hasCompleted) {
+      return "partially_refused";
+    } else {
+      return "fully_refused";
+    }
+  }
+
+  // If there are verified/completed periods but no refused periods
+  if (hasVerified || hasCompleted) {
+    if (hasPending) {
+      return "partially_verified"; // New status for mixed verified/pending
+    } else {
+      return "verified";
+    }
+  }
+
+  // If only pending periods
   if (hasPending) {
     return "pending";
-  } else if (hasRefused && !hasPending) {
-    return hasVerified || hasCompleted ? "partially_refused" : "fully_refused";
-  } else if ((hasVerified || hasCompleted) && !hasPending && !hasRefused) {
-    return "verified";
   }
 
   return "mixed";
@@ -179,8 +194,10 @@ export const getRequestStatus = (request) => {
     (status) => status === PERIOD_STATUSES.REFUSED
   );
 
+  const overallStatus = classifyOverallStatus(periodStatuses);
+
   return {
-    overall: classifyOverallStatus(periodStatuses),
+    overall: overallStatus,
     periods: periods.map((period) => ({
       period,
       status: getPeriodStatus(request, period),
@@ -191,6 +208,7 @@ export const getRequestStatus = (request) => {
     hasRefused,
     isPartiallyProcessed: (hasVerified || hasRefused) && hasPending,
     isFullyProcessed: !hasPending,
+    isPartiallyVerified: overallStatus === "partially_verified",
   };
 };
 
@@ -203,8 +221,7 @@ export const getAvailableActions = (request) => {
     canRefuse: status.hasPending,
     canEdit: status.hasPending,
     showInPending: status.hasPending,
-    showInVerified:
-      status.isFullyProcessed && status.hasVerified && !status.hasRefused,
+    showInVerified: status.hasVerified && !status.hasRefused, // Show any request with verified periods (regardless of pending status)
     showInRefused: status.hasRefused, // Show any request with refused periods
   };
 };
@@ -250,6 +267,13 @@ export const isFullyRefused = (request) => {
   const status = getRequestStatus(request);
   // Fully refused means: has refused periods AND no verified periods AND no pending periods
   return status.hasRefused && !status.hasVerified && !status.hasPending;
+};
+
+// Check if request is partially verified (has both verified and pending periods)
+export const isPartiallyVerified = (request) => {
+  const status = getRequestStatus(request);
+  // Partially verified means: has verified periods AND has pending periods AND no refused periods
+  return status.hasVerified && status.hasPending && !status.hasRefused;
 };
 
 // Get period-specific refusal reason
@@ -378,6 +402,7 @@ export const debugRequestStatus = (request) => {
   const status = getRequestStatus(request);
   const isPartially = isPartiallyRefused(request);
   const isFully = isFullyRefused(request);
+  const isPartiallyVerifiedStatus = isPartiallyVerified(request);
 
   return {
     requestId: request.requestId,
@@ -386,6 +411,7 @@ export const debugRequestStatus = (request) => {
     overallStatus: status,
     isPartiallyRefused: isPartially,
     isFullyRefused: isFully,
+    isPartiallyVerified: isPartiallyVerifiedStatus,
     hasPending: status.hasPending,
     hasVerified: status.hasVerified,
     hasRefused: status.hasRefused,
@@ -417,6 +443,8 @@ export const filterRequestsByStatus = (requests, statusType) => {
             return isPartiallyRefused(request);
           case "fully_refused":
             return isFullyRefused(request);
+          case "partially_verified":
+            return isPartiallyVerified(request);
           default:
             return true;
         }
@@ -429,4 +457,197 @@ export const filterRequestsByStatus = (requests, statusType) => {
     console.error("Error in filterRequestsByStatus:", error);
     return [];
   }
+};
+
+// Check if a period is already processed (Assigned or Completed)
+// Note: Verified status means the medicine is verified but not yet assigned for administration
+export const isPeriodProcessed = (request, period) => {
+  const status = getPeriodStatus(request, period);
+  return (
+    status === PERIOD_STATUSES.ASSIGNED || status === PERIOD_STATUSES.COMPLETED
+  );
+};
+
+// Get available periods for medication administration (only periods that can be assigned)
+// This includes Pending and Verified periods, but excludes Assigned and Completed
+export const getAvailablePeriodsForAdministration = (request) => {
+  const allPeriods = getAllPeriodsFromRequest(request);
+
+  return allPeriods
+    .filter((period) => {
+      const status = getPeriodStatus(request, period);
+      // Allow Pending and Verified periods for administration assignment
+      return (
+        status === PERIOD_STATUSES.PENDING ||
+        status === PERIOD_STATUSES.VERIFIED
+      );
+    })
+    .map((period) => ({
+      value: period,
+      label: period,
+      status: getPeriodStatus(request, period),
+      statusLabel: getPeriodStatusLabel(getPeriodStatus(request, period)),
+    }));
+};
+
+// Get processed periods for a request (for display purposes)
+// This includes only Assigned and Completed periods
+export const getProcessedPeriodsForDisplay = (request) => {
+  const allPeriods = getAllPeriodsFromRequest(request);
+
+  return allPeriods
+    .filter((period) => {
+      const status = getPeriodStatus(request, period);
+      return (
+        status === PERIOD_STATUSES.ASSIGNED ||
+        status === PERIOD_STATUSES.COMPLETED
+      );
+    })
+    .map((period) => ({
+      period,
+      status: getPeriodStatus(request, period),
+      label: getPeriodStatusLabel(getPeriodStatus(request, period)),
+      class: getStatusClass(getPeriodStatus(request, period)),
+    }));
+};
+
+// Check if a request has any periods available for administration assignment
+export const hasUnprocessedPeriods = (request) => {
+  const availablePeriods = getAvailablePeriodsForAdministration(request);
+  return availablePeriods.length > 0;
+};
+
+// Get period status summary for a request
+export const getPeriodStatusSummary = (request) => {
+  const allPeriods = getAllPeriodsFromRequest(request);
+  const processedPeriods = getProcessedPeriodsForDisplay(request);
+  const availablePeriods = getAvailablePeriodsForAdministration(request);
+
+  return {
+    total: allPeriods.length,
+    processed: processedPeriods.length,
+    available: availablePeriods.length,
+    processedPeriods,
+    availablePeriods,
+  };
+};
+
+// Debug function to test period processing logic
+export const debugPeriodProcessing = (request) => {
+  if (!request) return null;
+
+  const allPeriods = getAllPeriodsFromRequest(request);
+  const processedPeriods = getProcessedPeriodsForDisplay(request);
+  const availablePeriods = getAvailablePeriodsForAdministration(request);
+
+  return {
+    requestId: request.requestId,
+    studentName: request.student
+      ? `${request.student.firstName} ${request.student.lastName}`
+      : "Unknown",
+    allPeriods,
+    processedPeriods,
+    availablePeriods,
+    hasUnprocessedPeriods: hasUnprocessedPeriods(request),
+    summary: {
+      total: allPeriods.length,
+      processed: processedPeriods.length,
+      available: availablePeriods.length,
+    },
+    periodDetails: allPeriods.map((period) => ({
+      period,
+      status: getPeriodStatus(request, period),
+      isProcessed: isPeriodProcessed(request, period),
+      statusLabel: getPeriodStatusLabel(getPeriodStatus(request, period)),
+    })),
+  };
+};
+
+// Detailed debug function to understand period processing issue
+export const debugPeriodProcessingDetailed = (request) => {
+  if (!request) return null;
+
+  const allPeriods = getAllPeriodsFromRequest(request);
+  const periodDetails = allPeriods.map((period) => {
+    const status = getPeriodStatus(request, period);
+    const isProcessed = isPeriodProcessed(request, period);
+
+    // Get raw data for debugging
+    const rawData = request.medicineRequestItems?.map((item) => ({
+      medicineRequestItemId: item.medicineRequestItemId,
+      medicineName: item.medicineName,
+      periodVerificationStatus: item.periodVerificationStatus,
+      parsedStatus: parsePeriodStatus(item.periodVerificationStatus),
+    }));
+
+    return {
+      period,
+      status,
+      isProcessed,
+      statusLabel: getPeriodStatusLabel(status),
+      rawData,
+    };
+  });
+
+  return {
+    requestId: request.requestId,
+    studentName: request.student
+      ? `${request.student.firstName} ${request.student.lastName}`
+      : "Unknown",
+    requestStatus: request.status,
+    allPeriods,
+    periodDetails,
+    hasUnprocessedPeriods: hasUnprocessedPeriods(request),
+    availablePeriods: getAvailablePeriodsForAdministration(request),
+    processedPeriods: getProcessedPeriodsForDisplay(request),
+    summary: {
+      total: allPeriods.length,
+      processed: getProcessedPeriodsForDisplay(request).length,
+      available: getAvailablePeriodsForAdministration(request).length,
+    },
+  };
+};
+
+// Test function to verify the new logic with sample data
+export const testWithSampleData = () => {
+  const sampleRequest = {
+    requestId: 2108,
+    status: "Pending",
+    student: {
+      firstName: "Hùng",
+      lastName: "Vương",
+    },
+    medicineRequestItems: [
+      {
+        medicineRequestItemId: 2142,
+        medicineName: "Oresol",
+        periodVerificationStatus: {
+          Chiều: {
+            Status: "Verified",
+            StaffId: 11,
+            Timestamp: "2025-07-30T00:23:01.1339319Z",
+          },
+        },
+      },
+    ],
+  };
+
+  console.log("=== Testing with sample data ===");
+  console.log("Sample request:", sampleRequest);
+
+  const debug = debugPeriodProcessingDetailed(sampleRequest);
+  console.log("Debug result:", debug);
+
+  console.log("=== Key results ===");
+  console.log("Has unprocessed periods:", hasUnprocessedPeriods(sampleRequest));
+  console.log(
+    "Available periods:",
+    getAvailablePeriodsForAdministration(sampleRequest)
+  );
+  console.log(
+    "Processed periods:",
+    getProcessedPeriodsForDisplay(sampleRequest)
+  );
+
+  return debug;
 };

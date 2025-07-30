@@ -119,44 +119,10 @@ export const filterByStatus = (requests, statuses) => {
   return requests.filter((req) => statuses.includes(req.status));
 };
 
-// Check if student has any in-progress medication requests
+// Check if student has any in-progress medication requests (deprecated - always returns false)
 export const checkForInProgressRequests = async (studentId) => {
-  try {
-    const response = await medicationService.getRequestResults();
-
-    if (response.success) {
-      // Filter for in-progress requests for the same student
-      const inProgressRequests = response.data.filter((result) => {
-        const isInProgress =
-          result.status === "In Progress" || result.status === "in progress";
-
-        // Try multiple possible paths for student ID
-        let resultStudentId = null;
-        if (result.medicineRequest?.student?.studentId) {
-          resultStudentId = result.medicineRequest.student.studentId;
-        } else if (result.student?.studentId) {
-          resultStudentId = result.student.studentId;
-        } else if (result.studentId) {
-          resultStudentId = result.studentId;
-        } else if (result.request?.student?.studentId) {
-          resultStudentId = result.request.student.studentId;
-        }
-
-        // Convert both to same type for comparison
-        const targetId = parseInt(studentId);
-        const resultId = parseInt(resultStudentId);
-        const matches =
-          resultId === targetId && !isNaN(resultId) && !isNaN(targetId);
-
-        return isInProgress && matches;
-      });
-
-      return inProgressRequests.length > 0;
-    }
-    return false;
-  } catch (error) {
-    return false;
-  }
+  // This function is deprecated as the "Đang thực hiện" tab has been removed
+  return false;
 };
 
 // Validate medication start with user-friendly message
@@ -168,15 +134,6 @@ export const validateMedicationStart = async (
     return { canStart: true }; // Allow if no student ID (shouldn't happen, but be safe)
   }
 
-  const hasInProgressRequest = await checkForInProgressRequests(studentId);
-
-  if (hasInProgressRequest) {
-    const message = `Đang có yêu cầu thuốc đang diễn ra cho ${studentName} và chưa hoàn thành. Vui lòng hoàn thành yêu cầu hiện tại trước khi bắt đầu yêu cầu mới.`;
-    return {
-      canStart: false,
-      message,
-    };
-  }
-
+  // In-progress check has been removed as the "Đang thực hiện" tab is no longer available
   return { canStart: true };
 };

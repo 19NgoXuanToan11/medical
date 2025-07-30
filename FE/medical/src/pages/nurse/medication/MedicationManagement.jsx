@@ -2,14 +2,12 @@ import React, { useState } from "react";
 import {
   FiActivity,
   FiCheck,
-  FiClock,
   FiPlayCircle,
   FiAlertTriangle,
 } from "react-icons/fi";
 import { useMedicationRequests } from "./hooks/useMedicationRequests";
 import MedicineVerification from "./pages/MedicineVerification";
 import MedicineAdministration from "./pages/MedicineAdministration";
-import InProgressManagement from "./pages/InProgressManagement";
 import FailedRequestManagement from "./pages/FailedRequestManagement";
 import CompletedMedication from "./pages/CompletedMedication";
 
@@ -31,13 +29,6 @@ const MedicationManagement = () => {
       icon: FiPlayCircle,
       component: MedicineAdministration,
       description: "Bắt đầu quá trình cho học sinh uống thuốc",
-    },
-    {
-      key: "inprogress",
-      label: "Đang thực hiện",
-      icon: FiClock,
-      component: InProgressManagement,
-      description: "Theo dõi và ghi nhận tiến độ uống thuốc",
     },
     {
       key: "completed",
@@ -77,7 +68,7 @@ const MedicationManagement = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow border border-gray-200 dark:border-neutral-700 transition-colors duration-300">
           <div className="flex justify-between items-start">
             <div>
@@ -90,22 +81,6 @@ const MedicationManagement = () => {
             </div>
             <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
               <FiCheck className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-neutral-800 p-4 rounded-lg shadow border border-gray-200 dark:border-neutral-700 transition-colors duration-300">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-500 dark:text-gray-400 text-xs">
-                Đang thực hiện
-              </p>
-              <p className="text-lg font-bold mt-1 text-orange-600 dark:text-orange-400">
-                {stats.inProgress || 0}
-              </p>
-            </div>
-            <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-full">
-              <FiClock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
             </div>
           </div>
         </div>
