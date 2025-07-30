@@ -3,10 +3,25 @@
 /**
  * Calculate total number of students across selected grades
  */
-export const calculateTotalStudents = (selectedGrades, availableGrades) => {
-  return selectedGrades.reduce((total, gradeId) => {
-    const grade = availableGrades.find((g) => g.id === gradeId);
-    return total + (grade ? grade.studentCount : 0);
+export const calculateTotalStudents = (selectedGrades, availableGrades, assignedClasses = []) => {
+  return selectedGrades.reduce((total, classId) => {
+    // Tìm lớp được chọn trong assignedClasses
+    const selectedClass = assignedClasses.find((cls) => 
+      cls.classId === classId || cls.id === classId
+    );
+    
+    if (selectedClass) {
+      // Đếm học sinh từ lớp được chọn
+      return total + (selectedClass.students?.length || 0);
+    }
+    
+    // Fallback: tìm trong availableGrades (nếu có)
+    const grade = availableGrades.find((g) => g.id === classId);
+    if (grade) {
+      return total + (grade.studentCount || 0);
+    }
+    
+    return total;
   }, 0);
 };
 
@@ -110,17 +125,20 @@ export const formatDuration = (minutes) => {
 };
 
 /**
- * Check if a date is in the future and at least 1 week from today
+ * Check if a date is in the future and at least 3 days from today
  */
 export const isFutureDate = (dateString) => {
   if (!dateString) return false;
   const selectedDate = new Date(dateString);
+  selectedDate.setHours(0, 0, 0, 0); // Reset time to start of day
+  
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  // Calculate minimum date (1 week from today)
+  // Calculate minimum date (3 days from today)
   const minDate = new Date(today);
-  minDate.setDate(today.getDate() + 7);
+  minDate.setDate(today.getDate() + 3);
+  minDate.setHours(0, 0, 0, 0);
   
   return selectedDate >= minDate;
 };
@@ -133,6 +151,8 @@ export const validateScheduleDate = (dateString) => {
   if (!dateString) return "Ngày thực hiện là bắt buộc";
   
   const selectedDate = new Date(dateString);
+  selectedDate.setHours(0, 0, 0, 0); // Reset time to start of day
+  
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -141,13 +161,16 @@ export const validateScheduleDate = (dateString) => {
     return "Ngày thực hiện không thể trong quá khứ";
   }
   
-  // Calculate minimum date (1 week from today)
+  // Calculate minimum date (3 days from today)
   const minDate = new Date(today);
-  minDate.setDate(today.getDate() + 7);
+  minDate.setDate(today.getDate() + 3);
+  minDate.setHours(0, 0, 0, 0);
+  
+
   
   if (selectedDate < minDate) {
     const minDateStr = minDate.toLocaleDateString("vi-VN");
-    return `Ngày thực hiện phải cách tối thiểu 1 tuần (từ ${minDateStr})`;
+    return `Ngày thực hiện phải cách tối thiểu 3 ngày (từ ${minDateStr})`;
   }
   
   return null;
@@ -218,22 +241,44 @@ export const checkScheduleConflicts = (formData, existingSchedules = []) => {
     return conflicts;
   }
 
-  // Check for real conflicts with existing schedules
-  const sameDate = existingSchedules.filter(
-    (schedule) => schedule.date === selectedDate
-  );
+  // Determine session (morning/afternoon) based on time
+  const getSession = (time) => {
+    const hour = parseInt(time.split(':')[0]);
+    return hour < 12 ? 'morning' : 'afternoon';
+  };
 
-  if (sameDate.length > 0) {
+  const selectedSession = getSession(selectedTime);
+
+  // Filter approved schedules for the same date and session
+  const conflictingSchedules = existingSchedules.filter((schedule) => {
+    // Only check approved schedules (status: 'approved')
+    if (schedule.status !== 'approved') return false;
+    
+    // Check same date
+    if (schedule.scheduledDate !== selectedDate) return false;
+    
+    // Check same session (morning/afternoon)
+    const scheduleSession = getSession(schedule.scheduledTime || schedule.startTime);
+    return scheduleSession === selectedSession;
+  });
+
+  if (conflictingSchedules.length > 0) {
+    const sessionText = selectedSession === 'morning' ? 'buổi sáng' : 'buổi chiều';
     conflicts.push({
-      type: "date",
-      severity: "warning",
-      message: `Đã có ${sameDate.length} hoạt động khác trong ngày ${selectedDate}`,
+      type: "schedule_conflict",
+      severity: "error",
+      message: `Đã có lịch khám được phê duyệt vào ${sessionText} ngày ${selectedDate}. Vui lòng chọn buổi khác hoặc ngày khác.`,
     });
   }
 
-  // Check time/location conflicts with real data
-  const timeConflicts = sameDate.filter((schedule) => {
-    const scheduleStart = schedule.startTime || schedule.time;
+  // Check for time/location conflicts within the same session
+  const sameDateSchedules = existingSchedules.filter((schedule) => {
+    if (schedule.status !== 'approved') return false;
+    return schedule.scheduledDate === selectedDate;
+  });
+
+  const timeConflicts = sameDateSchedules.filter((schedule) => {
+    const scheduleStart = schedule.startTime || schedule.scheduledTime;
     const scheduleEnd = schedule.endTime;
 
     if (!scheduleStart || !scheduleEnd) return false;
@@ -314,25 +359,7 @@ export const validateFormStep = (step, formData) => {
       }
       break;
 
-    case 2: // Health Check Items
-      if (!formData.checkItems || formData.checkItems.length === 0) {
-        errors.checkItems = "Vui lòng chọn ít nhất một hạng mục kiểm tra";
-      }
-      break;
-
-    case 3: // Target & Logistics
-      if (!formData.targetGrades || formData.targetGrades.length === 0) {
-        errors.targetGrades = "Vui lòng chọn ít nhất một khối lớp";
-      }
-      if (
-        !formData.maxStudentsPerSession ||
-        formData.maxStudentsPerSession < 1
-      ) {
-        errors.maxStudentsPerSession = "Số học sinh tối đa phải lớn hơn 0";
-      }
-      if (!formData.estimatedDuration || formData.estimatedDuration < 30) {
-        errors.estimatedDuration = "Thời gian dự kiến tối thiểu 30 phút";
-      }
+    case 2: // Preview step - no validation needed
       break;
 
     default:

@@ -27,18 +27,28 @@ const UpcomingRequestsTab = ({
       {/* Header with refresh button */}
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Lịch khám sắp tới ({upcomingRequests.length})
+          Lịch khám sắp tới ({upcomingRequests.length}) - CHỈ HIỂN THỊ LỊCH ĐÃ DUYỆT
         </h3>
-        <button
-          onClick={onRefresh}
-          disabled={fetchingData}
-          className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <FiRefreshCw
-            className={`w-4 h-4 ${fetchingData ? "animate-spin" : ""}`}
-          />
-          Làm mới
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={onRefresh}
+            disabled={fetchingData}
+            className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <FiRefreshCw
+              className={`w-4 h-4 ${fetchingData ? "animate-spin" : ""}`}
+            />
+            Làm mới
+          </button>
+          <button
+            onClick={() => onRefresh(true)}
+            disabled={fetchingData}
+            className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <FiAlertTriangle className="w-4 h-4" />
+            Force Refresh
+          </button>
+        </div>
       </div>
 
       {/* Error message */}
@@ -123,11 +133,16 @@ const EmptyState = () => (
   <div className="bg-white dark:bg-neutral-800 p-8 rounded-lg shadow border border-gray-200 dark:border-neutral-700 text-center">
     <FiCalendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
     <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-      Không có lịch khám sắp tới
+      Không có lịch khám đã được duyệt
     </h3>
-    <p className="text-gray-600 dark:text-gray-400">
-      Chưa có lịch khám sức khỏe nào được phê duyệt hoặc đang thực hiện
+    <p className="text-gray-600 dark:text-gray-400 mb-4">
+      Tab "Sắp tới" chỉ hiển thị những lịch khám có <strong>confirmStatus = "approved"</strong>
     </p>
+    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+      <p className="text-sm text-blue-800 dark:text-blue-200">
+        💡 <strong>Lưu ý:</strong> Để có lịch khám ở đây, Manager cần duyệt các yêu cầu ở tab "Chờ duyệt" trước.
+      </p>
+    </div>
   </div>
 );
 

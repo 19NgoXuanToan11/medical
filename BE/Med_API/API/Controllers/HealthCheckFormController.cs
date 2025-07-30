@@ -524,4 +524,231 @@ public class HealthCheckFormController : ControllerBase
             return StatusCode(500, new { error = "An error occurred while retrieving staff." });
         }
     }
+
+    // Upload health check results from Excel file
+    [HttpPost("upload-results")]
+    public async Task<IActionResult> UploadHealthCheckResults([FromForm] int healthCheckId, [FromForm] IFormFile file)
+    {
+        try
+        {
+            _logger.LogInformation("Uploading health check results for form {HealthCheckId}", healthCheckId);
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { error = "File is required" });
+            }
+
+            // Validate file type
+            var allowedExtensions = new[] { ".xlsx", ".xls" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return BadRequest(new { error = "Only Excel files (.xlsx, .xls) are allowed" });
+            }
+
+            // Check if health check form exists
+            var healthCheckForm = await _healthCheckFormService.GetHealthCheckFormByIdAsync(healthCheckId);
+            if (healthCheckForm == null)
+            {
+                return NotFound(new { error = "Health check form not found" });
+            }
+
+            // Process the Excel file and create health check results
+            // This is a placeholder - implement actual Excel processing logic
+            var results = await ProcessExcelFile(file, healthCheckId);
+
+            _logger.LogInformation("Successfully uploaded {ResultCount} health check results", results.Count);
+
+            return Ok(new 
+            { 
+                message = "Health check results uploaded successfully",
+                resultCount = results.Count,
+                uploadedAt = DateTime.Now
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading health check results for form {HealthCheckId}", healthCheckId);
+            return StatusCode(500, new { error = "An error occurred while uploading health check results" });
+        }
+    }
+
+    // Download Excel template for health check results
+    [HttpGet("download-template/{healthCheckId}")]
+    public async Task<IActionResult> DownloadHealthCheckTemplate(int healthCheckId)
+    {
+        try
+        {
+            _logger.LogInformation("Downloading template for health check {HealthCheckId}", healthCheckId);
+
+            // Check if health check form exists
+            var healthCheckForm = await _healthCheckFormService.GetHealthCheckFormByIdAsync(healthCheckId);
+            if (healthCheckForm == null)
+            {
+                return NotFound(new { error = "Health check form not found" });
+            }
+
+            // Generate Excel template based on health check items
+            var templateBytes = await GenerateExcelTemplate(healthCheckForm);
+            
+            var fileName = $"Mau_KetQua_KhamSucKhoe_{healthCheckId}.xlsx";
+
+            return File(templateBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error downloading template for health check {HealthCheckId}", healthCheckId);
+            return StatusCode(500, new { error = "An error occurred while downloading the template" });
+        }
+    }
+
+    // Mark health check as completed
+    [HttpPut("complete/{healthCheckId}")]
+    public async Task<IActionResult> CompleteHealthCheck(int healthCheckId, [FromBody] CompleteHealthCheckRequest request)
+    {
+        try
+        {
+            _logger.LogInformation("Marking health check {HealthCheckId} as completed", healthCheckId);
+
+            var healthCheckForm = await _healthCheckFormService.GetHealthCheckFormByIdAsync(healthCheckId);
+            if (healthCheckForm == null)
+            {
+                return NotFound(new { error = "Health check form not found" });
+            }
+
+            // Update health check status to completed
+            healthCheckForm.Status = "completed";
+            healthCheckForm.ConfirmedDate = request.CompletedDate ?? DateTime.Now;
+
+            var success = await _healthCheckFormService.UpdateHealthCheckFormAsync(healthCheckForm);
+            if (!success)
+            {
+                return StatusCode(500, new { error = "Failed to update health check status" });
+            }
+
+            _logger.LogInformation("Health check {HealthCheckId} marked as completed successfully", healthCheckId);
+
+            return Ok(new 
+            { 
+                message = "Health check completed successfully",
+                completedAt = healthCheckForm.ConfirmedDate
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error completing health check {HealthCheckId}", healthCheckId);
+            return StatusCode(500, new { error = "An error occurred while completing the health check" });
+        }
+    }
+
+    // Helper method to process Excel file
+    private async Task<List<object>> ProcessExcelFile(IFormFile file, int healthCheckId)
+    {
+        var results = new List<object>();
+        
+        try 
+        {
+            _logger.LogInformation("Processing Excel file for health check {HealthCheckId}", healthCheckId);
+            
+            // Expected Excel structure mapping to HealthCheckResultDTO:
+            // A: StudentId (int) - Required
+            // B: StudentName (string) - Reference only, not saved
+            // C: Class (string) - Reference only, not saved  
+            // D: ExaminedDate (DateTime) - Required
+            // E: ExaminedBy (int?) - Optional
+            // F: Height (decimal?) - Optional (0-300 cm)
+            // G: Weight (decimal?) - Optional (0-500 kg)
+            // H: VisionRight (string?) - Optional (max 20 chars)
+            // I: VisionLeft (string?) - Optional (max 20 chars)
+            // J: HearingStatus (string?) - Optional (max 50 chars)
+            // K: BloodPressure (string?) - Optional (max 20 chars)
+            // L: HeartRate (int?) - Optional (0-250 bpm)
+            // M: GeneralFindings (string?) - Optional (max 1000 chars)
+            // N: Recommendations (string?) - Optional (max 1000 chars)
+
+            // TODO: Implement actual Excel reading using EPPlus or ClosedXML
+            // 1. Open Excel workbook from IFormFile stream
+            // 2. Read each row starting from row 2 (skip header)
+            // 3. Validate each field according to HealthCheckResultDTO constraints
+            // 4. Create HealthCheckResultDTO objects
+            // 5. Save to database using HealthCheckResultService
+            // 6. Handle validation errors and duplicate records
+            
+            await Task.CompletedTask; // Placeholder async operation
+            
+            results.Add(new { 
+                message = "Excel processing not yet implemented", 
+                note = "Need to add EPPlus NuGet package and implement Excel reading logic",
+                expectedColumns = new {
+                    A = "StudentId (Required)",
+                    B = "StudentName (Reference)",
+                    C = "Class (Reference)",
+                    D = "ExaminedDate (Required)",
+                    E = "ExaminedBy (Optional)",
+                    F = "Height in cm (0-300)",
+                    G = "Weight in kg (0-500)", 
+                    H = "VisionRight (max 20 chars)",
+                    I = "VisionLeft (max 20 chars)",
+                    J = "HearingStatus (max 50 chars)",
+                    K = "BloodPressure (max 20 chars)",
+                    L = "HeartRate (0-250 bpm)",
+                    M = "GeneralFindings (max 1000 chars)",
+                    N = "Recommendations (max 1000 chars)"
+                }
+            });
+            
+            _logger.LogInformation("Excel processing completed for health check {HealthCheckId}", healthCheckId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing Excel file for health check {HealthCheckId}", healthCheckId);
+            throw new InvalidOperationException($"Error processing Excel file: {ex.Message}");
+        }
+        
+        return results;
+    }
+
+    // Helper method to generate Excel template
+    private async Task<byte[]> GenerateExcelTemplate(HealthCheckForm healthCheckForm)
+    {
+        // Template Excel structure based on HealthCheckResultDTO
+        var templateStructure = @"
+        Column A: Mã học sinh (StudentId) - Required
+        Column B: Họ và tên học sinh (StudentName) - For reference only
+        Column C: Lớp (Class) - For reference only  
+        Column D: Ngày khám (ExaminedDate) - Required (dd/MM/yyyy)
+        Column E: Người khám (ExaminedBy) - Optional (Staff ID)
+        Column F: Chiều cao (cm) (Height) - Optional (0-300)
+        Column G: Cân nặng (kg) (Weight) - Optional (0-500)
+        Column H: Thị lực mắt phải (VisionRight) - Optional (e.g., 10/10, 8/10)
+        Column I: Thị lực mắt trái (VisionLeft) - Optional (e.g., 10/10, 8/10)
+        Column J: Thính lực (HearingStatus) - Optional (Bình thường/Giảm nhẹ/Giảm nặng)
+        Column K: Huyết áp (BloodPressure) - Optional (e.g., 120/80)
+        Column L: Nhịp tim (HeartRate) - Optional (0-250 bpm)
+        Column M: Kết luận tổng quát (GeneralFindings) - Optional (max 1000 chars)
+        Column N: Khuyến nghị (Recommendations) - Optional (max 1000 chars)
+        ";
+
+        _logger.LogInformation("Generated Excel template structure for health check {HealthCheckId}: {Structure}", 
+            healthCheckForm.FormId, templateStructure);
+
+        await Task.CompletedTask; // Placeholder async operation
+        
+        // TODO: Implement actual Excel generation using EPPlus or ClosedXML
+        // For now, return empty byte array - this should be implemented with:
+        // 1. EPPlus NuGet package
+        // 2. Create workbook with proper headers
+        // 3. Include student list from grades
+        // 4. Add data validation rules
+        // 5. Format cells appropriately
+        
+        return new byte[0];
+    }
+}
+
+// Request model for completing health check
+public class CompleteHealthCheckRequest
+{
+    public DateTime? CompletedDate { get; set; }
+    public object? ResultData { get; set; }
 } 

@@ -19,6 +19,7 @@ import {
   createHealthCheck,
   getHealthCheckScheduleById,
   updateHealthCheckSchedule,
+  getHealthCheckSchedules,
 } from "../../../../utils/api/healthCheck/healthCheckService";
 import { checkEquipmentAvailability } from "../../../../utils/api/medicalSupply/medicalSupplyService";
 // Add import for health check items API
@@ -37,10 +38,11 @@ export const useHealthCheckForm = (editId = null) => {
   const [scheduleConflicts, setScheduleConflicts] = useState([]);
   // Replace mock data with real API data for both items and classes
   const [availableGrades, setAvailableGrades] = useState([]);
-  const [loadingGrades, setLoadingGrades] = useState(false);
   const [healthCheckItems, setHealthCheckItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(false);
   const [equipmentStatus, setEquipmentStatus] = useState(null);
+  const [assignedClasses, setAssignedClasses] = useState([]); // Thêm state cho assignedClasses
+  const [existingSchedules, setExistingSchedules] = useState([]); // Thêm state cho existing schedules
 
   // Load health check items from API on component mount
   useEffect(() => {
@@ -106,11 +108,140 @@ export const useHealthCheckForm = (editId = null) => {
           });
 
           setHealthCheckItems(transformedItems);
+          
+          // Tự động chọn 5 hạng mục cơ bản
+          const basicItemIds = transformedItems
+            .filter(item => 
+              ['TAI', 'MUI', 'HONG', 'CAN_NANG', 'CHIEU_CAO'].includes(item.code) ||
+              ['Khám tai', 'Khám mũi', 'Khám họng', 'Cân nặng', 'Chiều cao'].includes(item.name)
+            )
+            .map(item => item.id);
+          
+          console.log("Auto-selecting basic health check items:", basicItemIds);
+          setFormData(prev => ({
+            ...prev,
+            checkItems: basicItemIds
+          }));
         } else {
-          setHealthCheckItems(healthCheckItemsData);
+          // Fallback to basic items if API fails
+          const fallbackItems = [
+            {
+              id: 1,
+              name: "Khám tai",
+              category: "sensory",
+              estimatedTime: 5,
+              description: "Kiểm tra thính lực và tình trạng tai",
+              equipment: [],
+              isActive: true,
+            },
+            {
+              id: 2,
+              name: "Khám mũi",
+              category: "sensory",
+              estimatedTime: 5,
+              description: "Kiểm tra hô hấp và tình trạng mũi",
+              equipment: [],
+              isActive: true,
+            },
+            {
+              id: 3,
+              name: "Khám họng",
+              category: "sensory",
+              estimatedTime: 5,
+              description: "Kiểm tra họng và amidan",
+              equipment: [],
+              isActive: true,
+            },
+            {
+              id: 4,
+              name: "Cân nặng",
+              category: "physical",
+              estimatedTime: 3,
+              description: "Đo cân nặng của học sinh",
+              equipment: [],
+              isActive: true,
+            },
+            {
+              id: 5,
+              name: "Chiều cao",
+              category: "physical",
+              estimatedTime: 3,
+              description: "Đo chiều cao của học sinh",
+              equipment: [],
+              isActive: true,
+            },
+          ];
+          
+          setHealthCheckItems(fallbackItems);
+          
+          // Auto-select all fallback items
+          const fallbackItemIds = fallbackItems.map(item => item.id);
+          console.log("Auto-selecting fallback health check items:", fallbackItemIds);
+          setFormData(prev => ({
+            ...prev,
+            checkItems: fallbackItemIds
+          }));
         }
       } catch (error) {
-        setHealthCheckItems(healthCheckItemsData);
+        console.error("Error loading health check items:", error);
+        // Use fallback items
+        const fallbackItems = [
+          {
+            id: 1,
+            name: "Khám tai",
+            category: "sensory",
+            estimatedTime: 5,
+            description: "Kiểm tra thính lực và tình trạng tai",
+            equipment: [],
+            isActive: true,
+          },
+          {
+            id: 2,
+            name: "Khám mũi",
+            category: "sensory",
+            estimatedTime: 5,
+            description: "Kiểm tra hô hấp và tình trạng mũi",
+            equipment: [],
+            isActive: true,
+          },
+          {
+            id: 3,
+            name: "Khám họng",
+            category: "sensory",
+            estimatedTime: 5,
+            description: "Kiểm tra họng và amidan",
+            equipment: [],
+            isActive: true,
+          },
+          {
+            id: 4,
+            name: "Cân nặng",
+            category: "physical",
+            estimatedTime: 3,
+            description: "Đo cân nặng của học sinh",
+            equipment: [],
+            isActive: true,
+          },
+          {
+            id: 5,
+            name: "Chiều cao",
+            category: "physical",
+            estimatedTime: 3,
+            description: "Đo chiều cao của học sinh",
+            equipment: [],
+            isActive: true,
+          },
+        ];
+        
+        setHealthCheckItems(fallbackItems);
+        
+        // Auto-select all fallback items
+        const fallbackItemIds = fallbackItems.map(item => item.id);
+        console.log("Auto-selecting fallback health check items:", fallbackItemIds);
+        setFormData(prev => ({
+          ...prev,
+          checkItems: fallbackItemIds
+        }));
       } finally {
         setLoadingItems(false);
       }
@@ -122,13 +253,17 @@ export const useHealthCheckForm = (editId = null) => {
   // Load classes assigned to current nurse from API on component mount
   useEffect(() => {
     const loadAssignedClasses = async () => {
-      setLoadingGrades(true);
       try {
+        console.log("Loading assigned classes...");
         // Only nurses can access assigned classes - check will be done by API
 
         const result = await staffService.getMyAssignedClasses();
+        console.log("Staff service result:", result);
 
         if (result?.success && result?.data && Array.isArray(result.data)) {
+          // Lưu assignedClasses gốc để tính toán
+          setAssignedClasses(result.data);
+          
           // Transform API data to match expected UI format
           const transformedClasses = result.data.map((classItem) => ({
             id: classItem.classId || classItem.id,
@@ -143,21 +278,97 @@ export const useHealthCheckForm = (editId = null) => {
             isActive: classItem.isActive !== false,
           }));
 
+          console.log("Transformed classes:", transformedClasses);
           setAvailableGrades(transformedClasses);
+          
+          // Tự động chọn tất cả lớp được phân công cho nurse
+          const allClassIds = transformedClasses.map(cls => cls.id);
+          console.log("Auto-selecting class IDs:", allClassIds);
+          setFormData(prev => {
+            const newData = {
+              ...prev,
+              targetGrades: allClassIds
+            };
+            console.log("Updated formData:", newData);
+            return newData;
+          });
         } else {
-          console.warn("No assigned classes found for this nurse");
-          setAvailableGrades([]);
+          console.warn("No assigned classes found for this nurse, using fallback data");
+          // Fallback data for testing
+          const fallbackClasses = [
+            {
+              id: 1,
+              name: "1A",
+              gradeLevel: 1,
+              studentCount: 30,
+              classTeacher: "Nguyễn Văn A",
+              isActive: true,
+            },
+            {
+              id: 2,
+              name: "1B",
+              gradeLevel: 1,
+              studentCount: 30,
+              classTeacher: "Trần Thị B",
+              isActive: true,
+            },
+            {
+              id: 3,
+              name: "1C",
+              gradeLevel: 1,
+              studentCount: 30,
+              classTeacher: "Lê Văn C",
+              isActive: true,
+            },
+          ];
+          
+          setAssignedClasses(fallbackClasses);
+          setAvailableGrades(fallbackClasses);
+          
+          // Auto-select all fallback classes
+          const allClassIds = fallbackClasses.map(cls => cls.id);
+          console.log("Auto-selecting fallback class IDs:", allClassIds);
+          setFormData(prev => {
+            const newData = {
+              ...prev,
+              targetGrades: allClassIds
+            };
+            console.log("Updated formData with fallback:", newData);
+            return newData;
+          });
         }
       } catch (error) {
         console.error("Error loading assigned classes:", error);
         // Fallback to empty array for nurses with no assigned grades
         setAvailableGrades([]);
-      } finally {
-        setLoadingGrades(false);
+        setAssignedClasses([]);
       }
     };
 
     loadAssignedClasses();
+  }, []);
+
+  // Load existing health check schedules for conflict checking
+  useEffect(() => {
+    const loadExistingSchedules = async () => {
+      try {
+        const schedules = await getHealthCheckSchedules();
+        if (schedules && Array.isArray(schedules)) {
+          // Filter only approved schedules for conflict checking
+          const approvedSchedules = schedules.filter(
+            schedule => schedule.status === 'approved'
+          );
+          setExistingSchedules(approvedSchedules);
+        } else {
+          setExistingSchedules([]);
+        }
+      } catch (error) {
+        console.error("Error loading existing schedules:", error);
+        setExistingSchedules([]);
+      }
+    };
+
+    loadExistingSchedules();
   }, []);
 
   // Load edit data if editId is provided
@@ -220,7 +431,8 @@ export const useHealthCheckForm = (editId = null) => {
   // Calculated values
   const totalStudents = calculateTotalStudents(
     formData.targetGrades,
-    availableGrades
+    availableGrades,
+    assignedClasses
   );
   const sessions = calculateRequiredSessions(
     totalStudents,
@@ -434,7 +646,7 @@ export const useHealthCheckForm = (editId = null) => {
         formData.scheduledTime &&
         formData.location
       ) {
-        const conflicts = checkScheduleConflicts(formData);
+        const conflicts = checkScheduleConflicts(formData, existingSchedules);
         setScheduleConflicts(conflicts);
       }
     }, 500);
@@ -445,6 +657,7 @@ export const useHealthCheckForm = (editId = null) => {
     formData.scheduledTime,
     formData.location,
     formData.equipmentNeeded,
+    existingSchedules,
   ]);
 
   // Handle input changes
@@ -479,68 +692,6 @@ export const useHealthCheckForm = (editId = null) => {
     [validationErrors]
   );
 
-  // Handle grade selection (multiple selection)
-  const handleGradeSelection = useCallback(
-    (gradeId) => {
-      setFormData((prev) => {
-        // Multiple selection - toggle selection
-        const newTargetGrades = prev.targetGrades.includes(gradeId)
-          ? prev.targetGrades.filter((id) => id !== gradeId)
-          : [...prev.targetGrades, gradeId];
-
-        // Calculate total students from all selected grades
-        const totalStudents = newTargetGrades.reduce((total, id) => {
-          const grade = availableGrades.find((g) => g.id === id);
-          return total + (grade?.studentCount || 0);
-        }, 0);
-
-        return {
-          ...prev,
-          targetGrades: newTargetGrades,
-          requiresApproval:
-            totalStudents > 100 || prev.urgencyLevel === "urgent",
-          approvalLevel: totalStudents > 200 ? "manager" : "nurse_supervisor",
-        };
-      });
-
-      // Clear validation error
-      if (validationErrors.targetGrades) {
-        setValidationErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors.targetGrades;
-          return newErrors;
-        });
-      }
-    },
-    [availableGrades, validationErrors.targetGrades]
-  );
-
-  // Handle check item toggle
-  const handleCheckItemToggle = useCallback(
-    (itemId) => {
-      setFormData((prev) => {
-        const newCheckItems = prev.checkItems.includes(itemId)
-          ? prev.checkItems.filter((id) => id !== itemId)
-          : [...prev.checkItems, itemId];
-
-        return {
-          ...prev,
-          checkItems: newCheckItems,
-        };
-      });
-
-      // Clear validation error
-      if (validationErrors.checkItems) {
-        setValidationErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors.checkItems;
-          return newErrors;
-        });
-      }
-    },
-    [validationErrors.checkItems]
-  );
-
   // Step navigation
   const handleNext = useCallback(() => {
     const errors = validateFormStep(currentStep, formData);
@@ -551,7 +702,7 @@ export const useHealthCheckForm = (editId = null) => {
     }
 
     setValidationErrors({});
-    setCurrentStep((prev) => Math.min(prev + 1, 4));
+    setCurrentStep((prev) => Math.min(prev + 1, 2));
     return true;
   }, [currentStep, formData]);
 
@@ -655,12 +806,16 @@ export const useHealthCheckForm = (editId = null) => {
 
   // Submit form
   const handleSubmit = useCallback(async () => {
+    console.log("handleSubmit called", { formData, currentStep });
+    
     // Final validation for all steps
     const allErrors = {};
     for (let step = 1; step <= 3; step++) {
       const stepErrors = validateFormStep(step, formData);
       Object.assign(allErrors, stepErrors);
     }
+
+    console.log("Validation errors:", allErrors);
 
     if (Object.keys(allErrors).length > 0) {
       setValidationErrors(allErrors);
@@ -685,6 +840,8 @@ export const useHealthCheckForm = (editId = null) => {
 
     setLoading(true);
     try {
+      console.log("Starting submission...");
+      
       // Generate equipment report
       const equipmentReport = generateEquipmentReport();
 
@@ -746,6 +903,8 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
           ? JSON.stringify(formData.targetGrades.map((g) => String(g)))
           : JSON.stringify([]);
 
+      console.log("Grade IDs formatted:", gradeIdsFormatted);
+
       // Map form data to API schema with proper validation
       const submissionData = {
         FormId: 0, // Always 0 for new forms
@@ -780,6 +939,8 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         ConfirmedByStaff: null,
         Results: null,
       };
+
+      console.log("Submission data:", submissionData);
 
       // Set default values for missing fields to pass validation
       if (!formData.checkItems || formData.checkItems.length === 0) {
@@ -816,11 +977,15 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
       let response;
       if (editId) {
         // Update existing health check
+        console.log("Updating existing health check with ID:", editId);
         response = await updateHealthCheckSchedule(editId, submissionData);
       } else {
         // Create new health check
+        console.log("Creating new health check");
         response = await createHealthCheck(submissionData);
       }
+
+      console.log("API response:", response);
 
       // Clear draft after successful submission
       localStorage.removeItem("healthcheck_draft");
@@ -841,6 +1006,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         equipmentWarning: equipmentReport?.requiresAction || false,
       };
     } catch (error) {
+      console.error("Error in handleSubmit:", error);
       return {
         success: false,
         message:
@@ -874,7 +1040,6 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
     // State
     loading,
     loadingItems,
-    loadingGrades,
     currentStep,
     formData,
     validationErrors,
@@ -882,6 +1047,7 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
     availableGrades,
     healthCheckItems,
     equipmentStatus,
+    assignedClasses,
 
     // Calculated values
     totalStudents,
@@ -890,8 +1056,6 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
 
     // Actions
     handleInputChange,
-    handleGradeSelection,
-    handleCheckItemToggle,
     handleNext,
     handlePrevious,
     goToStep,

@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import {
-  FiUpload,
+  FiEye,
   FiX,
-  FiFile,
-  FiCheck,
-  FiAlertCircle,
   FiDownload,
+  FiCheckCircle,
+  FiAlertCircle,
 } from "react-icons/fi";
-import { uploadHealthCheckResults } from "../../../../utils/api/healthCheck/healthCheckService";
 
 const HealthCheckCompletionModal = ({
   showModal,
@@ -15,96 +13,21 @@ const HealthCheckCompletionModal = ({
   selectedRequest,
   onSuccess,
 }) => {
-  const [file, setFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setError(null);
-    setSuccess(false);
-
-    if (selectedFile) {
-      // Validate file type
-      const validTypes = [
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "application/vnd.ms-excel",
-      ];
-
-      if (!validTypes.includes(selectedFile.type)) {
-        setError("Vui lòng chọn file Excel (.xlsx hoặc .xls)");
-        return;
-      }
-
-      // Validate file size (max 10MB)
-      if (selectedFile.size > 10 * 1024 * 1024) {
-        setError("Kích thước file không được vượt quá 10MB");
-        return;
-      }
-
-      setFile(selectedFile);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file || !selectedRequest) return;
-
-    setUploading(true);
-    setError(null);
-    setUploadProgress(0);
-
-    try {
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 200);
-
-      const result = await uploadHealthCheckResults(selectedRequest.formId || selectedRequest.id, file);
-      
-      clearInterval(progressInterval);
-      setUploadProgress(100);
-      setSuccess(true);
-      
-      setTimeout(() => {
-        onSuccess?.(result);
-        handleClose();
-      }, 1500);
-
-    } catch (error) {
-      console.error("Upload error:", error);
-      setError(error.message || "Có lỗi xảy ra khi upload file");
-      setUploadProgress(0);
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleClose = () => {
-    setFile(null);
     setError(null);
-    setSuccess(false);
-    setUploadProgress(0);
-    setUploading(false);
     onClose();
   };
 
-  const downloadTemplate = () => {
-    // Create a link to download the template
-    const link = document.createElement('a');
-    link.href = '/templates/health-check-results-template.xlsx'; // You need to add this file to public/templates/
-    link.download = 'health-check-results-template.xlsx';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const viewResults = () => {
+    // Navigate to results view page for this health check
+    console.log("Viewing results for health check:", selectedRequest?.formId || selectedRequest?.id);
+    // TODO: Implement navigation to results view
   };
+
+  // NOTE: Download template functionality removed from Manager
+  // Only nurses should be able to download and use templates for uploading results
 
   if (!showModal) return null;
 
@@ -115,7 +38,7 @@ const HealthCheckCompletionModal = ({
         <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Hoàn thành khám sức khỏe
+              Chi tiết khám sức khỏe
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {selectedRequest?.title}
@@ -124,7 +47,6 @@ const HealthCheckCompletionModal = ({
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            disabled={uploading}
           >
             <FiX className="h-6 w-6" />
           </button>
@@ -132,94 +54,52 @@ const HealthCheckCompletionModal = ({
 
         {/* Content */}
         <div className="p-6">
-          {/* Template Download */}
+          {/* Health Check Info */}
+          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Ngày khám:</span>
+                <span className="text-sm text-gray-900 dark:text-gray-100">
+                  {selectedRequest?.scheduledDate ? new Date(selectedRequest.scheduledDate).toLocaleDateString('vi-VN') : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Trạng thái:</span>
+                <span className={`text-sm px-2 py-1 rounded ${
+                  selectedRequest?.status === 'completed' 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                    : selectedRequest?.status === 'in_progress'
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                }`}>
+                  {selectedRequest?.status === 'completed' ? 'Hoàn thành' : 
+                   selectedRequest?.status === 'in_progress' ? 'Đang thực hiện' : 'Chờ xử lý'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Tổng học sinh:</span>
+                <span className="text-sm text-gray-900 dark:text-gray-100">
+                  {selectedRequest?.totalStudents || 0} học sinh
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Manager Notice */}
           <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <div className="flex items-center justify-between">
+            <div className="flex items-start gap-3">
+              <FiCheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
               <div>
                 <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200">
-                  Tải template mẫu
+                  Quản lý chỉ được xem kết quả
                 </h4>
                 <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                  Sử dụng file mẫu để nhập kết quả khám
+                  Việc upload kết quả khám sức khỏe chỉ được thực hiện bởi y tá. 
+                  Quản lý có thể xem và theo dõi tiến độ.
                 </p>
               </div>
-              <button
-                onClick={downloadTemplate}
-                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg flex items-center gap-2"
-              >
-                <FiDownload className="h-4 w-4" />
-                Tải về
-              </button>
             </div>
           </div>
-
-          {/* File Upload */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Upload file kết quả khám sức khỏe
-            </label>
-            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleFileChange}
-                className="hidden"
-                id="file-upload"
-                disabled={uploading}
-              />
-              <label
-                htmlFor="file-upload"
-                className="cursor-pointer flex flex-col items-center"
-              >
-                <FiUpload className="h-8 w-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Nhấp để chọn file Excel
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                  Hỗ trợ .xlsx, .xls (tối đa 10MB)
-                </span>
-              </label>
-            </div>
-          </div>
-
-          {/* Selected File */}
-          {file && (
-            <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center gap-3">
-              <FiFile className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {file.name}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {(file.size / 1024 / 1024).toFixed(2)} MB
-                </p>
-              </div>
-              {!uploading && (
-                <button
-                  onClick={() => setFile(null)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  <FiX className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Upload Progress */}
-          {uploading && (
-            <div className="mb-4">
-              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-                <span>Đang upload...</span>
-                <span>{uploadProgress}%</span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
-                ></div>
-              </div>
-            </div>
-          )}
 
           {/* Error Message */}
           {error && (
@@ -230,48 +110,22 @@ const HealthCheckCompletionModal = ({
               </span>
             </div>
           )}
-
-          {/* Success Message */}
-          {success && (
-            <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-2">
-              <FiCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
-              <span className="text-sm text-green-700 dark:text-green-300">
-                Upload thành công! Đang chuyển hướng...
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Footer */}
         <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={handleClose}
-            disabled={uploading}
-            className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+            className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
           >
-            Hủy
+            Đóng
           </button>
           <button
-            onClick={handleUpload}
-            disabled={!file || uploading || success}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            onClick={viewResults}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2"
           >
-            {uploading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Đang upload...
-              </>
-            ) : success ? (
-              <>
-                <FiCheck className="h-4 w-4" />
-                Hoàn thành
-              </>
-            ) : (
-              <>
-                <FiUpload className="h-4 w-4" />
-                Upload kết quả
-              </>
-            )}
+            <FiEye className="h-4 w-4" />
+            Xem kết quả
           </button>
         </div>
       </div>

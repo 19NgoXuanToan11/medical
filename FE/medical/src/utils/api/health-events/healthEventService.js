@@ -579,8 +579,7 @@ export const checkNurseGradePermission = async (studentCode) => {
     const gradeData = await gradeResponse.json();
 
     // Get current nurse's assigned grades
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    const token = user.token;
+    const token = localStorage.getItem("token");
 
     if (!token) {
       return {

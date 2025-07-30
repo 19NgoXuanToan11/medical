@@ -19,13 +19,13 @@ const RequestCard = ({
 }) => {
   const getStatusBadge = () => {
     if (variant === "upcoming") {
-      if (request.status === "active") {
+      if (request.status && request.status === "active") {
         return (
           <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
             Đang thực hiện
           </span>
         );
-      } else if (request.status === "Approved") {
+      } else if (request.status && request.status === "Approved") {
         return (
           <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
             Đã duyệt
@@ -49,9 +49,9 @@ const RequestCard = ({
 
   const getIconColor = () => {
     if (variant === "upcoming") {
-      if (request.status === "active") {
+      if (request.status && request.status === "active") {
         return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400";
-      } else if (request.status === "Approved") {
+      } else if (request.status && request.status === "Approved") {
         return "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400";
       } else {
         return "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
@@ -61,7 +61,7 @@ const RequestCard = ({
     }
   };
 
-  const cardClassName = request.equipmentReport?.requiresAction
+  const cardClassName = request.equipmentReport && typeof request.equipmentReport === 'object' && request.equipmentReport.requiresAction
     ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700 border-2"
     : "bg-white dark:bg-neutral-800 border-gray-200 dark:border-neutral-700";
 
@@ -71,7 +71,7 @@ const RequestCard = ({
     >
       <div className="p-6">
         {/* Equipment Priority Banner */}
-        {request.equipmentReport?.requiresAction && (
+        {request.equipmentReport && typeof request.equipmentReport === 'object' && request.equipmentReport.requiresAction && (
           <div className="mb-4 p-3 bg-yellow-200 dark:bg-yellow-800 rounded-lg border border-yellow-300 dark:border-yellow-700">
             <div className="flex items-center gap-2">
               <FiAlertTriangle className="h-5 w-5 text-yellow-800 dark:text-yellow-200" />
@@ -92,31 +92,40 @@ const RequestCard = ({
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  {request.title}
+                  {request.title || "Khám sức khỏe định kỳ"}
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Yêu cầu bởi: {request.requestedBy} •{" "}
-                  {new Date(request.requestDate).toLocaleDateString("vi-VN")}
+                  Yêu cầu bởi: {request.requestedBy || "Y tá"} •{" "}
+                  {request.requestDate ? new Date(request.requestDate).toLocaleDateString("vi-VN") : "Chưa có ngày"}
                 </p>
+                {variant === "upcoming" && (
+                  <div className="text-xs bg-gray-100 dark:bg-gray-700 p-2 rounded mt-1">
+                    🔍 Debug: confirmStatus=<span className="font-bold text-blue-600">{request.confirmStatus}</span>, 
+                    status=<span className="font-bold text-green-600">{request.status}</span>
+                    {request.confirmStatus?.toLowerCase() !== "approved" && (
+                      <span className="text-red-600 font-bold"> ⚠️ KHÔNG NÊN HIỂN THỊ Ở ĐÂY!</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {getStatusBadge()}
-            {request.urgencyLevel === "high" && (
+            {request.urgencyLevel && request.urgencyLevel === "high" && (
               <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
                 Ưu tiên cao
               </span>
             )}
             {/* Equipment Status Badge */}
-            {request.equipmentReport &&
+            {request.equipmentReport && typeof request.equipmentReport === 'object' &&
               request.equipmentReport.requiresAction && (
                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 flex items-center gap-1">
                   <FiAlertTriangle className="h-3 w-3" />
                   Cần chú ý thiết bị
                 </span>
               )}
-            {request.equipmentStatus === "ready" && (
+            {request.equipmentStatus && request.equipmentStatus === "ready" && (
               <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 flex items-center gap-1">
                 <FiCheck className="h-3 w-3" />
                 Thiết bị sẵn sàng
@@ -126,12 +135,12 @@ const RequestCard = ({
         </div>
 
         {/* Equipment Alert Section - Priority Display */}
-        {request.equipmentReport && request.equipmentReport.requiresAction && (
+        {request.equipmentReport && typeof request.equipmentReport === 'object' && request.equipmentReport.requiresAction && (
           <EquipmentReportSection equipmentReport={request.equipmentReport} />
         )}
 
         {/* Equipment Ready Display */}
-        {request.equipmentReport && !request.equipmentReport.requiresAction && (
+        {request.equipmentReport && typeof request.equipmentReport === 'object' && !request.equipmentReport.requiresAction && (
           <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
             <div className="flex items-center gap-2">
               <FiCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
@@ -159,8 +168,14 @@ const RequestCard = ({
   );
 };
 
-const EquipmentReportSection = ({ equipmentReport }) => (
-  <div className="mb-4 p-4 bg-gradient-to-r from-red-50 to-yellow-50 dark:from-red-900/20 dark:to-yellow-900/20 border-l-4 border-red-500 rounded-lg shadow-sm">
+const EquipmentReportSection = ({ equipmentReport }) => {
+  // Validate equipmentReport is an object
+  if (!equipmentReport || typeof equipmentReport !== 'object') {
+    return null;
+  }
+  
+  return (
+    <div className="mb-4 p-4 bg-gradient-to-r from-red-50 to-yellow-50 dark:from-red-900/20 dark:to-yellow-900/20 border-l-4 border-red-500 rounded-lg shadow-sm">
     <div className="flex items-start gap-3">
       <div className="p-2 bg-red-100 dark:bg-red-800 rounded-full">
         <FiAlertTriangle className="h-5 w-5 text-red-600 dark:text-red-300" />
@@ -180,7 +195,7 @@ const EquipmentReportSection = ({ equipmentReport }) => (
             📝 Tóm tắt tình trạng:
           </p>
           <p className="text-sm text-gray-800 dark:text-gray-200">
-            {equipmentReport.summary}
+            {equipmentReport.summary || "Không có tóm tắt"}
           </p>
         </div>
 
@@ -191,18 +206,18 @@ const EquipmentReportSection = ({ equipmentReport }) => (
               <FiX className="h-4 w-4 text-red-600 dark:text-red-400" />
               <p className="text-sm font-bold text-red-800 dark:text-red-200">
                 🚫 THIẾT BỊ KHÔNG CÓ (
-                {equipmentReport.unavailableEquipment?.length || 0} món)
+                {equipmentReport.unavailableEquipment && Array.isArray(equipmentReport.unavailableEquipment) ? equipmentReport.unavailableEquipment.length : 0} món)
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {equipmentReport.unavailableEquipment?.map((eq, idx) => (
+              {equipmentReport.unavailableEquipment && Array.isArray(equipmentReport.unavailableEquipment) && equipmentReport.unavailableEquipment.map((eq, idx) => (
                 <div
                   key={idx}
                   className="flex items-center gap-2 p-2 bg-red-200 dark:bg-red-800 rounded text-sm"
                 >
                   <FiX className="h-3 w-3 text-red-700 dark:text-red-300" />
                   <span className="text-red-800 dark:text-red-200 font-medium">
-                    {eq.name}
+                    {typeof eq === 'object' && eq.name ? eq.name : JSON.stringify(eq)}
                   </span>
                 </div>
               ))}
@@ -217,11 +232,11 @@ const EquipmentReportSection = ({ equipmentReport }) => (
               <FiAlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
               <p className="text-sm font-bold text-orange-800 dark:text-orange-200">
                 📦 THIẾT BỊ HẾT HÀNG (
-                {equipmentReport.outOfStockEquipment?.length || 0} món)
+                {equipmentReport.outOfStockEquipment && Array.isArray(equipmentReport.outOfStockEquipment) ? equipmentReport.outOfStockEquipment.length : 0} món)
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {equipmentReport.outOfStockEquipment?.map((eq, idx) => (
+              {equipmentReport.outOfStockEquipment && Array.isArray(equipmentReport.outOfStockEquipment) && equipmentReport.outOfStockEquipment.map((eq, idx) => (
                 <div
                   key={idx}
                   className="flex items-center justify-between p-2 bg-orange-200 dark:bg-orange-800 rounded text-sm"
@@ -229,11 +244,11 @@ const EquipmentReportSection = ({ equipmentReport }) => (
                   <div className="flex items-center gap-2">
                     <FiAlertTriangle className="h-3 w-3 text-orange-700 dark:text-orange-300" />
                     <span className="text-orange-800 dark:text-orange-200 font-medium">
-                      {eq.name}
+                      {typeof eq === 'object' && eq.name ? eq.name : JSON.stringify(eq)}
                     </span>
                   </div>
                   <span className="text-orange-700 dark:text-orange-300 font-bold text-xs px-2 py-1 bg-orange-300 dark:bg-orange-700 rounded">
-                    Còn {eq.stock}
+                    Còn {typeof eq === 'object' && eq.stock ? eq.stock : 'N/A'}
                   </span>
                 </div>
               ))}
@@ -249,15 +264,16 @@ const EquipmentReportSection = ({ equipmentReport }) => (
                 🔧 Hành động được đề xuất:
               </p>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                {equipmentReport.actionRequired}
+                {equipmentReport.actionRequired || "Không có hành động được đề xuất"}
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+    </div>
+  );
+};
 
 const RequestDetails = ({ request }) => (
   <>
@@ -267,14 +283,29 @@ const RequestDetails = ({ request }) => (
           Ngày thực hiện
         </p>
         <p className="font-medium text-gray-900 dark:text-gray-100">
-          {new Date(request.scheduledDate).toLocaleDateString("vi-VN")} •{" "}
-          {request.scheduledTime}
+          {request.scheduledDate ? new Date(request.scheduledDate).toLocaleDateString("vi-VN") : "Chưa lên lịch"} •{" "}
+          {request.scheduledTime || "Chưa có giờ"}
         </p>
       </div>
       <div>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Đối tượng</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Khối lớp</p>
         <p className="font-medium text-gray-900 dark:text-gray-100">
-          {request.targetGrades.join(", ")} ({request.totalStudents} học sinh)
+          {(() => {
+            // Lấy danh sách khối từ targetGrades
+            if (request.targetGrades && Array.isArray(request.targetGrades)) {
+              // Giả sử targetGrades chứa ID của lớp, cần map sang khối
+              const gradeLevels = [...new Set(request.targetGrades.map(gradeId => {
+                // Tìm khối từ gradeId (có thể cần API call để lấy thông tin chi tiết)
+                // Tạm thời hiển thị theo format hiện tại
+                return gradeId;
+              }))].sort();
+              return `${gradeLevels.join(", ")} (${request.totalStudents || 0} học sinh)`;
+            } else if (request.targetGrades && typeof request.targetGrades === 'object') {
+              // Nếu targetGrades là object, hiển thị thông tin cơ bản
+              return `Đã phân công (${request.totalStudents || 0} học sinh)`;
+            }
+            return `Chưa phân công (${request.totalStudents || 0} học sinh)`;
+          })()}
         </p>
       </div>
       <div>
@@ -282,7 +313,7 @@ const RequestDetails = ({ request }) => (
           Thời gian dự kiến
         </p>
         <p className="font-medium text-gray-900 dark:text-gray-100">
-          {request.estimatedDuration} phút
+          {request.estimatedDuration || 60} phút
         </p>
       </div>
     </div>
@@ -292,22 +323,28 @@ const RequestDetails = ({ request }) => (
         Hạng mục khám
       </p>
       <div className="flex flex-wrap gap-2">
-        {request.checkItems.map((item, index) => (
-          <span
-            key={index}
-            className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded text-xs"
-          >
-            {item}
+        {request.checkItems && Array.isArray(request.checkItems) ? (
+          request.checkItems.map((item, index) => (
+            <span
+              key={index}
+              className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded text-xs"
+            >
+              {typeof item === 'string' ? item : JSON.stringify(item)}
+            </span>
+          ))
+        ) : (
+          <span className="px-2 py-1 bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400 rounded text-xs">
+            Chưa có hạng mục khám
           </span>
-        ))}
+        )}
       </div>
     </div>
 
     <div className="mb-4">
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Mô tả</p>
-      <p className="text-gray-700 dark:text-gray-300 text-sm">
-        {request.description}
-      </p>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+          {request.description || "Không có mô tả"}
+        </p>
     </div>
   </>
 );
@@ -332,7 +369,7 @@ const RequestActions = ({
     {variant === "pending" && (
       <>
         {/* Conditional Approval Buttons based on Equipment Status */}
-        {request.equipmentReport && request.equipmentReport.requiresAction ? (
+        {request.equipmentReport && typeof request.equipmentReport === 'object' && request.equipmentReport.requiresAction ? (
           <>
             <button
               onClick={() => {
@@ -383,13 +420,10 @@ const RequestActions = ({
     )}
 
     {variant === "upcoming" && onCompleteHealthCheck && (
-      <button
-        onClick={() => onCompleteHealthCheck(request)}
-        className="px-3 py-1 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 border border-green-200 dark:border-green-600 rounded-md hover:bg-green-50 dark:hover:bg-green-900/20 flex items-center gap-1"
-      >
-        <FiUpload className="h-4 w-4" />
-        Hoàn thành
-      </button>
+      <span className="px-3 py-1 text-blue-600 border border-blue-200 dark:border-blue-600 rounded-md bg-blue-50 dark:bg-blue-900/20 flex items-center gap-1">
+        <FiEye className="h-4 w-4" />
+        Đã lên lịch - Chờ Y tá thực hiện
+      </span>
     )}
   </div>
 );

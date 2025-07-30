@@ -76,8 +76,8 @@ export const useApprovalModal = () => {
         // Station Information
         selectedStations: JSON.stringify(selectedRequest.checkItems),
         staffAssigned: null,
-        // Status and Timing
-        status: newStatus,
+        // Status and Timing  
+        status: approvalAction === "approve" ? "approved" : "rejected",
         estimatedEndTime: null,
       };
 

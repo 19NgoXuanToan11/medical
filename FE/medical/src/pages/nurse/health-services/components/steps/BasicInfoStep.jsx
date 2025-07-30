@@ -20,10 +20,10 @@ const BasicInfoStep = ({
     });
   };
 
-  // Get minimum date (1 week from now)
+  // Get minimum date (3 days from now)
   const getMinDate = () => {
     const minDate = new Date();
-    minDate.setDate(minDate.getDate() + 7); // 7 days from today
+    minDate.setDate(minDate.getDate() + 3); // 3 days from today
     return minDate.toISOString().split("T")[0];
   };
 

@@ -18,6 +18,7 @@ const PreviewHealthStep = ({
   scheduleConflicts,
   availableGrades,
   healthCheckItems,
+  assignedClasses = [],
 }) => {
   const selectedGrades = availableGrades.filter((grade) =>
     formData.targetGrades.includes(grade.id)
@@ -136,6 +137,124 @@ const PreviewHealthStep = ({
         </div>
       </div>
 
+      {/* Target Classes */}
+      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
+        <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
+          <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 flex items-center">
+            <FiUsers className="mr-2" />
+            Lớp học tham gia
+          </h3>
+        </div>
+        <div className="p-6">
+          {/* Khối lớp tham gia */}
+          <div className="mb-6">
+            <h4 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+              Lớp học tham gia
+            </h4>
+            {(() => {
+              // Lấy danh sách lớp được chọn
+              const selectedClasses = formData.targetGrades.map(gradeId => {
+                const grade = availableGrades.find((g) => g.id === gradeId);
+                if (!grade) return null;
+                
+                // Tìm thông tin lớp từ assignedClasses
+                const selectedClass = assignedClasses?.find(
+                  (cls) => cls.classId === gradeId || cls.id === gradeId
+                );
+                
+                return {
+                  ...grade,
+                  studentCount: selectedClass?.students?.length || selectedClass?.currentStudentCount || 0,
+                  gradeLevel: selectedClass?.gradeLevel || grade.gradeLevel,
+                  className: selectedClass?.className || selectedClass?.name || grade.name
+                };
+              }).filter(Boolean);
+
+              const groupedByGrade = selectedClasses.reduce((acc, cls) => {
+                const gradeLevel = cls.gradeLevel || 'Không xác định';
+                if (!acc[gradeLevel]) {
+                  acc[gradeLevel] = [];
+                }
+                acc[gradeLevel].push(cls);
+                return acc;
+              }, {});
+
+              return Object.entries(groupedByGrade).map(([gradeLevel, classes]) => {
+                const totalStudentsInGrade = classes.reduce((sum, cls) => sum + cls.studentCount, 0);
+                
+                return (
+                  <div key={gradeLevel} className="mb-4">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h5 className="font-semibold text-blue-900 dark:text-blue-100 text-lg">
+                            Khối {gradeLevel}
+                          </h5>
+                          <p className="text-sm text-blue-700 dark:text-blue-300">
+                            {classes.length} lớp
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            {totalStudentsInGrade}
+                          </div>
+                          <div className="text-sm text-blue-600 dark:text-blue-400">
+                            học sinh
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Danh sách lớp trong khối */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {classes.map((cls) => (
+                          <div key={cls.id} className="bg-white dark:bg-blue-800/30 rounded p-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-blue-900 dark:text-blue-100 font-medium">
+                                {cls.className}
+                              </span>
+                              <span className="text-blue-600 dark:text-blue-400">
+                                {cls.studentCount} học sinh
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+
+          {/* Tổng kết đối tượng khám */}
+          <div className="bg-gray-50 dark:bg-neutral-700 border border-gray-200 dark:border-neutral-600 rounded-lg p-6">
+            <div className="mb-4">
+              <h4 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">
+                Tổng kết đối tượng khám
+              </h4>
+            </div>
+            <div className="flex justify-between">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {totalStudents}
+                </div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                  Học sinh
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {formData.targetGrades.length}
+                </div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                  Lớp học
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Selected Health Check Items */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
         <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
@@ -189,54 +308,6 @@ const PreviewHealthStep = ({
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Target Grades */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
-        <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-          <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 flex items-center">
-            <FiUsers className="mr-2" />
-            Khối lớp tham gia
-          </h3>
-        </div>
-        <div className="p-6">
-          {selectedGrades.length > 0 ? (
-            <div className="space-y-4">
-              {selectedGrades.map((grade) => (
-                <div
-                  key={grade.id}
-                  className="border border-primary-200 dark:border-primary-800 rounded-lg p-4 bg-primary-50 dark:bg-primary-900/20"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-lg font-medium text-primary-900 dark:text-primary-200">
-                        {grade.name}
-                      </h4>
-                      <p className="text-sm text-primary-700 dark:text-primary-300 mt-1">
-                        Khối: {grade.classes ? grade.classes.join(", ") : "N/A"}
-                      </p>
-                      <p className="text-sm text-primary-600 dark:text-primary-400 mt-1">
-                        Độ tuổi: {grade.ageRange}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-primary-900 dark:text-primary-200">
-                        {grade.studentCount}
-                      </p>
-                      <p className="text-sm text-primary-700 dark:text-primary-300">
-                        học sinh
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-neutral-600 dark:text-neutral-400 text-center py-4">
-              Chưa chọn khối lớp nào
-            </p>
-          )}
         </div>
       </div>
     </div>
