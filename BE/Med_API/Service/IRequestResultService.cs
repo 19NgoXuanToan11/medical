@@ -12,4 +12,4 @@ public interface IRequestResultService
     Task<IEnumerable<RequestResult>> GetRequestResultsByRequestIdAsync(int requestId);
     Task<IEnumerable<RequestResult>> GetRequestResultsByStatusAsync(string status);
     Task<RequestResult?> GetLatestRequestResultByRequestIdAsync(int requestId);
-} 
+}

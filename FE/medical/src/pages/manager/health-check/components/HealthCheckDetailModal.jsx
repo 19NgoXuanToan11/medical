@@ -1,5 +1,13 @@
 import React from "react";
-import { FiX, FiCheck, FiAlertTriangle, FiInfo, FiUsers, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import {
+  FiX,
+  FiCheck,
+  FiAlertTriangle,
+  FiInfo,
+  FiUsers,
+  FiChevronDown,
+  FiChevronUp,
+} from "react-icons/fi";
 
 const HealthCheckDetailModal = ({
   showModal,
@@ -270,30 +278,32 @@ const ClassStudentDetails = ({ selectedRequest }) => {
 
   const toggleClass = async (gradeInfo) => {
     const isExpanded = expandedClasses[gradeInfo];
-    
+
     if (!isExpanded && !classData[gradeInfo]) {
       setLoading(true);
       try {
         // Import classService dynamically
-        const { getClassesByGrade, getClassStudents } = await import("../../../../utils/api/class/classService");
-        
+        const { getClassesByGrade, getClassStudents } = await import(
+          "../../../../utils/api/class/classService"
+        );
+
         // Extract grade level from gradeInfo (e.g., "grade-2" -> 2)
         let gradeLevel;
-        if (gradeInfo.includes('grade-')) {
-          gradeLevel = parseInt(gradeInfo.split('-')[1]);
+        if (gradeInfo.includes("grade-")) {
+          gradeLevel = parseInt(gradeInfo.split("-")[1]);
         } else {
           // If it's already a class name like "1A", extract the grade
           gradeLevel = parseInt(gradeInfo.charAt(0));
         }
-        
+
         // Get all classes for this grade level
         const classesInGrade = await getClassesByGrade(gradeLevel);
-        
+
         if (classesInGrade && classesInGrade.length > 0) {
           // Get students for all classes in this grade
           const allStudentsInGrade = [];
           const classNames = [];
-          
+
           for (const classItem of classesInGrade) {
             try {
               const students = await getClassStudents(classItem.classId);
@@ -302,52 +312,58 @@ const ClassStudentDetails = ({ selectedRequest }) => {
                 classNames.push(classItem.className);
               }
             } catch (error) {
-              console.error(`Error fetching students for class ${classItem.className}:`, error);
+              console.error(
+                `Error fetching students for class ${classItem.className}:`,
+                error
+              );
             }
           }
-          
-          setClassData(prev => ({
+
+          setClassData((prev) => ({
             ...prev,
             [gradeInfo]: {
               gradeLevel: gradeLevel,
               classNames: classNames,
               students: allStudentsInGrade,
-              totalClasses: classesInGrade.length
-            }
+              totalClasses: classesInGrade.length,
+            },
           }));
         } else {
-          setClassData(prev => ({
+          setClassData((prev) => ({
             ...prev,
             [gradeInfo]: {
               gradeLevel: gradeLevel,
               classNames: [],
               students: [],
-              error: `Không tìm thấy lớp nào cho khối ${gradeLevel}`
-            }
+              error: `Không tìm thấy lớp nào cho khối ${gradeLevel}`,
+            },
           }));
         }
       } catch (error) {
         console.error("Error fetching class data:", error);
-        setClassData(prev => ({
+        setClassData((prev) => ({
           ...prev,
           [gradeInfo]: {
             gradeLevel: gradeInfo,
             students: [],
-            error: "Không thể tải dữ liệu lớp"
-          }
+            error: "Không thể tải dữ liệu lớp",
+          },
         }));
       } finally {
         setLoading(false);
       }
     }
 
-    setExpandedClasses(prev => ({
+    setExpandedClasses((prev) => ({
       ...prev,
-      [gradeInfo]: !isExpanded
+      [gradeInfo]: !isExpanded,
     }));
   };
 
-  if (!selectedRequest.targetGrades || selectedRequest.targetGrades.length === 0) {
+  if (
+    !selectedRequest.targetGrades ||
+    selectedRequest.targetGrades.length === 0
+  ) {
     return null;
   }
 
@@ -364,7 +380,10 @@ const ClassStudentDetails = ({ selectedRequest }) => {
 
       <div className="space-y-4">
         {selectedRequest.targetGrades.map((gradeInfo, index) => (
-          <div key={index} className="bg-white dark:bg-neutral-700 rounded-lg border border-blue-200 dark:border-blue-700">
+          <div
+            key={index}
+            className="bg-white dark:bg-neutral-700 rounded-lg border border-blue-200 dark:border-blue-700"
+          >
             <button
               onClick={() => toggleClass(gradeInfo)}
               className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-neutral-600 rounded-lg transition-colors"
@@ -372,18 +391,21 @@ const ClassStudentDetails = ({ selectedRequest }) => {
             >
               <div className="flex items-center gap-3">
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  {gradeInfo.includes('grade-') ? `Khối ${gradeInfo.split('-')[1]}` : gradeInfo}
+                  {gradeInfo.includes("grade-")
+                    ? `Khối ${gradeInfo.split("-")[1]}`
+                    : gradeInfo}
                 </span>
                 {classData[gradeInfo]?.students && (
                   <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-full text-xs font-medium">
                     {classData[gradeInfo].students.length} học sinh
                   </span>
                 )}
-                {classData[gradeInfo]?.classNames && classData[gradeInfo].classNames.length > 0 && (
-                  <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-full text-xs font-medium">
-                    {classData[gradeInfo].totalClasses} lớp
-                  </span>
-                )}
+                {classData[gradeInfo]?.classNames &&
+                  classData[gradeInfo].classNames.length > 0 && (
+                    <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-full text-xs font-medium">
+                      {classData[gradeInfo].totalClasses} lớp
+                    </span>
+                  )}
               </div>
               <div className="flex items-center gap-2">
                 {loading && expandedClasses[gradeInfo] === undefined && (
@@ -406,43 +428,48 @@ const ClassStudentDetails = ({ selectedRequest }) => {
                 ) : classData[gradeInfo]?.students ? (
                   <div className="space-y-4">
                     <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      Khối {classData[gradeInfo].gradeLevel} • {classData[gradeInfo].students.length} học sinh • {classData[gradeInfo].totalClasses} lớp
+                      Khối {classData[gradeInfo].gradeLevel} •{" "}
+                      {classData[gradeInfo].students.length} học sinh •{" "}
+                      {classData[gradeInfo].totalClasses} lớp
                       {classData[gradeInfo].classNames.length > 0 && (
                         <div className="mt-1">
-                          <strong>Các lớp:</strong> {classData[gradeInfo].classNames.join(", ")}
+                          <strong>Các lớp:</strong>{" "}
+                          {classData[gradeInfo].classNames.join(", ")}
                         </div>
                       )}
                     </div>
-                    
+
                     {classData[gradeInfo].students.length === 0 ? (
                       <div className="text-gray-500 dark:text-gray-400 text-sm italic">
                         Không có học sinh nào trong khối này
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {classData[gradeInfo].students.map((student, studentIndex) => (
-                          <div
-                            key={studentIndex}
-                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-neutral-600 rounded-lg"
-                          >
-                            <div>
-                              <div className="font-medium text-gray-900 dark:text-white">
-                                {student.firstName} {student.lastName}
+                        {classData[gradeInfo].students.map(
+                          (student, studentIndex) => (
+                            <div
+                              key={studentIndex}
+                              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-neutral-600 rounded-lg"
+                            >
+                              <div>
+                                <div className="font-medium text-gray-900 dark:text-white">
+                                  {student.firstName} {student.lastName}
+                                </div>
+                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                  MSHS: {student.studentCode}
+                                  {student.className && (
+                                    <span className="ml-2 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded text-xs">
+                                      {student.className}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                              <div className="text-sm text-gray-600 dark:text-gray-400">
-                                MSHS: {student.studentCode}
-                                {student.className && (
-                                  <span className="ml-2 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded text-xs">
-                                    {student.className}
-                                  </span>
-                                )}
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                {student.gender === "Male" ? "Nam" : "Nữ"}
                               </div>
                             </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                              {student.gender === "Male" ? "Nam" : "Nữ"}
-                            </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     )}
                   </div>
@@ -461,8 +488,9 @@ const ClassStudentDetails = ({ selectedRequest }) => {
         <div className="flex items-start gap-2">
           <FiInfo className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
           <div className="text-sm text-blue-800 dark:text-blue-200">
-            <strong>Lưu ý:</strong> Danh sách học sinh sẽ được tải khi bạn mở rộng từng khối lớp. 
-            Tất cả học sinh trong các lớp của khối này sẽ tham gia khám sức khỏe.
+            <strong>Lưu ý:</strong> Danh sách học sinh sẽ được tải khi bạn mở
+            rộng từng khối lớp. Tất cả học sinh trong các lớp của khối này sẽ
+            tham gia khám sức khỏe.
           </div>
         </div>
       </div>
@@ -476,57 +504,72 @@ const CheckItems = ({ selectedRequest }) => {
 
   React.useEffect(() => {
     const fetchHealthCheckItems = async () => {
-      if (!selectedRequest.checkItems || selectedRequest.checkItems.length === 0) return;
-      
+      if (
+        !selectedRequest.checkItems ||
+        selectedRequest.checkItems.length === 0
+      )
+        return;
+
       setLoading(true);
       try {
         // Dynamic import to get health check items
-        const response = await fetch('https://localhost:7111/api/HealthCheckItem/active');
+        const response = await fetch(
+          "https://localhost:7111/api/HealthCheckItem/active"
+        );
         if (response.ok) {
           const allItems = await response.json();
-          
+
           // Map checkItems (which might be IDs or names) to actual health check items
-          const mappedItems = selectedRequest.checkItems.map(checkItem => {
+          const mappedItems = selectedRequest.checkItems.map((checkItem) => {
             // Try to find by ID first (if checkItem is a number)
-            let foundItem = allItems.find(item => item.itemId === parseInt(checkItem));
-            
+            let foundItem = allItems.find(
+              (item) => item.itemId === parseInt(checkItem)
+            );
+
             // If not found, try to find by code or name
             if (!foundItem) {
-              foundItem = allItems.find(item => 
-                item.code === checkItem || 
-                item.name === checkItem ||
-                item.itemId.toString() === checkItem.toString()
+              foundItem = allItems.find(
+                (item) =>
+                  item.code === checkItem ||
+                  item.name === checkItem ||
+                  item.itemId.toString() === checkItem.toString()
               );
             }
-            
+
             // Return the found item or create a fallback
-            return foundItem || {
-              itemId: checkItem,
-              name: checkItem,
-              category: 'Unknown',
-              estimatedTimeMinutes: 0
-            };
+            return (
+              foundItem || {
+                itemId: checkItem,
+                name: checkItem,
+                category: "Unknown",
+                estimatedTimeMinutes: 0,
+              }
+            );
           });
-          
+
           setHealthCheckItems(mappedItems);
         } else {
           // Fallback: display as-is if API call fails
-          setHealthCheckItems(selectedRequest.checkItems.map(item => ({
-            itemId: item,
-            name: item,
-            category: 'Unknown',
-            estimatedTimeMinutes: 0
-          })));
+          setHealthCheckItems(
+            selectedRequest.checkItems.map((item) => ({
+              itemId: item,
+              name: item,
+              category: "Unknown",
+              estimatedTimeMinutes: 0,
+            }))
+          );
         }
       } catch (error) {
         console.error("Error fetching health check items:", error);
         // Fallback: display as-is if error occurs
-        setHealthCheckItems(selectedRequest.checkItems.map(item => ({
-          itemId: item,
-          name: item,
-          category: 'Unknown',
-          estimatedTimeMinutes: 0
-        })));
+        setHealthCheckItems(
+          selectedRequest.checkItems.map((item) => ({
+            itemId: item,
+            name: item,
+            category: "Unknown",
+            estimatedTimeMinutes: 0,
+          }))
+        );
       } finally {
         setLoading(false);
       }
@@ -537,10 +580,10 @@ const CheckItems = ({ selectedRequest }) => {
 
   if (!selectedRequest.checkItems || selectedRequest.checkItems.length === 0) {
     return (
-  <div>
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-      Hạng mục khám
-    </label>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Hạng mục khám
+        </label>
         <p className="text-gray-500 dark:text-gray-400 text-sm italic">
           Chưa có hạng mục khám nào được chọn
         </p>
@@ -553,17 +596,19 @@ const CheckItems = ({ selectedRequest }) => {
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
         Hạng mục khám ({healthCheckItems.length} hạng mục)
       </label>
-      
+
       {loading ? (
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-sm text-gray-500 dark:text-gray-400">Đang tải thông tin hạng mục khám...</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            Đang tải thông tin hạng mục khám...
+          </span>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {healthCheckItems.map((item, index) => (
             <div
-          key={index}
+              key={index}
               className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg"
             >
               <div className="flex items-start justify-between">
@@ -578,7 +623,7 @@ const CheckItems = ({ selectedRequest }) => {
                     {item.estimatedTimeMinutes > 0 && (
                       <span className="text-xs">
                         ~{item.estimatedTimeMinutes} phút
-        </span>
+                      </span>
                     )}
                   </div>
                 </div>
@@ -587,12 +632,17 @@ const CheckItems = ({ selectedRequest }) => {
           ))}
         </div>
       )}
-      
+
       <div className="mt-3 p-2 bg-gray-50 dark:bg-gray-700 rounded text-sm text-gray-600 dark:text-gray-400">
-        <strong>Tổng thời gian ước tính:</strong> {healthCheckItems.reduce((total, item) => total + (item.estimatedTimeMinutes || 0), 0)} phút
+        <strong>Tổng thời gian ước tính:</strong>{" "}
+        {healthCheckItems.reduce(
+          (total, item) => total + (item.estimatedTimeMinutes || 0),
+          0
+        )}{" "}
+        phút
       </div>
-  </div>
-);
+    </div>
+  );
 };
 
 const Description = ({ selectedRequest }) => (

@@ -16,4 +16,4 @@ public interface IClassService
     Task<IEnumerable<Class>> GetActiveClassesAsync();
     Task<bool> ValidateClassDataAsync(Class classEntity);
     Task<int> PromoteStudentsToNextClassIfNewYearAsync();
-} 
+}

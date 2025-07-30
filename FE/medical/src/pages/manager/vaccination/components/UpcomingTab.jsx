@@ -11,40 +11,46 @@ import {
   FiRefreshCw,
   FiFilter,
 } from "react-icons/fi";
-import { 
-  formatDate, 
-  formatTime, 
-  formatDateTime, 
+import {
+  formatDate,
+  formatTime,
+  formatDateTime,
   formatDateWithContext,
   formatDuration,
-  formatRelativeTime 
+  formatRelativeTime,
 } from "../../../../utils/timeUtils";
 
-const UpcomingTab = ({ 
-  upcomingForms, 
-  searchTerm, 
+const UpcomingTab = ({
+  upcomingForms,
+  searchTerm,
   setSearchTerm,
-  onRefresh, 
+  onRefresh,
   loading,
-  onShowDetail 
+  onShowDetail,
 }) => {
   const [sortBy, setSortBy] = useState("date"); // date, vaccine, students
   const [filterBy, setFilterBy] = useState("all"); // all, today, this_week, next_week
 
   // Calculate date filters
   const today = new Date();
-  const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
+  const startOfWeek = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() - today.getDay()
+  );
   const endOfWeek = new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000);
   const nextWeekStart = new Date(endOfWeek);
-  const nextWeekEnd = new Date(nextWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const nextWeekEnd = new Date(
+    nextWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000
+  );
 
   // Filter and sort forms
   const filteredAndSortedForms = upcomingForms
-    .filter(form => {
+    .filter((form) => {
       // Search filter
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
-        const matchesSearch = 
+        const matchesSearch =
           form.injectionName?.toLowerCase().includes(term) ||
           form.description?.toLowerCase().includes(term) ||
           form.vaccine?.name?.toLowerCase().includes(term) ||
@@ -56,7 +62,7 @@ const UpcomingTab = ({
       // Date filter
       if (filterBy !== "all" && form.scheduledDate) {
         const scheduleDate = new Date(form.scheduledDate);
-        
+
         switch (filterBy) {
           case "today":
             return scheduleDate.toDateString() === today.toDateString();
@@ -86,21 +92,25 @@ const UpcomingTab = ({
     });
 
   // Calculate stats
-  const todayForms = upcomingForms.filter(form => {
+  const todayForms = upcomingForms.filter((form) => {
     if (!form.scheduledDate) return false;
     return new Date(form.scheduledDate).toDateString() === today.toDateString();
   }).length;
 
-  const thisWeekForms = upcomingForms.filter(form => {
+  const thisWeekForms = upcomingForms.filter((form) => {
     if (!form.scheduledDate) return false;
     const scheduleDate = new Date(form.scheduledDate);
     return scheduleDate >= startOfWeek && scheduleDate < endOfWeek;
   }).length;
 
   const renderFormCard = (form) => {
-    const scheduleDate = form.scheduledDate ? new Date(form.scheduledDate) : null;
-    const isToday = scheduleDate && scheduleDate.toDateString() === today.toDateString();
-    const isThisWeek = scheduleDate && scheduleDate >= startOfWeek && scheduleDate < endOfWeek;
+    const scheduleDate = form.scheduledDate
+      ? new Date(form.scheduledDate)
+      : null;
+    const isToday =
+      scheduleDate && scheduleDate.toDateString() === today.toDateString();
+    const isThisWeek =
+      scheduleDate && scheduleDate >= startOfWeek && scheduleDate < endOfWeek;
 
     return (
       <div
@@ -170,7 +180,9 @@ const UpcomingTab = ({
             <div className="pl-6 space-y-1 text-sm">
               <p className="font-medium text-green-600 dark:text-green-400">
                 <span className="text-gray-500">Ngày:</span>{" "}
-                {scheduleDate ? formatDateWithContext(scheduleDate) : "Chưa xác định"}
+                {scheduleDate
+                  ? formatDateWithContext(scheduleDate)
+                  : "Chưa xác định"}
               </p>
               <p>
                 <span className="text-gray-500">Giờ:</span>{" "}
@@ -241,7 +253,9 @@ const UpcomingTab = ({
         {/* Description */}
         {form.description && (
           <div className="mb-4">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-2">Mô tả:</h4>
+            <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+              Mô tả:
+            </h4>
             <p className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-3 rounded">
               {form.description}
             </p>
@@ -265,16 +279,17 @@ const UpcomingTab = ({
               </span>
             )}
           </div>
-          
+
           {scheduleDate && (
             <div className="text-right">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {scheduleDate < today 
+                {scheduleDate < today
                   ? "Đã qua"
                   : scheduleDate.toDateString() === today.toDateString()
                   ? "Hôm nay"
-                  : `Còn ${Math.ceil((scheduleDate - today) / (1000 * 60 * 60 * 24))} ngày`
-                }
+                  : `Còn ${Math.ceil(
+                      (scheduleDate - today) / (1000 * 60 * 60 * 24)
+                    )} ngày`}
               </p>
             </div>
           )}
@@ -330,7 +345,9 @@ const UpcomingTab = ({
               disabled={loading}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors flex items-center gap-2"
             >
-              <FiRefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+              <FiRefreshCw
+                className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+              />
               Làm mới
             </button>
           </div>
@@ -370,13 +387,14 @@ const UpcomingTab = ({
         <div className="text-center py-12">
           <FiCheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            {searchTerm ? "Không tìm thấy phiếu nào" : "Chưa có lịch tiêm được duyệt"}
+            {searchTerm
+              ? "Không tìm thấy phiếu nào"
+              : "Chưa có lịch tiêm được duyệt"}
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            {searchTerm 
+            {searchTerm
               ? "Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc"
-              : "Các phiếu được duyệt sẽ hiển thị ở đây"
-            }
+              : "Các phiếu được duyệt sẽ hiển thị ở đây"}
           </p>
         </div>
       )}
@@ -384,4 +402,4 @@ const UpcomingTab = ({
   );
 };
 
-export default UpcomingTab; 
+export default UpcomingTab;

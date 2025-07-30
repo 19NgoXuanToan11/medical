@@ -48,8 +48,11 @@ public class StaffController : ControllerBase
             return BadRequest("Username or email already exists");
         }
 
-        return CreatedAtAction(nameof(GetStaff), new { id = createdStaff.StaffId }, 
-            _mapper.Map<StaffDto.ViewModel>(createdStaff));
+        return CreatedAtAction(
+            nameof(GetStaff),
+            new { id = createdStaff.StaffId },
+            _mapper.Map<StaffDto.ViewModel>(createdStaff)
+        );
     }
 
     [HttpPut("{id}")]
@@ -86,7 +89,10 @@ public class StaffController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<StaffDto.ViewModel>> Login([FromBody] StaffDto.Create loginDto)
     {
-        var isValid = await _staffService.ValidateCredentialsAsync(loginDto.Username, loginDto.Password);
+        var isValid = await _staffService.ValidateCredentialsAsync(
+            loginDto.Username,
+            loginDto.Password
+        );
         if (!isValid)
         {
             return Unauthorized("Invalid username or password");
@@ -98,7 +104,9 @@ public class StaffController : ControllerBase
 
     // --- GradeNurse management ---
     [HttpPost("grade-nurse")]
-    public async Task<ActionResult<StaffDto.GradeNurseViewModel>> CreateGradeNurse([FromBody] StaffDto.GradeNurseCreate dto)
+    public async Task<ActionResult<StaffDto.GradeNurseViewModel>> CreateGradeNurse(
+        [FromBody] StaffDto.GradeNurseCreate dto
+    )
     {
         var entity = _mapper.Map<DB.GradeNurse>(dto);
         var created = await _staffService.CreateGradeNurseAsync(entity);
@@ -128,7 +136,7 @@ public class StaffController : ControllerBase
         // Get nurse's assigned grades
         var gradeNurses = await _staffService.GetGradeNursesByStaffIdAsync(staffId);
         var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
-        
+
         return Ok(assignedGrades);
     }
 
@@ -136,19 +144,24 @@ public class StaffController : ControllerBase
     public async Task<IActionResult> DeleteGradeNurse(int id)
     {
         var success = await _staffService.DeleteGradeNurseAsync(id);
-        if (!success) return NotFound();
+        if (!success)
+            return NotFound();
         return NoContent();
     }
 
     [HttpGet("grade-nurse/by-grade/{grade}")]
-    public async Task<ActionResult<IEnumerable<StaffDto.GradeNurseViewModel>>> GetGradeNursesByGrade(int grade)
+    public async Task<
+        ActionResult<IEnumerable<StaffDto.GradeNurseViewModel>>
+    > GetGradeNursesByGrade(int grade)
     {
         var list = await _staffService.GetGradeNursesByGradeAsync(grade);
         return Ok(_mapper.Map<IEnumerable<StaffDto.GradeNurseViewModel>>(list));
     }
 
     [HttpGet("grade-nurse/by-staff/{staffId}")]
-    public async Task<ActionResult<IEnumerable<StaffDto.GradeNurseViewModel>>> GetGradeNursesByStaffId(int staffId)
+    public async Task<
+        ActionResult<IEnumerable<StaffDto.GradeNurseViewModel>>
+    > GetGradeNursesByStaffId(int staffId)
     {
         var list = await _staffService.GetGradeNursesByStaffIdAsync(staffId);
         return Ok(_mapper.Map<IEnumerable<StaffDto.GradeNurseViewModel>>(list));
@@ -166,35 +179,44 @@ public class StaffController : ControllerBase
     {
         var all = await _staffService.GetAllGradeNursesAsync();
         var entity = all.FirstOrDefault(x => x.GradeNurseId == id);
-        if (entity == null) return NotFound();
+        if (entity == null)
+            return NotFound();
         return Ok(_mapper.Map<StaffDto.GradeNurseViewModel>(entity));
     }
 
     public class GradeStudentParentResponse
     {
-        public IEnumerable<StudentDto.ViewModel> Students { get; set; } = new List<StudentDto.ViewModel>();
-        public IEnumerable<StudentParentDto.ViewModel> StudentParents { get; set; } = new List<StudentParentDto.ViewModel>();
+        public IEnumerable<StudentDto.ViewModel> Students { get; set; } =
+            new List<StudentDto.ViewModel>();
+        public IEnumerable<StudentParentDto.ViewModel> StudentParents { get; set; } =
+            new List<StudentParentDto.ViewModel>();
     }
 
     [HttpGet("grade/{grade}/students-parents")]
-    public async Task<ActionResult<GradeStudentParentResponse>> GetStudentsAndParentsByGrade(int grade,
+    public async Task<ActionResult<GradeStudentParentResponse>> GetStudentsAndParentsByGrade(
+        int grade,
         [FromServices] IStudentService studentService,
         [FromServices] IStudentParentService studentParentService,
-        [FromServices] IMapper mapper)
+        [FromServices] IMapper mapper
+    )
     {
         var students = await studentService.GetAllStudentsAsync();
         var filteredStudents = students.Where(s => s.Class != null && s.Class.GradeLevel == grade);
         var studentViewModels = mapper.Map<IEnumerable<StudentDto.ViewModel>>(filteredStudents);
 
         var studentParents = await studentParentService.GetAllStudentParentsAsync();
-        var filteredStudentParents = studentParents.Where(sp => sp.Student != null && sp.Student.Class != null && sp.Student.Class.GradeLevel == grade);
-        var studentParentViewModels = mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(filteredStudentParents);
+        var filteredStudentParents = studentParents.Where(sp =>
+            sp.Student != null && sp.Student.Class != null && sp.Student.Class.GradeLevel == grade
+        );
+        var studentParentViewModels = mapper.Map<IEnumerable<StudentParentDto.ViewModel>>(
+            filteredStudentParents
+        );
 
         var response = new GradeStudentParentResponse
         {
             Students = studentViewModels,
-            StudentParents = studentParentViewModels
+            StudentParents = studentParentViewModels,
         };
         return Ok(response);
     }
-} 
+}

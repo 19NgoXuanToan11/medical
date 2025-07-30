@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
-using Service;
-using DB;
 using API.DTOs;
+using AutoMapper;
+using DB;
+using Microsoft.AspNetCore.Mvc;
+using Service;
 
 namespace API.Controllers;
 
@@ -23,17 +23,28 @@ public class HealthCheckItemController : ControllerBase
     /// Lấy tất cả hạng mục khám
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<HealthCheckItemDto.ListViewModel>>> GetAllHealthCheckItems()
+    public async Task<
+        ActionResult<IEnumerable<HealthCheckItemDto.ListViewModel>>
+    > GetAllHealthCheckItems()
     {
         try
         {
             var healthCheckItems = await _healthCheckItemService.GetAllHealthCheckItemsAsync();
-            var result = _mapper.Map<IEnumerable<HealthCheckItemDto.ListViewModel>>(healthCheckItems);
+            var result = _mapper.Map<IEnumerable<HealthCheckItemDto.ListViewModel>>(
+                healthCheckItems
+            );
             return Ok(result);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi lấy danh sách hạng mục khám", error = ex.Message });
+            return StatusCode(
+                500,
+                new
+                {
+                    message = "Có lỗi xảy ra khi lấy danh sách hạng mục khám",
+                    error = ex.Message,
+                }
+            );
         }
     }
 
@@ -41,17 +52,28 @@ public class HealthCheckItemController : ControllerBase
     /// Lấy tất cả hạng mục khám đang hoạt động
     /// </summary>
     [HttpGet("active")]
-    public async Task<ActionResult<IEnumerable<HealthCheckItemDto.ListViewModel>>> GetActiveHealthCheckItems()
+    public async Task<
+        ActionResult<IEnumerable<HealthCheckItemDto.ListViewModel>>
+    > GetActiveHealthCheckItems()
     {
         try
         {
             var healthCheckItems = await _healthCheckItemService.GetActiveHealthCheckItemsAsync();
-            var result = _mapper.Map<IEnumerable<HealthCheckItemDto.ListViewModel>>(healthCheckItems);
+            var result = _mapper.Map<IEnumerable<HealthCheckItemDto.ListViewModel>>(
+                healthCheckItems
+            );
             return Ok(result);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi lấy danh sách hạng mục khám hoạt động", error = ex.Message });
+            return StatusCode(
+                500,
+                new
+                {
+                    message = "Có lỗi xảy ra khi lấy danh sách hạng mục khám hoạt động",
+                    error = ex.Message,
+                }
+            );
         }
     }
 
@@ -63,7 +85,8 @@ public class HealthCheckItemController : ControllerBase
     {
         try
         {
-            var healthCheckItem = await _healthCheckItemService.GetHealthCheckItemWithMedicalSuppliesAsync(id);
+            var healthCheckItem =
+                await _healthCheckItemService.GetHealthCheckItemWithMedicalSuppliesAsync(id);
             if (healthCheckItem == null)
             {
                 return NotFound(new { message = "Không tìm thấy hạng mục khám" });
@@ -74,7 +97,14 @@ public class HealthCheckItemController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi lấy thông tin hạng mục khám", error = ex.Message });
+            return StatusCode(
+                500,
+                new
+                {
+                    message = "Có lỗi xảy ra khi lấy thông tin hạng mục khám",
+                    error = ex.Message,
+                }
+            );
         }
     }
 
@@ -82,17 +112,30 @@ public class HealthCheckItemController : ControllerBase
     /// Lấy hạng mục khám theo danh mục
     /// </summary>
     [HttpGet("category/{category}")]
-    public async Task<ActionResult<IEnumerable<HealthCheckItemDto.ListViewModel>>> GetHealthCheckItemsByCategory(string category)
+    public async Task<
+        ActionResult<IEnumerable<HealthCheckItemDto.ListViewModel>>
+    > GetHealthCheckItemsByCategory(string category)
     {
         try
         {
-            var healthCheckItems = await _healthCheckItemService.GetHealthCheckItemsByCategoryAsync(category);
-            var result = _mapper.Map<IEnumerable<HealthCheckItemDto.ListViewModel>>(healthCheckItems);
+            var healthCheckItems = await _healthCheckItemService.GetHealthCheckItemsByCategoryAsync(
+                category
+            );
+            var result = _mapper.Map<IEnumerable<HealthCheckItemDto.ListViewModel>>(
+                healthCheckItems
+            );
             return Ok(result);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi lấy hạng mục khám theo danh mục", error = ex.Message });
+            return StatusCode(
+                500,
+                new
+                {
+                    message = "Có lỗi xảy ra khi lấy hạng mục khám theo danh mục",
+                    error = ex.Message,
+                }
+            );
         }
     }
 
@@ -109,7 +152,10 @@ public class HealthCheckItemController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi lấy danh sách danh mục", error = ex.Message });
+            return StatusCode(
+                500,
+                new { message = "Có lỗi xảy ra khi lấy danh sách danh mục", error = ex.Message }
+            );
         }
     }
 
@@ -117,17 +163,27 @@ public class HealthCheckItemController : ControllerBase
     /// Lấy hạng mục khám với thông tin vật tư y tế
     /// </summary>
     [HttpGet("with-medical-supplies")]
-    public async Task<ActionResult<IEnumerable<HealthCheckItemDto.ViewModel>>> GetHealthCheckItemsWithMedicalSupplies()
+    public async Task<
+        ActionResult<IEnumerable<HealthCheckItemDto.ViewModel>>
+    > GetHealthCheckItemsWithMedicalSupplies()
     {
         try
         {
-            var healthCheckItems = await _healthCheckItemService.GetHealthCheckItemsWithMedicalSuppliesAsync();
+            var healthCheckItems =
+                await _healthCheckItemService.GetHealthCheckItemsWithMedicalSuppliesAsync();
             var result = _mapper.Map<IEnumerable<HealthCheckItemDto.ViewModel>>(healthCheckItems);
             return Ok(result);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi lấy hạng mục khám với vật tư y tế", error = ex.Message });
+            return StatusCode(
+                500,
+                new
+                {
+                    message = "Có lỗi xảy ra khi lấy hạng mục khám với vật tư y tế",
+                    error = ex.Message,
+                }
+            );
         }
     }
 
@@ -135,7 +191,9 @@ public class HealthCheckItemController : ControllerBase
     /// Tạo hạng mục khám mới
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<HealthCheckItemDto.ViewModel>> CreateHealthCheckItem([FromBody] HealthCheckItemDto.Create createDto)
+    public async Task<ActionResult<HealthCheckItemDto.ViewModel>> CreateHealthCheckItem(
+        [FromBody] HealthCheckItemDto.Create createDto
+    )
     {
         try
         {
@@ -156,18 +214,33 @@ public class HealthCheckItemController : ControllerBase
 
             if (result == null)
             {
-                return BadRequest(new { message = "Không thể tạo hạng mục khám. Vui lòng kiểm tra lại thông tin." });
+                return BadRequest(
+                    new
+                    {
+                        message = "Không thể tạo hạng mục khám. Vui lòng kiểm tra lại thông tin.",
+                    }
+                );
             }
 
             // Get the created item with medical supplies
-            var createdItem = await _healthCheckItemService.GetHealthCheckItemWithMedicalSuppliesAsync(result.ItemId);
+            var createdItem =
+                await _healthCheckItemService.GetHealthCheckItemWithMedicalSuppliesAsync(
+                    result.ItemId
+                );
             var viewModel = _mapper.Map<HealthCheckItemDto.ViewModel>(createdItem);
 
-            return CreatedAtAction(nameof(GetHealthCheckItemById), new { id = result.ItemId }, viewModel);
+            return CreatedAtAction(
+                nameof(GetHealthCheckItemById),
+                new { id = result.ItemId },
+                viewModel
+            );
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi tạo hạng mục khám", error = ex.Message });
+            return StatusCode(
+                500,
+                new { message = "Có lỗi xảy ra khi tạo hạng mục khám", error = ex.Message }
+            );
         }
     }
 
@@ -175,7 +248,10 @@ public class HealthCheckItemController : ControllerBase
     /// Cập nhật hạng mục khám
     /// </summary>
     [HttpPut("{id}")]
-    public async Task<ActionResult<HealthCheckItemDto.ViewModel>> UpdateHealthCheckItem(int id, [FromBody] HealthCheckItemDto.Update updateDto)
+    public async Task<ActionResult<HealthCheckItemDto.ViewModel>> UpdateHealthCheckItem(
+        int id,
+        [FromBody] HealthCheckItemDto.Update updateDto
+    )
     {
         try
         {
@@ -195,7 +271,10 @@ public class HealthCheckItemController : ControllerBase
             }
 
             var healthCheckItem = _mapper.Map<HealthCheckItem>(updateDto);
-            var result = await _healthCheckItemService.UpdateHealthCheckItemAsync(id, healthCheckItem);
+            var result = await _healthCheckItemService.UpdateHealthCheckItemAsync(
+                id,
+                healthCheckItem
+            );
 
             if (result == null)
             {
@@ -205,24 +284,36 @@ public class HealthCheckItemController : ControllerBase
             // Update medical supplies if provided
             if (updateDto.RequiredMedicalSupplies != null)
             {
-                var medicalSupplies = _mapper.Map<List<HealthCheckItemMedicalSupply>>(updateDto.RequiredMedicalSupplies);
-                var updateSuccess = await _healthCheckItemService.UpdateHealthCheckItemMedicalSuppliesAsync(id, medicalSupplies);
-                
+                var medicalSupplies = _mapper.Map<List<HealthCheckItemMedicalSupply>>(
+                    updateDto.RequiredMedicalSupplies
+                );
+                var updateSuccess =
+                    await _healthCheckItemService.UpdateHealthCheckItemMedicalSuppliesAsync(
+                        id,
+                        medicalSupplies
+                    );
+
                 if (!updateSuccess)
                 {
-                    return BadRequest(new { message = "Không thể cập nhật vật tư y tế cho hạng mục khám" });
+                    return BadRequest(
+                        new { message = "Không thể cập nhật vật tư y tế cho hạng mục khám" }
+                    );
                 }
             }
 
             // Get updated item with medical supplies
-            var updatedItem = await _healthCheckItemService.GetHealthCheckItemWithMedicalSuppliesAsync(id);
+            var updatedItem =
+                await _healthCheckItemService.GetHealthCheckItemWithMedicalSuppliesAsync(id);
             var viewModel = _mapper.Map<HealthCheckItemDto.ViewModel>(updatedItem);
 
             return Ok(viewModel);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi cập nhật hạng mục khám", error = ex.Message });
+            return StatusCode(
+                500,
+                new { message = "Có lỗi xảy ra khi cập nhật hạng mục khám", error = ex.Message }
+            );
         }
     }
 
@@ -244,7 +335,10 @@ public class HealthCheckItemController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi xóa hạng mục khám", error = ex.Message });
+            return StatusCode(
+                500,
+                new { message = "Có lỗi xảy ra khi xóa hạng mục khám", error = ex.Message }
+            );
         }
     }
 
@@ -252,7 +346,10 @@ public class HealthCheckItemController : ControllerBase
     /// Cập nhật vật tư y tế cho hạng mục khám
     /// </summary>
     [HttpPut("{id}/medical-supplies")]
-    public async Task<ActionResult> UpdateHealthCheckItemMedicalSupplies(int id, [FromBody] List<HealthCheckItemDto.MedicalSupplyRequirementCreate> medicalSupplies)
+    public async Task<ActionResult> UpdateHealthCheckItemMedicalSupplies(
+        int id,
+        [FromBody] List<HealthCheckItemDto.MedicalSupplyRequirementCreate> medicalSupplies
+    )
     {
         try
         {
@@ -261,25 +358,37 @@ public class HealthCheckItemController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var healthCheckItemExists = await _healthCheckItemService.GetHealthCheckItemByIdAsync(id);
+            var healthCheckItemExists = await _healthCheckItemService.GetHealthCheckItemByIdAsync(
+                id
+            );
             if (healthCheckItemExists == null)
             {
                 return NotFound(new { message = "Không tìm thấy hạng mục khám" });
             }
 
-            var medicalSupplyEntities = _mapper.Map<List<HealthCheckItemMedicalSupply>>(medicalSupplies);
-            var result = await _healthCheckItemService.UpdateHealthCheckItemMedicalSuppliesAsync(id, medicalSupplyEntities);
+            var medicalSupplyEntities = _mapper.Map<List<HealthCheckItemMedicalSupply>>(
+                medicalSupplies
+            );
+            var result = await _healthCheckItemService.UpdateHealthCheckItemMedicalSuppliesAsync(
+                id,
+                medicalSupplyEntities
+            );
 
             if (!result)
             {
-                return BadRequest(new { message = "Không thể cập nhật vật tư y tế cho hạng mục khám" });
+                return BadRequest(
+                    new { message = "Không thể cập nhật vật tư y tế cho hạng mục khám" }
+                );
             }
 
             return Ok(new { message = "Cập nhật vật tư y tế thành công" });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi cập nhật vật tư y tế", error = ex.Message });
+            return StatusCode(
+                500,
+                new { message = "Có lỗi xảy ra khi cập nhật vật tư y tế", error = ex.Message }
+            );
         }
     }
 
@@ -287,7 +396,10 @@ public class HealthCheckItemController : ControllerBase
     /// Kiểm tra mã hạng mục khám có tồn tại không
     /// </summary>
     [HttpGet("check-code/{code}")]
-    public async Task<ActionResult<bool>> CheckCodeExists(string code, [FromQuery] int? excludeId = null)
+    public async Task<ActionResult<bool>> CheckCodeExists(
+        string code,
+        [FromQuery] int? excludeId = null
+    )
     {
         try
         {
@@ -296,7 +408,10 @@ public class HealthCheckItemController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Có lỗi xảy ra khi kiểm tra mã hạng mục khám", error = ex.Message });
+            return StatusCode(
+                500,
+                new { message = "Có lỗi xảy ra khi kiểm tra mã hạng mục khám", error = ex.Message }
+            );
         }
     }
-} 
+}

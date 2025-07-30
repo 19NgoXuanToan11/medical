@@ -14,8 +14,8 @@ public class StaffRepository : IStaffRepository
 
     public async Task<IEnumerable<Staff>> GetAllStaffAsync()
     {
-        return await _context.Staff
-            .Include(s => s.Role)
+        return await _context
+            .Staff.Include(s => s.Role)
             .Include(s => s.HealthEvents)
             .Include(s => s.MedicineRequests)
             .ToListAsync();
@@ -23,13 +23,13 @@ public class StaffRepository : IStaffRepository
 
     public async Task<Staff?> GetStaffByIdAsync(int id)
     {
-        var staff = await _context.Staff
-            .Include(s => s.Role)
+        var staff = await _context
+            .Staff.Include(s => s.Role)
             .Include(s => s.HealthEvents)
             .Include(s => s.MedicineRequests)
             .Include(s => s.GradeNurses)
             .FirstOrDefaultAsync(s => s.StaffId == id);
-        
+
         return staff;
     }
 
@@ -48,8 +48,8 @@ public class StaffRepository : IStaffRepository
 
     public async Task<bool> DeleteStaffAsync(int id)
     {
-        var staff = await _context.Staff
-            .Include(s => s.HealthEvents)
+        var staff = await _context
+            .Staff.Include(s => s.HealthEvents)
             .Include(s => s.MedicineRequests)
             .FirstOrDefaultAsync(s => s.StaffId == id);
 
@@ -71,16 +71,16 @@ public class StaffRepository : IStaffRepository
 
     public async Task<Staff?> GetStaffByUsernameAsync(string username)
     {
-        return await _context.Staff
-            .Include(s => s.Role)
+        return await _context
+            .Staff.Include(s => s.Role)
             .Include(s => s.MedicineRequests)
             .FirstOrDefaultAsync(s => s.Username == username);
     }
 
     public async Task<Staff?> GetStaffByEmailAsync(string email)
     {
-        return await _context.Staff
-            .Include(s => s.Role)
+        return await _context
+            .Staff.Include(s => s.Role)
             .Include(s => s.MedicineRequests)
             .FirstOrDefaultAsync(s => s.Email == email);
     }
@@ -96,7 +96,8 @@ public class StaffRepository : IStaffRepository
     public async Task<bool> DeleteGradeNurseAsync(int gradeNurseId)
     {
         var entity = await _context.GradeNurses.FindAsync(gradeNurseId);
-        if (entity == null) return false;
+        if (entity == null)
+            return false;
         _context.GradeNurses.Remove(entity);
         await _context.SaveChangesAsync();
         return true;
@@ -104,16 +105,22 @@ public class StaffRepository : IStaffRepository
 
     public async Task<IEnumerable<GradeNurse>> GetGradeNursesByGradeAsync(int grade)
     {
-        return await _context.GradeNurses.Include(g => g.Nurse).Where(g => g.Grade == grade).ToListAsync();
+        return await _context
+            .GradeNurses.Include(g => g.Nurse)
+            .Where(g => g.Grade == grade)
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<GradeNurse>> GetGradeNursesByStaffIdAsync(int staffId)
     {
-        return await _context.GradeNurses.Include(g => g.Nurse).Where(g => g.StaffId == staffId).ToListAsync();
+        return await _context
+            .GradeNurses.Include(g => g.Nurse)
+            .Where(g => g.StaffId == staffId)
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<GradeNurse>> GetAllGradeNursesAsync()
     {
         return await _context.GradeNurses.Include(g => g.Nurse).ToListAsync();
     }
-} 
+}

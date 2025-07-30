@@ -37,14 +37,18 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpGet("student/{studentId}")]
-    public async Task<ActionResult<IEnumerable<AppointmentDto.ViewModel>>> GetByStudentId(int studentId)
+    public async Task<ActionResult<IEnumerable<AppointmentDto.ViewModel>>> GetByStudentId(
+        int studentId
+    )
     {
         var appointments = await _service.GetByStudentIdAsync(studentId);
         return Ok(_mapper.Map<IEnumerable<AppointmentDto.ViewModel>>(appointments));
     }
 
     [HttpGet("parent/{parentId}")]
-    public async Task<ActionResult<IEnumerable<AppointmentDto.ViewModel>>> GetByParentId(int parentId)
+    public async Task<ActionResult<IEnumerable<AppointmentDto.ViewModel>>> GetByParentId(
+        int parentId
+    )
     {
         var appointments = await _service.GetByParentIdAsync(parentId);
         return Ok(_mapper.Map<IEnumerable<AppointmentDto.ViewModel>>(appointments));
@@ -65,7 +69,11 @@ public class AppointmentController : ControllerBase
             var appointment = _mapper.Map<Appointment>(dto);
             appointment = await _service.CreateAsync(appointment);
             var viewModel = _mapper.Map<AppointmentDto.ViewModel>(appointment);
-            return CreatedAtAction(nameof(GetById), new { id = viewModel.AppointmentId }, viewModel);
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = viewModel.AppointmentId },
+                viewModel
+            );
         }
         catch (Exception ex)
         {
@@ -74,7 +82,10 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<AppointmentDto.ViewModel>> Update(int id, AppointmentDto.Update dto)
+    public async Task<ActionResult<AppointmentDto.ViewModel>> Update(
+        int id,
+        AppointmentDto.Update dto
+    )
     {
         try
         {
@@ -93,7 +104,10 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpPatch("{id}/status")]
-    public async Task<ActionResult<AppointmentDto.ViewModel>> UpdateStatus(int id, [FromBody] AppointmentDto.AppointmentStatusUpdateDto dto)
+    public async Task<ActionResult<AppointmentDto.ViewModel>> UpdateStatus(
+        int id,
+        [FromBody] AppointmentDto.AppointmentStatusUpdateDto dto
+    )
     {
         var appointment = await _service.GetByIdAsync(id);
         if (appointment == null)
@@ -125,4 +139,4 @@ public class AppointmentController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-} 
+}

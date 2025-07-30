@@ -14,4 +14,4 @@ public partial class HealthEventMedicalSupply
 
     public virtual HealthEvent HealthEvent { get; set; } = null!;
     public virtual MedicalSupply MedicalSupply { get; set; } = null!;
-} 
+}

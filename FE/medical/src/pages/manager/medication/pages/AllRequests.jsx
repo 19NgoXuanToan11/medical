@@ -22,7 +22,6 @@ const AllRequests = () => {
       const response = await medicationService.getAllMedicationRequests();
 
       if (response.success) {
-
         const transformedRequests = transformRequestData(response.data);
 
         setRequests(transformedRequests);

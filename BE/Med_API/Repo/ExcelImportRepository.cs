@@ -21,9 +21,7 @@ public class ExcelImportRepository : IExcelImportRepository
     public async Task<IEnumerable<string>> GetExistingStudentCodesAsync()
     {
         _logger.LogInformation("Fetching existing student codes from database");
-        var codes = await _context.Students
-            .Select(s => s.StudentCode)
-            .ToListAsync();
+        var codes = await _context.Students.Select(s => s.StudentCode).ToListAsync();
         _logger.LogInformation("Found {Count} existing student codes", codes.Count);
         return codes;
     }
@@ -31,8 +29,8 @@ public class ExcelImportRepository : IExcelImportRepository
     public async Task<IEnumerable<string>> GetExistingParentEmailsAsync()
     {
         _logger.LogInformation("Fetching existing parent emails from database");
-        var emails = await _context.Parents
-            .Where(p => !string.IsNullOrEmpty(p.Email))
+        var emails = await _context
+            .Parents.Where(p => !string.IsNullOrEmpty(p.Email))
             .Select(p => p.Email!)
             .ToListAsync();
         _logger.LogInformation("Found {Count} existing parent emails", emails.Count);
@@ -42,37 +40,45 @@ public class ExcelImportRepository : IExcelImportRepository
     public async Task<IEnumerable<string>> GetExistingParentPhonesAsync()
     {
         _logger.LogInformation("Fetching existing parent phones from database");
-        var phones = await _context.Parents
-            .Select(p => p.Phone)
-            .ToListAsync();
+        var phones = await _context.Parents.Select(p => p.Phone).ToListAsync();
         _logger.LogInformation("Found {Count} existing parent phones", phones.Count);
         return phones;
     }
 
     public async Task AddStudentWithRelatedDataAsync(
-        Student student, 
-        IEnumerable<Parent> parents, 
+        Student student,
+        IEnumerable<Parent> parents,
         IEnumerable<(Parent Parent, string Relationship)> relationships,
-        HealthProfile healthProfile)
+        HealthProfile healthProfile
+    )
     {
-        _logger.LogInformation("Starting database transaction for student {StudentCode}", student.StudentCode);
+        _logger.LogInformation(
+            "Starting database transaction for student {StudentCode}",
+            student.StudentCode
+        );
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             // Verify student doesn't already exist
-            var existingStudent = await _context.Students
-                .FirstOrDefaultAsync(s => s.StudentCode == student.StudentCode);
+            var existingStudent = await _context.Students.FirstOrDefaultAsync(s =>
+                s.StudentCode == student.StudentCode
+            );
             if (existingStudent != null)
             {
-                throw new InvalidOperationException($"Student with code {student.StudentCode} already exists.");
+                throw new InvalidOperationException(
+                    $"Student with code {student.StudentCode} already exists."
+                );
             }
 
             // Add student first
             _logger.LogInformation("Adding student {StudentCode} to database", student.StudentCode);
             _context.Students.Add(student);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Student {StudentCode} added successfully with ID {StudentId}", 
-                student.StudentCode, student.StudentId);
+            _logger.LogInformation(
+                "Student {StudentCode} added successfully with ID {StudentId}",
+                student.StudentCode,
+                student.StudentId
+            );
 
             // Process parents and relationships
             var parentList = parents.ToList();
@@ -83,43 +89,53 @@ public class ExcelImportRepository : IExcelImportRepository
                 // Verify parent email and phone are unique if provided
                 if (!string.IsNullOrEmpty(parent.Email))
                 {
-                    var existingEmail = await _context.Parents
-                        .FirstOrDefaultAsync(p => p.Email == parent.Email);
+                    var existingEmail = await _context.Parents.FirstOrDefaultAsync(p =>
+                        p.Email == parent.Email
+                    );
                     if (existingEmail != null)
                     {
                         // Check if this existing parent has the same relationship to this student
-                        var existingRelationship = await _context.StudentParents
-                            .Include(sp => sp.Parent)
-                            .FirstOrDefaultAsync(sp => 
-                                sp.StudentCode == student.StudentCode && 
-                                sp.Parent.Email == parent.Email);
-                        
+                        var existingRelationship = await _context
+                            .StudentParents.Include(sp => sp.Parent)
+                            .FirstOrDefaultAsync(sp =>
+                                sp.StudentCode == student.StudentCode
+                                && sp.Parent.Email == parent.Email
+                            );
+
                         if (existingRelationship != null)
                         {
-                            throw new InvalidOperationException($"Student-parent relationship already exists: Student {student.StudentCode} with Parent {parent.Email}");
+                            throw new InvalidOperationException(
+                                $"Student-parent relationship already exists: Student {student.StudentCode} with Parent {parent.Email}"
+                            );
                         }
-                        
+
                         // Create new relationship with existing parent
                         var studentParent = new StudentParent
                         {
                             StudentCode = student.StudentCode,
-                            ParentId = existingEmail.ParentId
+                            ParentId = existingEmail.ParentId,
                         };
 
                         _context.StudentParents.Add(studentParent);
                         await _context.SaveChangesAsync();
 
-                        _logger.LogInformation("Created relationship for existing parent {ParentEmail} with student {StudentCode}", 
-                            parent.Email, student.StudentCode);
+                        _logger.LogInformation(
+                            "Created relationship for existing parent {ParentEmail} with student {StudentCode}",
+                            parent.Email,
+                            student.StudentCode
+                        );
                         continue;
                     }
                 }
 
-                var existingPhone = await _context.Parents
-                    .FirstOrDefaultAsync(p => p.Phone == parent.Phone);
+                var existingPhone = await _context.Parents.FirstOrDefaultAsync(p =>
+                    p.Phone == parent.Phone
+                );
                 if (existingPhone != null)
                 {
-                    throw new InvalidOperationException($"Parent with phone {parent.Phone} already exists.");
+                    throw new InvalidOperationException(
+                        $"Parent with phone {parent.Phone} already exists."
+                    );
                 }
 
                 // Create new parent entity
@@ -135,48 +151,71 @@ public class ExcelImportRepository : IExcelImportRepository
                     IsMainContact = parent.IsMainContact,
                     Password = parent.Password,
                     Relationship = parent.Relationship, // Set the relationship from the parent entity
-                    IsActive = true
+                    IsActive = true,
                 };
 
-                _logger.LogInformation("Adding new parent {FirstName} {LastName} for student {StudentCode}", 
-                    newParent.FirstName, newParent.LastName, student.StudentCode);
-                
+                _logger.LogInformation(
+                    "Adding new parent {FirstName} {LastName} for student {StudentCode}",
+                    newParent.FirstName,
+                    newParent.LastName,
+                    student.StudentCode
+                );
+
                 // Add parent and save to get the generated ParentId
                 _context.Parents.Add(newParent);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Parent after SaveChanges - ParentId: {ParentId}", newParent.ParentId);
+                _logger.LogInformation(
+                    "Parent after SaveChanges - ParentId: {ParentId}",
+                    newParent.ParentId
+                );
 
                 // Create StudentParent relationship
                 var newStudentParent = new StudentParent
                 {
                     StudentCode = student.StudentCode,
-                    ParentId = newParent.ParentId
+                    ParentId = newParent.ParentId,
                 };
 
                 _context.StudentParents.Add(newStudentParent);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Created parent relationship for student {StudentCode} with parent {ParentId}", 
-                    student.StudentCode, newParent.ParentId);
+                _logger.LogInformation(
+                    "Created parent relationship for student {StudentCode} with parent {ParentId}",
+                    student.StudentCode,
+                    newParent.ParentId
+                );
             }
 
             // Add health profile
-            _logger.LogInformation("Adding health profile for student {StudentCode}", student.StudentCode);
+            _logger.LogInformation(
+                "Adding health profile for student {StudentCode}",
+                student.StudentCode
+            );
             healthProfile.StudentCode = student.StudentCode; // Ensure StudentCode is set
             _context.HealthProfiles.Add(healthProfile);
             await _context.SaveChangesAsync();
 
             // Commit transaction
             await transaction.CommitAsync();
-            _logger.LogInformation("Transaction committed successfully for student {StudentCode}", student.StudentCode);
+            _logger.LogInformation(
+                "Transaction committed successfully for student {StudentCode}",
+                student.StudentCode
+            );
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during database transaction for student {StudentCode}. Error details: {ErrorDetails}", 
-                student.StudentCode, ex.ToString());
+            _logger.LogError(
+                ex,
+                "Error during database transaction for student {StudentCode}. Error details: {ErrorDetails}",
+                student.StudentCode,
+                ex.ToString()
+            );
             await transaction.RollbackAsync();
-            _logger.LogInformation("Transaction rolled back for student {StudentCode}", student.StudentCode);
+            _logger.LogInformation(
+                "Transaction rolled back for student {StudentCode}",
+                student.StudentCode
+            );
             throw;
         }
     }
@@ -188,7 +227,9 @@ public class ExcelImportRepository : IExcelImportRepository
         {
             className = className.Substring(6).Trim();
         }
-        var classEntity = await _context.Classes.FirstOrDefaultAsync(c => c.ClassName.ToUpper() == className.ToUpper() && c.GradeLevel == gradeLevel);
+        var classEntity = await _context.Classes.FirstOrDefaultAsync(c =>
+            c.ClassName.ToUpper() == className.ToUpper() && c.GradeLevel == gradeLevel
+        );
         if (classEntity != null)
         {
             return classEntity;
@@ -199,7 +240,7 @@ public class ExcelImportRepository : IExcelImportRepository
             ClassName = className,
             GradeLevel = gradeLevel,
             IsActive = true,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.Now,
         };
         _context.Classes.Add(classEntity);
         await _context.SaveChangesAsync();
@@ -212,19 +253,21 @@ public class ExcelImportRepository : IExcelImportRepository
         public string ParentEmail { get; set; } = null!;
     }
 
-    public async Task<IEnumerable<(string StudentCode, string ParentEmail)>> GetExistingStudentParentRelationsAsync()
+    public async Task<
+        IEnumerable<(string StudentCode, string ParentEmail)>
+    > GetExistingStudentParentRelationsAsync()
     {
-        var relations = await _context.StudentParents
-            .Include(sp => sp.Student)
+        var relations = await _context
+            .StudentParents.Include(sp => sp.Student)
             .Include(sp => sp.Parent)
             .Where(sp => sp.Student != null && sp.Parent != null && sp.Parent.Email != null)
-            .Select(sp => new StudentParentRelation 
-            { 
-                StudentCode = sp.Student.StudentCode, 
-                ParentEmail = sp.Parent.Email 
+            .Select(sp => new StudentParentRelation
+            {
+                StudentCode = sp.Student.StudentCode,
+                ParentEmail = sp.Parent.Email,
             })
             .ToListAsync();
 
         return relations.Select(r => (r.StudentCode, r.ParentEmail));
     }
-} 
+}

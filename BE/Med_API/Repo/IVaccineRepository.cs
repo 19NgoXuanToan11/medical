@@ -11,4 +11,4 @@ public interface IVaccineRepository
     Task<bool> DeleteVaccineAsync(int id);
     Task<Vaccine?> GetVaccineByNameAsync(string name);
     Task<IEnumerable<Vaccine>> GetActiveVaccinesAsync();
-} 
+}

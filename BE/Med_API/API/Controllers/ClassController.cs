@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
-using Service;
 using API.DTOs;
+using AutoMapper;
 using DB;
+using Microsoft.AspNetCore.Mvc;
+using Service;
 
 namespace API.Controllers;
 
@@ -53,7 +53,9 @@ public class ClassController : ControllerBase
 
     // GET: api/Class/grade/5
     [HttpGet("grade/{gradeLevel}")]
-    public async Task<ActionResult<IEnumerable<ClassDto.ViewModel>>> GetClassesByGrade(int gradeLevel)
+    public async Task<ActionResult<IEnumerable<ClassDto.ViewModel>>> GetClassesByGrade(
+        int gradeLevel
+    )
     {
         var classes = await _classService.GetClassesByGradeLevelAsync(gradeLevel);
         var viewModels = _mapper.Map<IEnumerable<ClassDto.ViewModel>>(classes);
@@ -64,7 +66,8 @@ public class ClassController : ControllerBase
     [HttpGet("my-assigned-classes")]
     [Microsoft.AspNetCore.Authorization.Authorize]
     public async Task<ActionResult<IEnumerable<ClassDto.ViewModel>>> GetMyAssignedClasses(
-        [FromServices] IStaffService staffService)
+        [FromServices] IStaffService staffService
+    )
     {
         // Get current user ID from JWT token
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -93,14 +96,16 @@ public class ClassController : ControllerBase
         var allClasses = await _classService.GetActiveClassesAsync();
         var assignedClasses = allClasses.Where(c => assignedGrades.Contains(c.GradeLevel));
         var viewModels = _mapper.Map<IEnumerable<ClassDto.ViewModel>>(assignedClasses);
-        
+
         return Ok(viewModels);
     }
 
     // GET: api/Class/my-assigned-classes-with-students
     [HttpGet("my-assigned-classes-with-students")]
     [Microsoft.AspNetCore.Authorization.Authorize]
-    public async Task<ActionResult> GetMyAssignedClassesWithStudents([FromServices] IStaffService staffService)
+    public async Task<ActionResult> GetMyAssignedClassesWithStudents(
+        [FromServices] IStaffService staffService
+    )
     {
         // Lấy staffId từ JWT
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -127,28 +132,40 @@ public class ClassController : ControllerBase
         foreach (var classEntity in assignedClasses)
         {
             var students = (await _classService.GetStudentsByClassIdAsync(classEntity.ClassId))
-                .OrderBy(s => s.LastName).ThenBy(s => s.FirstName)
-                .Select((s, idx) => new {
-                    SoThuTu = idx + 1,
-                    HoTen = $"{s.LastName} {s.FirstName}",
-                    MaSoHocSinh = s.StudentCode,
-                    GioiTinh = s.Gender,
-                    SucKhoe = s.HealthProfiles != null ? s.HealthProfiles.FirstOrDefault() : null
-                }).ToList();
-            result.Add(new
-            {
-                ClassId = classEntity.ClassId,
-                ClassName = classEntity.ClassName,
-                GradeLevel = classEntity.GradeLevel,
-                Students = students
-            });
+                .OrderBy(s => s.LastName)
+                .ThenBy(s => s.FirstName)
+                .Select(
+                    (s, idx) =>
+                        new
+                        {
+                            SoThuTu = idx + 1,
+                            HoTen = $"{s.LastName} {s.FirstName}",
+                            MaSoHocSinh = s.StudentCode,
+                            GioiTinh = s.Gender,
+                            SucKhoe = s.HealthProfiles != null
+                                ? s.HealthProfiles.FirstOrDefault()
+                                : null,
+                        }
+                )
+                .ToList();
+            result.Add(
+                new
+                {
+                    ClassId = classEntity.ClassId,
+                    ClassName = classEntity.ClassName,
+                    GradeLevel = classEntity.GradeLevel,
+                    Students = students,
+                }
+            );
         }
         return Ok(result);
     }
 
     // GET: api/Class/5/students
     [HttpGet("{id}/students")]
-    public async Task<ActionResult<IEnumerable<ClassDto.StudentWithParents>>> GetClassStudents(int id)
+    public async Task<ActionResult<IEnumerable<ClassDto.StudentWithParents>>> GetClassStudents(
+        int id
+    )
     {
         var students = await _classService.GetStudentsByClassIdAsync(id);
         var viewModels = _mapper.Map<IEnumerable<ClassDto.StudentWithParents>>(students);
@@ -161,13 +178,21 @@ public class ClassController : ControllerBase
     {
         var students = await _classService.GetStudentsByClassIdAsync(classId);
         var result = students
-            .OrderBy(s => s.LastName).ThenBy(s => s.FirstName)
-            .Select((s, idx) => new {
-                SoThuTu = idx + 1,
-                HoTen = $"{s.LastName} {s.FirstName}",
-                MaSoHocSinh = s.StudentCode,
-                SucKhoe = s.HealthProfiles != null ? s.HealthProfiles.FirstOrDefault() : null
-            }).ToList();
+            .OrderBy(s => s.LastName)
+            .ThenBy(s => s.FirstName)
+            .Select(
+                (s, idx) =>
+                    new
+                    {
+                        SoThuTu = idx + 1,
+                        HoTen = $"{s.LastName} {s.FirstName}",
+                        MaSoHocSinh = s.StudentCode,
+                        SucKhoe = s.HealthProfiles != null
+                            ? s.HealthProfiles.FirstOrDefault()
+                            : null,
+                    }
+            )
+            .ToList();
         return Ok(result);
     }
 
@@ -185,7 +210,9 @@ public class ClassController : ControllerBase
 
         if (createdClass == null)
         {
-            return Conflict("A class with the same name and grade already exists, or the data is invalid.");
+            return Conflict(
+                "A class with the same name and grade already exists, or the data is invalid."
+            );
         }
 
         var viewModel = _mapper.Map<ClassDto.ViewModel>(createdClass);
@@ -211,7 +238,9 @@ public class ClassController : ControllerBase
 
         if (!success)
         {
-            return BadRequest("Update failed. Class may not exist or a class with the same name already exists.");
+            return BadRequest(
+                "Update failed. Class may not exist or a class with the same name already exists."
+            );
         }
 
         return NoContent();
@@ -239,10 +268,15 @@ public class ClassController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var success = await _classService.AssignStudentToClassAsync(assignDto.StudentId, assignDto.ClassId);
+        var success = await _classService.AssignStudentToClassAsync(
+            assignDto.StudentId,
+            assignDto.ClassId
+        );
         if (!success)
         {
-            return BadRequest("Failed to assign student to class. Student may not exist, class may be full, or class may be inactive.");
+            return BadRequest(
+                "Failed to assign student to class. Student may not exist, class may be full, or class may be inactive."
+            );
         }
 
         return Ok(new { message = "Student successfully assigned to class." });
@@ -266,7 +300,7 @@ public class ClassController : ControllerBase
     public async Task<ActionResult> GetClassSummary()
     {
         var classes = await _classService.GetActiveClassesAsync();
-        
+
         var summary = new
         {
             TotalClasses = classes.Count(),
@@ -277,10 +311,10 @@ public class ClassController : ControllerBase
                 {
                     Grade = g.Key,
                     ClassCount = g.Count(),
-                    StudentCount = g.Sum(c => c.CurrentStudentCount ?? 0)
+                    StudentCount = g.Sum(c => c.CurrentStudentCount ?? 0),
                 })
                 .OrderBy(x => x.Grade)
-                .ToList()
+                .ToList(),
         };
 
         return Ok(summary);
@@ -293,7 +327,12 @@ public class ClassController : ControllerBase
         var promotedCount = await _classService.PromoteStudentsToNextClassIfNewYearAsync();
         if (promotedCount == 0)
         {
-            return Ok(new { message = "Promotion not performed. It's not yet the start of the new school year." });
+            return Ok(
+                new
+                {
+                    message = "Promotion not performed. It's not yet the start of the new school year.",
+                }
+            );
         }
         return Ok(new { message = $"{promotedCount} students promoted to the next class." });
     }
@@ -306,4 +345,4 @@ public class ClassController : ControllerBase
         int total = classes.SelectMany(c => c.Students).Count();
         return Ok(new { GradeLevel = gradeLevel, StudentCount = total });
     }
-} 
+}

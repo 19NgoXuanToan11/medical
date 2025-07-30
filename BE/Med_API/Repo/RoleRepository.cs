@@ -14,16 +14,12 @@ public class RoleRepository : IRoleRepository
 
     public async Task<IEnumerable<Role>> GetAllRolesAsync()
     {
-        return await _context.Roles
-            .Include(r => r.Staff)
-            .ToListAsync();
+        return await _context.Roles.Include(r => r.Staff).ToListAsync();
     }
 
     public async Task<Role?> GetRoleByIdAsync(int id)
     {
-        return await _context.Roles
-            .Include(r => r.Staff)
-            .FirstOrDefaultAsync(r => r.RoleId == id);
+        return await _context.Roles.Include(r => r.Staff).FirstOrDefaultAsync(r => r.RoleId == id);
     }
 
     public async Task<Role> CreateRoleAsync(Role role)
@@ -61,8 +57,8 @@ public class RoleRepository : IRoleRepository
 
     public async Task<Role?> GetRoleByNameAsync(string roleName)
     {
-        return await _context.Roles
-            .Include(r => r.Staff)
+        return await _context
+            .Roles.Include(r => r.Staff)
             .FirstOrDefaultAsync(r => r.RoleName == roleName);
     }
-} 
+}

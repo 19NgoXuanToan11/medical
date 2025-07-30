@@ -2,11 +2,11 @@ import React from "react";
 import { FiShield } from "react-icons/fi";
 import { InfoCard, DataRow, EditableField } from "./SharedComponents";
 
-const VaccinationTab = ({ 
-  healthProfile, 
-  isEditing, 
-  editData, 
-  onInputChange 
+const VaccinationTab = ({
+  healthProfile,
+  isEditing,
+  editData,
+  onInputChange,
 }) => {
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -32,8 +32,7 @@ const VaccinationTab = ({
             </label>
             <div className="p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                {healthProfile.vaccinations ||
-                  "Chưa có thông tin chi tiết"}
+                {healthProfile.vaccinations || "Chưa có thông tin chi tiết"}
               </p>
             </div>
           </div>
@@ -43,4 +42,4 @@ const VaccinationTab = ({
   );
 };
 
-export default VaccinationTab; 
+export default VaccinationTab;

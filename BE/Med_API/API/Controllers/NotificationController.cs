@@ -1,8 +1,8 @@
 using API.DTOs;
 using AutoMapper;
+using DB;
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using DB;
 
 namespace API.Controllers;
 
@@ -38,16 +38,22 @@ public class NotificationController : ControllerBase
     }
 
     [HttpGet("parent/{parentId}")]
-    public async Task<ActionResult<IEnumerable<NotificationDto.ViewModel>>> GetNotificationsByParentId(int parentId)
+    public async Task<
+        ActionResult<IEnumerable<NotificationDto.ViewModel>>
+    > GetNotificationsByParentId(int parentId)
     {
         var notifications = await _notificationService.GetNotificationsByParentIdAsync(parentId);
         return Ok(_mapper.Map<IEnumerable<NotificationDto.ViewModel>>(notifications));
     }
 
     [HttpGet("parent/{parentId}/unread")]
-    public async Task<ActionResult<IEnumerable<NotificationDto.ViewModel>>> GetUnreadNotificationsByParentId(int parentId)
+    public async Task<
+        ActionResult<IEnumerable<NotificationDto.ViewModel>>
+    > GetUnreadNotificationsByParentId(int parentId)
     {
-        var notifications = await _notificationService.GetUnreadNotificationsByParentIdAsync(parentId);
+        var notifications = await _notificationService.GetUnreadNotificationsByParentIdAsync(
+            parentId
+        );
         return Ok(_mapper.Map<IEnumerable<NotificationDto.ViewModel>>(notifications));
     }
 
@@ -59,7 +65,9 @@ public class NotificationController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<NotificationDto.ViewModel>> CreateNotification(NotificationDto.Create createDto)
+    public async Task<ActionResult<NotificationDto.ViewModel>> CreateNotification(
+        NotificationDto.Create createDto
+    )
     {
         if (!ModelState.IsValid)
         {
@@ -69,11 +77,14 @@ public class NotificationController : ControllerBase
         try
         {
             var notification = _mapper.Map<Notification>(createDto);
-            var createdNotification = await _notificationService.CreateNotificationAsync(notification);
+            var createdNotification = await _notificationService.CreateNotificationAsync(
+                notification
+            );
             return CreatedAtAction(
                 nameof(GetNotificationById),
                 new { id = createdNotification.NotificationId },
-                _mapper.Map<NotificationDto.ViewModel>(createdNotification));
+                _mapper.Map<NotificationDto.ViewModel>(createdNotification)
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -135,7 +146,10 @@ public class NotificationController : ControllerBase
     }
 
     [HttpPost("health-event/{healthEventId}")]
-    public async Task<ActionResult<NotificationDto.ViewModel>> CreateHealthEventNotification(int healthEventId, [FromQuery] string studentCode)
+    public async Task<ActionResult<NotificationDto.ViewModel>> CreateHealthEventNotification(
+        int healthEventId,
+        [FromQuery] string studentCode
+    )
     {
         if (string.IsNullOrEmpty(studentCode))
         {
@@ -144,11 +158,15 @@ public class NotificationController : ControllerBase
 
         try
         {
-            var notification = await _notificationService.CreateHealthEventNotificationAsync(healthEventId, studentCode);
+            var notification = await _notificationService.CreateHealthEventNotificationAsync(
+                healthEventId,
+                studentCode
+            );
             return CreatedAtAction(
                 nameof(GetNotificationById),
                 new { id = notification.NotificationId },
-                _mapper.Map<NotificationDto.ViewModel>(notification));
+                _mapper.Map<NotificationDto.ViewModel>(notification)
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -158,10 +176,15 @@ public class NotificationController : ControllerBase
 
     // POST: api/Notification/injection-form/{formId}/consent
     [HttpPost("injection-form/{formId}/consent")]
-    public async Task<ActionResult<NotificationDto.ViewModel>> SendInjectionConsentNotification(int formId, [FromQuery] bool isApproved)
+    public async Task<ActionResult<NotificationDto.ViewModel>> SendInjectionConsentNotification(
+        int formId,
+        [FromQuery] bool isApproved
+    )
     {
         // Lấy thông tin form tiêm chủng
-        var form = HttpContext.RequestServices.GetService(typeof(Service.IInjectionFormService)) as Service.IInjectionFormService;
+        var form =
+            HttpContext.RequestServices.GetService(typeof(Service.IInjectionFormService))
+            as Service.IInjectionFormService;
         var injectionForm = await form.GetInjectionFormByIdAsync(formId);
         if (injectionForm == null)
         {
@@ -176,13 +199,22 @@ public class NotificationController : ControllerBase
         {
             Type = "injection_consent",
             Title = $"Thông báo xác nhận tiêm chủng - {statusText}",
-            Message = $"Phiếu tiêm chủng cho học sinh {injectionForm.Student?.LastName} {injectionForm.Student?.FirstName} đã được {statusText}.",
+            Message =
+                $"Phiếu tiêm chủng cho học sinh {injectionForm.Student?.LastName} {injectionForm.Student?.FirstName} đã được {statusText}.",
             ParentId = injectionForm.ParentId,
             StudentCode = injectionForm.Student?.StudentCode,
-            Priority = "high"
+            Priority = "high",
         };
-        var notificationEntity = HttpContext.RequestServices.GetService(typeof(Service.INotificationService)) as Service.INotificationService;
-        var created = await notificationEntity.CreateNotificationAsync(_mapper.Map<DB.Notification>(notification));
-        return CreatedAtAction(nameof(GetNotificationById), new { id = created.NotificationId }, _mapper.Map<NotificationDto.ViewModel>(created));
+        var notificationEntity =
+            HttpContext.RequestServices.GetService(typeof(Service.INotificationService))
+            as Service.INotificationService;
+        var created = await notificationEntity.CreateNotificationAsync(
+            _mapper.Map<DB.Notification>(notification)
+        );
+        return CreatedAtAction(
+            nameof(GetNotificationById),
+            new { id = created.NotificationId },
+            _mapper.Map<NotificationDto.ViewModel>(created)
+        );
     }
-} 
+}

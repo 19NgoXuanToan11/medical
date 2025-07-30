@@ -16,4 +16,4 @@ public interface IStaffRepository
     Task<IEnumerable<GradeNurse>> GetGradeNursesByGradeAsync(int grade);
     Task<IEnumerable<GradeNurse>> GetGradeNursesByStaffIdAsync(int staffId);
     Task<IEnumerable<GradeNurse>> GetAllGradeNursesAsync();
-} 
+}

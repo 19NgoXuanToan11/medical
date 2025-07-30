@@ -1,7 +1,7 @@
-using DB;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using DB;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repo;
 
@@ -17,32 +17,32 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     // Core CRUD operations
     public async Task<IEnumerable<MedicineRequest>> GetAllMedicineRequestsAsync()
     {
-        return await _context.MedicineRequests
-            .Include(m => m.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .MedicineRequests.Include(m => m.Student)
+            .ThenInclude(s => s.Class)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.StudentParents)
-                    .ThenInclude(sp => sp.Student)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.Students)
+            .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .ToListAsync();
     }
 
     public async Task<MedicineRequest?> GetMedicineRequestByIdAsync(int id)
     {
-        return await _context.MedicineRequests
-            .Include(m => m.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .MedicineRequests.Include(m => m.Student)
+            .ThenInclude(s => s.Class)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.StudentParents)
-                    .ThenInclude(sp => sp.Student)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.Students)
+            .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .FirstOrDefaultAsync(m => m.RequestId == id);
     }
@@ -56,8 +56,8 @@ public class MedicineRequestRepository : IMedicineRequestRepository
 
     public async Task UpdateMedicineRequestAsync(MedicineRequest medicineRequest)
     {
-        var existingRequest = await _context.MedicineRequests
-            .Include(r => r.MedicineRequestItems)
+        var existingRequest = await _context
+            .MedicineRequests.Include(r => r.MedicineRequestItems)
             .Include(r => r.RequestResults)
             .FirstOrDefaultAsync(r => r.RequestId == medicineRequest.RequestId);
 
@@ -74,7 +74,9 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         var newItems = medicineRequest.MedicineRequestItems.ToList();
 
         // Remove items not present in the new list
-        foreach (var existingItem in existingItems.Except(newItems, new MedicineRequestItemComparer()))
+        foreach (
+            var existingItem in existingItems.Except(newItems, new MedicineRequestItemComparer())
+        )
         {
             _context.MedicineRequestItems.Remove(existingItem);
         }
@@ -82,7 +84,9 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         // Add or update items
         foreach (var newItem in newItems)
         {
-            var existingItem = existingItems.FirstOrDefault(i => i.MedicineRequestItemId == newItem.MedicineRequestItemId);
+            var existingItem = existingItems.FirstOrDefault(i =>
+                i.MedicineRequestItemId == newItem.MedicineRequestItemId
+            );
             if (existingItem == null) // New item
             {
                 existingRequest.MedicineRequestItems.Add(newItem);
@@ -92,7 +96,7 @@ public class MedicineRequestRepository : IMedicineRequestRepository
                 _context.Entry(existingItem).CurrentValues.SetValues(newItem);
             }
         }
-        
+
         await _context.SaveChangesAsync();
     }
 
@@ -109,17 +113,19 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     }
 
     // Filtering methods
-    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStudentCodeAsync(string studentCode)
+    public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStudentCodeAsync(
+        string studentCode
+    )
     {
-        return await _context.MedicineRequests
-            .Include(m => m.Student)
+        return await _context
+            .MedicineRequests.Include(m => m.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.StudentParents)
-                    .ThenInclude(sp => sp.Student)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.Students)
+            .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .Where(m => m.StudentCode == studentCode)
             .ToListAsync();
@@ -127,15 +133,15 @@ public class MedicineRequestRepository : IMedicineRequestRepository
 
     public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByParentIdAsync(int parentId)
     {
-        return await _context.MedicineRequests
-            .Include(m => m.Student)
+        return await _context
+            .MedicineRequests.Include(m => m.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.StudentParents)
-                    .ThenInclude(sp => sp.Student)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.Students)
+            .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .Where(m => m.ParentId == parentId)
             .ToListAsync();
@@ -143,15 +149,15 @@ public class MedicineRequestRepository : IMedicineRequestRepository
 
     public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStaffIdAsync(int staffId)
     {
-        return await _context.MedicineRequests
-            .Include(m => m.Student)
+        return await _context
+            .MedicineRequests.Include(m => m.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.StudentParents)
-                    .ThenInclude(sp => sp.Student)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.Students)
+            .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .Where(m => m.StaffId == staffId)
             .ToListAsync();
@@ -160,17 +166,17 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     public async Task<IEnumerable<MedicineRequest>> GetMedicineRequestsByStatusAsync(string status)
     {
         // Return all requests, filtering by status will be done in the controller
-        return await _context.MedicineRequests
-            .Include(m => m.Student)
+        return await _context
+            .MedicineRequests.Include(m => m.Student)
             .ThenInclude(s => s.Class)
             .Include(m => m.Parent)
             .Include(m => m.Staff)
             .ThenInclude(s => s.Role)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.StudentParents)
-                    .ThenInclude(sp => sp.Student)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.Students)
+            .ThenInclude(p => p.Students)
             .Include(m => m.MedicineRequestItems)
             .ToListAsync();
     }
@@ -178,15 +184,15 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     public async Task<IEnumerable<MedicineRequest>> GetPendingRequestsAsync()
     {
         // Return all requests, filtering by status will be done in the controller
-        return await _context.MedicineRequests
-            .Include(m => m.Student)
+        return await _context
+            .MedicineRequests.Include(m => m.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.StudentParents)
-                    .ThenInclude(sp => sp.Student)
+            .ThenInclude(p => p.StudentParents)
+            .ThenInclude(sp => sp.Student)
             .Include(m => m.Parent)
-                .ThenInclude(p => p.Students)
+            .ThenInclude(p => p.Students)
             .Include(m => m.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .Include(m => m.MedicineRequestItems)
             .ToListAsync();
     }
@@ -194,8 +200,8 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     // Staff and assignment methods
     public async Task<IEnumerable<Staff>> GetAvailableNursesAsync()
     {
-        return await _context.Staff
-            .Include(s => s.Role)
+        return await _context
+            .Staff.Include(s => s.Role)
             .Include(s => s.GradeNurses)
             .Where(s => s.Role.RoleName == "Nurse" && s.IsActiveForRequest)
             .ToListAsync();
@@ -203,8 +209,9 @@ public class MedicineRequestRepository : IMedicineRequestRepository
 
     public async Task<int> GetPendingRequestCountForNurseAsync(int staffId)
     {
-        return await _context.MedicineRequests
-            .CountAsync(m => m.StaffId == staffId && m.Status == "Pending");
+        return await _context.MedicineRequests.CountAsync(m =>
+            m.StaffId == staffId && m.Status == "Pending"
+        );
     }
 
     public async Task<bool> AssignNurseToRequestAsync(int requestId, int staffId)
@@ -230,9 +237,9 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     // MedicineRequestItem operations
     public async Task<MedicineRequestItem?> GetMedicineRequestItemByIdAsync(int itemId)
     {
-        return await _context.MedicineRequestItems
-            .Include(i => i.MedicineRequest)
-                .ThenInclude(m => m.Student)
+        return await _context
+            .MedicineRequestItems.Include(i => i.MedicineRequest)
+            .ThenInclude(m => m.Student)
             .FirstOrDefaultAsync(i => i.MedicineRequestItemId == itemId);
     }
 
@@ -246,7 +253,8 @@ public class MedicineRequestRepository : IMedicineRequestRepository
     public async Task<bool> UpdateMedicineRequestItemVerificationStatus(int itemId, string status)
     {
         var item = await _context.MedicineRequestItems.FindAsync(itemId);
-        if (item == null) return false;
+        if (item == null)
+            return false;
         item.VerificationStatus = status;
         await _context.SaveChangesAsync();
         return true;
@@ -260,9 +268,10 @@ public class MedicineRequestRepository : IMedicineRequestRepository
         var today = DateOnly.FromDateTime(DateTime.Today);
 
         // Get all in-progress requests that are past cutoff time or from previous days
-        var expiredRequests = await _context.RequestResults
-            .Where(r => r.Status == "In Progress" && 
-                       (r.CurrentDate < today || now > cutoffTime))
+        var expiredRequests = await _context
+            .RequestResults.Where(r =>
+                r.Status == "In Progress" && (r.CurrentDate < today || now > cutoffTime)
+            )
             .ToListAsync();
 
         foreach (var request in expiredRequests)
@@ -270,10 +279,10 @@ public class MedicineRequestRepository : IMedicineRequestRepository
             request.Status = "Failed";
             request.LastAttemptTime = now;
             request.FailedAttempts++;
-            
+
             var failureReasons = new Dictionary<string, string>
             {
-                ["timeout"] = "Request expired due to time limit"
+                ["timeout"] = "Request expired due to time limit",
             };
             request.FailureReasons = JsonSerializer.Serialize(failureReasons);
         }
@@ -292,8 +301,10 @@ public class MedicineRequestItemComparer : IEqualityComparer<MedicineRequestItem
 {
     public bool Equals(MedicineRequestItem? x, MedicineRequestItem? y)
     {
-        if (ReferenceEquals(x, y)) return true;
-        if (ReferenceEquals(x, null) || ReferenceEquals(y, null)) return false;
+        if (ReferenceEquals(x, y))
+            return true;
+        if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
+            return false;
         return x.MedicineRequestItemId == y.MedicineRequestItemId;
     }
 
@@ -301,4 +312,4 @@ public class MedicineRequestItemComparer : IEqualityComparer<MedicineRequestItem
     {
         return obj.MedicineRequestItemId.GetHashCode();
     }
-} 
+}

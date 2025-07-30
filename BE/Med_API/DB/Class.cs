@@ -38,4 +38,4 @@ public partial class Class
 
     // Navigation properties
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
-} 
+}

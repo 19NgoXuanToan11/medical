@@ -154,14 +154,14 @@ const RequestCard = ({
         <RequestDetails request={request} />
 
         {showActions && (
-                  <RequestActions
-          request={request}
-          onViewDetail={onViewDetail}
-          onApprovalAction={onApprovalAction}
-          setSelectedRequest={setSelectedRequest}
-          variant={variant}
-          onCompleteHealthCheck={onCompleteHealthCheck}
-        />
+          <RequestActions
+            request={request}
+            onViewDetail={onViewDetail}
+            onApprovalAction={onApprovalAction}
+            setSelectedRequest={setSelectedRequest}
+            variant={variant}
+            onCompleteHealthCheck={onCompleteHealthCheck}
+          />
         )}
       </div>
     </div>

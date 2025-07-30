@@ -69,4 +69,4 @@ public static class NotificationDto
 
         public DateTime? ReadAt { get; set; }
     }
-} 
+}

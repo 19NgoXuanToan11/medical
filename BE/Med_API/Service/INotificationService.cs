@@ -14,7 +14,7 @@ public interface INotificationService
     Task<bool> MarkAsReadAsync(int id);
     Task<bool> MarkAllAsReadAsync(int parentId);
     Task<int> GetUnreadCountByParentIdAsync(int parentId);
-    
+
     // Specific method for health event notifications
     Task<Notification> CreateHealthEventNotificationAsync(int healthEventId, string studentCode);
-} 
+}

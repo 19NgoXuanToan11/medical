@@ -33,4 +33,4 @@ public partial class Vaccine
     public string? DiseaseType { get; set; } // Loại bệnh mà vaccine phòng ngừa
 
     public bool? IsActive { get; set; } = true;
-} 
+}

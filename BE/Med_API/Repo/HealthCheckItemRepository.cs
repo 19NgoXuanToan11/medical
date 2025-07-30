@@ -14,8 +14,8 @@ public class HealthCheckItemRepository : IHealthCheckItemRepository
 
     public async Task<IEnumerable<HealthCheckItem>> GetAllHealthCheckItemsAsync()
     {
-        return await _context.HealthCheckItems
-            .Include(h => h.HealthCheckItemMedicalSupplies)
+        return await _context
+            .HealthCheckItems.Include(h => h.HealthCheckItemMedicalSupplies)
             .ThenInclude(ms => ms.MedicalSupply)
             .OrderBy(h => h.Name)
             .ToListAsync();
@@ -23,14 +23,12 @@ public class HealthCheckItemRepository : IHealthCheckItemRepository
 
     public async Task<HealthCheckItem?> GetHealthCheckItemByIdAsync(int id)
     {
-        return await _context.HealthCheckItems
-            .FirstOrDefaultAsync(h => h.ItemId == id);
+        return await _context.HealthCheckItems.FirstOrDefaultAsync(h => h.ItemId == id);
     }
 
     public async Task<HealthCheckItem?> GetHealthCheckItemByCodeAsync(string code)
     {
-        return await _context.HealthCheckItems
-            .FirstOrDefaultAsync(h => h.Code == code);
+        return await _context.HealthCheckItems.FirstOrDefaultAsync(h => h.Code == code);
     }
 
     public async Task<HealthCheckItem> CreateHealthCheckItemAsync(HealthCheckItem healthCheckItem)
@@ -62,18 +60,20 @@ public class HealthCheckItemRepository : IHealthCheckItemRepository
 
     public async Task<IEnumerable<HealthCheckItem>> GetActiveHealthCheckItemsAsync()
     {
-        return await _context.HealthCheckItems
-            .Where(h => h.IsActive)
+        return await _context
+            .HealthCheckItems.Where(h => h.IsActive)
             .Include(h => h.HealthCheckItemMedicalSupplies)
             .ThenInclude(ms => ms.MedicalSupply)
             .OrderBy(h => h.Name)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<HealthCheckItem>> GetHealthCheckItemsByCategoryAsync(string category)
+    public async Task<IEnumerable<HealthCheckItem>> GetHealthCheckItemsByCategoryAsync(
+        string category
+    )
     {
-        return await _context.HealthCheckItems
-            .Where(h => h.Category == category && h.IsActive)
+        return await _context
+            .HealthCheckItems.Where(h => h.Category == category && h.IsActive)
             .Include(h => h.HealthCheckItemMedicalSupplies)
             .ThenInclude(ms => ms.MedicalSupply)
             .OrderBy(h => h.Name)
@@ -82,8 +82,8 @@ public class HealthCheckItemRepository : IHealthCheckItemRepository
 
     public async Task<IEnumerable<string>> GetAllCategoriesAsync()
     {
-        return await _context.HealthCheckItems
-            .Where(h => h.IsActive)
+        return await _context
+            .HealthCheckItems.Where(h => h.IsActive)
             .Select(h => h.Category)
             .Distinct()
             .OrderBy(c => c)
@@ -102,8 +102,8 @@ public class HealthCheckItemRepository : IHealthCheckItemRepository
 
     public async Task<IEnumerable<HealthCheckItem>> GetHealthCheckItemsWithMedicalSuppliesAsync()
     {
-        return await _context.HealthCheckItems
-            .Include(h => h.HealthCheckItemMedicalSupplies)
+        return await _context
+            .HealthCheckItems.Include(h => h.HealthCheckItemMedicalSupplies)
             .ThenInclude(ms => ms.MedicalSupply)
             .Where(h => h.IsActive)
             .OrderBy(h => h.Name)
@@ -112,9 +112,9 @@ public class HealthCheckItemRepository : IHealthCheckItemRepository
 
     public async Task<HealthCheckItem?> GetHealthCheckItemWithMedicalSuppliesAsync(int id)
     {
-        return await _context.HealthCheckItems
-            .Include(h => h.HealthCheckItemMedicalSupplies)
+        return await _context
+            .HealthCheckItems.Include(h => h.HealthCheckItemMedicalSupplies)
             .ThenInclude(ms => ms.MedicalSupply)
             .FirstOrDefaultAsync(h => h.ItemId == id);
     }
-} 
+}

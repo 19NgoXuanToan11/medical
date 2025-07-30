@@ -1,7 +1,7 @@
 using API.ViewModels;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using AutoMapper;
 
 namespace API.Controllers;
 
@@ -29,7 +29,8 @@ public class BlogController : ControllerBase
     public async Task<IActionResult> Get(int id)
     {
         var blog = await _service.GetByIdAsync(id);
-        if (blog == null) return NotFound();
+        if (blog == null)
+            return NotFound();
         return Ok(_mapper.Map<BlogDTO>(blog));
     }
 
@@ -38,7 +39,11 @@ public class BlogController : ControllerBase
     {
         var blog = _mapper.Map<DB.Blog>(dto);
         var created = await _service.AddAsync(blog);
-        return CreatedAtAction(nameof(Get), new { id = created.BlogId }, _mapper.Map<BlogDTO>(created));
+        return CreatedAtAction(
+            nameof(Get),
+            new { id = created.BlogId },
+            _mapper.Map<BlogDTO>(created)
+        );
     }
 
     [HttpPut("{id}")]
@@ -46,7 +51,8 @@ public class BlogController : ControllerBase
     {
         var blog = _mapper.Map<DB.Blog>(dto);
         var updated = await _service.UpdateAsync(id, blog);
-        if (updated == null) return NotFound();
+        if (updated == null)
+            return NotFound();
         return Ok(_mapper.Map<BlogDTO>(updated));
     }
 
@@ -54,7 +60,8 @@ public class BlogController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _service.DeleteAsync(id);
-        if (!deleted) return NotFound();
+        if (!deleted)
+            return NotFound();
         return NoContent();
     }
 
@@ -64,4 +71,4 @@ public class BlogController : ControllerBase
         var blogs = await _service.SearchAsync(query);
         return Ok(_mapper.Map<IEnumerable<BlogDTO>>(blogs));
     }
-} 
+}

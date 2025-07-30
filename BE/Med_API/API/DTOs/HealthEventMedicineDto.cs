@@ -18,10 +18,10 @@ public static class HealthEventMedicineDto
     {
         [Required]
         public int MedicineId { get; set; }
-        
+
         [StringLength(100)]
         public string? MedicineName { get; set; }
-        
+
         [StringLength(100)]
         public string? Dosage { get; set; }
 
@@ -41,4 +41,4 @@ public static class HealthEventMedicineDto
         [StringLength(50)]
         public string? Time { get; set; }
     }
-} 
+}

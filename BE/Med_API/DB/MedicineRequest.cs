@@ -33,6 +33,8 @@ public partial class MedicineRequest
     public virtual Student? Student { get; set; }
     public virtual Parent? Parent { get; set; }
     public virtual Staff? Staff { get; set; }
-    public virtual ICollection<RequestResult> RequestResults { get; set; } = new List<RequestResult>();
-    public virtual ICollection<MedicineRequestItem> MedicineRequestItems { get; set; } = new List<MedicineRequestItem>();
+    public virtual ICollection<RequestResult> RequestResults { get; set; } =
+        new List<RequestResult>();
+    public virtual ICollection<MedicineRequestItem> MedicineRequestItems { get; set; } =
+        new List<MedicineRequestItem>();
 }

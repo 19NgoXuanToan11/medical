@@ -14,4 +14,4 @@ public class BlogDTO
     public string? Category { get; set; }
     public string? Status { get; set; }
     public string? StaffUsername { get; set; }
-} 
+}

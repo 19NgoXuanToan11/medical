@@ -19,4 +19,4 @@ public interface IHealthCheckFormService
     Task<HealthCheckForm?> CreateHealthCheckScheduleAsync(HealthCheckForm schedule);
     Task<bool> UpdateHealthCheckScheduleAsync(HealthCheckForm schedule);
     Task<bool> DeleteHealthCheckScheduleAsync(int id);
-} 
+}

@@ -49,4 +49,4 @@ public static class MedicalSupplyDto
 
         public bool? IsActive { get; set; }
     }
-} 
+}

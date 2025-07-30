@@ -1,6 +1,6 @@
+using API.DTOs;
 using AutoMapper;
 using DB;
-using API.DTOs;
 
 namespace API.MappingProfiles;
 
@@ -9,10 +9,22 @@ public class StudentParentProfile : Profile
     public StudentParentProfile()
     {
         CreateMap<StudentParent, StudentParentDto.ViewModel>()
-            .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src => 
-                src.Student != null ? $"{src.Student.FirstName} {src.Student.LastName}" : null))
-            .ForMember(dest => dest.ParentName, opt => opt.MapFrom(src => 
-                src.Parent != null ? $"{src.Parent.FirstName} {src.Parent.LastName}" : null));
+            .ForMember(
+                dest => dest.StudentName,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Student != null
+                            ? $"{src.Student.FirstName} {src.Student.LastName}"
+                            : null
+                    )
+            )
+            .ForMember(
+                dest => dest.ParentName,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Parent != null ? $"{src.Parent.FirstName} {src.Parent.LastName}" : null
+                    )
+            );
 
         CreateMap<StudentParentDto.Create, StudentParent>()
             .ForMember(dest => dest.StudentParentId, opt => opt.Ignore())
@@ -23,4 +35,4 @@ public class StudentParentProfile : Profile
             .ForMember(dest => dest.Student, opt => opt.Ignore())
             .ForMember(dest => dest.Parent, opt => opt.Ignore());
     }
-} 
+}

@@ -77,43 +77,114 @@ const TargetLogisticsHealthStep = ({
             </div>
           )}
 
-          {/* Error State */}
-          {gradesError && !loadingGrades && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <FiAlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
-                  <span className="text-red-700 dark:text-red-300">
-                    {gradesError}
-                  </span>
-                </div>
-                {onRetryLoadGrades && (
-                  <button
-                    onClick={onRetryLoadGrades}
-                    className="flex items-center px-3 py-1 text-sm bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-                  >
-                    <FiRefreshCw className="w-4 h-4 mr-1" />
-                    Thử lại
-                  </button>
-                )}
-              </div>
+        <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-6 border border-neutral-200 dark:border-neutral-700">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <FiClock className="h-8 w-8 text-info-600 dark:text-info-400" />
             </div>
-          )}
+            <div className="ml-4">
+              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                Thời gian dự kiến
+              </p>
+              <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                {resourceReqs?.totalTime
+                  ? Math.ceil(resourceReqs.totalTime / 60)
+                  : 0}
+                h
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          {/* Automatic Grade Selection Info */}
-          {!loadingGrades && !gradesError && availableGrades.length > 0 && (
+      {/* Validation Error */}
+      {validationErrors.targetGrades && (
+        <div className="bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800 rounded-lg p-4">
+          <div className="flex items-center">
+            <FiAlertCircle className="w-5 h-5 text-error-600 dark:text-error-400 mr-2" />
+            <p className="text-sm text-error-600 dark:text-error-400">
+              {validationErrors.targetGrades}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Target Grade Selection */}
+      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
+        <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
+          <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 flex items-center">
+            <FiTarget className="mr-2" />
+            Chọn lớp tham gia
+          </h3>
+        </div>
+
+        <div className="p-6">
+          {!availableGrades || availableGrades.length === 0 ? (
+            <div className="text-center py-12">
+              <FiInfo className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Chưa có khối lớp được phân công
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Bạn chưa được phân công phụ trách khối lớp nào.
+                <br />
+                Vui lòng liên hệ quản trị viên để được phân công khối lớp.
+              </p>
+            </div>
+          ) : (
             <>
-              {/* Hiển thị thông báo về việc tự động chọn toàn bộ khối */}
-              <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <div className="flex items-start">
-                  <FiInfo className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2 mt-0.5" />
-                  <div>
-                    <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
-                      Tự động chọn toàn bộ khối lớp
-                    </h4>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      Hệ thống đã tự động chọn tất cả lớp trong khối được phân công cho bạn.
-                    </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {availableGrades.map((grade) => (
+                  <div
+                    key={grade.id}
+                    className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                      formData.targetGrades.includes(grade.id)
+                        ? "border-primary-500 dark:border-primary-400 bg-primary-50 dark:bg-primary-900/20 ring-2 ring-primary-200 dark:ring-primary-800"
+                        : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 bg-white dark:bg-neutral-800"
+                    }`}
+                    onClick={() => {
+                      // Multiple selection logic - toggle selection
+                      const newSelectedGrades = formData.targetGrades.includes(
+                        grade.id
+                      )
+                        ? formData.targetGrades.filter((id) => id !== grade.id)
+                        : [...formData.targetGrades, grade.id];
+                      onInputChange("targetGrades", newSelectedGrades);
+                    }}
+                  >
+                    <div className="flex items-start">
+                      <input
+                        type="checkbox"
+                        checked={formData.targetGrades.includes(grade.id)}
+                        onChange={(e) => {
+                          // Multiple selection logic - toggle selection
+                          const newSelectedGrades = e.target.checked
+                            ? [...formData.targetGrades, grade.id]
+                            : formData.targetGrades.filter(
+                                (id) => id !== grade.id
+                              );
+                          onInputChange("targetGrades", newSelectedGrades);
+                        }}
+                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 mt-1 bg-white dark:bg-neutral-900 rounded"
+                      />
+                      <div className="ml-3 flex-1">
+                        <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                          {grade.name}
+                        </h4>
+                        <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+                          {grade.studentCount} học sinh
+                        </p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                          Khối: {grade.gradeLevel || "Không có"}
+                        </p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                          GVCN: {grade.classTeacher || "Chưa có thông tin"}
+                        </p>
+                      </div>
+                      <div className="text-xs text-neutral-500 dark:text-neutral-500">
+                        {grade.ageRange}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

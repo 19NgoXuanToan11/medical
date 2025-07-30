@@ -14,16 +14,16 @@ public class InjectionResultRepository : IInjectionResultRepository
 
     public async Task<IEnumerable<InjectionResult>> GetAllInjectionResultsAsync()
     {
-        return await _context.InjectionResults
-            .Include(r => r.Form)
+        return await _context
+            .InjectionResults.Include(r => r.Form)
             .Include(r => r.Student)
             .ToListAsync();
     }
 
     public async Task<InjectionResult?> GetInjectionResultByIdAsync(int id)
     {
-        return await _context.InjectionResults
-            .Include(r => r.Form)
+        return await _context
+            .InjectionResults.Include(r => r.Form)
             .Include(r => r.Student)
             .FirstOrDefaultAsync(r => r.ResultId == id);
     }
@@ -62,18 +62,20 @@ public class InjectionResultRepository : IInjectionResultRepository
 
     public async Task<IEnumerable<InjectionResult>> GetInjectionResultsByFormIdAsync(int formId)
     {
-        return await _context.InjectionResults
-            .Include(r => r.Form)
+        return await _context
+            .InjectionResults.Include(r => r.Form)
             .Include(r => r.Student)
             .Where(r => r.FormId == formId)
             .OrderByDescending(r => r.AdministeredDate)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<InjectionResult>> GetInjectionResultsByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<InjectionResult>> GetInjectionResultsByStudentIdAsync(
+        int studentId
+    )
     {
-        return await _context.InjectionResults
-            .Include(r => r.Form)
+        return await _context
+            .InjectionResults.Include(r => r.Form)
             .Include(r => r.Student)
             .Where(r => r.StudentId == studentId)
             .OrderByDescending(r => r.AdministeredDate)
@@ -82,11 +84,11 @@ public class InjectionResultRepository : IInjectionResultRepository
 
     public async Task<InjectionResult?> GetLatestInjectionResultByFormIdAsync(int formId)
     {
-        return await _context.InjectionResults
-            .Include(r => r.Form)
+        return await _context
+            .InjectionResults.Include(r => r.Form)
             .Include(r => r.Student)
             .Where(r => r.FormId == formId)
             .OrderByDescending(r => r.AdministeredDate)
             .FirstOrDefaultAsync();
     }
-} 
+}

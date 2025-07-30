@@ -61,4 +61,4 @@ public class DashboardSummaryDTO
 
     // Navigation property
     public StaffDto.ViewModel? Staff { get; set; }
-} 
+}

@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using API.DTOs;
 using AutoMapper;
 using DB; // Assuming your DB entities are in the DB namespace
+using Microsoft.AspNetCore.Mvc;
 using Service; // Reference to your Service layer
 
 namespace API.Controllers;
@@ -62,7 +62,11 @@ public class StudentController : ControllerBase
         }
 
         var studentViewModel = _mapper.Map<StudentDto.ViewModel>(createdStudent);
-        return CreatedAtAction(nameof(GetStudent), new { id = studentViewModel.StudentId }, studentViewModel);
+        return CreatedAtAction(
+            nameof(GetStudent),
+            new { id = studentViewModel.StudentId },
+            studentViewModel
+        );
     }
 
     // PUT: api/Student/5
@@ -111,7 +115,7 @@ public class StudentController : ControllerBase
         var students = await _studentService.GetAllStudentsAsync();
         var filtered = students.Where(s => s.Class != null && s.Class.GradeLevel == grade);
         var studentViewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(filtered);
-        
+
         return Ok(studentViewModels);
     }
 
@@ -134,7 +138,8 @@ public class StudentController : ControllerBase
     [HttpGet("my-assigned-students")]
     [Microsoft.AspNetCore.Authorization.Authorize]
     public async Task<ActionResult<IEnumerable<StudentDto.ViewModel>>> GetMyAssignedStudents(
-        [FromServices] IStaffService staffService)
+        [FromServices] IStaffService staffService
+    )
     {
         // Get current user ID from JWT token
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -163,41 +168,59 @@ public class StudentController : ControllerBase
 
             // Get all students and filter by assigned grades
             var allStudents = await _studentService.GetAllStudentsAsync();
-            var assignedStudents = allStudents.Where(s => 
-                s.Class != null && 
-                assignedGrades.Contains(s.Class.GradeLevel) &&
-                s.IsActive == true
-            ).OrderBy(s => s.Class.GradeLevel)
-            .ThenBy(s => s.Class.ClassName)
-            .ThenBy(s => s.FirstName)
-            .ThenBy(s => s.LastName);
+            var assignedStudents = allStudents
+                .Where(s =>
+                    s.Class != null
+                    && assignedGrades.Contains(s.Class.GradeLevel)
+                    && s.IsActive == true
+                )
+                .OrderBy(s => s.Class.GradeLevel)
+                .ThenBy(s => s.Class.ClassName)
+                .ThenBy(s => s.FirstName)
+                .ThenBy(s => s.LastName);
 
-            var studentViewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(assignedStudents);
+            var studentViewModels = _mapper.Map<IEnumerable<StudentDto.ViewModel>>(
+                assignedStudents
+            );
             return Ok(studentViewModels);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Lỗi khi lấy danh sách học sinh được phân công", error = ex.Message });
+            return StatusCode(
+                500,
+                new
+                {
+                    message = "Lỗi khi lấy danh sách học sinh được phân công",
+                    error = ex.Message,
+                }
+            );
         }
     }
 
     // GET: api/Student/eligible-for-vaccine
     [HttpGet("eligible-for-vaccine")]
-    public async Task<ActionResult<IEnumerable<StudentDto.ViewModel>>> GetEligibleStudentsForVaccine(
+    public async Task<
+        ActionResult<IEnumerable<StudentDto.ViewModel>>
+    > GetEligibleStudentsForVaccine(
         [FromQuery] int vaccineId,
         [FromQuery] DateTime injectionDate,
         [FromQuery] int? classId,
-        [FromQuery] List<int>? studentIds)
+        [FromQuery] List<int>? studentIds
+    )
     {
         // Lấy danh sách học sinh theo classId hoặc theo list id truyền vào
         IEnumerable<Student> students;
         if (classId.HasValue)
         {
-            students = (await _studentService.GetAllStudentsAsync()).Where(s => s.Class != null && s.Class.ClassId == classId.Value);
+            students = (await _studentService.GetAllStudentsAsync()).Where(s =>
+                s.Class != null && s.Class.ClassId == classId.Value
+            );
         }
         else if (studentIds != null && studentIds.Count > 0)
         {
-            students = (await _studentService.GetAllStudentsAsync()).Where(s => studentIds.Contains(s.StudentId));
+            students = (await _studentService.GetAllStudentsAsync()).Where(s =>
+                studentIds.Contains(s.StudentId)
+            );
         }
         else
         {
@@ -222,37 +245,44 @@ public class StudentController : ControllerBase
 
             if (student == null)
             {
-                return NotFound(new { 
-                    message = "Không tìm thấy học sinh với mã số này",
-                    studentCode = studentCode
-                });
+                return NotFound(
+                    new
+                    {
+                        message = "Không tìm thấy học sinh với mã số này",
+                        studentCode = studentCode,
+                    }
+                );
             }
 
             if (student.Class == null)
             {
-                return NotFound(new { 
-                    message = "Học sinh chưa được phân lớp",
-                    studentCode = studentCode
-                });
+                return NotFound(
+                    new { message = "Học sinh chưa được phân lớp", studentCode = studentCode }
+                );
             }
 
-            return Ok(new { 
-                grade = student.Class.GradeLevel,
-                className = student.Class.ClassName,
-                studentCode = studentCode,
-                studentName = $"{student.LastName} {student.FirstName}",
-                message = "Lấy thông tin khối học thành công"
-            });
+            return Ok(
+                new
+                {
+                    grade = student.Class.GradeLevel,
+                    className = student.Class.ClassName,
+                    studentCode = studentCode,
+                    studentName = $"{student.LastName} {student.FirstName}",
+                    message = "Lấy thông tin khối học thành công",
+                }
+            );
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { 
-                message = "Lỗi khi lấy thông tin khối học",
-                studentCode = studentCode,
-                error = ex.Message
-            });
+            return StatusCode(
+                500,
+                new
+                {
+                    message = "Lỗi khi lấy thông tin khối học",
+                    studentCode = studentCode,
+                    error = ex.Message,
+                }
+            );
         }
     }
-
-    
-} 
+}

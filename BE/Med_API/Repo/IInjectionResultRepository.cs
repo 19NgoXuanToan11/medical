@@ -12,4 +12,4 @@ public interface IInjectionResultRepository
     Task<IEnumerable<InjectionResult>> GetInjectionResultsByFormIdAsync(int formId);
     Task<IEnumerable<InjectionResult>> GetInjectionResultsByStudentIdAsync(int studentId);
     Task<InjectionResult?> GetLatestInjectionResultByFormIdAsync(int formId);
-} 
+}

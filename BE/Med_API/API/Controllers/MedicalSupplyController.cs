@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using API.DTOs;
 using AutoMapper;
 using DB;
+using Microsoft.AspNetCore.Mvc;
 using Service;
 
 namespace API.Controllers;
@@ -30,7 +30,9 @@ public class MedicalSupplyController : ControllerBase
 
     // GET: api/MedicalSupply/active
     [HttpGet("active")]
-    public async Task<ActionResult<IEnumerable<MedicalSupplyDto.ViewModel>>> GetActiveMedicalSupplies()
+    public async Task<
+        ActionResult<IEnumerable<MedicalSupplyDto.ViewModel>>
+    > GetActiveMedicalSupplies()
     {
         var medicalSupplies = await _medicalSupplyService.GetActiveMedicalSuppliesAsync();
         var viewModels = _mapper.Map<IEnumerable<MedicalSupplyDto.ViewModel>>(medicalSupplies);
@@ -52,7 +54,9 @@ public class MedicalSupplyController : ControllerBase
 
     // POST: api/MedicalSupply
     [HttpPost]
-    public async Task<ActionResult<MedicalSupplyDto.ViewModel>> CreateMedicalSupply(MedicalSupplyDto.Create createDto)
+    public async Task<ActionResult<MedicalSupplyDto.ViewModel>> CreateMedicalSupply(
+        MedicalSupplyDto.Create createDto
+    )
     {
         if (!ModelState.IsValid)
         {
@@ -65,7 +69,11 @@ public class MedicalSupplyController : ControllerBase
             return Conflict("Medical supply with the same name already exists.");
         }
         var viewModel = _mapper.Map<MedicalSupplyDto.ViewModel>(created);
-        return CreatedAtAction(nameof(GetMedicalSupply), new { id = viewModel.SupplyId }, viewModel);
+        return CreatedAtAction(
+            nameof(GetMedicalSupply),
+            new { id = viewModel.SupplyId },
+            viewModel
+        );
     }
 
     // PUT: api/MedicalSupply/5
@@ -97,4 +105,4 @@ public class MedicalSupplyController : ControllerBase
         }
         return NoContent();
     }
-} 
+}

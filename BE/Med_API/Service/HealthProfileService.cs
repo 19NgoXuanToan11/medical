@@ -1,9 +1,9 @@
-using DB;
-using Repo;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
+using DB;
+using Repo;
 
 namespace Service;
 
@@ -14,7 +14,8 @@ public class HealthProfileService : IHealthProfileService
 
     public HealthProfileService(
         IHealthProfileRepository healthProfileRepository,
-        IStudentRepository studentRepository)
+        IStudentRepository studentRepository
+    )
     {
         _healthProfileRepository = healthProfileRepository;
         _studentRepository = studentRepository;
@@ -50,25 +51,36 @@ public class HealthProfileService : IHealthProfileService
         }
 
         // Check if profile already exists for student
-        var existingProfile = await _healthProfileRepository.GetHealthProfileByStudentCodeAsync(healthProfile.StudentCode);
+        var existingProfile = await _healthProfileRepository.GetHealthProfileByStudentCodeAsync(
+            healthProfile.StudentCode
+        );
         if (existingProfile != null)
         {
             throw new InvalidOperationException("Health profile already exists for this student");
         }
 
         // Validate measurements
-        if (healthProfile.Height.HasValue && (healthProfile.Height < 0 || healthProfile.Height > 300))
+        if (
+            healthProfile.Height.HasValue
+            && (healthProfile.Height < 0 || healthProfile.Height > 300)
+        )
         {
             throw new InvalidOperationException("Invalid height value");
         }
 
-        if (healthProfile.Weight.HasValue && (healthProfile.Weight < 0 || healthProfile.Weight > 500))
+        if (
+            healthProfile.Weight.HasValue
+            && (healthProfile.Weight < 0 || healthProfile.Weight > 500)
+        )
         {
             throw new InvalidOperationException("Invalid weight value");
         }
-        
+
         // New validation for HeartRate
-        if (healthProfile.HeartRate.HasValue && (healthProfile.HeartRate < 0 || healthProfile.HeartRate > 250))
+        if (
+            healthProfile.HeartRate.HasValue
+            && (healthProfile.HeartRate < 0 || healthProfile.HeartRate > 250)
+        )
         {
             throw new InvalidOperationException("Invalid heart rate value");
         }
@@ -87,7 +99,9 @@ public class HealthProfileService : IHealthProfileService
     public async Task<bool> UpdateHealthProfileAsync(HealthProfile healthProfile)
     {
         // Validate that the profile exists
-        var existingProfile = await _healthProfileRepository.GetHealthProfileByIdAsync(healthProfile.HealthProfileId);
+        var existingProfile = await _healthProfileRepository.GetHealthProfileByIdAsync(
+            healthProfile.HealthProfileId
+        );
         if (existingProfile == null)
         {
             return false;
@@ -106,18 +120,27 @@ public class HealthProfileService : IHealthProfileService
         }
 
         // Validate measurements
-        if (healthProfile.Height.HasValue && (healthProfile.Height < 0 || healthProfile.Height > 300))
+        if (
+            healthProfile.Height.HasValue
+            && (healthProfile.Height < 0 || healthProfile.Height > 300)
+        )
         {
             throw new InvalidOperationException("Invalid height value");
         }
 
-        if (healthProfile.Weight.HasValue && (healthProfile.Weight < 0 || healthProfile.Weight > 500))
+        if (
+            healthProfile.Weight.HasValue
+            && (healthProfile.Weight < 0 || healthProfile.Weight > 500)
+        )
         {
             throw new InvalidOperationException("Invalid weight value");
         }
 
         // New validation for HeartRate
-        if (healthProfile.HeartRate.HasValue && (healthProfile.HeartRate < 0 || healthProfile.HeartRate > 250))
+        if (
+            healthProfile.HeartRate.HasValue
+            && (healthProfile.HeartRate < 0 || healthProfile.HeartRate > 250)
+        )
         {
             throw new InvalidOperationException("Invalid heart rate value");
         }
@@ -133,9 +156,15 @@ public class HealthProfileService : IHealthProfileService
         return await _healthProfileRepository.DeleteHealthProfileAsync(id);
     }
 
-    public async Task<IEnumerable<HealthProfile>> GetHealthProfilesByGradeListAsync(IEnumerable<int> gradeLevels)
+    public async Task<IEnumerable<HealthProfile>> GetHealthProfilesByGradeListAsync(
+        IEnumerable<int> gradeLevels
+    )
     {
         var allProfiles = await _healthProfileRepository.GetAllHealthProfilesAsync();
-        return allProfiles.Where(p => p.Student != null && p.Student.Class != null && gradeLevels.Contains(p.Student.Class.GradeLevel));
+        return allProfiles.Where(p =>
+            p.Student != null
+            && p.Student.Class != null
+            && gradeLevels.Contains(p.Student.Class.GradeLevel)
+        );
     }
-} 
+}

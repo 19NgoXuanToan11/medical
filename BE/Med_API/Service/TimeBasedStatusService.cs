@@ -10,7 +10,10 @@ public class TimeBasedStatusService : BackgroundService
     private readonly ILogger<TimeBasedStatusService> _logger;
     private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(15); // Check every 15 minutes
 
-    public TimeBasedStatusService(IServiceProvider serviceProvider, ILogger<TimeBasedStatusService> logger)
+    public TimeBasedStatusService(
+        IServiceProvider serviceProvider,
+        ILogger<TimeBasedStatusService> logger
+    )
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
@@ -18,7 +21,10 @@ public class TimeBasedStatusService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Time-based status service started with {Interval} minute intervals.", _checkInterval.TotalMinutes);
+        _logger.LogInformation(
+            "Time-based status service started with {Interval} minute intervals.",
+            _checkInterval.TotalMinutes
+        );
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -45,27 +51,31 @@ public class TimeBasedStatusService : BackgroundService
     private async Task UpdateTimeBasedStatuses()
     {
         using var scope = _serviceProvider.CreateScope();
-        var medicineRequestService = scope.ServiceProvider.GetRequiredService<IMedicineRequestService>();
+        var medicineRequestService =
+            scope.ServiceProvider.GetRequiredService<IMedicineRequestService>();
 
         try
         {
             var currentTime = DateTime.Now;
             var currentHour = currentTime.Hour;
-            
-            _logger.LogInformation("Running automated time-based status update at {Time}", currentTime);
-            
+
+            _logger.LogInformation(
+                "Running automated time-based status update at {Time}",
+                currentTime
+            );
+
             // Define time windows for each period
             var periodTimeWindows = new Dictionary<string, (int startHour, int endHour)>
             {
-                { "Sáng", (6, 11) },    // 6 AM - 11 AM
-                { "Trưa", (11, 14) },   // 11 AM - 2 PM
-                { "Chiều", (14, 18) }   // 2 PM - 6 PM
+                { "Sáng", (6, 11) }, // 6 AM - 11 AM
+                { "Trưa", (11, 14) }, // 11 AM - 2 PM
+                { "Chiều", (14, 18) }, // 2 PM - 6 PM
             };
-            
+
             // Check if we should run updates based on current time
             bool shouldRunUpdate = false;
             string reason = "";
-            
+
             // Run updates at specific times:
             // - After each period ends (11:15 AM, 2:15 PM, 6:15 PM)
             // - Every hour after 6 PM for final cleanup
@@ -89,20 +99,23 @@ public class TimeBasedStatusService : BackgroundService
                 shouldRunUpdate = true;
                 reason = "Final cleanup after 7 PM";
             }
-            
+
             if (shouldRunUpdate)
             {
                 _logger.LogInformation("Running time-based status update: {Reason}", reason);
-                
+
                 // Run the comprehensive update
                 await medicineRequestService.UpdateTimeBasedStatusAsync();
-                
+
                 _logger.LogInformation("Time-based status update completed for: {Reason}", reason);
             }
             else
             {
-                _logger.LogDebug("Skipping time-based status update. Current time: {Time}, Next check in {Interval} minutes", 
-                    currentTime, _checkInterval.TotalMinutes);
+                _logger.LogDebug(
+                    "Skipping time-based status update. Current time: {Time}, Next check in {Interval} minutes",
+                    currentTime,
+                    _checkInterval.TotalMinutes
+                );
             }
         }
         catch (Exception ex)
@@ -110,4 +123,4 @@ public class TimeBasedStatusService : BackgroundService
             _logger.LogError(ex, "Error updating time-based statuses.");
         }
     }
-} 
+}

@@ -14,8 +14,8 @@ public class HealthCheckResultRepository : IHealthCheckResultRepository
 
     public async Task<IEnumerable<HealthCheckResult>> GetAllHealthCheckResultsAsync()
     {
-        return await _context.HealthCheckResults
-            .Include(r => r.Form)
+        return await _context
+            .HealthCheckResults.Include(r => r.Form)
             .Include(r => r.Student)
             .Include(r => r.ExaminedByStaff)
             .ToListAsync();
@@ -23,14 +23,16 @@ public class HealthCheckResultRepository : IHealthCheckResultRepository
 
     public async Task<HealthCheckResult?> GetHealthCheckResultByIdAsync(int id)
     {
-        return await _context.HealthCheckResults
-            .Include(r => r.Form)
+        return await _context
+            .HealthCheckResults.Include(r => r.Form)
             .Include(r => r.Student)
             .Include(r => r.ExaminedByStaff)
             .FirstOrDefaultAsync(r => r.ResultId == id);
     }
 
-    public async Task<HealthCheckResult> CreateHealthCheckResultAsync(HealthCheckResult healthCheckResult)
+    public async Task<HealthCheckResult> CreateHealthCheckResultAsync(
+        HealthCheckResult healthCheckResult
+    )
     {
         _context.HealthCheckResults.Add(healthCheckResult);
         await _context.SaveChangesAsync();
@@ -39,7 +41,9 @@ public class HealthCheckResultRepository : IHealthCheckResultRepository
 
     public async Task<bool> UpdateHealthCheckResultAsync(HealthCheckResult healthCheckResult)
     {
-        var existingResult = await _context.HealthCheckResults.FindAsync(healthCheckResult.ResultId);
+        var existingResult = await _context.HealthCheckResults.FindAsync(
+            healthCheckResult.ResultId
+        );
         if (existingResult == null)
         {
             return false;
@@ -64,8 +68,8 @@ public class HealthCheckResultRepository : IHealthCheckResultRepository
 
     public async Task<IEnumerable<HealthCheckResult>> GetHealthCheckResultsByFormIdAsync(int formId)
     {
-        return await _context.HealthCheckResults
-            .Include(r => r.Form)
+        return await _context
+            .HealthCheckResults.Include(r => r.Form)
             .Include(r => r.Student)
             .Include(r => r.ExaminedByStaff)
             .Where(r => r.FormId == formId)
@@ -73,10 +77,12 @@ public class HealthCheckResultRepository : IHealthCheckResultRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<HealthCheckResult>> GetHealthCheckResultsByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<HealthCheckResult>> GetHealthCheckResultsByStudentIdAsync(
+        int studentId
+    )
     {
-        return await _context.HealthCheckResults
-            .Include(r => r.Form)
+        return await _context
+            .HealthCheckResults.Include(r => r.Form)
             .Include(r => r.Student)
             .Include(r => r.ExaminedByStaff)
             .Where(r => r.StudentId == studentId)
@@ -86,12 +92,12 @@ public class HealthCheckResultRepository : IHealthCheckResultRepository
 
     public async Task<HealthCheckResult?> GetLatestHealthCheckResultByFormIdAsync(int formId)
     {
-        return await _context.HealthCheckResults
-            .Include(r => r.Form)
+        return await _context
+            .HealthCheckResults.Include(r => r.Form)
             .Include(r => r.Student)
             .Include(r => r.ExaminedByStaff)
             .Where(r => r.FormId == formId)
             .OrderByDescending(r => r.ExaminedDate)
             .FirstOrDefaultAsync();
     }
-} 
+}

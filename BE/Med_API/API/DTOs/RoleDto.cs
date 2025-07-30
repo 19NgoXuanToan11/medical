@@ -22,7 +22,10 @@ public static class RoleDto
     {
         [Required]
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Role name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "Role name can only contain letters and spaces"
+        )]
         public string RoleName { get; set; } = null!;
     }
 
@@ -32,7 +35,10 @@ public static class RoleDto
         public int RoleId { get; set; }
 
         [StringLength(50)]
-        [RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Role name can only contain letters and spaces")]
+        [RegularExpression(
+            @"^[A-Za-z\s]+$",
+            ErrorMessage = "Role name can only contain letters and spaces"
+        )]
         public string? RoleName { get; set; }
     }
-} 
+}

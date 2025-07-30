@@ -12,6 +12,7 @@ public interface IStaffService
     Task<Staff?> GetStaffByUsernameAsync(string username);
     Task<Staff?> GetStaffByEmailAsync(string email);
     Task<bool> ValidateCredentialsAsync(string username, string password);
+
     // GradeNurse management
     Task<GradeNurse> CreateGradeNurseAsync(GradeNurse gradeNurse);
     Task<bool> DeleteGradeNurseAsync(int gradeNurseId);
@@ -19,4 +20,4 @@ public interface IStaffService
     Task<IEnumerable<GradeNurse>> GetGradeNursesByStaffIdAsync(int staffId);
     Task<IEnumerable<GradeNurse>> GetAllGradeNursesAsync();
     Task<bool> IsNurseAssignedToGradeAsync(int staffId, int grade);
-} 
+}

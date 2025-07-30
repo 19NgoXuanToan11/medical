@@ -7,7 +7,11 @@ namespace API.Swagger;
 
 public class DateOnlyJsonConverter : JsonConverter<DateOnly>
 {
-    public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override DateOnly Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
     {
         return DateOnly.Parse(reader.GetString()!);
     }
@@ -29,4 +33,4 @@ public class DateOnlySchemaFilter : ISchemaFilter
             schema.Example = new Microsoft.OpenApi.Any.OpenApiString("2024-01-01");
         }
     }
-} 
+}

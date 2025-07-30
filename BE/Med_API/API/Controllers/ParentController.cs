@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using API.DTOs;
 using AutoMapper;
 using DB;
+using Microsoft.AspNetCore.Mvc;
 using Service;
 using Service.DTOs;
 
@@ -15,7 +15,11 @@ public class ParentController : ControllerBase
     private readonly IParentService _parentService;
     private readonly ILogger<ParentController> _logger;
 
-    public ParentController(IMapper mapper, IParentService parentService, ILogger<ParentController> logger)
+    public ParentController(
+        IMapper mapper,
+        IParentService parentService,
+        ILogger<ParentController> logger
+    )
     {
         _mapper = mapper;
         _parentService = parentService;
@@ -26,70 +30,90 @@ public class ParentController : ControllerBase
     {
         if (val is string s)
         {
-            if (s == "Refused") return true;
+            if (s == "Refused")
+                return true;
             if (s.StartsWith("{") && s.Contains("Status"))
             {
                 try
                 {
-                    var jsonElem = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(s);
-                    if (jsonElem.ValueKind == System.Text.Json.JsonValueKind.Object &&
-                        jsonElem.TryGetProperty("Status", out var statusPropInner) &&
-                        statusPropInner.GetString() == "Refused")
+                    var jsonElem =
+                        System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(
+                            s
+                        );
+                    if (
+                        jsonElem.ValueKind == System.Text.Json.JsonValueKind.Object
+                        && jsonElem.TryGetProperty("Status", out var statusPropInner)
+                        && statusPropInner.GetString() == "Refused"
+                    )
                         return true;
                 }
                 catch { }
             }
         }
-        if (val is System.Text.Json.JsonElement elem &&
-            elem.ValueKind == System.Text.Json.JsonValueKind.Object &&
-            elem.TryGetProperty("Status", out var statusProp) &&
-            statusProp.GetString() == "Refused")
+        if (
+            val is System.Text.Json.JsonElement elem
+            && elem.ValueKind == System.Text.Json.JsonValueKind.Object
+            && elem.TryGetProperty("Status", out var statusProp)
+            && statusProp.GetString() == "Refused"
+        )
             return true;
         return false;
     }
 
     private static bool IsFailedStatus(object val)
     {
-        if (val == null) return false;
-        
+        if (val == null)
+            return false;
+
         var valStr = val.ToString();
-        
+
         // Check for simple "Failed" string
-        if (valStr == "Failed") return true;
-        
+        if (valStr == "Failed")
+            return true;
+
         // Check for JSON string containing "Status":"Failed"
         if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Failed\""))
         {
             try
             {
-                var jsonObj = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(valStr);
-                if (jsonObj.TryGetProperty("Status", out var statusProp) && statusProp.GetString() == "Failed")
+                var jsonObj =
+                    System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(
+                        valStr
+                    );
+                if (
+                    jsonObj.TryGetProperty("Status", out var statusProp)
+                    && statusProp.GetString() == "Failed"
+                )
                     return true;
             }
             catch { }
         }
-        
+
         // Check for JsonElement object
         if (val is System.Text.Json.JsonElement elem)
         {
-            if (elem.ValueKind == System.Text.Json.JsonValueKind.Object && 
-                elem.TryGetProperty("Status", out var statusProp) && 
-                statusProp.GetString() == "Failed")
+            if (
+                elem.ValueKind == System.Text.Json.JsonValueKind.Object
+                && elem.TryGetProperty("Status", out var statusProp)
+                && statusProp.GetString() == "Failed"
+            )
                 return true;
-                
+
             // Check for array of status objects
             if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
             {
                 foreach (var arrElem in elem.EnumerateArray())
                 {
-                    if (arrElem.ValueKind == System.Text.Json.JsonValueKind.Object && 
-                        arrElem.TryGetProperty("Status", out var arrStatusProp) && 
-                        arrStatusProp.GetString() == "Failed")
+                    if (
+                        arrElem.ValueKind == System.Text.Json.JsonValueKind.Object
+                        && arrElem.TryGetProperty("Status", out var arrStatusProp)
+                        && arrStatusProp.GetString() == "Failed"
+                    )
                         return true;
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -135,7 +159,11 @@ public class ParentController : ControllerBase
         }
 
         var parentViewModel = _mapper.Map<ParentDto.ViewModel>(createdParent);
-        return CreatedAtAction(nameof(GetParent), new { id = parentViewModel.ParentId }, parentViewModel);
+        return CreatedAtAction(
+            nameof(GetParent),
+            new { id = parentViewModel.ParentId },
+            parentViewModel
+        );
     }
 
     // PUT: api/Parent/5
@@ -157,7 +185,9 @@ public class ParentController : ControllerBase
 
         if (!success)
         {
-            return NotFound("Parent not found, student not found, or parent with same phone/email already exists.");
+            return NotFound(
+                "Parent not found, student not found, or parent with same phone/email already exists."
+            );
         }
 
         return NoContent();
@@ -178,7 +208,9 @@ public class ParentController : ControllerBase
 
     // GET: api/Parent/{parentId}/medicine-request-progress
     [HttpGet("{parentId}/medicine-request-progress")]
-    public async Task<ActionResult<IEnumerable<ParentDto.MedicineRequestProgress>>> GetMedicineRequestProgress(int parentId)
+    public async Task<
+        ActionResult<IEnumerable<ParentDto.MedicineRequestProgress>>
+    > GetMedicineRequestProgress(int parentId)
     {
         var medicineRequests = await _parentService.GetMedicineRequestProgressAsync(parentId);
         var result = _mapper.Map<IEnumerable<ParentDto.MedicineRequestProgress>>(medicineRequests);
@@ -187,178 +219,217 @@ public class ParentController : ControllerBase
 
     // GET: api/Parent/{parentId}/refused-medicine-requests
     [HttpGet("{parentId}/refused-medicine-requests")]
-    public async Task<ActionResult<IEnumerable<object>>> GetRefusedMedicineRequestsByParent(int parentId)
+    public async Task<ActionResult<IEnumerable<object>>> GetRefusedMedicineRequestsByParent(
+        int parentId
+    )
     {
         // Get all requests for the parent
         var allRequests = await _parentService.GetMedicineRequestProgressAsync(parentId);
         var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(allRequests);
-        
+
         var refusedPeriods = new List<object>();
         foreach (var req in viewModels)
         {
             foreach (var item in req.MedicineRequestItems)
             {
-                if (item.PeriodVerificationStatus == null) continue;
+                if (item.PeriodVerificationStatus == null)
+                    continue;
                 foreach (var kv in item.PeriodVerificationStatus)
                 {
                     var period = kv.Key;
                     var val = kv.Value;
-                    
+
                     if (IsRefusedStatus(val))
                     {
                         string? refusalReason = null;
                         int? staffIdValue = null;
                         DateTime? timestamp = null;
-                        
+
                         // Extract additional info from the status
-                        if (val is string strVal && strVal.StartsWith("{") && strVal.Contains("RefusalReason"))
+                        if (
+                            val is string strVal
+                            && strVal.StartsWith("{")
+                            && strVal.Contains("RefusalReason")
+                        )
                         {
                             try
                             {
-                                var jsonObj = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(strVal);
-                                if (jsonObj.TryGetProperty("RefusalReason", out var refusalReasonProp) && refusalReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                var jsonObj =
+                                    System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(
+                                        strVal
+                                    );
+                                if (
+                                    jsonObj.TryGetProperty(
+                                        "RefusalReason",
+                                        out var refusalReasonProp
+                                    )
+                                    && refusalReasonProp.ValueKind
+                                        == System.Text.Json.JsonValueKind.String
+                                )
                                     refusalReason = refusalReasonProp.GetString();
-                                if (jsonObj.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                if (
+                                    jsonObj.TryGetProperty("StaffId", out var staffIdProp)
+                                    && staffIdProp.ValueKind
+                                        == System.Text.Json.JsonValueKind.Number
+                                )
                                     staffIdValue = staffIdProp.GetInt32();
-                                if (jsonObj.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                if (
+                                    jsonObj.TryGetProperty("Timestamp", out var timestampProp)
+                                    && timestampProp.ValueKind
+                                        == System.Text.Json.JsonValueKind.String
+                                )
                                     timestamp = timestampProp.GetDateTime();
                             }
                             catch { }
                         }
-                        else if (val is System.Text.Json.JsonElement elem && elem.ValueKind == System.Text.Json.JsonValueKind.Object)
+                        else if (
+                            val is System.Text.Json.JsonElement elem
+                            && elem.ValueKind == System.Text.Json.JsonValueKind.Object
+                        )
                         {
-                            if (elem.TryGetProperty("RefusalReason", out var refusalReasonProp) && refusalReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                            if (
+                                elem.TryGetProperty("RefusalReason", out var refusalReasonProp)
+                                && refusalReasonProp.ValueKind
+                                    == System.Text.Json.JsonValueKind.String
+                            )
                                 refusalReason = refusalReasonProp.GetString();
-                            if (elem.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                            if (
+                                elem.TryGetProperty("StaffId", out var staffIdProp)
+                                && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number
+                            )
                                 staffIdValue = staffIdProp.GetInt32();
-                            if (elem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                            if (
+                                elem.TryGetProperty("Timestamp", out var timestampProp)
+                                && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String
+                            )
                                 timestamp = timestampProp.GetDateTime();
                         }
-                        
-                        refusedPeriods.Add(new {
-                            studentCode = req.StudentCode,
-                            studentName = req.Student != null ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim() : null,
-                            className = req.ClassName,
-                            parentId = req.ParentId,
-                            parentName = req.Parent != null ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim() : null,
-                            medicineRequestItemId = item.MedicineRequestItemId,
-                            medicineName = item.MedicineName,
-                            dosage = item.Dosage,
-                            dosageUnit = item.DosageUnit,
-                            frequency = item.Frequency,
-                            timeOfDay = item.TimeOfDay,
-                            instructions = item.Instructions,
-                            period = period,
-                            status = "Refused",
-                            staffId = staffIdValue,
-                            timestamp = timestamp,
-                            refusalReason = refusalReason
-                        });
+
+                        refusedPeriods.Add(
+                            new
+                            {
+                                studentCode = req.StudentCode,
+                                studentName = req.Student != null
+                                    ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim()
+                                    : null,
+                                className = req.ClassName,
+                                parentId = req.ParentId,
+                                parentName = req.Parent != null
+                                    ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim()
+                                    : null,
+                                medicineRequestItemId = item.MedicineRequestItemId,
+                                medicineName = item.MedicineName,
+                                dosage = item.Dosage,
+                                dosageUnit = item.DosageUnit,
+                                frequency = item.Frequency,
+                                timeOfDay = item.TimeOfDay,
+                                instructions = item.Instructions,
+                                period = period,
+                                status = "Refused",
+                                staffId = staffIdValue,
+                                timestamp = timestamp,
+                                refusalReason = refusalReason,
+                            }
+                        );
                     }
                 }
             }
         }
-        
+
         return Ok(refusedPeriods);
     }
 
     // GET: api/Parent/{parentId}/completed-medicine-requests
     [HttpGet("{parentId}/completed-medicine-requests")]
-    public async Task<ActionResult<IEnumerable<object>>> GetCompletedMedicineRequestsByParent(int parentId)
+    public async Task<ActionResult<IEnumerable<object>>> GetCompletedMedicineRequestsByParent(
+        int parentId
+    )
     {
         // Get all requests for the parent
         var allRequests = await _parentService.GetMedicineRequestProgressAsync(parentId);
         var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(allRequests);
-        
+
         var completedPeriods = new List<object>();
         foreach (var req in viewModels)
         {
             foreach (var item in req.MedicineRequestItems)
             {
-                if (item.PeriodVerificationStatus == null) continue;
+                if (item.PeriodVerificationStatus == null)
+                    continue;
                 foreach (var kv in item.PeriodVerificationStatus)
                 {
                     var period = kv.Key;
                     var val = kv.Value;
-                    
-                    if (val == null) continue;
-                    
+
+                    if (val == null)
+                        continue;
+
                     var valStr = val.ToString();
-                    if (valStr == "Completed") 
+                    if (valStr == "Completed")
                     {
-                        completedPeriods.Add(new {
-                            studentCode = req.StudentCode,
-                            studentName = req.Student != null ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim() : null,
-                            className = req.ClassName,
-                            parentId = req.ParentId,
-                            parentName = req.Parent != null ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim() : null,
-                            medicineRequestItemId = item.MedicineRequestItemId,
-                            medicineName = item.MedicineName,
-                            dosage = item.Dosage,
-                            dosageUnit = item.DosageUnit,
-                            frequency = item.Frequency,
-                            timeOfDay = item.TimeOfDay,
-                            instructions = item.Instructions,
-                            period = period,
-                            status = "Completed",
-                            staffId = (int?)null,
-                            timestamp = (DateTime?)null
-                        });
+                        completedPeriods.Add(
+                            new
+                            {
+                                studentCode = req.StudentCode,
+                                studentName = req.Student != null
+                                    ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim()
+                                    : null,
+                                className = req.ClassName,
+                                parentId = req.ParentId,
+                                parentName = req.Parent != null
+                                    ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim()
+                                    : null,
+                                medicineRequestItemId = item.MedicineRequestItemId,
+                                medicineName = item.MedicineName,
+                                dosage = item.Dosage,
+                                dosageUnit = item.DosageUnit,
+                                frequency = item.Frequency,
+                                timeOfDay = item.TimeOfDay,
+                                instructions = item.Instructions,
+                                period = period,
+                                status = "Completed",
+                                staffId = (int?)null,
+                                timestamp = (DateTime?)null,
+                            }
+                        );
                     }
-                    else if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Completed\"")) 
+                    else if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Completed\""))
                     {
                         int? staffIdValue = null;
                         DateTime? timestamp = null;
-                        
+
                         // Try to extract StaffId and Timestamp from the JSON string
                         try
                         {
-                            var jsonObj = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(valStr);
-                            if (jsonObj.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                            var jsonObj =
+                                System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(
+                                    valStr
+                                );
+                            if (
+                                jsonObj.TryGetProperty("StaffId", out var staffIdProp)
+                                && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number
+                            )
                                 staffIdValue = staffIdProp.GetInt32();
-                            if (jsonObj.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                            if (
+                                jsonObj.TryGetProperty("Timestamp", out var timestampProp)
+                                && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String
+                            )
                                 timestamp = timestampProp.GetDateTime();
                         }
                         catch { }
-                        
-                        completedPeriods.Add(new {
-                            studentCode = req.StudentCode,
-                            studentName = req.Student != null ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim() : null,
-                            className = req.ClassName,
-                            parentId = req.ParentId,
-                            parentName = req.Parent != null ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim() : null,
-                            medicineRequestItemId = item.MedicineRequestItemId,
-                            medicineName = item.MedicineName,
-                            dosage = item.Dosage,
-                            dosageUnit = item.DosageUnit,
-                            frequency = item.Frequency,
-                            timeOfDay = item.TimeOfDay,
-                            instructions = item.Instructions,
-                            period = period,
-                            status = "Completed",
-                            staffId = staffIdValue,
-                            timestamp = timestamp
-                        });
-                    }
-                    else if (val is System.Text.Json.JsonElement elem)
-                    {
-                        if (elem.ValueKind == System.Text.Json.JsonValueKind.Object && elem.TryGetProperty("Status", out var statusProp) && statusProp.GetString() == "Completed")
-                        {
-                            int? staffIdValue = null;
-                            DateTime? timestamp = null;
-                            
-                            // Extract StaffId and Timestamp from the JSON object
-                            if (elem.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
-                                staffIdValue = staffIdProp.GetInt32();
-                            if (elem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                                timestamp = timestampProp.GetDateTime();
-                            
-                            completedPeriods.Add(new {
+
+                        completedPeriods.Add(
+                            new
+                            {
                                 studentCode = req.StudentCode,
-                                studentName = req.Student != null ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim() : null,
+                                studentName = req.Student != null
+                                    ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim()
+                                    : null,
                                 className = req.ClassName,
                                 parentId = req.ParentId,
-                                parentName = req.Parent != null ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim() : null,
+                                parentName = req.Parent != null
+                                    ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim()
+                                    : null,
                                 medicineRequestItemId = item.MedicineRequestItemId,
                                 medicineName = item.MedicineName,
                                 dosage = item.Dosage,
@@ -369,42 +440,115 @@ public class ParentController : ControllerBase
                                 period = period,
                                 status = "Completed",
                                 staffId = staffIdValue,
-                                timestamp = timestamp
-                            });
+                                timestamp = timestamp,
+                            }
+                        );
+                    }
+                    else if (val is System.Text.Json.JsonElement elem)
+                    {
+                        if (
+                            elem.ValueKind == System.Text.Json.JsonValueKind.Object
+                            && elem.TryGetProperty("Status", out var statusProp)
+                            && statusProp.GetString() == "Completed"
+                        )
+                        {
+                            int? staffIdValue = null;
+                            DateTime? timestamp = null;
+
+                            // Extract StaffId and Timestamp from the JSON object
+                            if (
+                                elem.TryGetProperty("StaffId", out var staffIdProp)
+                                && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number
+                            )
+                                staffIdValue = staffIdProp.GetInt32();
+                            if (
+                                elem.TryGetProperty("Timestamp", out var timestampProp)
+                                && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String
+                            )
+                                timestamp = timestampProp.GetDateTime();
+
+                            completedPeriods.Add(
+                                new
+                                {
+                                    studentCode = req.StudentCode,
+                                    studentName = req.Student != null
+                                        ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim()
+                                        : null,
+                                    className = req.ClassName,
+                                    parentId = req.ParentId,
+                                    parentName = req.Parent != null
+                                        ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim()
+                                        : null,
+                                    medicineRequestItemId = item.MedicineRequestItemId,
+                                    medicineName = item.MedicineName,
+                                    dosage = item.Dosage,
+                                    dosageUnit = item.DosageUnit,
+                                    frequency = item.Frequency,
+                                    timeOfDay = item.TimeOfDay,
+                                    instructions = item.Instructions,
+                                    period = period,
+                                    status = "Completed",
+                                    staffId = staffIdValue,
+                                    timestamp = timestamp,
+                                }
+                            );
                         }
                         else if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
                         {
                             foreach (var arrElem in elem.EnumerateArray())
                             {
-                                if (arrElem.ValueKind == System.Text.Json.JsonValueKind.Object && arrElem.TryGetProperty("Status", out var arrStatusProp) && arrStatusProp.GetString() == "Completed")
+                                if (
+                                    arrElem.ValueKind == System.Text.Json.JsonValueKind.Object
+                                    && arrElem.TryGetProperty("Status", out var arrStatusProp)
+                                    && arrStatusProp.GetString() == "Completed"
+                                )
                                 {
                                     int? staffIdValue = null;
                                     DateTime? timestamp = null;
-                                    
+
                                     // Extract StaffId and Timestamp from the array element
-                                    if (arrElem.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                    if (
+                                        arrElem.TryGetProperty("StaffId", out var staffIdProp)
+                                        && staffIdProp.ValueKind
+                                            == System.Text.Json.JsonValueKind.Number
+                                    )
                                         staffIdValue = staffIdProp.GetInt32();
-                                    if (arrElem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    if (
+                                        arrElem.TryGetProperty("Timestamp", out var timestampProp)
+                                        && timestampProp.ValueKind
+                                            == System.Text.Json.JsonValueKind.String
+                                    )
                                         timestamp = timestampProp.GetDateTime();
-                                    
-                                    completedPeriods.Add(new {
-                                        studentCode = req.StudentCode,
-                                        studentName = req.Student != null ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim() : null,
-                                        className = req.ClassName,
-                                        parentId = req.ParentId,
-                                        parentName = req.Parent != null ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim() : null,
-                                        medicineRequestItemId = item.MedicineRequestItemId,
-                                        medicineName = item.MedicineName,
-                                        dosage = item.Dosage,
-                                        dosageUnit = item.DosageUnit,
-                                        frequency = item.Frequency,
-                                        timeOfDay = item.TimeOfDay,
-                                        instructions = item.Instructions,
-                                        period = period,
-                                        status = "Completed",
-                                        staffId = staffIdValue,
-                                        timestamp = timestamp
-                                    });
+
+                                    completedPeriods.Add(
+                                        new
+                                        {
+                                            studentCode = req.StudentCode,
+                                            studentName = req.Student != null
+                                                ? (
+                                                    $"{req.Student.LastName} {req.Student.FirstName}"
+                                                ).Trim()
+                                                : null,
+                                            className = req.ClassName,
+                                            parentId = req.ParentId,
+                                            parentName = req.Parent != null
+                                                ? (
+                                                    $"{req.Parent.LastName} {req.Parent.FirstName}"
+                                                ).Trim()
+                                                : null,
+                                            medicineRequestItemId = item.MedicineRequestItemId,
+                                            medicineName = item.MedicineName,
+                                            dosage = item.Dosage,
+                                            dosageUnit = item.DosageUnit,
+                                            frequency = item.Frequency,
+                                            timeOfDay = item.TimeOfDay,
+                                            instructions = item.Instructions,
+                                            period = period,
+                                            status = "Completed",
+                                            staffId = staffIdValue,
+                                            timestamp = timestamp,
+                                        }
+                                    );
                                     break;
                                 }
                             }
@@ -413,139 +557,250 @@ public class ParentController : ControllerBase
                 }
             }
         }
-        
+
         return Ok(completedPeriods);
     }
 
     // GET: api/Parent/{parentId}/failed-request-results
     [HttpGet("{parentId}/failed-request-results")]
-    public async Task<ActionResult<IEnumerable<object>>> GetFailedRequestResultsByParent(int parentId)
+    public async Task<ActionResult<IEnumerable<object>>> GetFailedRequestResultsByParent(
+        int parentId
+    )
     {
-        _logger.LogInformation("GET /api/Parent/{ParentId}/failed-request-results endpoint hit!", parentId);
-        
+        _logger.LogInformation(
+            "GET /api/Parent/{ParentId}/failed-request-results endpoint hit!",
+            parentId
+        );
+
         var allRequests = await _parentService.GetMedicineRequestProgressAsync(parentId);
-        _logger.LogInformation("Found {Count} medicine requests for parent {ParentId}", allRequests.Count(), parentId);
-        
+        _logger.LogInformation(
+            "Found {Count} medicine requests for parent {ParentId}",
+            allRequests.Count(),
+            parentId
+        );
+
         var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(allRequests);
         var failedPeriods = new List<object>();
-        
+
         // Debug log before filtering
         foreach (var req in viewModels)
         {
-            _logger.LogInformation("[PARENT][BEFORE] RequestId: {RequestId}, ParentId: {ParentId}, Status: {Status}", req.RequestId, req.ParentId, req.Status);
+            _logger.LogInformation(
+                "[PARENT][BEFORE] RequestId: {RequestId}, ParentId: {ParentId}, Status: {Status}",
+                req.RequestId,
+                req.ParentId,
+                req.Status
+            );
             foreach (var item in req.MedicineRequestItems)
             {
-                _logger.LogInformation("[PARENT][BEFORE] ItemId: {ItemId}, PeriodVerificationStatus: {Status}", item.MedicineRequestItemId, System.Text.Json.JsonSerializer.Serialize(item.PeriodVerificationStatus));
+                _logger.LogInformation(
+                    "[PARENT][BEFORE] ItemId: {ItemId}, PeriodVerificationStatus: {Status}",
+                    item.MedicineRequestItemId,
+                    System.Text.Json.JsonSerializer.Serialize(item.PeriodVerificationStatus)
+                );
             }
         }
         foreach (var req in viewModels)
         {
             foreach (var item in req.MedicineRequestItems)
             {
-                if (item.PeriodVerificationStatus == null) continue;
+                if (item.PeriodVerificationStatus == null)
+                    continue;
                 foreach (var kv in item.PeriodVerificationStatus)
                 {
                     var period = kv.Key;
                     var val = kv.Value;
-                    
+
                     if (IsFailedStatus(val))
                     {
-                        _logger.LogInformation("[PARENT][FOUND] Failed status for period {Period}, ItemId: {ItemId}, Value: {Value}", period, item.MedicineRequestItemId, val?.ToString());
-                        
+                        _logger.LogInformation(
+                            "[PARENT][FOUND] Failed status for period {Period}, ItemId: {ItemId}, Value: {Value}",
+                            period,
+                            item.MedicineRequestItemId,
+                            val?.ToString()
+                        );
+
                         string? failureReason = null;
                         int? staffIdValue = null;
                         DateTime? timestamp = null;
                         string? notes = null;
-                        
+
                         // Extract additional info from the status
                         if (val is string strVal && strVal.StartsWith("{"))
                         {
                             try
                             {
-                                var jsonObj = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(strVal);
-                                if (jsonObj.TryGetProperty("FailureReason", out var failureReasonProp) && failureReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                var jsonObj =
+                                    System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(
+                                        strVal
+                                    );
+                                if (
+                                    jsonObj.TryGetProperty(
+                                        "FailureReason",
+                                        out var failureReasonProp
+                                    )
+                                    && failureReasonProp.ValueKind
+                                        == System.Text.Json.JsonValueKind.String
+                                )
                                     failureReason = failureReasonProp.GetString();
-                                if (jsonObj.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                if (
+                                    jsonObj.TryGetProperty("StaffId", out var staffIdProp)
+                                    && staffIdProp.ValueKind
+                                        == System.Text.Json.JsonValueKind.Number
+                                )
                                     staffIdValue = staffIdProp.GetInt32();
-                                if (jsonObj.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                if (
+                                    jsonObj.TryGetProperty("Timestamp", out var timestampProp)
+                                    && timestampProp.ValueKind
+                                        == System.Text.Json.JsonValueKind.String
+                                )
                                     timestamp = timestampProp.GetDateTime();
-                                if (jsonObj.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                if (
+                                    jsonObj.TryGetProperty("Notes", out var notesProp)
+                                    && notesProp.ValueKind == System.Text.Json.JsonValueKind.String
+                                )
                                     notes = notesProp.GetString();
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogWarning("Failed to parse JSON for period {Period}, ItemId: {ItemId}, JSON: {Json}, Error: {Error}", period, item.MedicineRequestItemId, strVal, ex.Message);
+                                _logger.LogWarning(
+                                    "Failed to parse JSON for period {Period}, ItemId: {ItemId}, JSON: {Json}, Error: {Error}",
+                                    period,
+                                    item.MedicineRequestItemId,
+                                    strVal,
+                                    ex.Message
+                                );
                             }
                         }
-                        else if (val is System.Text.Json.JsonElement elem && elem.ValueKind == System.Text.Json.JsonValueKind.Object)
+                        else if (
+                            val is System.Text.Json.JsonElement elem
+                            && elem.ValueKind == System.Text.Json.JsonValueKind.Object
+                        )
                         {
-                            if (elem.TryGetProperty("FailureReason", out var failureReasonProp) && failureReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                            if (
+                                elem.TryGetProperty("FailureReason", out var failureReasonProp)
+                                && failureReasonProp.ValueKind
+                                    == System.Text.Json.JsonValueKind.String
+                            )
                                 failureReason = failureReasonProp.GetString();
-                            if (elem.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                            if (
+                                elem.TryGetProperty("StaffId", out var staffIdProp)
+                                && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number
+                            )
                                 staffIdValue = staffIdProp.GetInt32();
-                            if (elem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                            if (
+                                elem.TryGetProperty("Timestamp", out var timestampProp)
+                                && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String
+                            )
                                 timestamp = timestampProp.GetDateTime();
-                            if (elem.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                            if (
+                                elem.TryGetProperty("Notes", out var notesProp)
+                                && notesProp.ValueKind == System.Text.Json.JsonValueKind.String
+                            )
                                 notes = notesProp.GetString();
                         }
-                        else if (val is System.Text.Json.JsonElement arrayElem && arrayElem.ValueKind == System.Text.Json.JsonValueKind.Array)
+                        else if (
+                            val is System.Text.Json.JsonElement arrayElem
+                            && arrayElem.ValueKind == System.Text.Json.JsonValueKind.Array
+                        )
                         {
                             // Handle array of status objects - get the latest failed status
                             foreach (var arrItem in arrayElem.EnumerateArray().Reverse())
                             {
-                                if (arrItem.ValueKind == System.Text.Json.JsonValueKind.Object && 
-                                    arrItem.TryGetProperty("Status", out var statusProp) && 
-                                    statusProp.GetString() == "Failed")
+                                if (
+                                    arrItem.ValueKind == System.Text.Json.JsonValueKind.Object
+                                    && arrItem.TryGetProperty("Status", out var statusProp)
+                                    && statusProp.GetString() == "Failed"
+                                )
                                 {
-                                    if (arrItem.TryGetProperty("FailureReason", out var failureReasonProp) && failureReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    if (
+                                        arrItem.TryGetProperty(
+                                            "FailureReason",
+                                            out var failureReasonProp
+                                        )
+                                        && failureReasonProp.ValueKind
+                                            == System.Text.Json.JsonValueKind.String
+                                    )
                                         failureReason = failureReasonProp.GetString();
-                                    if (arrItem.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                    if (
+                                        arrItem.TryGetProperty("StaffId", out var staffIdProp)
+                                        && staffIdProp.ValueKind
+                                            == System.Text.Json.JsonValueKind.Number
+                                    )
                                         staffIdValue = staffIdProp.GetInt32();
-                                    if (arrItem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    if (
+                                        arrItem.TryGetProperty("Timestamp", out var timestampProp)
+                                        && timestampProp.ValueKind
+                                            == System.Text.Json.JsonValueKind.String
+                                    )
                                         timestamp = timestampProp.GetDateTime();
-                                    if (arrItem.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    if (
+                                        arrItem.TryGetProperty("Notes", out var notesProp)
+                                        && notesProp.ValueKind
+                                            == System.Text.Json.JsonValueKind.String
+                                    )
                                         notes = notesProp.GetString();
                                     break;
                                 }
                             }
                         }
-                        
-                        _logger.LogInformation("[PARENT][PARSED] Period: {Period}, ItemId: {ItemId}, StaffId: {StaffId}, FailureReason: {FailureReason}, Notes: {Notes}", 
-                            period, item.MedicineRequestItemId, staffIdValue, failureReason, notes);
-                        
-                        failedPeriods.Add(new {
-                            studentCode = req.StudentCode,
-                            studentName = req.Student != null ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim() : null,
-                            className = req.ClassName,
-                            parentId = req.ParentId,
-                            parentName = req.Parent != null ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim() : null,
-                            medicineRequestItemId = item.MedicineRequestItemId,
-                            medicineName = item.MedicineName,
-                            dosage = item.Dosage,
-                            dosageUnit = item.DosageUnit,
-                            frequency = item.Frequency,
-                            timeOfDay = item.TimeOfDay,
-                            instructions = item.Instructions,
-                            period = period,
-                            status = "Failed",
-                            staffId = staffIdValue,
-                            timestamp = timestamp,
-                            failureReason = failureReason,
-                            notes = notes
-                        });
+
+                        _logger.LogInformation(
+                            "[PARENT][PARSED] Period: {Period}, ItemId: {ItemId}, StaffId: {StaffId}, FailureReason: {FailureReason}, Notes: {Notes}",
+                            period,
+                            item.MedicineRequestItemId,
+                            staffIdValue,
+                            failureReason,
+                            notes
+                        );
+
+                        failedPeriods.Add(
+                            new
+                            {
+                                studentCode = req.StudentCode,
+                                studentName = req.Student != null
+                                    ? ($"{req.Student.LastName} {req.Student.FirstName}").Trim()
+                                    : null,
+                                className = req.ClassName,
+                                parentId = req.ParentId,
+                                parentName = req.Parent != null
+                                    ? ($"{req.Parent.LastName} {req.Parent.FirstName}").Trim()
+                                    : null,
+                                medicineRequestItemId = item.MedicineRequestItemId,
+                                medicineName = item.MedicineName,
+                                dosage = item.Dosage,
+                                dosageUnit = item.DosageUnit,
+                                frequency = item.Frequency,
+                                timeOfDay = item.TimeOfDay,
+                                instructions = item.Instructions,
+                                period = period,
+                                status = "Failed",
+                                staffId = staffIdValue,
+                                timestamp = timestamp,
+                                failureReason = failureReason,
+                                notes = notes,
+                            }
+                        );
                     }
                 }
             }
         }
-        
+
         // Debug log after filtering
-        _logger.LogInformation("[PARENT][AFTER] Found {Count} failed periods for parent {ParentId}", failedPeriods.Count, parentId);
-        
+        _logger.LogInformation(
+            "[PARENT][AFTER] Found {Count} failed periods for parent {ParentId}",
+            failedPeriods.Count,
+            parentId
+        );
+
         return Ok(failedPeriods);
     }
 
     // Helper to get or create a status history array for a period
-    private static List<Dictionary<string, object>> GetStatusHistory(Dictionary<string, object> periodStatus, string period)
+    private static List<Dictionary<string, object>> GetStatusHistory(
+        Dictionary<string, object> periodStatus,
+        string period
+    )
     {
         if (periodStatus.TryGetValue(period, out var val))
         {
@@ -554,25 +809,37 @@ public class ParentController : ControllerBase
                 if (strVal.StartsWith("["))
                 {
                     // Stringified array
-                    return System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string, object>>>(strVal) ?? new List<Dictionary<string, object>>();
+                    return System.Text.Json.JsonSerializer.Deserialize<
+                            List<Dictionary<string, object>>
+                        >(strVal) ?? new List<Dictionary<string, object>>();
                 }
                 else if (strVal.StartsWith("{"))
                 {
                     // Stringified object
-                    var obj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(strVal);
-                    return obj != null ? new List<Dictionary<string, object>> { obj } : new List<Dictionary<string, object>>();
+                    var obj = System.Text.Json.JsonSerializer.Deserialize<
+                        Dictionary<string, object>
+                    >(strVal);
+                    return obj != null
+                        ? new List<Dictionary<string, object>> { obj }
+                        : new List<Dictionary<string, object>>();
                 }
             }
             else if (val is System.Text.Json.JsonElement elem)
             {
                 if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
                 {
-                    return System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string, object>>>(elem.GetRawText()) ?? new List<Dictionary<string, object>>();
+                    return System.Text.Json.JsonSerializer.Deserialize<
+                            List<Dictionary<string, object>>
+                        >(elem.GetRawText()) ?? new List<Dictionary<string, object>>();
                 }
                 else if (elem.ValueKind == System.Text.Json.JsonValueKind.Object)
                 {
-                    var obj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(elem.GetRawText());
-                    return obj != null ? new List<Dictionary<string, object>> { obj } : new List<Dictionary<string, object>>();
+                    var obj = System.Text.Json.JsonSerializer.Deserialize<
+                        Dictionary<string, object>
+                    >(elem.GetRawText());
+                    return obj != null
+                        ? new List<Dictionary<string, object>> { obj }
+                        : new List<Dictionary<string, object>>();
                 }
             }
         }

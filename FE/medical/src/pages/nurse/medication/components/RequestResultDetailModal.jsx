@@ -62,7 +62,6 @@ const RequestResultDetailModal = ({
 
   if (!isOpen || !result) return null;
 
-
   const progress = calculateMedicationProgress(result);
   const history = formatAdministrationHistory(result);
 
@@ -581,12 +580,12 @@ const RequestResultDetailModal = ({
                     result.failedStatus === "Failed"
                       ? "Thất bại"
                       : result.status || result.failedStatus}
-              </span>
+                  </span>
                 </p>
               </div>
             )}
           </div>
-      </div>
+        </div>
       )}
     </div>
   );

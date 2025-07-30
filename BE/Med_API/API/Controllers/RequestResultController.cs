@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using API.DTOs;
 using AutoMapper;
 using DB;
+using Microsoft.AspNetCore.Mvc;
 using Service;
 
 namespace API.Controllers;
@@ -43,18 +43,26 @@ public class RequestResultController : ControllerBase
 
     // GET: api/RequestResult/request/5
     [HttpGet("request/{requestId}")]
-    public async Task<ActionResult<IEnumerable<RequestResultDto.ViewModel>>> GetRequestResultsByRequest(int requestId)
+    public async Task<
+        ActionResult<IEnumerable<RequestResultDto.ViewModel>>
+    > GetRequestResultsByRequest(int requestId)
     {
-        var requestResults = await _requestResultService.GetRequestResultsByRequestIdAsync(requestId);
+        var requestResults = await _requestResultService.GetRequestResultsByRequestIdAsync(
+            requestId
+        );
         var viewModels = _mapper.Map<IEnumerable<RequestResultDto.ViewModel>>(requestResults);
         return Ok(viewModels);
     }
 
     // GET: api/RequestResult/request/5/latest
     [HttpGet("request/{requestId}/latest")]
-    public async Task<ActionResult<RequestResultDto.ViewModel>> GetLatestRequestResult(int requestId)
+    public async Task<ActionResult<RequestResultDto.ViewModel>> GetLatestRequestResult(
+        int requestId
+    )
     {
-        var requestResult = await _requestResultService.GetLatestRequestResultByRequestIdAsync(requestId);
+        var requestResult = await _requestResultService.GetLatestRequestResultByRequestIdAsync(
+            requestId
+        );
         if (requestResult == null)
         {
             return NotFound();
@@ -65,7 +73,9 @@ public class RequestResultController : ControllerBase
 
     // GET: api/RequestResult/status/completed
     [HttpGet("status/{status}")]
-    public async Task<ActionResult<IEnumerable<RequestResultDto.ViewModel>>> GetRequestResultsByStatus(string status)
+    public async Task<
+        ActionResult<IEnumerable<RequestResultDto.ViewModel>>
+    > GetRequestResultsByStatus(string status)
     {
         var requestResults = await _requestResultService.GetRequestResultsByStatusAsync(status);
         var viewModels = _mapper.Map<IEnumerable<RequestResultDto.ViewModel>>(requestResults);
@@ -74,7 +84,9 @@ public class RequestResultController : ControllerBase
 
     // POST: api/RequestResult
     [HttpPost]
-    public async Task<ActionResult<RequestResultDto.ViewModel>> CreateRequestResult(RequestResultDto.Create createDto)
+    public async Task<ActionResult<RequestResultDto.ViewModel>> CreateRequestResult(
+        RequestResultDto.Create createDto
+    )
     {
         if (!ModelState.IsValid)
         {
@@ -87,7 +99,11 @@ public class RequestResultController : ControllerBase
             return BadRequest("Failed to create request result.");
         }
         var viewModel = _mapper.Map<RequestResultDto.ViewModel>(created);
-        return CreatedAtAction(nameof(GetRequestResult), new { id = viewModel.ResultId }, viewModel);
+        return CreatedAtAction(
+            nameof(GetRequestResult),
+            new { id = viewModel.ResultId },
+            viewModel
+        );
     }
 
     // PUT: api/RequestResult/5
@@ -119,4 +135,4 @@ public class RequestResultController : ControllerBase
         }
         return NoContent();
     }
-} 
+}

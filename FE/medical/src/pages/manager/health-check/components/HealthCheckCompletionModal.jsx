@@ -14,16 +14,89 @@ const HealthCheckCompletionModal = ({
   onSuccess,
 }) => {
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setError(null);
+    setSuccess(false);
+
+    if (selectedFile) {
+      // Validate file type
+      const validTypes = [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel",
+      ];
+
+      if (!validTypes.includes(selectedFile.type)) {
+        setError("Vui lòng chọn file Excel (.xlsx hoặc .xls)");
+        return;
+      }
+
+      // Validate file size (max 10MB)
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        setError("Kích thước file không được vượt quá 10MB");
+        return;
+      }
+
+      setFile(selectedFile);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file || !selectedRequest) return;
+
+    setUploading(true);
+    setError(null);
+    setUploadProgress(0);
+
+    try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 200);
+
+      const result = await uploadHealthCheckResults(
+        selectedRequest.formId || selectedRequest.id,
+        file
+      );
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      setSuccess(true);
+
+      setTimeout(() => {
+        onSuccess?.(result);
+        handleClose();
+      }, 1500);
+    } catch (error) {
+      console.error("Upload error:", error);
+      setError(error.message || "Có lỗi xảy ra khi upload file");
+      setUploadProgress(0);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleClose = () => {
     setError(null);
     onClose();
   };
 
-  const viewResults = () => {
-    // Navigate to results view page for this health check
-    console.log("Viewing results for health check:", selectedRequest?.formId || selectedRequest?.id);
-    // TODO: Implement navigation to results view
+  const downloadTemplate = () => {
+    // Create a link to download the template
+    const link = document.createElement("a");
+    link.href = "/templates/health-check-results-template.xlsx"; // You need to add this file to public/templates/
+    link.download = "health-check-results-template.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // NOTE: Download template functionality removed from Manager
@@ -133,4 +206,4 @@ const HealthCheckCompletionModal = ({
   );
 };
 
-export default HealthCheckCompletionModal; 
+export default HealthCheckCompletionModal;

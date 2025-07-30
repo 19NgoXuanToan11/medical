@@ -1,8 +1,8 @@
 using API.DTOs;
 using AutoMapper;
+using DB;
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using DB;
 
 namespace API.Controllers;
 
@@ -38,7 +38,9 @@ public class HealthEventController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<HealthEventDto.ViewModel>> CreateHealthEvent(HealthEventDto.Create createDto)
+    public async Task<ActionResult<HealthEventDto.ViewModel>> CreateHealthEvent(
+        HealthEventDto.Create createDto
+    )
     {
         if (!ModelState.IsValid)
         {
@@ -51,7 +53,8 @@ public class HealthEventController : ControllerBase
             return CreatedAtAction(
                 nameof(GetHealthEventById),
                 new { id = createdEvent.EventId },
-                _mapper.Map<HealthEventDto.ViewModel>(createdEvent));
+                _mapper.Map<HealthEventDto.ViewModel>(createdEvent)
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -64,7 +67,9 @@ public class HealthEventController : ControllerBase
     /// Tạo nhiều sự cố y tế cùng lúc (cho sự cố tập thể)
     /// </summary>
     [HttpPost("batch")]
-    public async Task<ActionResult<object>> CreateBatchHealthEvents(List<HealthEventDto.Create> createDtos)
+    public async Task<ActionResult<object>> CreateBatchHealthEvents(
+        List<HealthEventDto.Create> createDtos
+    )
     {
         if (!ModelState.IsValid)
         {
@@ -85,16 +90,20 @@ public class HealthEventController : ControllerBase
         {
             var healthEvents = _mapper.Map<List<HealthEvent>>(createDtos);
             var batchResult = await _healthEventService.CreateBatchHealthEventsAsync(healthEvents);
-            
-            return Ok(new
-            {
-                message = "Tạo sự cố y tế hàng loạt thành công",
-                totalRequested = createDtos.Count,
-                successfullyCreated = batchResult.SuccessfulCount,
-                failedCount = batchResult.FailedCount,
-                failedDetails = batchResult.FailedDetails,
-                createdEvents = _mapper.Map<IEnumerable<HealthEventDto.ViewModel>>(batchResult.CreatedEvents)
-            });
+
+            return Ok(
+                new
+                {
+                    message = "Tạo sự cố y tế hàng loạt thành công",
+                    totalRequested = createDtos.Count,
+                    successfullyCreated = batchResult.SuccessfulCount,
+                    failedCount = batchResult.FailedCount,
+                    failedDetails = batchResult.FailedDetails,
+                    createdEvents = _mapper.Map<IEnumerable<HealthEventDto.ViewModel>>(
+                        batchResult.CreatedEvents
+                    ),
+                }
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -102,10 +111,14 @@ public class HealthEventController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { 
-                message = "Lỗi server nội bộ khi tạo sự cố y tế hàng loạt", 
-                error = ex.Message 
-            });
+            return StatusCode(
+                500,
+                new
+                {
+                    message = "Lỗi server nội bộ khi tạo sự cố y tế hàng loạt",
+                    error = ex.Message,
+                }
+            );
         }
     }
 
@@ -159,27 +172,34 @@ public class HealthEventController : ControllerBase
     }
 
     [HttpGet("student/{studentCode}")]
-    public async Task<ActionResult<IEnumerable<HealthEventDto.ViewModel>>> GetHealthEventsByStudentCode(string studentCode)
+    public async Task<
+        ActionResult<IEnumerable<HealthEventDto.ViewModel>>
+    > GetHealthEventsByStudentCode(string studentCode)
     {
         var events = await _healthEventService.GetHealthEventsByStudentCodeAsync(studentCode);
         return Ok(_mapper.Map<IEnumerable<HealthEventDto.ViewModel>>(events));
     }
 
     [HttpGet("staff/{staffId}")]
-    public async Task<ActionResult<IEnumerable<HealthEventDto.ViewModel>>> GetHealthEventsByStaffId(int staffId)
+    public async Task<ActionResult<IEnumerable<HealthEventDto.ViewModel>>> GetHealthEventsByStaffId(
+        int staffId
+    )
     {
         var events = await _healthEventService.GetHealthEventsByStaffIdAsync(staffId);
         return Ok(_mapper.Map<IEnumerable<HealthEventDto.ViewModel>>(events));
     }
 
     [HttpGet("daterange")]
-    public async Task<ActionResult<IEnumerable<HealthEventDto.ViewModel>>> GetHealthEventsByDateRange(
-        [FromQuery] DateTime startDate,
-        [FromQuery] DateTime endDate)
+    public async Task<
+        ActionResult<IEnumerable<HealthEventDto.ViewModel>>
+    > GetHealthEventsByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
         try
         {
-            var events = await _healthEventService.GetHealthEventsByDateRangeAsync(startDate, endDate);
+            var events = await _healthEventService.GetHealthEventsByDateRangeAsync(
+                startDate,
+                endDate
+            );
             return Ok(_mapper.Map<IEnumerable<HealthEventDto.ViewModel>>(events));
         }
         catch (InvalidOperationException ex)
@@ -189,7 +209,9 @@ public class HealthEventController : ControllerBase
     }
 
     [HttpGet("nurse/{staffId}/grade")]
-    public async Task<ActionResult<IEnumerable<HealthEventDto.ViewModel>>> GetHealthEventsByNurseGrade(int staffId)
+    public async Task<
+        ActionResult<IEnumerable<HealthEventDto.ViewModel>>
+    > GetHealthEventsByNurseGrade(int staffId)
     {
         try
         {
@@ -211,47 +233,59 @@ public class HealthEventController : ControllerBase
     {
         try
         {
-            var criticalIncidents = await _healthEventService.GetCriticalIncidentsByStudentAsync(studentCode);
-            
+            var criticalIncidents = await _healthEventService.GetCriticalIncidentsByStudentAsync(
+                studentCode
+            );
+
             if (!criticalIncidents.Any())
             {
-                return Ok(new
-                {
-                    studentCode = studentCode,
-                    message = "Không có sự cố nghiêm trọng nào được ghi nhận",
-                    incidents = new List<object>(),
-                    count = 0
-                });
+                return Ok(
+                    new
+                    {
+                        studentCode = studentCode,
+                        message = "Không có sự cố nghiêm trọng nào được ghi nhận",
+                        incidents = new List<object>(),
+                        count = 0,
+                    }
+                );
             }
 
-            var incidentsData = criticalIncidents.Select(incident => new
-            {
-                incidentId = incident.EventId,
-                timestamp = incident.EventDate,
-                severityLevel = incident.Severity,
-                description = incident.Symptoms,
-                handledBy = incident.Staff?.FirstName + " " + incident.Staff?.LastName,
-                actionsTaken = incident.Treatment,
-                notifiedParent = incident.ParentNotified,
-                studentName = incident.Student?.FirstName + " " + incident.Student?.LastName,
-                className = incident.Student?.Class?.ClassName,
-                gradeLevel = incident.Student?.Class?.GradeLevel
-            }).ToList();
+            var incidentsData = criticalIncidents
+                .Select(incident => new
+                {
+                    incidentId = incident.EventId,
+                    timestamp = incident.EventDate,
+                    severityLevel = incident.Severity,
+                    description = incident.Symptoms,
+                    handledBy = incident.Staff?.FirstName + " " + incident.Staff?.LastName,
+                    actionsTaken = incident.Treatment,
+                    notifiedParent = incident.ParentNotified,
+                    studentName = incident.Student?.FirstName + " " + incident.Student?.LastName,
+                    className = incident.Student?.Class?.ClassName,
+                    gradeLevel = incident.Student?.Class?.GradeLevel,
+                })
+                .ToList();
 
-            return Ok(new
-            {
-                studentCode = studentCode,
-                message = "Lấy danh sách sự cố nghiêm trọng thành công",
-                incidents = incidentsData,
-                count = incidentsData.Count
-            });
+            return Ok(
+                new
+                {
+                    studentCode = studentCode,
+                    message = "Lấy danh sách sự cố nghiêm trọng thành công",
+                    incidents = incidentsData,
+                    count = incidentsData.Count,
+                }
+            );
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { 
-                message = "Lỗi server nội bộ khi lấy danh sách sự cố nghiêm trọng", 
-                error = ex.Message 
-            });
+            return StatusCode(
+                500,
+                new
+                {
+                    message = "Lỗi server nội bộ khi lấy danh sách sự cố nghiêm trọng",
+                    error = ex.Message,
+                }
+            );
         }
     }
-} 
+}

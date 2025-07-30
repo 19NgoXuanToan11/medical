@@ -1,7 +1,7 @@
-using DB;
-using Repo;
 using System.Security.Cryptography;
 using System.Text;
+using DB;
+using Repo;
 
 namespace Service;
 
@@ -58,7 +58,9 @@ public class StaffService : IStaffService
         // Check for unique username if it's being updated
         if (!string.IsNullOrEmpty(staff.Username) && existingStaff.Username != staff.Username)
         {
-            var staffWithSameUsername = await _staffRepository.GetStaffByUsernameAsync(staff.Username);
+            var staffWithSameUsername = await _staffRepository.GetStaffByUsernameAsync(
+                staff.Username
+            );
             if (staffWithSameUsername != null && staffWithSameUsername.StaffId != staff.StaffId)
             {
                 return false; // Username not unique
@@ -163,4 +165,4 @@ public class StaffService : IStaffService
         var grades = await GetGradeNursesByStaffIdAsync(staffId);
         return grades.Any(g => g.Grade == grade);
     }
-} 
+}

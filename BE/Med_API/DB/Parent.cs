@@ -53,12 +53,15 @@ public partial class Parent
 
     // public virtual Student Student { get; set; } = null!;
 
-    public virtual ICollection<StudentParent> StudentParents { get; set; } = new List<StudentParent>();
-    
+    public virtual ICollection<StudentParent> StudentParents { get; set; } =
+        new List<StudentParent>();
+
     // Navigation to Students through StudentParent
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 
-    public virtual ICollection<MedicineRequest> MedicineRequests { get; set; } = new List<MedicineRequest>();
+    public virtual ICollection<MedicineRequest> MedicineRequests { get; set; } =
+        new List<MedicineRequest>();
 
-    public virtual ICollection<InjectionForm> InjectionForms { get; set; } = new List<InjectionForm>();
+    public virtual ICollection<InjectionForm> InjectionForms { get; set; } =
+        new List<InjectionForm>();
 }

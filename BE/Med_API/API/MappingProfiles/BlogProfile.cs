@@ -11,4 +11,4 @@ public class BlogProfile : Profile
         CreateMap<Blog, BlogDTO>();
         CreateMap<BlogDTO, Blog>();
     }
-} 
+}

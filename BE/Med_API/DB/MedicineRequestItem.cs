@@ -26,4 +26,4 @@ public partial class MedicineRequestItem
 
     // Navigation property
     public virtual MedicineRequest MedicineRequest { get; set; } = null!;
-} 
+}

@@ -1,14 +1,15 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using DB;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Repo;
 
 public class BlogRepository : IBlogRepository
 {
     private readonly MedicalContext _context;
+
     public BlogRepository(MedicalContext context)
     {
         _context = context;
@@ -51,9 +52,12 @@ public class BlogRepository : IBlogRepository
         if (string.IsNullOrWhiteSpace(query))
             return await _context.Blogs.Include(b => b.Staff).ToListAsync();
         var q = query.ToLower();
-        return await _context.Blogs
-            .Include(b => b.Staff)
-            .Where(b => b.Title.ToLower().Contains(q) || (b.Category != null && b.Category.ToLower().Contains(q)))
+        return await _context
+            .Blogs.Include(b => b.Staff)
+            .Where(b =>
+                b.Title.ToLower().Contains(q)
+                || (b.Category != null && b.Category.ToLower().Contains(q))
+            )
             .ToListAsync();
     }
-} 
+}

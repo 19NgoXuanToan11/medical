@@ -1,7 +1,7 @@
-using DB;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using DB;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repo;
 
@@ -16,28 +16,28 @@ public class HealthEventRepository : IHealthEventRepository
 
     public async Task<IEnumerable<HealthEvent>> GetAllHealthEventsAsync()
     {
-        return await _context.HealthEvents
-            .Include(e => e.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .HealthEvents.Include(e => e.Student)
+            .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
-                .ThenInclude(hem => hem.Medicine)
+            .ThenInclude(hem => hem.Medicine)
             .Include(e => e.HealthEventMedicalSupplies)
-                .ThenInclude(hems => hems.MedicalSupply)
+            .ThenInclude(hems => hems.MedicalSupply)
             .OrderByDescending(e => e.EventDate)
             .ToListAsync();
     }
 
     public async Task<HealthEvent?> GetHealthEventByIdAsync(int id)
     {
-        return await _context.HealthEvents
-            .Include(e => e.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .HealthEvents.Include(e => e.Student)
+            .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
-                .ThenInclude(hem => hem.Medicine)
+            .ThenInclude(hem => hem.Medicine)
             .Include(e => e.HealthEventMedicalSupplies)
-                .ThenInclude(hems => hems.MedicalSupply)
+            .ThenInclude(hems => hems.MedicalSupply)
             .FirstOrDefaultAsync(e => e.EventId == id);
     }
 
@@ -50,8 +50,8 @@ public class HealthEventRepository : IHealthEventRepository
 
     public async Task<bool> UpdateHealthEventAsync(HealthEvent healthEvent)
     {
-        var existingEvent = await _context.HealthEvents
-            .Include(e => e.HealthEventMedicines)
+        var existingEvent = await _context
+            .HealthEvents.Include(e => e.HealthEventMedicines)
             .Include(e => e.HealthEventMedicalSupplies)
             .FirstOrDefaultAsync(e => e.EventId == healthEvent.EventId);
 
@@ -64,16 +64,24 @@ public class HealthEventRepository : IHealthEventRepository
 
         // Handle HealthEventMedicines
         var existingMedicines = existingEvent.HealthEventMedicines.ToList();
-        var newMedicines = healthEvent.HealthEventMedicines?.ToList() ?? new List<HealthEventMedicine>();
+        var newMedicines =
+            healthEvent.HealthEventMedicines?.ToList() ?? new List<HealthEventMedicine>();
 
-        foreach (var existingMedicine in existingMedicines.Except(newMedicines, new HealthEventMedicineComparer()))
+        foreach (
+            var existingMedicine in existingMedicines.Except(
+                newMedicines,
+                new HealthEventMedicineComparer()
+            )
+        )
         {
             _context.HealthEventMedicines.Remove(existingMedicine);
         }
 
         foreach (var newMedicine in newMedicines)
         {
-            var existingMedicine = existingMedicines.FirstOrDefault(m => m.HealthEventMedicineId == newMedicine.HealthEventMedicineId);
+            var existingMedicine = existingMedicines.FirstOrDefault(m =>
+                m.HealthEventMedicineId == newMedicine.HealthEventMedicineId
+            );
             if (existingMedicine == null || newMedicine.HealthEventMedicineId == 0) // New item (ID 0 or not found)
             {
                 existingEvent.HealthEventMedicines.Add(newMedicine);
@@ -86,16 +94,25 @@ public class HealthEventRepository : IHealthEventRepository
 
         // Handle HealthEventMedicalSupplies
         var existingSupplies = existingEvent.HealthEventMedicalSupplies.ToList();
-        var newSupplies = healthEvent.HealthEventMedicalSupplies?.ToList() ?? new List<HealthEventMedicalSupply>();
+        var newSupplies =
+            healthEvent.HealthEventMedicalSupplies?.ToList()
+            ?? new List<HealthEventMedicalSupply>();
 
-        foreach (var existingSupply in existingSupplies.Except(newSupplies, new HealthEventMedicalSupplyComparer()))
+        foreach (
+            var existingSupply in existingSupplies.Except(
+                newSupplies,
+                new HealthEventMedicalSupplyComparer()
+            )
+        )
         {
             _context.HealthEventMedicalSupplies.Remove(existingSupply);
         }
 
         foreach (var newSupply in newSupplies)
         {
-            var existingSupply = existingSupplies.FirstOrDefault(s => s.HealthEventMedicalSupplyId == newSupply.HealthEventMedicalSupplyId);
+            var existingSupply = existingSupplies.FirstOrDefault(s =>
+                s.HealthEventMedicalSupplyId == newSupply.HealthEventMedicalSupplyId
+            );
             if (existingSupply == null || newSupply.HealthEventMedicalSupplyId == 0) // New item (ID 0 or not found)
             {
                 existingEvent.HealthEventMedicalSupplies.Add(newSupply);
@@ -112,8 +129,8 @@ public class HealthEventRepository : IHealthEventRepository
 
     public async Task<bool> DeleteHealthEventAsync(int id)
     {
-        var healthEvent = await _context.HealthEvents
-            .Include(e => e.HealthEventMedicines)
+        var healthEvent = await _context
+            .HealthEvents.Include(e => e.HealthEventMedicines)
             .Include(e => e.HealthEventMedicalSupplies)
             .FirstOrDefaultAsync(e => e.EventId == id);
 
@@ -135,16 +152,18 @@ public class HealthEventRepository : IHealthEventRepository
         return true;
     }
 
-    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByStudentCodeAsync(string studentCode)
+    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByStudentCodeAsync(
+        string studentCode
+    )
     {
-        return await _context.HealthEvents
-            .Include(e => e.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .HealthEvents.Include(e => e.Student)
+            .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
-                .ThenInclude(hem => hem.Medicine)
+            .ThenInclude(hem => hem.Medicine)
             .Include(e => e.HealthEventMedicalSupplies)
-                .ThenInclude(hems => hems.MedicalSupply)
+            .ThenInclude(hems => hems.MedicalSupply)
             .Where(e => e.StudentCode == studentCode)
             .OrderByDescending(e => e.EventDate)
             .ToListAsync();
@@ -152,29 +171,32 @@ public class HealthEventRepository : IHealthEventRepository
 
     public async Task<IEnumerable<HealthEvent>> GetHealthEventsByStaffIdAsync(int staffId)
     {
-        return await _context.HealthEvents
-            .Include(e => e.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .HealthEvents.Include(e => e.Student)
+            .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
-                .ThenInclude(hem => hem.Medicine)
+            .ThenInclude(hem => hem.Medicine)
             .Include(e => e.HealthEventMedicalSupplies)
-                .ThenInclude(hems => hems.MedicalSupply)
+            .ThenInclude(hems => hems.MedicalSupply)
             .Where(e => e.StaffId == staffId)
             .OrderByDescending(e => e.EventDate)
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByDateRangeAsync(DateTime startDate, DateTime endDate)
+    public async Task<IEnumerable<HealthEvent>> GetHealthEventsByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate
+    )
     {
-        return await _context.HealthEvents
-            .Include(e => e.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .HealthEvents.Include(e => e.Student)
+            .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
-                .ThenInclude(hem => hem.Medicine)
+            .ThenInclude(hem => hem.Medicine)
             .Include(e => e.HealthEventMedicalSupplies)
-                .ThenInclude(hems => hems.MedicalSupply)
+            .ThenInclude(hems => hems.MedicalSupply)
             .Where(e => e.EventDate >= startDate && e.EventDate <= endDate)
             .OrderByDescending(e => e.EventDate)
             .ToListAsync();
@@ -182,14 +204,14 @@ public class HealthEventRepository : IHealthEventRepository
 
     public async Task<IEnumerable<HealthEvent>> GetHealthEventsByTypeAsync(string eventType)
     {
-        return await _context.HealthEvents
-            .Include(e => e.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .HealthEvents.Include(e => e.Student)
+            .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
-                .ThenInclude(hem => hem.Medicine)
+            .ThenInclude(hem => hem.Medicine)
             .Include(e => e.HealthEventMedicalSupplies)
-                .ThenInclude(hems => hems.MedicalSupply)
+            .ThenInclude(hems => hems.MedicalSupply)
             .Where(e => e.EventType == eventType)
             .OrderByDescending(e => e.EventDate)
             .ToListAsync();
@@ -197,14 +219,14 @@ public class HealthEventRepository : IHealthEventRepository
 
     public async Task<IEnumerable<HealthEvent>> GetRecentHealthEventsAsync(int count)
     {
-        return await _context.HealthEvents
-            .Include(e => e.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .HealthEvents.Include(e => e.Student)
+            .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
-                .ThenInclude(hem => hem.Medicine)
+            .ThenInclude(hem => hem.Medicine)
             .Include(e => e.HealthEventMedicalSupplies)
-                .ThenInclude(hems => hems.MedicalSupply)
+            .ThenInclude(hems => hems.MedicalSupply)
             .OrderByDescending(e => e.EventDate)
             .Take(count)
             .ToListAsync();
@@ -212,17 +234,17 @@ public class HealthEventRepository : IHealthEventRepository
 
     public async Task<IEnumerable<HealthEvent>> GetHealthEventsByGradeAsync(int grade)
     {
-        return await _context.HealthEvents
-            .Include(e => e.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .HealthEvents.Include(e => e.Student)
+            .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
-                .ThenInclude(hem => hem.Medicine)
+            .ThenInclude(hem => hem.Medicine)
             .Include(e => e.HealthEventMedicalSupplies)
-                .ThenInclude(hems => hems.MedicalSupply)
-            .Where(e => e.Student != null && 
-                       e.Student.Class != null && 
-                       e.Student.Class.GradeLevel == grade)
+            .ThenInclude(hems => hems.MedicalSupply)
+            .Where(e =>
+                e.Student != null && e.Student.Class != null && e.Student.Class.GradeLevel == grade
+            )
             .OrderByDescending(e => e.EventDate)
             .ToListAsync();
     }
@@ -230,8 +252,8 @@ public class HealthEventRepository : IHealthEventRepository
     public async Task<IEnumerable<HealthEvent>> GetHealthEventsForNurseByGradeAsync(int staffId)
     {
         // Get the grades that the nurse is assigned to
-        var nurseGrades = await _context.GradeNurses
-            .Where(gn => gn.StaffId == staffId)
+        var nurseGrades = await _context
+            .GradeNurses.Where(gn => gn.StaffId == staffId)
             .Select(gn => gn.Grade)
             .ToListAsync();
 
@@ -242,17 +264,19 @@ public class HealthEventRepository : IHealthEventRepository
         }
 
         // Get health events for students in the grades that the nurse is assigned to
-        return await _context.HealthEvents
-            .Include(e => e.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .HealthEvents.Include(e => e.Student)
+            .ThenInclude(s => s.Class)
             .Include(e => e.Staff)
             .Include(e => e.HealthEventMedicines)
-                .ThenInclude(hem => hem.Medicine)
+            .ThenInclude(hem => hem.Medicine)
             .Include(e => e.HealthEventMedicalSupplies)
-                .ThenInclude(hems => hems.MedicalSupply)
-            .Where(e => e.Student != null && 
-                       e.Student.Class != null && 
-                       nurseGrades.Contains(e.Student.Class.GradeLevel))
+            .ThenInclude(hems => hems.MedicalSupply)
+            .Where(e =>
+                e.Student != null
+                && e.Student.Class != null
+                && nurseGrades.Contains(e.Student.Class.GradeLevel)
+            )
             .OrderByDescending(e => e.EventDate)
             .ToListAsync();
     }
@@ -262,8 +286,10 @@ public class HealthEventMedicineComparer : IEqualityComparer<HealthEventMedicine
 {
     public bool Equals(HealthEventMedicine? x, HealthEventMedicine? y)
     {
-        if (ReferenceEquals(x, y)) return true;
-        if (ReferenceEquals(x, null) || ReferenceEquals(y, null)) return false;
+        if (ReferenceEquals(x, y))
+            return true;
+        if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
+            return false;
         return x.HealthEventMedicineId == y.HealthEventMedicineId;
     }
 
@@ -277,8 +303,10 @@ public class HealthEventMedicalSupplyComparer : IEqualityComparer<HealthEventMed
 {
     public bool Equals(HealthEventMedicalSupply? x, HealthEventMedicalSupply? y)
     {
-        if (ReferenceEquals(x, y)) return true;
-        if (ReferenceEquals(x, null) || ReferenceEquals(y, null)) return false;
+        if (ReferenceEquals(x, y))
+            return true;
+        if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
+            return false;
         return x.HealthEventMedicalSupplyId == y.HealthEventMedicalSupplyId;
     }
 
@@ -286,4 +314,4 @@ public class HealthEventMedicalSupplyComparer : IEqualityComparer<HealthEventMed
     {
         return obj.HealthEventMedicalSupplyId.GetHashCode();
     }
-} 
+}

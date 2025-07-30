@@ -11,4 +11,4 @@ public interface IStudentParentService
     Task<bool> DeleteStudentParentAsync(int id);
     Task<IEnumerable<StudentParent>> GetStudentParentsByStudentCodeAsync(string studentCode);
     Task<IEnumerable<StudentParent>> GetStudentParentsByParentIdAsync(int parentId);
-} 
+}

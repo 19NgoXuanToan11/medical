@@ -12,13 +12,13 @@ import {
   FiRefreshCw,
 } from "react-icons/fi";
 import { injectionFormService } from "../../../utils/api/injection/injectionService";
-import { 
-  formatDate, 
-  formatTime, 
-  formatDateTime, 
+import {
+  formatDate,
+  formatTime,
+  formatDateTime,
   formatDateWithContext,
   formatDuration,
-  formatRelativeTime 
+  formatRelativeTime,
 } from "../../../utils/timeUtils";
 
 // Import tab components
@@ -387,7 +387,9 @@ const VaccinationManagement = () => {
                         Ngày:
                       </span>{" "}
                       {selectedInjectionForm.scheduledDate
-                        ? formatDateWithContext(selectedInjectionForm.scheduledDate)
+                        ? formatDateWithContext(
+                            selectedInjectionForm.scheduledDate
+                          )
                         : "Chưa xác định"}
                     </p>
                     <p>

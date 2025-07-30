@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using API.DTOs;
 using AutoMapper;
 using DB;
+using Microsoft.AspNetCore.Mvc;
 using Service;
 
 namespace API.Controllers;
@@ -52,7 +52,9 @@ public class MedicineController : ControllerBase
 
     // POST: api/Medicine
     [HttpPost]
-    public async Task<ActionResult<MedicineDto.ViewModel>> CreateMedicine(MedicineDto.Create createDto)
+    public async Task<ActionResult<MedicineDto.ViewModel>> CreateMedicine(
+        MedicineDto.Create createDto
+    )
     {
         if (!ModelState.IsValid)
         {
@@ -97,4 +99,4 @@ public class MedicineController : ControllerBase
         }
         return NoContent();
     }
-} 
+}

@@ -103,4 +103,4 @@ public static class HealthCheckItemDto
         public bool IsActive { get; set; }
         public int RequiredSuppliesCount { get; set; }
     }
-} 
+}

@@ -12,34 +12,34 @@ import {
   FiSearch,
   FiRefreshCw,
 } from "react-icons/fi";
-import { 
-  formatDate, 
-  formatTime, 
-  formatDateTime, 
+import {
+  formatDate,
+  formatTime,
+  formatDateTime,
   formatDateWithContext,
   formatDuration,
-  formatRelativeTime 
+  formatRelativeTime,
 } from "../../../../utils/timeUtils";
 
-const PendingTab = ({ 
-  pendingForms, 
-  searchTerm, 
+const PendingTab = ({
+  pendingForms,
+  searchTerm,
   setSearchTerm,
-  onRefresh, 
+  onRefresh,
   loading,
   onApprovalAction,
-  onShowDetail 
+  onShowDetail,
 }) => {
   const [sortBy, setSortBy] = useState("date"); // date, priority, vaccine
   const [filterBy, setFilterBy] = useState("all"); // all, urgent, normal
 
   // Filter and sort forms
   const filteredAndSortedForms = pendingForms
-    .filter(form => {
+    .filter((form) => {
       // Search filter
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
-        const matchesSearch = 
+        const matchesSearch =
           form.injectionName?.toLowerCase().includes(term) ||
           form.description?.toLowerCase().includes(term) ||
           form.vaccine?.name?.toLowerCase().includes(term) ||
@@ -49,11 +49,13 @@ const PendingTab = ({
 
       // Priority filter
       if (filterBy === "urgent") {
-        const isUrgent = form.createdDate && 
+        const isUrgent =
+          form.createdDate &&
           (new Date() - new Date(form.createdDate)) / (1000 * 60 * 60) > 24;
         return isUrgent;
       } else if (filterBy === "normal") {
-        const isUrgent = form.createdDate && 
+        const isUrgent =
+          form.createdDate &&
           (new Date() - new Date(form.createdDate)) / (1000 * 60 * 60) > 24;
         return !isUrgent;
       }
@@ -63,8 +65,12 @@ const PendingTab = ({
     .sort((a, b) => {
       switch (sortBy) {
         case "priority":
-          const aUrgent = a.createdDate && (new Date() - new Date(a.createdDate)) / (1000 * 60 * 60) > 24;
-          const bUrgent = b.createdDate && (new Date() - new Date(b.createdDate)) / (1000 * 60 * 60) > 24;
+          const aUrgent =
+            a.createdDate &&
+            (new Date() - new Date(a.createdDate)) / (1000 * 60 * 60) > 24;
+          const bUrgent =
+            b.createdDate &&
+            (new Date() - new Date(b.createdDate)) / (1000 * 60 * 60) > 24;
           if (aUrgent && !bUrgent) return -1;
           if (!aUrgent && bUrgent) return 1;
           return new Date(b.createdDate) - new Date(a.createdDate);
@@ -75,13 +81,14 @@ const PendingTab = ({
       }
     });
 
-  const urgentCount = pendingForms.filter(form => {
+  const urgentCount = pendingForms.filter((form) => {
     if (!form.createdDate) return false;
     return (new Date() - new Date(form.createdDate)) / (1000 * 60 * 60) > 24;
   }).length;
 
   const renderFormCard = (form) => {
-    const isUrgent = form.createdDate && 
+    const isUrgent =
+      form.createdDate &&
       (new Date() - new Date(form.createdDate)) / (1000 * 60 * 60) > 24;
 
     return (
@@ -224,7 +231,9 @@ const PendingTab = ({
         {/* Description */}
         {form.description && (
           <div className="mb-4">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-2">Mô tả:</h4>
+            <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+              Mô tả:
+            </h4>
             <p className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-3 rounded">
               {form.description}
             </p>
@@ -297,7 +306,9 @@ const PendingTab = ({
               disabled={loading}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors flex items-center gap-2"
             >
-              <FiRefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+              <FiRefreshCw
+                className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+              />
               Làm mới
             </button>
           </div>
@@ -332,13 +343,14 @@ const PendingTab = ({
         <div className="text-center py-12">
           <FiClock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            {searchTerm ? "Không tìm thấy phiếu nào" : "Chưa có phiếu chờ duyệt"}
+            {searchTerm
+              ? "Không tìm thấy phiếu nào"
+              : "Chưa có phiếu chờ duyệt"}
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            {searchTerm 
+            {searchTerm
               ? "Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc"
-              : "Các phiếu tiêm chủng mới sẽ hiển thị ở đây"
-            }
+              : "Các phiếu tiêm chủng mới sẽ hiển thị ở đây"}
           </p>
         </div>
       )}
@@ -346,4 +358,4 @@ const PendingTab = ({
   );
 };
 
-export default PendingTab; 
+export default PendingTab;

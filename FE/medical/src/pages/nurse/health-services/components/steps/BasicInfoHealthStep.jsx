@@ -66,8 +66,8 @@ const BasicInfoHealthStep = ({
                 onChange={(e) => onInputChange("scheduledDate", e.target.value)}
                 min={(() => {
                   const minDate = new Date();
-                  minDate.setDate(minDate.getDate() + 3); // 3 days from today
-                  return minDate.toISOString().split('T')[0];
+                  minDate.setDate(minDate.getDate() + 7); // 1 week from today
+                  return minDate.toISOString().split("T")[0];
                 })()}
                 className={`w-full px-3 py-2 border rounded-lg shadow-sm bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                   validationErrors.scheduledDate

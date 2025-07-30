@@ -1,9 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using API.DTOs;
 using AutoMapper;
 using DB;
-using API.DTOs;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text.Json;
 
 namespace API.MappingProfiles;
 
@@ -13,17 +13,36 @@ public class RequestResultProfile : Profile
     {
         // Map from RequestResult to RequestResultDto.ViewModel
         CreateMap<RequestResult, RequestResultDto.ViewModel>()
-            .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src =>
-                src.Request != null && src.Request.MedicineRequestItems != null && src.Request.MedicineRequestItems.Any()
-                    ? string.Join(",", src.Request.MedicineRequestItems.Select(i => i.Frequency))
-                    : null))
-            .ForMember(dest => dest.AdministeredFrequencies, opt => opt.MapFrom(src =>
-                DeserializeStringList(src.AdministeredFrequencies)))
-            .ForMember(dest => dest.FailedFrequencies, opt => opt.MapFrom(src =>
-                DeserializeStringList(src.FailedFrequencies)))
-            .ForMember(dest => dest.FailureReasons, opt => opt.MapFrom(src =>
-                DeserializeStringDict(src.FailureReasons)))
-            .ForMember(dest => dest.AdministeredByStaff, opt => opt.MapFrom(src => src.AdministeredByStaff))
+            .ForMember(
+                dest => dest.Frequency,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Request != null
+                        && src.Request.MedicineRequestItems != null
+                        && src.Request.MedicineRequestItems.Any()
+                            ? string.Join(
+                                ",",
+                                src.Request.MedicineRequestItems.Select(i => i.Frequency)
+                            )
+                            : null
+                    )
+            )
+            .ForMember(
+                dest => dest.AdministeredFrequencies,
+                opt => opt.MapFrom(src => DeserializeStringList(src.AdministeredFrequencies))
+            )
+            .ForMember(
+                dest => dest.FailedFrequencies,
+                opt => opt.MapFrom(src => DeserializeStringList(src.FailedFrequencies))
+            )
+            .ForMember(
+                dest => dest.FailureReasons,
+                opt => opt.MapFrom(src => DeserializeStringDict(src.FailureReasons))
+            )
+            .ForMember(
+                dest => dest.AdministeredByStaff,
+                opt => opt.MapFrom(src => src.AdministeredByStaff)
+            )
             .ForMember(dest => dest.ActionByStaff, opt => opt.MapFrom(src => src.ActionByStaff));
 
         // Map from RequestResultDto.Create to RequestResult
@@ -49,7 +68,10 @@ public class RequestResultProfile : Profile
             {
                 if (element.ValueKind == System.Text.Json.JsonValueKind.String)
                     result.Add(element.GetString()!);
-                else if (element.ValueKind == System.Text.Json.JsonValueKind.Object && element.TryGetProperty("freq", out var freqProp))
+                else if (
+                    element.ValueKind == System.Text.Json.JsonValueKind.Object
+                    && element.TryGetProperty("freq", out var freqProp)
+                )
                     result.Add(freqProp.GetString() ?? "");
             }
             return result;
@@ -64,6 +86,9 @@ public class RequestResultProfile : Profile
     {
         return string.IsNullOrEmpty(json)
             ? new Dictionary<string, string>()
-            : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(json, new System.Text.Json.JsonSerializerOptions());
+            : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(
+                json,
+                new System.Text.Json.JsonSerializerOptions()
+            );
     }
-} 
+}

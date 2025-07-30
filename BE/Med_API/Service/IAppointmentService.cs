@@ -12,4 +12,4 @@ public interface IAppointmentService
     Task<Appointment> CreateAsync(Appointment appointment);
     Task<Appointment> UpdateAsync(int id, Appointment appointment);
     Task DeleteAsync(int id);
-} 
+}

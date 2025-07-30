@@ -41,4 +41,4 @@ public static class HealthEventMedicalSupplyDto
         [StringLength(50)]
         public string? Time { get; set; }
     }
-} 
+}

@@ -1,6 +1,6 @@
+using API.DTOs;
 using AutoMapper;
 using DB;
-using API.DTOs;
 
 namespace API.MappingProfiles;
 
@@ -10,12 +10,31 @@ public class NotificationProfile : Profile
     {
         // Map from Notification to NotificationDto.ViewModel
         CreateMap<Notification, NotificationDto.ViewModel>()
-            .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src => 
-                src.Student != null ? $"{src.Student.FirstName} {src.Student.LastName}" : null))
-            .ForMember(dest => dest.StaffName, opt => opt.MapFrom(src => 
-                src.Staff != null ? $"{src.Staff.FirstName} {src.Staff.LastName}" : null))
-            .ForMember(dest => dest.ClassName, opt => opt.MapFrom(src => 
-                src.Student != null && src.Student.Class != null ? src.Student.Class.ClassName : null));
+            .ForMember(
+                dest => dest.StudentName,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Student != null
+                            ? $"{src.Student.FirstName} {src.Student.LastName}"
+                            : null
+                    )
+            )
+            .ForMember(
+                dest => dest.StaffName,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Staff != null ? $"{src.Staff.FirstName} {src.Staff.LastName}" : null
+                    )
+            )
+            .ForMember(
+                dest => dest.ClassName,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Student != null && src.Student.Class != null
+                            ? src.Student.Class.ClassName
+                            : null
+                    )
+            );
 
         // Map from NotificationDto.Create to Notification
         CreateMap<NotificationDto.Create, Notification>()
@@ -33,4 +52,4 @@ public class NotificationProfile : Profile
         CreateMap<NotificationDto.Update, Notification>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
     }
-} 
+}

@@ -13,8 +13,10 @@ public class HealthCheckFormDTO
     public DateTime? ScheduledDate { get; set; }
     public string? StartTime { get; set; } // Accepts "HH:mm:ss" format from frontend
     public int? EstimatedDuration { get; set; } // in minutes
+
     [StringLength(500)]
     public string? Description { get; set; }
+
     [StringLength(200)]
     public string? Location { get; set; }
 
@@ -27,6 +29,7 @@ public class HealthCheckFormDTO
     [StringLength(20)]
     public string? ConsentStatus { get; set; }
     public DateTime? ConsentDate { get; set; }
+
     [StringLength(20)]
     public string? ConfirmStatus { get; set; }
     public int? ConfirmedBy { get; set; }
@@ -60,4 +63,4 @@ public class HealthCheckFormDTO
     public ICollection<HealthCheckResultDTO>? Results { get; set; }
 
     public List<string>? Grades { get; set; } // Mảng lớp cho FE
-} 
+}

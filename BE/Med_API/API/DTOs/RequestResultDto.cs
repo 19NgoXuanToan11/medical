@@ -12,14 +12,14 @@ public static class RequestResultDto
         public DateTime? AdministeredTime { get; set; }
         public string Status { get; set; } = null!;
         public DateTime SubmittedAt { get; set; }
-        
+
         // New frequency fields
         public string? Frequency { get; set; }
         public int? TimesPerDay { get; set; }
         public int? CurrentDayCount { get; set; }
         public DateOnly? CurrentDate { get; set; }
         public List<string>? AdministeredFrequencies { get; set; }
-        
+
         // New failure handling fields
         public List<string>? FailedFrequencies { get; set; }
         public Dictionary<string, string>? FailureReasons { get; set; }
@@ -28,15 +28,18 @@ public static class RequestResultDto
         public DateTime? LastAttemptTime { get; set; }
         public int? FailedAttempts { get; set; }
         public string? ReRequestReason { get; set; }
-        
+
         // Navigation properties
         public MedicineRequestDto.ViewModel? Request { get; set; }
         public StaffDto.ViewModel? AdministeredByStaff { get; set; }
         public StaffDto.ViewModel? ActionByStaff { get; set; }
+
         [JsonIgnore]
         public RequestResultDto.ViewModel? OriginalRequestResult { get; set; }
+
         [JsonIgnore]
-        public ICollection<RequestResultDto.ViewModel> ReRequests { get; set; } = new List<RequestResultDto.ViewModel>();
+        public ICollection<RequestResultDto.ViewModel> ReRequests { get; set; } =
+            new List<RequestResultDto.ViewModel>();
     }
 
     public class Create
@@ -49,14 +52,14 @@ public static class RequestResultDto
         [Required]
         [StringLength(20)]
         public string Status { get; set; } = null!;
-        
+
         // New frequency fields
         public string? Frequency { get; set; }
         public int? TimesPerDay { get; set; }
         public int? CurrentDayCount { get; set; }
         public DateOnly? CurrentDate { get; set; }
         public string? AdministeredFrequencies { get; set; }
-        
+
         // New failure handling fields
         public string? FailedFrequencies { get; set; }
         public string? FailureReasons { get; set; }
@@ -73,14 +76,14 @@ public static class RequestResultDto
 
         [StringLength(20)]
         public string? Status { get; set; }
-        
+
         // New frequency fields
         public string? Frequency { get; set; }
         public int? TimesPerDay { get; set; }
         public int? CurrentDayCount { get; set; }
         public DateOnly? CurrentDate { get; set; }
         public string? AdministeredFrequencies { get; set; }
-        
+
         // New failure handling fields
         public string? FailedFrequencies { get; set; }
         public string? FailureReasons { get; set; }
@@ -133,4 +136,4 @@ public static class RequestResultDto
         public string Status { get; set; } = null!;
         public string? Reason { get; set; }
     }
-} 
+}

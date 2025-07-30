@@ -12,7 +12,8 @@ public class StudentParentService : IStudentParentService
     public StudentParentService(
         IStudentParentRepository studentParentRepository,
         IStudentRepository studentRepository,
-        IParentRepository parentRepository)
+        IParentRepository parentRepository
+    )
     {
         _studentParentRepository = studentParentRepository;
         _studentRepository = studentRepository;
@@ -60,7 +61,9 @@ public class StudentParentService : IStudentParentService
         return await _studentParentRepository.DeleteStudentParentAsync(id);
     }
 
-    public async Task<IEnumerable<StudentParent>> GetStudentParentsByStudentCodeAsync(string studentCode)
+    public async Task<IEnumerable<StudentParent>> GetStudentParentsByStudentCodeAsync(
+        string studentCode
+    )
     {
         return await _studentParentRepository.GetStudentParentsByStudentCodeAsync(studentCode);
     }
@@ -69,4 +72,4 @@ public class StudentParentService : IStudentParentService
     {
         return await _studentParentRepository.GetStudentParentsByParentIdAsync(parentId);
     }
-} 
+}

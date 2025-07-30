@@ -98,7 +98,12 @@ const LoadingState = () => (
   </div>
 );
 
-const UpcomingRequestsList = ({ upcomingRequests, onViewDetail, onCompleteHealthCheck, error }) => {
+const UpcomingRequestsList = ({
+  upcomingRequests,
+  onViewDetail,
+  onCompleteHealthCheck,
+  error,
+}) => {
   const sortedRequests = upcomingRequests.sort((a, b) => {
     // Status order: active first, then Approved, then scheduled
     const statusOrder = { active: 1, Approved: 2, scheduled: 3 };

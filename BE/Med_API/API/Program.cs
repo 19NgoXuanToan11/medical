@@ -1,22 +1,23 @@
+using System.Text.Json.Serialization;
 using API.MappingProfiles;
 using API.Swagger;
 using AutoMapper;
 using DB;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Repo;
 using Service;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Http;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers()
+builder
+    .Services.AddControllers()
     .AddJsonOptions(options =>
     {
         // Handle enum values as strings
@@ -24,7 +25,12 @@ builder.Services.AddControllers()
         // Handle DateOnly serialization
         options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
         // Do not escape non-ASCII characters (show Vietnamese, etc. as-is)
-        options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+        options.JsonSerializerOptions.Encoder = System
+            .Text
+            .Encodings
+            .Web
+            .JavaScriptEncoder
+            .UnsafeRelaxedJsonEscaping;
         // Handle reference cycles by ignoring them
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
@@ -32,21 +38,24 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 
 // Add JWT Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-                System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-            ClockSkew = TimeSpan.Zero // Reduce clock skew tolerance
-        };
+        options.TokenValidationParameters =
+            new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                    System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+                ),
+                ClockSkew = TimeSpan.Zero, // Reduce clock skew tolerance
+            };
 
         // Add event handlers for debugging
         options.Events = new JwtBearerEvents
@@ -62,27 +71,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             OnChallenge = context =>
             {
                 return Task.CompletedTask;
-            }
+            },
         };
     });
 
 builder.Services.AddAuthorization();
 
-
 // Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo 
-    { 
-        Title = "Medical API", 
-        Version = "v1",
-        Description = "API for Medical Management System",
-        Contact = new OpenApiContact
+    c.SwaggerDoc(
+        "v1",
+        new OpenApiInfo
         {
-            Name = "Medical API Support",
-            Email = "support@medicalapi.com"
+            Title = "Medical API",
+            Version = "v1",
+            Description = "API for Medical Management System",
+            Contact = new OpenApiContact
+            {
+                Name = "Medical API Support",
+                Email = "support@medicalapi.com",
+            },
         }
-    });
+    );
 
     // Use full type names to avoid conflicts
     c.CustomSchemaIds(type => type.FullName?.Replace("+", "_"));
@@ -96,36 +107,51 @@ builder.Services.AddSwaggerGen(c =>
     }
 
     // Add JWT Authentication to Swagger
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+    c.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
+            Description =
+                "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer",
         }
-    });
+    );
+
+    c.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer",
+                    },
+                },
+                Array.Empty<string>()
+            },
+        }
+    );
 
     // Add support for DateOnly type
     c.SchemaFilter<DateOnlySchemaFilter>();
 });
 
 // Add AutoMapper
-builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(StaffProfile).Assembly, typeof(ExcelImportProfile).Assembly, typeof(StudentParentProfile).Assembly, typeof(BlogProfile).Assembly, typeof(ClassProfile).Assembly, typeof(HealthCheckItemProfile).Assembly, typeof(NotificationProfile).Assembly);
+builder.Services.AddAutoMapper(
+    typeof(Program).Assembly,
+    typeof(StaffProfile).Assembly,
+    typeof(ExcelImportProfile).Assembly,
+    typeof(StudentParentProfile).Assembly,
+    typeof(BlogProfile).Assembly,
+    typeof(ClassProfile).Assembly,
+    typeof(HealthCheckItemProfile).Assembly,
+    typeof(NotificationProfile).Assembly
+);
 
 // Add DbContext with all entities
 builder.Services.AddDbContext<MedicalContext>(options =>
@@ -192,14 +218,17 @@ builder.Services.AddHostedService<TimeBasedStatusService>();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder
-            .SetIsOriginAllowed(_ => true) // Cho phép mọi origin
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .WithExposedHeaders("Content-Disposition", "Content-Length", "Content-Type");
-    });
+    options.AddPolicy(
+        "AllowAll",
+        builder =>
+        {
+            builder
+                .SetIsOriginAllowed(_ => true) // Cho phép mọi origin
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .WithExposedHeaders("Content-Disposition", "Content-Length", "Content-Type");
+        }
+    );
 });
 
 var app = builder.Build();
@@ -227,11 +256,15 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 // Increase the maximum request body size for file uploads
-app.Use(async (context, next) =>
-{
-    context.Features.Get<Microsoft.AspNetCore.Http.Features.IHttpMaxRequestBodySizeFeature>()!.MaxRequestBodySize = 30 * 1024 * 1024; // 30MB
-    await next();
-});
+app.Use(
+    async (context, next) =>
+    {
+        context
+            .Features.Get<Microsoft.AspNetCore.Http.Features.IHttpMaxRequestBodySizeFeature>()!
+            .MaxRequestBodySize = 30 * 1024 * 1024; // 30MB
+        await next();
+    }
+);
 
 // Add Authentication & Authorization middleware
 app.UseAuthentication();

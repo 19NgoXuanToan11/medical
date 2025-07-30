@@ -14,8 +14,8 @@ public class HealthCheckFormRepository : IHealthCheckFormRepository
 
     public async Task<IEnumerable<HealthCheckForm>> GetAllHealthCheckFormsAsync()
     {
-        return await _context.HealthCheckForms
-            .Include(f => f.Student)
+        return await _context
+            .HealthCheckForms.Include(f => f.Student)
             .Include(f => f.Parent)
             .Include(f => f.ConfirmedByStaff)
             .ToListAsync();
@@ -23,8 +23,8 @@ public class HealthCheckFormRepository : IHealthCheckFormRepository
 
     public async Task<HealthCheckForm?> GetHealthCheckFormByIdAsync(int id)
     {
-        return await _context.HealthCheckForms
-            .Include(f => f.Student)
+        return await _context
+            .HealthCheckForms.Include(f => f.Student)
             .Include(f => f.Parent)
             .Include(f => f.ConfirmedByStaff)
             .FirstOrDefaultAsync(f => f.FormId == id);
@@ -48,11 +48,11 @@ public class HealthCheckFormRepository : IHealthCheckFormRepository
             }
 
             _context.Entry(existingForm).CurrentValues.SetValues(healthCheckForm);
-            
+
             await _context.SaveChangesAsync();
             return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }
@@ -70,10 +70,12 @@ public class HealthCheckFormRepository : IHealthCheckFormRepository
         return true;
     }
 
-    public async Task<IEnumerable<HealthCheckForm>> GetHealthCheckFormsByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<HealthCheckForm>> GetHealthCheckFormsByStudentIdAsync(
+        int studentId
+    )
     {
-        return await _context.HealthCheckForms
-            .Include(f => f.Student)
+        return await _context
+            .HealthCheckForms.Include(f => f.Student)
             .Include(f => f.Parent)
             .Include(f => f.ConfirmedByStaff)
             .Where(f => f.StudentId == studentId)
@@ -83,8 +85,8 @@ public class HealthCheckFormRepository : IHealthCheckFormRepository
 
     public async Task<IEnumerable<HealthCheckForm>> GetHealthCheckFormsByParentIdAsync(int parentId)
     {
-        return await _context.HealthCheckForms
-            .Include(f => f.Student)
+        return await _context
+            .HealthCheckForms.Include(f => f.Student)
             .Include(f => f.Parent)
             .Include(f => f.ConfirmedByStaff)
             .Where(f => f.ParentId == parentId)
@@ -94,12 +96,12 @@ public class HealthCheckFormRepository : IHealthCheckFormRepository
 
     public async Task<IEnumerable<HealthCheckForm>> GetHealthCheckFormsByStatusAsync(string status)
     {
-        return await _context.HealthCheckForms
-            .Include(f => f.Student)
+        return await _context
+            .HealthCheckForms.Include(f => f.Student)
             .Include(f => f.Parent)
             .Include(f => f.ConfirmedByStaff)
             .Where(f => f.ConsentStatus == status)
             .OrderByDescending(f => f.CreatedDate)
             .ToListAsync();
     }
-} 
+}

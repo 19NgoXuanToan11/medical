@@ -8,7 +8,10 @@ public class RequestResultService : IRequestResultService
     private readonly IRequestResultRepository _requestResultRepository;
     private readonly IMedicineRequestRepository _medicineRequestRepository;
 
-    public RequestResultService(IRequestResultRepository requestResultRepository, IMedicineRequestRepository medicineRequestRepository)
+    public RequestResultService(
+        IRequestResultRepository requestResultRepository,
+        IMedicineRequestRepository medicineRequestRepository
+    )
     {
         _requestResultRepository = requestResultRepository;
         _medicineRequestRepository = medicineRequestRepository;
@@ -33,7 +36,9 @@ public class RequestResultService : IRequestResultService
         }
 
         // Validate that the associated request exists
-        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(requestResult.RequestId.Value);
+        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(
+            requestResult.RequestId.Value
+        );
         if (request == null)
         {
             throw new InvalidOperationException("Associated medicine request not found");
@@ -54,7 +59,9 @@ public class RequestResultService : IRequestResultService
     public async Task<bool> UpdateRequestResultAsync(RequestResult requestResult)
     {
         // Validate that the result exists
-        var existingResult = await _requestResultRepository.GetRequestResultByIdAsync(requestResult.ResultId);
+        var existingResult = await _requestResultRepository.GetRequestResultByIdAsync(
+            requestResult.ResultId
+        );
         if (existingResult == null)
         {
             return false;
@@ -67,7 +74,9 @@ public class RequestResultService : IRequestResultService
         }
 
         // Validate that the associated request exists
-        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(requestResult.RequestId.Value);
+        var request = await _medicineRequestRepository.GetMedicineRequestByIdAsync(
+            requestResult.RequestId.Value
+        );
         if (request == null)
         {
             throw new InvalidOperationException("Associated medicine request not found");
@@ -111,4 +120,4 @@ public class RequestResultService : IRequestResultService
     {
         return status == "Approved" || status == "Rejected" || status == "Pending";
     }
-} 
+}

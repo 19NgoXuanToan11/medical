@@ -35,4 +35,4 @@ public static class StudentParentDto
         public string? StudentName { get; set; }
         public string? ParentName { get; set; }
     }
-} 
+}

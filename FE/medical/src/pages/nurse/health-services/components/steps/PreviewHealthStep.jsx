@@ -104,7 +104,9 @@ const PreviewHealthStep = ({
                 Ngày thực hiện
               </h4>
               <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                {formData.scheduledDate ? formatDate(formData.scheduledDate) : "Chưa chọn"}
+                {formData.scheduledDate
+                  ? formatDate(formData.scheduledDate)
+                  : "Chưa chọn"}
               </p>
             </div>
             <div>

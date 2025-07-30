@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DB;
 using AutoMapper;
+using DB;
 using Repo;
 
 namespace Service;
@@ -10,6 +10,7 @@ public class BlogService : IBlogService
 {
     private readonly IBlogRepository _repo;
     private readonly IMapper _mapper;
+
     public BlogService(IBlogRepository repo, IMapper mapper)
     {
         _repo = repo;
@@ -37,7 +38,8 @@ public class BlogService : IBlogService
     public async Task<Blog?> UpdateAsync(int id, Blog blog)
     {
         var existing = await _repo.GetByIdAsync(id);
-        if (existing == null) return null;
+        if (existing == null)
+            return null;
         _mapper.Map(blog, existing);
         await _repo.UpdateAsync(existing);
         return existing;
@@ -46,7 +48,8 @@ public class BlogService : IBlogService
     public async Task<bool> DeleteAsync(int id)
     {
         var existing = await _repo.GetByIdAsync(id);
-        if (existing == null) return false;
+        if (existing == null)
+            return false;
         await _repo.DeleteAsync(id);
         return true;
     }
@@ -56,4 +59,4 @@ public class BlogService : IBlogService
         var blogs = await _repo.SearchAsync(query);
         return blogs;
     }
-} 
+}

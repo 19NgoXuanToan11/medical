@@ -1,8 +1,8 @@
 using API.DTOs;
 using AutoMapper;
+using DB;
 using Microsoft.AspNetCore.Mvc;
 using Service;
-using DB;
 
 namespace API.Controllers;
 
@@ -38,7 +38,9 @@ public class HealthProfileController : ControllerBase
     }
 
     [HttpGet("student/{studentCode}")]
-    public async Task<ActionResult<HealthProfileDto.ViewModel>> GetHealthProfileByStudentCode(string studentCode)
+    public async Task<ActionResult<HealthProfileDto.ViewModel>> GetHealthProfileByStudentCode(
+        string studentCode
+    )
     {
         var profile = await _healthProfileService.GetHealthProfileByStudentCodeAsync(studentCode);
         if (profile == null)
@@ -50,7 +52,9 @@ public class HealthProfileController : ControllerBase
 
     [HttpGet("my-assigned-students")]
     [Microsoft.AspNetCore.Authorization.Authorize]
-    public async Task<ActionResult<IEnumerable<HealthProfileDto.ViewModel>>> GetMyAssignedStudentsHealthProfiles([FromServices] IStaffService staffService)
+    public async Task<
+        ActionResult<IEnumerable<HealthProfileDto.ViewModel>>
+    > GetMyAssignedStudentsHealthProfiles([FromServices] IStaffService staffService)
     {
         // Lấy staffId từ JWT
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -72,39 +76,48 @@ public class HealthProfileController : ControllerBase
             return Ok(new List<HealthProfileDto.ViewModel>()); // Không có khối nào
         }
         // Lấy hồ sơ sức khỏe theo khối
-        var profiles = await _healthProfileService.GetHealthProfilesByGradeListAsync(assignedGrades);
+        var profiles = await _healthProfileService.GetHealthProfilesByGradeListAsync(
+            assignedGrades
+        );
         return Ok(_mapper.Map<IEnumerable<HealthProfileDto.ViewModel>>(profiles));
     }
 
     // DEBUG endpoint to check nurse grade assignments
     [HttpGet("debug/nurse-grades/{staffId}")]
-    public async Task<ActionResult> GetNurseGradeAssignments(int staffId, [FromServices] IStaffService staffService)
+    public async Task<ActionResult> GetNurseGradeAssignments(
+        int staffId,
+        [FromServices] IStaffService staffService
+    )
     {
         try
         {
             var staff = await staffService.GetStaffByIdAsync(staffId);
             var gradeNurses = await staffService.GetGradeNursesByStaffIdAsync(staffId);
             var assignedGrades = gradeNurses.Select(gn => gn.Grade).ToList();
-            
+
             var allProfiles = await _healthProfileService.GetAllHealthProfilesAsync();
             var profilesByGrade = assignedGrades.ToDictionary(
                 grade => grade,
                 grade => allProfiles.Where(p => p.Student?.Class?.GradeLevel == grade).Count()
             );
 
-            return Ok(new {
-                StaffId = staffId,
-                StaffName = staff != null ? $"{staff.FirstName} {staff.LastName}" : "Not found",
-                Role = staff?.Role?.RoleName,
-                AssignedGrades = assignedGrades,
-                GradeNurseAssignments = gradeNurses.Select(gn => new {
-                    GradeNurseId = gn.GradeNurseId,
-                    Grade = gn.Grade,
-                    StaffId = gn.StaffId
-                }),
-                ProfileCountByGrade = profilesByGrade,
-                TotalProfiles = profilesByGrade.Values.Sum()
-            });
+            return Ok(
+                new
+                {
+                    StaffId = staffId,
+                    StaffName = staff != null ? $"{staff.FirstName} {staff.LastName}" : "Not found",
+                    Role = staff?.Role?.RoleName,
+                    AssignedGrades = assignedGrades,
+                    GradeNurseAssignments = gradeNurses.Select(gn => new
+                    {
+                        GradeNurseId = gn.GradeNurseId,
+                        Grade = gn.Grade,
+                        StaffId = gn.StaffId,
+                    }),
+                    ProfileCountByGrade = profilesByGrade,
+                    TotalProfiles = profilesByGrade.Values.Sum(),
+                }
+            );
         }
         catch (Exception ex)
         {
@@ -113,7 +126,9 @@ public class HealthProfileController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<HealthProfileDto.ViewModel>> CreateHealthProfile(HealthProfileDto.Create createDto)
+    public async Task<ActionResult<HealthProfileDto.ViewModel>> CreateHealthProfile(
+        HealthProfileDto.Create createDto
+    )
     {
         if (!ModelState.IsValid)
         {
@@ -122,11 +137,14 @@ public class HealthProfileController : ControllerBase
         try
         {
             var healthProfile = _mapper.Map<HealthProfile>(createDto);
-            var createdProfile = await _healthProfileService.CreateHealthProfileAsync(healthProfile);
+            var createdProfile = await _healthProfileService.CreateHealthProfileAsync(
+                healthProfile
+            );
             return CreatedAtAction(
                 nameof(GetHealthProfileById),
                 new { id = createdProfile.HealthProfileId },
-                _mapper.Map<HealthProfileDto.ViewModel>(createdProfile));
+                _mapper.Map<HealthProfileDto.ViewModel>(createdProfile)
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -173,4 +191,4 @@ public class HealthProfileController : ControllerBase
         }
         return NoContent();
     }
-} 
+}

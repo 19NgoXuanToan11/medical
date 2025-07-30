@@ -14,78 +14,78 @@ public class AppointmentRepository : IAppointmentRepository
 
     public async Task<IEnumerable<Appointment>> GetAllAsync()
     {
-        return await _context.Appointments
-            .Include(a => a.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .Appointments.Include(a => a.Student)
+            .ThenInclude(s => s.Class)
             .Include(a => a.Parent)
-                .ThenInclude(p => p.Students)
-                    .ThenInclude(s => s.Class)
+            .ThenInclude(p => p.Students)
+            .ThenInclude(s => s.Class)
             .Include(a => a.Parent)
-                .ThenInclude(p => p.StudentParents)
+            .ThenInclude(p => p.StudentParents)
             .Include(a => a.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .ToListAsync();
     }
 
     public async Task<Appointment?> GetByIdAsync(int id)
     {
-        return await _context.Appointments
-            .Include(a => a.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .Appointments.Include(a => a.Student)
+            .ThenInclude(s => s.Class)
             .Include(a => a.Parent)
-                .ThenInclude(p => p.Students)
-                    .ThenInclude(s => s.Class)
+            .ThenInclude(p => p.Students)
+            .ThenInclude(s => s.Class)
             .Include(a => a.Parent)
-                .ThenInclude(p => p.StudentParents)
+            .ThenInclude(p => p.StudentParents)
             .Include(a => a.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .FirstOrDefaultAsync(a => a.AppointmentId == id);
     }
 
     public async Task<IEnumerable<Appointment>> GetByStudentIdAsync(int studentId)
     {
-        return await _context.Appointments
-            .Include(a => a.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .Appointments.Include(a => a.Student)
+            .ThenInclude(s => s.Class)
             .Include(a => a.Parent)
-                .ThenInclude(p => p.Students)
-                    .ThenInclude(s => s.Class)
+            .ThenInclude(p => p.Students)
+            .ThenInclude(s => s.Class)
             .Include(a => a.Parent)
-                .ThenInclude(p => p.StudentParents)
+            .ThenInclude(p => p.StudentParents)
             .Include(a => a.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .Where(a => a.StudentId == studentId)
             .ToListAsync();
     }
 
     public async Task<IEnumerable<Appointment>> GetByParentIdAsync(int parentId)
     {
-        return await _context.Appointments
-            .Include(a => a.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .Appointments.Include(a => a.Student)
+            .ThenInclude(s => s.Class)
             .Include(a => a.Parent)
-                .ThenInclude(p => p.Students)
-                    .ThenInclude(s => s.Class)
+            .ThenInclude(p => p.Students)
+            .ThenInclude(s => s.Class)
             .Include(a => a.Parent)
-                .ThenInclude(p => p.StudentParents)
+            .ThenInclude(p => p.StudentParents)
             .Include(a => a.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .Where(a => a.ParentId == parentId)
             .ToListAsync();
     }
 
     public async Task<IEnumerable<Appointment>> GetByStaffIdAsync(int staffId)
     {
-        return await _context.Appointments
-            .Include(a => a.Student)
-                .ThenInclude(s => s.Class)
+        return await _context
+            .Appointments.Include(a => a.Student)
+            .ThenInclude(s => s.Class)
             .Include(a => a.Parent)
-                .ThenInclude(p => p.Students)
-                    .ThenInclude(s => s.Class)
+            .ThenInclude(p => p.Students)
+            .ThenInclude(s => s.Class)
             .Include(a => a.Parent)
-                .ThenInclude(p => p.StudentParents)
+            .ThenInclude(p => p.StudentParents)
             .Include(a => a.Staff)
-                .ThenInclude(s => s.Role)
+            .ThenInclude(s => s.Role)
             .Where(a => a.StaffId == staffId)
             .ToListAsync();
     }
@@ -118,4 +118,4 @@ public class AppointmentRepository : IAppointmentRepository
     {
         return await _context.Appointments.AnyAsync(a => a.AppointmentId == id);
     }
-} 
+}

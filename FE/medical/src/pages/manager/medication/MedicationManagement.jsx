@@ -51,7 +51,7 @@ const MedicationManagement = () => {
           Xem xét và phê duyệt các yêu cầu cấp thuốc từ phụ huynh
         </p>
       </div>
-      
+
       {/* Navigation Tabs */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 mb-6 transition-colors duration-300">
         <div className="p-6">

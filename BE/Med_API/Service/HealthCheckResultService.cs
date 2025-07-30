@@ -1,8 +1,8 @@
-using DB;
-using Repo;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DB;
+using Repo;
 
 namespace Service;
 
@@ -17,7 +17,8 @@ public class HealthCheckResultService : IHealthCheckResultService
         IHealthCheckResultRepository healthCheckResultRepository,
         IHealthCheckFormRepository healthCheckFormRepository,
         IStudentRepository studentRepository,
-        IHealthProfileService healthProfileService)
+        IHealthProfileService healthProfileService
+    )
     {
         _healthCheckResultRepository = healthCheckResultRepository;
         _healthCheckFormRepository = healthCheckFormRepository;
@@ -35,7 +36,9 @@ public class HealthCheckResultService : IHealthCheckResultService
         return await _healthCheckResultRepository.GetHealthCheckResultByIdAsync(id);
     }
 
-    public async Task<HealthCheckResult?> CreateHealthCheckResultAsync(HealthCheckResult healthCheckResult)
+    public async Task<HealthCheckResult?> CreateHealthCheckResultAsync(
+        HealthCheckResult healthCheckResult
+    )
     {
         // Validate FormId
         if (!healthCheckResult.FormId.HasValue)
@@ -43,7 +46,9 @@ public class HealthCheckResultService : IHealthCheckResultService
             throw new InvalidOperationException("FormId is required");
         }
 
-        var form = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(healthCheckResult.FormId.Value);
+        var form = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(
+            healthCheckResult.FormId.Value
+        );
         if (form == null)
         {
             throw new InvalidOperationException("Health check form not found");
@@ -55,7 +60,9 @@ public class HealthCheckResultService : IHealthCheckResultService
             throw new InvalidOperationException("StudentId is required");
         }
 
-        var student = await _studentRepository.GetStudentByIdAsync(healthCheckResult.StudentId.Value);
+        var student = await _studentRepository.GetStudentByIdAsync(
+            healthCheckResult.StudentId.Value
+        );
         if (student == null)
         {
             throw new InvalidOperationException("Student not found");
@@ -68,17 +75,26 @@ public class HealthCheckResultService : IHealthCheckResultService
         }
 
         // Validate measurements
-        if (healthCheckResult.Height.HasValue && (healthCheckResult.Height < 0 || healthCheckResult.Height > 300))
+        if (
+            healthCheckResult.Height.HasValue
+            && (healthCheckResult.Height < 0 || healthCheckResult.Height > 300)
+        )
         {
             throw new InvalidOperationException("Invalid height value");
         }
 
-        if (healthCheckResult.Weight.HasValue && (healthCheckResult.Weight < 0 || healthCheckResult.Weight > 500))
+        if (
+            healthCheckResult.Weight.HasValue
+            && (healthCheckResult.Weight < 0 || healthCheckResult.Weight > 500)
+        )
         {
             throw new InvalidOperationException("Invalid weight value");
         }
 
-        if (healthCheckResult.HeartRate.HasValue && (healthCheckResult.HeartRate < 0 || healthCheckResult.HeartRate > 250))
+        if (
+            healthCheckResult.HeartRate.HasValue
+            && (healthCheckResult.HeartRate < 0 || healthCheckResult.HeartRate > 250)
+        )
         {
             throw new InvalidOperationException("Invalid heart rate value");
         }
@@ -86,12 +102,16 @@ public class HealthCheckResultService : IHealthCheckResultService
         // Set default values
         healthCheckResult.ExaminedDate = DateTime.UtcNow;
 
-        var createdResult = await _healthCheckResultRepository.CreateHealthCheckResultAsync(healthCheckResult);
+        var createdResult = await _healthCheckResultRepository.CreateHealthCheckResultAsync(
+            healthCheckResult
+        );
 
         // Update HealthProfile
         if (createdResult != null && student != null)
         {
-            var healthProfile = await _healthProfileService.GetHealthProfileByStudentCodeAsync(student.StudentCode);
+            var healthProfile = await _healthProfileService.GetHealthProfileByStudentCodeAsync(
+                student.StudentCode
+            );
 
             if (healthProfile == null)
             {
@@ -102,7 +122,7 @@ public class HealthCheckResultService : IHealthCheckResultService
                     Weight = createdResult.Weight,
                     BloodPressure = createdResult.BloodPressure,
                     HeartRate = createdResult.HeartRate,
-                    LastUpdated = DateTime.UtcNow
+                    LastUpdated = DateTime.UtcNow,
                 };
                 await _healthProfileService.CreateHealthProfileAsync(healthProfile);
             }
@@ -123,7 +143,9 @@ public class HealthCheckResultService : IHealthCheckResultService
     public async Task<bool> UpdateHealthCheckResultAsync(HealthCheckResult healthCheckResult)
     {
         // Validate that the result exists
-        var existingResult = await _healthCheckResultRepository.GetHealthCheckResultByIdAsync(healthCheckResult.ResultId);
+        var existingResult = await _healthCheckResultRepository.GetHealthCheckResultByIdAsync(
+            healthCheckResult.ResultId
+        );
         if (existingResult == null)
         {
             return false;
@@ -135,7 +157,9 @@ public class HealthCheckResultService : IHealthCheckResultService
             throw new InvalidOperationException("FormId is required");
         }
 
-        var form = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(healthCheckResult.FormId.Value);
+        var form = await _healthCheckFormRepository.GetHealthCheckFormByIdAsync(
+            healthCheckResult.FormId.Value
+        );
         if (form == null)
         {
             throw new InvalidOperationException("Health check form not found");
@@ -147,7 +171,9 @@ public class HealthCheckResultService : IHealthCheckResultService
             throw new InvalidOperationException("StudentId is required");
         }
 
-        var student = await _studentRepository.GetStudentByIdAsync(healthCheckResult.StudentId.Value);
+        var student = await _studentRepository.GetStudentByIdAsync(
+            healthCheckResult.StudentId.Value
+        );
         if (student == null)
         {
             throw new InvalidOperationException("Student not found");
@@ -160,27 +186,40 @@ public class HealthCheckResultService : IHealthCheckResultService
         }
 
         // Validate measurements
-        if (healthCheckResult.Height.HasValue && (healthCheckResult.Height < 0 || healthCheckResult.Height > 300))
+        if (
+            healthCheckResult.Height.HasValue
+            && (healthCheckResult.Height < 0 || healthCheckResult.Height > 300)
+        )
         {
             throw new InvalidOperationException("Invalid height value");
         }
 
-        if (healthCheckResult.Weight.HasValue && (healthCheckResult.Weight < 0 || healthCheckResult.Weight > 500))
+        if (
+            healthCheckResult.Weight.HasValue
+            && (healthCheckResult.Weight < 0 || healthCheckResult.Weight > 500)
+        )
         {
             throw new InvalidOperationException("Invalid weight value");
         }
 
-        if (healthCheckResult.HeartRate.HasValue && (healthCheckResult.HeartRate < 0 || healthCheckResult.HeartRate > 250))
+        if (
+            healthCheckResult.HeartRate.HasValue
+            && (healthCheckResult.HeartRate < 0 || healthCheckResult.HeartRate > 250)
+        )
         {
             throw new InvalidOperationException("Invalid heart rate value");
         }
 
-        var success = await _healthCheckResultRepository.UpdateHealthCheckResultAsync(healthCheckResult);
+        var success = await _healthCheckResultRepository.UpdateHealthCheckResultAsync(
+            healthCheckResult
+        );
 
         // Update HealthProfile if HealthCheckResult updated successfully
         if (success && student != null)
         {
-            var healthProfile = await _healthProfileService.GetHealthProfileByStudentCodeAsync(student.StudentCode);
+            var healthProfile = await _healthProfileService.GetHealthProfileByStudentCodeAsync(
+                student.StudentCode
+            );
 
             if (healthProfile == null)
             {
@@ -192,7 +231,7 @@ public class HealthCheckResultService : IHealthCheckResultService
                     Weight = healthCheckResult.Weight,
                     BloodPressure = healthCheckResult.BloodPressure,
                     HeartRate = healthCheckResult.HeartRate,
-                    LastUpdated = DateTime.UtcNow
+                    LastUpdated = DateTime.UtcNow,
                 };
                 await _healthProfileService.CreateHealthProfileAsync(healthProfile);
             }
@@ -220,7 +259,9 @@ public class HealthCheckResultService : IHealthCheckResultService
         return await _healthCheckResultRepository.GetHealthCheckResultsByFormIdAsync(formId);
     }
 
-    public async Task<IEnumerable<HealthCheckResult>> GetHealthCheckResultsByStudentIdAsync(int studentId)
+    public async Task<IEnumerable<HealthCheckResult>> GetHealthCheckResultsByStudentIdAsync(
+        int studentId
+    )
     {
         return await _healthCheckResultRepository.GetHealthCheckResultsByStudentIdAsync(studentId);
     }
@@ -229,4 +270,4 @@ public class HealthCheckResultService : IHealthCheckResultService
     {
         return await _healthCheckResultRepository.GetLatestHealthCheckResultByFormIdAsync(formId);
     }
-} 
+}

@@ -13,5 +13,10 @@ public interface IClassRepository
     Task<IEnumerable<Student>> GetStudentsByClassIdAsync(int classId);
     Task<bool> UpdateStudentCountAsync(int classId);
     Task<IEnumerable<Class>> GetActiveClassesAsync();
-    Task<bool> ClassNameExistsAsync(string className, int gradeLevel, string? section = null, int? excludeClassId = null);
-} 
+    Task<bool> ClassNameExistsAsync(
+        string className,
+        int gradeLevel,
+        string? section = null,
+        int? excludeClassId = null
+    );
+}

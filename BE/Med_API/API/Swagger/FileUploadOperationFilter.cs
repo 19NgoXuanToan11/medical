@@ -10,8 +10,9 @@ public class FileUploadOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        var fileParameters = context.ApiDescription.ParameterDescriptions
-            .Where(x => x.ModelMetadata?.ModelType == typeof(IFormFile));
+        var fileParameters = context.ApiDescription.ParameterDescriptions.Where(x =>
+            x.ModelMetadata?.ModelType == typeof(IFormFile)
+        );
 
         foreach (var parameter in fileParameters)
         {
@@ -24,25 +25,18 @@ public class FileUploadOperationFilter : IOperationFilter
                         Type = "object",
                         Properties = new Dictionary<string, OpenApiSchema>
                         {
-                            ["file"] = new OpenApiSchema
-                            {
-                                Type = "string",
-                                Format = "binary"
-                            }
-                        }
-                    }
-                }
+                            ["file"] = new OpenApiSchema { Type = "string", Format = "binary" },
+                        },
+                    },
+                },
             };
 
-            operation.RequestBody = new OpenApiRequestBody
-            {
-                Content = content
-            };
+            operation.RequestBody = new OpenApiRequestBody { Content = content };
 
             // Remove the parameter from the operation parameters
-            operation.Parameters = operation.Parameters
-                .Where(p => p.Name != parameter.Name)
+            operation.Parameters = operation
+                .Parameters.Where(p => p.Name != parameter.Name)
                 .ToList();
         }
     }
-} 
+}

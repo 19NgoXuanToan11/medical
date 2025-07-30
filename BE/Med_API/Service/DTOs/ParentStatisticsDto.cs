@@ -7,13 +7,13 @@ public class ParentStatisticsDto
     public int TotalHealthEvents { get; set; }
     public int TotalHealthChecks { get; set; }
     public int TotalMedicineRequests { get; set; }
-    
+
     // Breakdown by status
     public VaccinationStats VaccinationBreakdown { get; set; } = new();
     public HealthEventStats HealthEventBreakdown { get; set; } = new();
     public HealthCheckStats HealthCheckBreakdown { get; set; } = new();
     public MedicineRequestStats MedicineRequestBreakdown { get; set; } = new();
-    
+
     // Children details
     public ICollection<ChildStatistic> ChildrenDetails { get; set; } = new List<ChildStatistic>();
 }
@@ -64,4 +64,4 @@ public class ChildStatistic
     public int MedicineRequestCount { get; set; }
     public DateTime? LastHealthCheck { get; set; }
     public DateTime? LastHealthEvent { get; set; }
-} 
+}

@@ -74,4 +74,4 @@ public static class VaccineDto
 
         public bool? IsActive { get; set; }
     }
-} 
+}
