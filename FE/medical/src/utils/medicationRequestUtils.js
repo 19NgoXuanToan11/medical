@@ -632,22 +632,5 @@ export const testWithSampleData = () => {
     ],
   };
 
-  console.log("=== Testing with sample data ===");
-  console.log("Sample request:", sampleRequest);
-
-  const debug = debugPeriodProcessingDetailed(sampleRequest);
-  console.log("Debug result:", debug);
-
-  console.log("=== Key results ===");
-  console.log("Has unprocessed periods:", hasUnprocessedPeriods(sampleRequest));
-  console.log(
-    "Available periods:",
-    getAvailablePeriodsForAdministration(sampleRequest)
-  );
-  console.log(
-    "Processed periods:",
-    getProcessedPeriodsForDisplay(sampleRequest)
-  );
-
   return debug;
 };
