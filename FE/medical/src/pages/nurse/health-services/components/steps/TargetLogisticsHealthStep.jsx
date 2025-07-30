@@ -100,30 +100,58 @@ const TargetLogisticsHealthStep = ({
             </div>
           )}
 
-          {/* Grade Selection Grid */}
+          {/* Automatic Grade Selection Info */}
           {!loadingGrades && !gradesError && availableGrades.length > 0 && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {availableGrades.map((grade) => (
-                  <div key={grade.id} className="relative">
-                    <label className="flex items-start p-4 border border-neutral-200 dark:border-neutral-600 rounded-lg cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={formData.targetGrades.includes(grade.id)}
-                        onChange={() => onGradeSelection(grade.id)}
-                        className="mt-1 h-4 w-4 text-primary-600 border-neutral-300 rounded focus:ring-primary-500"
-                      />
-                      <div className="flex-1 ml-3">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium text-neutral-900 dark:text-neutral-100">
-                            {grade.name}
-                          </h4>
-                        </div>
-                      </div>
-                    </label>
+              {/* Hiển thị thông báo về việc tự động chọn toàn bộ khối */}
+              <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex items-start">
+                  <FiInfo className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
+                      Tự động chọn toàn bộ khối lớp
+                    </h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      Hệ thống đã tự động chọn tất cả lớp trong khối được phân công cho bạn.
+                    </p>
                   </div>
-                ))}
+                </div>
               </div>
+
+              {/* Hiển thị danh sách lớp đã được chọn tự động */}
+              {(() => {
+                // Nhóm lớp theo gradeLevel
+                const groupedByGrade = availableGrades.reduce((acc, cls) => {
+                  const gradeLevel = cls.gradeLevel || 'Không xác định';
+                  if (!acc[gradeLevel]) {
+                    acc[gradeLevel] = [];
+                  }
+                  acc[gradeLevel].push(cls);
+                  return acc;
+                }, {});
+
+                return Object.entries(groupedByGrade).map(([gradeLevel, classes]) => (
+                  <div key={gradeLevel} className="mb-6">
+                    <h4 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-3">
+                      Khối {gradeLevel} ({classes.length} lớp)
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {classes.map((cls) => (
+                        <div key={cls.id} className="p-4 border border-neutral-200 dark:border-neutral-600 rounded-lg bg-neutral-50 dark:bg-neutral-700">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium text-neutral-900 dark:text-neutral-100">
+                              {cls.name}
+                            </h4>
+                            <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                              {cls.studentCount} học sinh
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ));
+              })()}
 
               {/* Validation Error */}
               {validationErrors.targetGrades && (
@@ -174,52 +202,69 @@ const TargetLogisticsHealthStep = ({
 
             {showDetails && (
               <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
-                {formData.targetGrades.map((classId) => {
-                  // Tìm lớp được chọn trong assignedClasses
-                  const selectedClass = assignedClasses.find((cls) => 
-                    cls.classId === classId || cls.id === classId
-                  );
-                  
-                  if (!selectedClass) return null;
-                  
-                  return (
-                    <div key={classId} className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                          {selectedClass.className || selectedClass.name}
-                        </span>
-                        <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                          {selectedClass.students?.length || 0} học sinh
-                        </span>
-                      </div>
-                      
-                      {/* Danh sách học sinh */}
-                      {selectedClass.students && selectedClass.students.length > 0 && (
-                        <div className="ml-4 p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {selectedClass.students.map((student, index) => (
-                              <div key={index} className="flex items-center p-2 bg-white dark:bg-neutral-600 rounded border border-neutral-200 dark:border-neutral-500">
-                                <div className="flex-1">
-                                  <div className="font-medium text-sm text-neutral-900 dark:text-neutral-100">
-                                    {student.hoTen || student.fullName || `Học sinh ${index + 1}`}
-                                  </div>
-                                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
-                                    {student.maSoHocSinh || student.studentCode || `MS: ${index + 1}`}
-                                  </div>
-                                </div>
-                                {student.sucKhoe && student.sucKhoe !== 'Tốt' && (
-                                  <span className="px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded">
-                                    {student.sucKhoe}
-                                  </span>
-                                )}
-                              </div>
-                            ))}
+                {(() => {
+                  // Nhóm lớp được chọn theo khối
+                  const selectedClasses = formData.targetGrades.map(classId => {
+                    const selectedClass = assignedClasses.find((cls) => 
+                      cls.classId === classId || cls.id === classId
+                    );
+                    return selectedClass;
+                  }).filter(Boolean);
+
+                  const groupedByGrade = selectedClasses.reduce((acc, cls) => {
+                    const gradeLevel = cls.gradeLevel || 'Không xác định';
+                    if (!acc[gradeLevel]) {
+                      acc[gradeLevel] = [];
+                    }
+                    acc[gradeLevel].push(cls);
+                    return acc;
+                  }, {});
+
+                  return Object.entries(groupedByGrade).map(([gradeLevel, classes]) => (
+                    <div key={gradeLevel} className="mb-6">
+                      <h5 className="text-md font-medium text-neutral-900 dark:text-neutral-100 mb-3">
+                        Khối {gradeLevel} ({classes.length} lớp)
+                      </h5>
+                      {classes.map((selectedClass) => (
+                        <div key={selectedClass.classId || selectedClass.id} className="mb-4 ml-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                              {selectedClass.className || selectedClass.name}
+                            </span>
+                            <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                              {selectedClass.students?.length || 0} học sinh
+                            </span>
                           </div>
+                          
+                          {/* Danh sách học sinh */}
+                          {selectedClass.students && selectedClass.students.length > 0 && (
+                            <div className="ml-4 p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                {selectedClass.students.map((student, index) => (
+                                  <div key={index} className="flex items-center p-2 bg-white dark:bg-neutral-600 rounded border border-neutral-200 dark:border-neutral-500">
+                                    <div className="flex-1">
+                                      <div className="font-medium text-sm text-neutral-900 dark:text-neutral-100">
+                                        {student.hoTen || student.fullName || `Học sinh ${index + 1}`}
+                                      </div>
+                                      <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                                        {student.maSoHocSinh || student.studentCode || `MS: ${index + 1}`}
+                                      </div>
+                                    </div>
+                                    {student.sucKhoe && student.sucKhoe !== 'Tốt' && (
+                                      <span className="px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded">
+                                        {student.sucKhoe}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      ))}
                     </div>
-                  );
-                })}
+                  ));
+                })()}
               </div>
             )}
           </div>

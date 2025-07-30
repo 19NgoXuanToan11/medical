@@ -4,8 +4,7 @@ const API_URL = "https://localhost:7111/api";
 
 // Get token from localStorage
 const getToken = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  return user?.token;
+  return localStorage.getItem("token");
 };
 
 // Setup axios instance with default config

@@ -359,25 +359,7 @@ export const validateFormStep = (step, formData) => {
       }
       break;
 
-    case 2: // Health Check Items
-      if (!formData.checkItems || formData.checkItems.length === 0) {
-        errors.checkItems = "Vui lòng chọn ít nhất một hạng mục kiểm tra";
-      }
-      break;
-
-    case 3: // Target & Logistics
-      if (!formData.targetGrades || formData.targetGrades.length === 0) {
-        errors.targetGrades = "Vui lòng chọn ít nhất một khối lớp";
-      }
-      if (
-        !formData.maxStudentsPerSession ||
-        formData.maxStudentsPerSession < 1
-      ) {
-        errors.maxStudentsPerSession = "Số học sinh tối đa phải lớn hơn 0";
-      }
-      if (!formData.estimatedDuration || formData.estimatedDuration < 30) {
-        errors.estimatedDuration = "Thời gian dự kiến tối thiểu 30 phút";
-      }
+    case 2: // Preview step - no validation needed
       break;
 
     default:

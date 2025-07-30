@@ -51,18 +51,6 @@ export const healthCheckStepsConfig = [
   },
   {
     step: 2,
-    title: "Hạng mục khám",
-    description: "Chi tiết các mục kiểm tra sức khỏe",
-    required: true,
-  },
-  {
-    step: 3,
-    title: "Thông tin lớp học",
-    description: "Lớp học và tổ chức thực hiện",
-    required: true,
-  },
-  {
-    step: 4,
     title: "Kiểm tra & Xác nhận",
     description: "Xem trước và hoàn tất",
     required: true,

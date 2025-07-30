@@ -149,51 +149,89 @@ const PreviewHealthStep = ({
           {/* Khối lớp tham gia */}
           <div className="mb-6">
             <h4 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
-              Khối lớp tham gia
+              Lớp học tham gia
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {formData.targetGrades.map((gradeId) => {
+            {(() => {
+              // Lấy danh sách lớp được chọn
+              const selectedClasses = formData.targetGrades.map(gradeId => {
                 const grade = availableGrades.find((g) => g.id === gradeId);
                 if (!grade) return null;
                 
-                // Tính số học sinh cho lớp được chọn này từ assignedClasses
+                // Tìm thông tin lớp từ assignedClasses
                 const selectedClass = assignedClasses?.find(
                   (cls) => cls.classId === gradeId || cls.id === gradeId
                 );
-                const studentCount = selectedClass?.students?.length || 0;
+                
+                return {
+                  ...grade,
+                  studentCount: selectedClass?.students?.length || selectedClass?.currentStudentCount || 0,
+                  gradeLevel: selectedClass?.gradeLevel || grade.gradeLevel,
+                  className: selectedClass?.className || selectedClass?.name || grade.name
+                };
+              }).filter(Boolean);
+
+              const groupedByGrade = selectedClasses.reduce((acc, cls) => {
+                const gradeLevel = cls.gradeLevel || 'Không xác định';
+                if (!acc[gradeLevel]) {
+                  acc[gradeLevel] = [];
+                }
+                acc[gradeLevel].push(cls);
+                return acc;
+              }, {});
+
+              return Object.entries(groupedByGrade).map(([gradeLevel, classes]) => {
+                const totalStudentsInGrade = classes.reduce((sum, cls) => sum + cls.studentCount, 0);
                 
                 return (
-                  <div key={gradeId} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h5 className="font-semibold text-blue-900 dark:text-blue-100 text-lg">
-                          {grade.name}
-                        </h5>
+                  <div key={gradeLevel} className="mb-4">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h5 className="font-semibold text-blue-900 dark:text-blue-100 text-lg">
+                            Khối {gradeLevel}
+                          </h5>
+                          <p className="text-sm text-blue-700 dark:text-blue-300">
+                            {classes.length} lớp
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            {totalStudentsInGrade}
+                          </div>
+                          <div className="text-sm text-blue-600 dark:text-blue-400">
+                            học sinh
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                          {studentCount}
-                        </div>
-                        <div className="text-sm text-blue-600 dark:text-blue-400">
-                          học sinh
-                        </div>
+                      
+                      {/* Danh sách lớp trong khối */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {classes.map((cls) => (
+                          <div key={cls.id} className="bg-white dark:bg-blue-800/30 rounded p-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-blue-900 dark:text-blue-100 font-medium">
+                                {cls.className}
+                              </span>
+                              <span className="text-blue-600 dark:text-blue-400">
+                                {cls.studentCount} học sinh
+                              </span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
                 );
-              })}
-            </div>
+              });
+            })()}
           </div>
 
           {/* Tổng kết đối tượng khám */}
           <div className="bg-gray-50 dark:bg-neutral-700 border border-gray-200 dark:border-neutral-600 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h4 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">
                 Tổng kết đối tượng khám
               </h4>
-              <button className="text-blue-600 dark:text-blue-400 text-sm font-medium">
-                Xem chi tiết
-              </button>
             </div>
             <div className="flex justify-between">
               <div className="text-center">

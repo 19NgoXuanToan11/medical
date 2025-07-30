@@ -11,6 +11,9 @@ import {
   FiX,
   FiInfo,
   FiEdit,
+  FiUser,
+  FiFileText,
+  FiAlertCircle,
 } from "react-icons/fi";
 import { getHealthCheckScheduleById } from "../../../utils/api/healthCheck/healthCheckService";
 import { formatDate } from "../../../utils/report/reportUtils";
@@ -23,6 +26,8 @@ const HealthCheckDetail = () => {
   const [error, setError] = useState(null);
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
+  const [healthCheckResults, setHealthCheckResults] = useState([]);
+
 
   useEffect(() => {
     fetchHealthCheckDetail();
@@ -33,10 +38,42 @@ const HealthCheckDetail = () => {
       setLoading(true);
       const data = await getHealthCheckScheduleById(id);
       setHealthCheck(data);
+      
       // Lấy danh sách học sinh thật từ backend
       const students = await getAllStudents();
-      setStudents(students);
-      // Nếu cần lọc theo lớp hoặc grade, có thể lọc students tại đây
+      
+      // Lọc học sinh theo khối/lớp của health check
+      let filteredStudents = students;
+      if (data.targetGrades && data.targetGrades.length > 0) {
+        filteredStudents = students.filter(student => 
+          data.targetGrades.includes(student.gradeLevel?.toString())
+        );
+      }
+      
+      setStudents(filteredStudents);
+      
+      // Tạo danh sách lớp từ học sinh
+      const classMap = {};
+      filteredStudents.forEach(student => {
+        if (student.class) {
+          if (!classMap[student.class]) {
+            classMap[student.class] = {
+              id: student.class,
+              name: student.class,
+              gradeLevel: student.gradeLevel,
+              studentCount: 0
+            };
+          }
+          classMap[student.class].studentCount++;
+        }
+      });
+      setClasses(Object.values(classMap));
+
+      // Lấy kết quả khám sức khỏe nếu có
+      if (data.results && data.results.length > 0) {
+        setHealthCheckResults(data.results);
+      }
+      
     } catch (error) {
       console.error("Error fetching health check detail:", error);
       setError("Không thể tải thông tin chi tiết lịch khám");
@@ -84,6 +121,17 @@ const HealthCheckDetail = () => {
         return status || "Không xác định";
     }
   };
+
+  const parseJsonField = (field) => {
+    if (!field) return [];
+    try {
+      return typeof field === 'string' ? JSON.parse(field) : field;
+    } catch {
+      return [];
+    }
+  };
+
+
 
   if (loading) {
     return (
@@ -192,8 +240,24 @@ const HealthCheckDetail = () => {
           </div>
           <div className="flex items-center">
             <FiUsers className="w-4 h-4 mr-2" />
-            <span>Khối: {healthCheck.grades?.join(", ")}</span>
+            <span>Khối lớp: {(() => {
+              // Lấy danh sách khối từ classes
+              const gradeLevels = [...new Set(classes.map(cls => cls.gradeLevel))].sort();
+              return gradeLevels.join(", ");
+            })()}</span>
           </div>
+          {healthCheck.estimatedDuration && (
+            <div className="flex items-center">
+              <FiClock className="w-4 h-4 mr-2" />
+              <span>Thời gian dự kiến: {healthCheck.estimatedDuration} phút</span>
+            </div>
+          )}
+          {healthCheck.totalStudents && (
+            <div className="flex items-center">
+              <FiUsers className="w-4 h-4 mr-2" />
+              <span>Tổng số học sinh: {healthCheck.totalStudents}</span>
+            </div>
+          )}
         </div>
 
         {healthCheck.description && (
@@ -203,39 +267,105 @@ const HealthCheckDetail = () => {
             </p>
           </div>
         )}
+
+        {/* Approval Information */}
+        {(healthCheck.confirmStatus || healthCheck.confirmedBy || healthCheck.confirmedDate) && (
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <h4 className="font-medium text-blue-900 dark:text-blue-300 mb-2">Thông tin phê duyệt</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+              {healthCheck.confirmStatus && (
+                <div className="flex items-center">
+                  <FiCheckCircle className="w-4 h-4 mr-2 text-blue-600" />
+                  <span>Trạng thái: {getStatusLabel(healthCheck.confirmStatus)}</span>
+                </div>
+              )}
+              {healthCheck.confirmedBy && (
+                <div className="flex items-center">
+                  <FiUser className="w-4 h-4 mr-2 text-blue-600" />
+                  <span>Người duyệt: {healthCheck.confirmedBy}</span>
+                </div>
+              )}
+              {healthCheck.confirmedDate && (
+                <div className="flex items-center">
+                  <FiCalendar className="w-4 h-4 mr-2 text-blue-600" />
+                  <span>Ngày duyệt: {formatDate(healthCheck.confirmedDate)}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Classes Information */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Danh sách lớp tham gia
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {classes.map((classItem) => (
-            <div
-              key={classItem.id}
-              className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-gray-900 dark:text-white">
-                  {classItem.name}
-                </h4>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {classItem.studentCount} học sinh
-                </span>
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Khối {classItem.gradeLevel}
-              </div>
-            </div>
-          ))}
+
+
+
+
+
+
+      {/* Health Check Results */}
+      {healthCheckResults.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <FiActivity className="w-5 h-5 mr-2" />
+            Kết quả khám sức khỏe ({healthCheckResults.length} học sinh đã khám)
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Học sinh
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Ngày khám
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Chiều cao
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Cân nặng
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Huyết áp
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Nhịp tim
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {healthCheckResults.map((result) => (
+                  <tr key={result.resultId} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {result.student?.name || 'Không xác định'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {formatDate(result.examinedDate)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {result.height ? `${result.height} cm` : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {result.weight ? `${result.weight} kg` : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {result.bloodPressure || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {result.heartRate ? `${result.heartRate} bpm` : '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Students List */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Danh sách học sinh
+          Danh sách học sinh ({students.length} học sinh)
         </h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -256,25 +386,35 @@ const HealthCheckDetail = () => {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {students.map((student) => (
-                <tr key={student.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {student.studentCode}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {student.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {student.class}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                      <FiClock className="w-3 h-3 mr-1" />
-                      Chưa khám
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {students.map((student) => {
+                const hasResult = healthCheckResults.some(result => result.studentId === student.id);
+                return (
+                  <tr key={student.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {student.studentCode}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {student.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {student.class}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {hasResult ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                          <FiCheckCircle className="w-3 h-3 mr-1" />
+                          Đã khám
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                          <FiClock className="w-3 h-3 mr-1" />
+                          Chưa khám
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

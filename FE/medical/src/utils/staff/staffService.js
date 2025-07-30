@@ -17,9 +17,9 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Add auth token if available
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (user.token) {
-      config.headers.Authorization = `Bearer ${user.token}`;
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -295,8 +295,7 @@ export const staffService = {
   getMyAssignedGrades: async () => {
     try {
       // Get token from localStorage (where authService stores it)
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const token = user.token;
+      const token = localStorage.getItem("token");
 
       if (!token) {
         console.error("No authentication token found");
@@ -451,8 +450,7 @@ export const staffService = {
   getMyAssignedClasses: async () => {
     try {
       // Get token from localStorage (where authService stores it)
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const token = user.token;
+      const token = localStorage.getItem("token");
 
       if (!token) {
         console.error("No authentication token found for assigned classes");
