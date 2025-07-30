@@ -86,12 +86,6 @@ const VerifiedRequests = ({
 
   // Function để mở modal cho uống thuốc
   const openAdministerModal = (request) => {
-    // Debug logging
-    console.log(
-      "Opening administer modal for request:",
-      debugPeriodProcessingDetailed(request)
-    );
-
     // Check if there are any periods available for administration assignment
     if (!hasUnprocessedPeriods(request)) {
       alert(

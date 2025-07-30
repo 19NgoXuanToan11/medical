@@ -25,9 +25,6 @@ const MedicineVerification = () => {
 
   useEffect(() => {
     loadAllData();
-
-    // Test the new logic with sample data
-    console.log("Testing new logic...");
   }, []);
 
   const loadAllData = async () => {
