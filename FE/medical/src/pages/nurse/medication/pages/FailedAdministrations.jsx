@@ -7,6 +7,7 @@ import {
   FiTrendingDown,
 } from "react-icons/fi";
 import { useRequestResults } from "../hooks/useRequestResults";
+import { medicationService } from "../../../../utils/api/medication/medicationService";
 import {
   transformRequestResultData,
   filterRequestResults,
@@ -20,29 +21,55 @@ const FailedAdministrations = () => {
   const [filterDate, setFilterDate] = useState("");
   const [selectedResult, setSelectedResult] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState([]);
 
-  const {
-    loading,
-    results,
-    refreshData,
-    loadFailedAdministrations,
-    createReRequest,
-  } = useRequestResults();
+  // Load failed administrations using medicationService
+  const loadFailedAdministrations = async () => {
+    setLoading(true);
+    try {
+      const response = await medicationService.getFailedMedicationRequests();
+      if (response.success) {
+        setResults(response.data);
+      } else {
+        console.error(
+          "Error loading failed administrations:",
+          response.message
+        );
+        setResults([]);
+      }
+    } catch (error) {
+      console.error("Error loading failed administrations:", error);
+      setResults([]);
+    }
+    setLoading(false);
+  };
 
   // Load failed administrations on mount
   useEffect(() => {
     loadFailedAdministrations();
   }, []);
 
-  // Transform and filter results
-  const transformedResults = transformRequestResultData(results);
-  const failedResults = filterByStatus(transformedResults, ["failed"]);
-  const filteredResults = filterRequestResults(
-    failedResults,
-    searchTerm,
-    filterDate,
-    ""
-  );
+  // Filter results directly (no need to transform since we're getting the right data structure)
+  const filteredResults = results.filter((result) => {
+    const searchLower = searchTerm.toLowerCase();
+    const studentName = result.studentName?.toLowerCase() || "";
+    const medicineName = result.medicineName?.toLowerCase() || "";
+    const className = result.className?.toLowerCase() || "";
+    const requestId = result.requestId?.toString() || "";
+
+    const matchesSearch =
+      !searchTerm ||
+      studentName.includes(searchLower) ||
+      medicineName.includes(searchLower) ||
+      className.includes(searchLower) ||
+      requestId.includes(searchLower);
+
+    const matchesDate =
+      !filterDate || (result.date && result.date.startsWith(filterDate));
+
+    return matchesSearch && matchesDate;
+  });
 
   // Handle create re-request
   const handleCreateReRequest = async (result) => {
@@ -51,18 +78,15 @@ const FailedAdministrations = () => {
     );
 
     if (reason && reason.trim()) {
-      const response = await createReRequest(result.resultId, {
-        reRequestReason: reason.trim(),
-        requestId: result.requestId,
-      });
-
-      if (response.success) {
-        alert(response.message);
+      try {
+        // You might need to implement this in medicationService if not already available
+        // For now, just show a message
+        alert("Chức năng tạo yêu cầu lại đang được phát triển");
         setShowDetailModal(false);
         // Reload failed data
         loadFailedAdministrations();
-      } else {
-        alert(response.message);
+      } catch (error) {
+        alert("Có lỗi xảy ra khi tạo yêu cầu lại");
       }
     }
   };
@@ -83,11 +107,12 @@ const FailedAdministrations = () => {
   const thisWeek = new Date();
   thisWeek.setDate(thisWeek.getDate() - 7);
 
-  const todayFailed = filteredResults.filter(
-    (result) =>
-      result.lastAttemptTime &&
-      new Date(result.lastAttemptTime).toISOString().split("T")[0] === today
-  ).length;
+  const todayFailed = filteredResults.filter((result) => {
+    const timestamp = result.timestamp || result.failedTimestamp;
+    return (
+      timestamp && new Date(timestamp).toISOString().split("T")[0] === today
+    );
+  }).length;
 
   const multipleFailures = filteredResults.filter(
     (result) => result.failedAttempts > 1
@@ -262,12 +287,130 @@ const FailedAdministrations = () => {
       )}
 
       {/* Results Table */}
-      <RequestResultTable
-        results={filteredResults}
-        activeTab="failed"
-        onViewDetail={handleViewDetail}
-        onCreateReRequest={handleCreateReRequest}
-      />
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+            <thead className="bg-gray-50 dark:bg-neutral-700">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Học sinh & Lớp
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Thuốc
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Ngày thất bại
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Lý do thất bại
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Trạng thái
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Thao tác
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-gray-600">
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
+                  >
+                    Đang tải...
+                  </td>
+                </tr>
+              ) : filteredResults.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
+                  >
+                    Không có dữ liệu
+                  </td>
+                </tr>
+              ) : (
+                filteredResults.map((result) => (
+                  <tr
+                    key={`${result.requestId}-${result.medicineRequestItemId}`}
+                    className="hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-200"
+                  >
+                    {/* Học sinh & Lớp */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {result.studentName}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            Lớp: {result.className}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Thuốc */}
+                    <td className="px-6 py-4 text-center">
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {result.medicineName}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {result.dosage} {result.dosageUnit} - {result.frequency}{" "}
+                        lần/ngày
+                      </div>
+                    </td>
+
+                    {/* Ngày thất bại */}
+                    <td className="px-6 py-4 text-center text-sm text-gray-900 dark:text-gray-100">
+                      {result.timestamp
+                        ? new Date(result.timestamp).toLocaleDateString("vi-VN")
+                        : result.failedTimestamp
+                        ? new Date(result.failedTimestamp).toLocaleDateString(
+                            "vi-VN"
+                          )
+                        : "N/A"}
+                    </td>
+
+                    {/* Lý do thất bại */}
+                    <td className="px-6 py-4 text-center text-sm text-gray-900 dark:text-gray-100">
+                      {result.failureReason || "Không có thông tin"}
+                    </td>
+
+                    {/* Trạng thái */}
+                    <td className="px-6 py-4 text-center">
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200">
+                        {result.status || result.failedStatus || "Failed"}
+                      </span>
+                    </td>
+
+                    {/* Thao tác */}
+                    <td className="px-6 py-4 text-center text-sm font-medium">
+                      <div className="flex justify-center space-x-2">
+                        <button
+                          onClick={() => handleViewDetail(result)}
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                          title="Xem chi tiết"
+                        >
+                          <FiAlertTriangle className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleCreateReRequest(result)}
+                          className="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
+                          title="Tạo yêu cầu lại"
+                        >
+                          <FiRepeat className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Detail Modal */}
       <RequestResultDetailModal

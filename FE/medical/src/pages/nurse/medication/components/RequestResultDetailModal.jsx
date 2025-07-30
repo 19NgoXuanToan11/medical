@@ -62,6 +62,7 @@ const RequestResultDetailModal = ({
 
   if (!isOpen || !result) return null;
 
+
   const progress = calculateMedicationProgress(result);
   const history = formatAdministrationHistory(result);
 
@@ -232,21 +233,361 @@ const RequestResultDetailModal = ({
             </p>
           </div>
         )}
-        {/* <div className="md:col-span-2">
-          <div className="flex space-x-4">
-            {result.isMainContact && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
-                Liên hệ chính
-              </span>
+      </div>
+    </div>
+  );
+
+  const renderFailureDetails = () => (
+    <div className="space-y-6">
+      {/* Complete Request Overview */}
+      <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-6">
+        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+          <FiFileText className="h-5 w-5 mr-2 text-gray-600" />
+          Tổng quan yêu cầu
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              ID Yêu cầu
+            </label>
+            <p className="text-gray-900 dark:text-gray-100 font-medium">
+              {result.requestId || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Mã học sinh
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.studentCode || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Tên học sinh
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.studentName || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Lớp
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.className || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Ngày yêu cầu
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.date
+                ? new Date(result.date).toLocaleDateString("vi-VN")
+                : "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Phụ huynh
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.parentName || "N/A"}{" "}
+              {result.parentId && `(ID: ${result.parentId})`}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Mã thuốc
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.medicineRequestItemId || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Tên thuốc
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.medicineName || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Liều lượng
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.dosage} {result.dosageUnit} - {result.frequency} lần/ngày
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Thời gian uống
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.timeOfDay || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Buổi
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.period || "N/A"}
+            </p>
+          </div>
+          {result.instructions && (
+            <div className="md:col-span-3">
+              <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                Hướng dẫn sử dụng
+              </label>
+              <p className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 p-3 rounded-md whitespace-pre-wrap">
+                {result.instructions}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Failure Summary */}
+      <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-6">
+        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+          <FiAlertTriangle className="h-5 w-5 mr-2 text-red-600" />
+          Chi tiết thất bại
+        </h4>
+
+        {result.status === "Failed" ||
+        result.status === "failed" ||
+        result.failedStatus === "Failed" ? (
+          <div className="bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-red-600 dark:text-red-400 font-medium">
+                  Trạng thái thất bại
+                </label>
+                <p className="text-gray-900 dark:text-gray-100 font-medium">
+                  {result.status || result.failedStatus}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-red-600 dark:text-red-400 font-medium">
+                  Buổi thất bại
+                </label>
+                <p className="text-gray-900 dark:text-gray-100">
+                  {result.period || "N/A"}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-red-600 dark:text-red-400 font-medium">
+                  Lý do thất bại
+                </label>
+                <p className="text-gray-900 dark:text-gray-100 font-medium">
+                  {result.failureReason || "Chưa có thông tin chi tiết"}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-red-600 dark:text-red-400 font-medium">
+                  Nhân viên báo cáo thất bại
+                </label>
+                <p className="text-gray-900 dark:text-gray-100">
+                  {result.staffId || result.failedStaffId
+                    ? `ID: ${result.staffId || result.failedStaffId}`
+                    : "Chưa xác định"}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-red-600 dark:text-red-400 font-medium">
+                  Thời gian thất bại
+                </label>
+                <p className="text-gray-900 dark:text-gray-100">
+                  {result.timestamp || result.failedTimestamp
+                    ? new Date(
+                        result.timestamp || result.failedTimestamp
+                      ).toLocaleString("vi-VN")
+                    : "N/A"}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-red-600 dark:text-red-400 font-medium">
+                  Mã yêu cầu thuốc
+                </label>
+                <p className="text-gray-900 dark:text-gray-100">
+                  {result.medicineRequestItemId || "N/A"}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-red-600 dark:text-red-400 font-medium">
+                  Ngày yêu cầu
+                </label>
+                <p className="text-gray-900 dark:text-gray-100">
+                  {result.date
+                    ? new Date(result.date).toLocaleDateString("vi-VN")
+                    : "N/A"}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm text-red-600 dark:text-red-400 font-medium">
+                  ID yêu cầu
+                </label>
+                <p className="text-gray-900 dark:text-gray-100">
+                  {result.requestId || "N/A"}
+                </p>
+              </div>
+              {result.notes && (
+                <div className="md:col-span-2">
+                  <label className="text-sm text-red-600 dark:text-red-400 font-medium">
+                    Ghi chú thất bại
+                  </label>
+                  <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700 p-3 rounded-md whitespace-pre-wrap">
+                    {result.notes}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <FiAlertTriangle className="mx-auto h-12 w-12 text-red-400 mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">
+              Không có thông tin chi tiết về thất bại
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Student and Medicine Information */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
+        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+          <FiUser className="h-5 w-5 mr-2 text-blue-600" />
+          Thông tin học sinh và thuốc
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+              Mã học sinh
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.studentCode || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+              Tên học sinh
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.studentName || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+              Lớp
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.className || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+              Phụ huynh
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.parentName || "N/A"}{" "}
+              {result.parentId && `(ID: ${result.parentId})`}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+              Tên thuốc
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.medicineName || "N/A"}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+              Liều lượng
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.dosage} {result.dosageUnit} - {result.frequency} lần/ngày
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+              Thời gian uống
+            </label>
+            <p className="text-gray-900 dark:text-gray-100">
+              {result.timeOfDay || "N/A"}
+            </p>
+          </div>
+          {result.instructions && (
+            <div className="md:col-span-2">
+              <label className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                Hướng dẫn sử dụng
+              </label>
+              <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700 p-3 rounded-md whitespace-pre-wrap">
+                {result.instructions}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Additional Failure Information */}
+      {(result.failedAttempts ||
+        result.lastAttemptTime ||
+        result.status === "Failed") && (
+        <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-6">
+          <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+            <FiActivity className="h-5 w-5 mr-2 text-orange-600" />
+            Thông tin thêm
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {result.failedAttempts && (
+              <div>
+                <label className="text-sm text-orange-600 dark:text-orange-400 font-medium">
+                  Số lần thất bại
+                </label>
+                <p className="text-gray-900 dark:text-gray-100 font-medium">
+                  {result.failedAttempts} lần
+                </p>
+              </div>
             )}
-            {result.isEmergencyContact && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200">
-                Liên hệ khẩn cấp
+            {result.lastAttemptTime && (
+              <div>
+                <label className="text-sm text-orange-600 dark:text-orange-400 font-medium">
+                  Lần thất bại cuối
+                </label>
+                <p className="text-gray-900 dark:text-gray-100">
+                  {new Date(result.lastAttemptTime).toLocaleString("vi-VN")}
+                </p>
+              </div>
+            )}
+            {(result.status || result.failedStatus) && (
+              <div>
+                <label className="text-sm text-orange-600 dark:text-orange-400 font-medium">
+                  Trạng thái thất bại
+                </label>
+                <p className="text-gray-900 dark:text-gray-100">
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                      result.status === "Failed" ||
+                      result.failedStatus === "Failed"
+                        ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-200"
+                    }`}
+                  >
+                    {result.status === "Failed" ||
+                    result.failedStatus === "Failed"
+                      ? "Thất bại"
+                      : result.status || result.failedStatus}
               </span>
+                </p>
+              </div>
             )}
           </div>
-        </div> */}
       </div>
+      )}
     </div>
   );
 
@@ -412,6 +753,17 @@ const RequestResultDetailModal = ({
               { id: "student", label: "Học sinh", icon: FiUser },
               { id: "medication", label: "Thuốc", icon: FiTablet },
               { id: "history", label: "Lịch sử", icon: FiClock },
+              ...(result.status === "Failed" ||
+              result.status === "failed" ||
+              result.failedStatus === "Failed"
+                ? [
+                    {
+                      id: "failure",
+                      label: "Chi tiết thất bại",
+                      icon: FiAlertTriangle,
+                    },
+                  ]
+                : []),
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -521,6 +873,8 @@ const RequestResultDetailModal = ({
           )}
 
           {activeSection === "history" && renderHistory()}
+
+          {activeSection === "failure" && renderFailureDetails()}
         </div>
 
         {/* Footer */}

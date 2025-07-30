@@ -1296,7 +1296,8 @@ public class MedicineRequestController : ControllerBase
                         }
                         else if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
                         {
-                            foreach (var arrElem in elem.EnumerateArray())
+                            // Get the latest failed status from array
+                            foreach (var arrElem in elem.EnumerateArray().Reverse())
                             {
                                 if (arrElem.ValueKind == System.Text.Json.JsonValueKind.Object && arrElem.TryGetProperty("Status", out var arrStatusProp) && arrStatusProp.GetString() == "Failed")
                                 {
@@ -1306,6 +1307,10 @@ public class MedicineRequestController : ControllerBase
                                         staffIdValue = staffIdProp.GetInt32();
                                     if (arrElem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
                                         timestamp = timestampProp.GetDateTime();
+                                    if (arrElem.TryGetProperty("FailureReason", out var failureReasonProp) && failureReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                        failureReason = failureReasonProp.GetString();
+                                    if (arrElem.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                        notes = notesProp.GetString();
                                     break;
                                 }
                             }

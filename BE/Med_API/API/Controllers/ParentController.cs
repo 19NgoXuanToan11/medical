@@ -50,27 +50,46 @@ public class ParentController : ControllerBase
 
     private static bool IsFailedStatus(object val)
     {
-        if (val is string s)
+        if (val == null) return false;
+        
+        var valStr = val.ToString();
+        
+        // Check for simple "Failed" string
+        if (valStr == "Failed") return true;
+        
+        // Check for JSON string containing "Status":"Failed"
+        if (valStr.StartsWith("{") && valStr.Contains("\"Status\":\"Failed\""))
         {
-            if (s == "Failed") return true;
-            if (s.StartsWith("{") && s.Contains("Status"))
+            try
             {
-                try
+                var jsonObj = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(valStr);
+                if (jsonObj.TryGetProperty("Status", out var statusProp) && statusProp.GetString() == "Failed")
+                    return true;
+            }
+            catch { }
+        }
+        
+        // Check for JsonElement object
+        if (val is System.Text.Json.JsonElement elem)
+        {
+            if (elem.ValueKind == System.Text.Json.JsonValueKind.Object && 
+                elem.TryGetProperty("Status", out var statusProp) && 
+                statusProp.GetString() == "Failed")
+                return true;
+                
+            // Check for array of status objects
+            if (elem.ValueKind == System.Text.Json.JsonValueKind.Array)
+            {
+                foreach (var arrElem in elem.EnumerateArray())
                 {
-                    var jsonElem = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(s);
-                    if (jsonElem.ValueKind == System.Text.Json.JsonValueKind.Object &&
-                        jsonElem.TryGetProperty("Status", out var statusPropInner) &&
-                        statusPropInner.GetString() == "Failed")
+                    if (arrElem.ValueKind == System.Text.Json.JsonValueKind.Object && 
+                        arrElem.TryGetProperty("Status", out var arrStatusProp) && 
+                        arrStatusProp.GetString() == "Failed")
                         return true;
                 }
-                catch { }
             }
         }
-        if (val is System.Text.Json.JsonElement elem &&
-            elem.ValueKind == System.Text.Json.JsonValueKind.Object &&
-            elem.TryGetProperty("Status", out var statusProp) &&
-            statusProp.GetString() == "Failed")
-            return true;
+        
         return false;
     }
 
@@ -402,9 +421,23 @@ public class ParentController : ControllerBase
     [HttpGet("{parentId}/failed-request-results")]
     public async Task<ActionResult<IEnumerable<object>>> GetFailedRequestResultsByParent(int parentId)
     {
+        _logger.LogInformation("GET /api/Parent/{ParentId}/failed-request-results endpoint hit!", parentId);
+        
         var allRequests = await _parentService.GetMedicineRequestProgressAsync(parentId);
+        _logger.LogInformation("Found {Count} medicine requests for parent {ParentId}", allRequests.Count(), parentId);
+        
         var viewModels = _mapper.Map<IEnumerable<MedicineRequestDto.ViewModel>>(allRequests);
         var failedPeriods = new List<object>();
+        
+        // Debug log before filtering
+        foreach (var req in viewModels)
+        {
+            _logger.LogInformation("[PARENT][BEFORE] RequestId: {RequestId}, ParentId: {ParentId}, Status: {Status}", req.RequestId, req.ParentId, req.Status);
+            foreach (var item in req.MedicineRequestItems)
+            {
+                _logger.LogInformation("[PARENT][BEFORE] ItemId: {ItemId}, PeriodVerificationStatus: {Status}", item.MedicineRequestItemId, System.Text.Json.JsonSerializer.Serialize(item.PeriodVerificationStatus));
+            }
+        }
         foreach (var req in viewModels)
         {
             foreach (var item in req.MedicineRequestItems)
@@ -417,13 +450,15 @@ public class ParentController : ControllerBase
                     
                     if (IsFailedStatus(val))
                     {
+                        _logger.LogInformation("[PARENT][FOUND] Failed status for period {Period}, ItemId: {ItemId}, Value: {Value}", period, item.MedicineRequestItemId, val?.ToString());
+                        
                         string? failureReason = null;
                         int? staffIdValue = null;
                         DateTime? timestamp = null;
                         string? notes = null;
                         
                         // Extract additional info from the status
-                        if (val is string strVal && strVal.StartsWith("{") && strVal.Contains("FailureReason"))
+                        if (val is string strVal && strVal.StartsWith("{"))
                         {
                             try
                             {
@@ -437,7 +472,10 @@ public class ParentController : ControllerBase
                                 if (jsonObj.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
                                     notes = notesProp.GetString();
                             }
-                            catch { }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning("Failed to parse JSON for period {Period}, ItemId: {ItemId}, JSON: {Json}, Error: {Error}", period, item.MedicineRequestItemId, strVal, ex.Message);
+                            }
                         }
                         else if (val is System.Text.Json.JsonElement elem && elem.ValueKind == System.Text.Json.JsonValueKind.Object)
                         {
@@ -450,6 +488,30 @@ public class ParentController : ControllerBase
                             if (elem.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
                                 notes = notesProp.GetString();
                         }
+                        else if (val is System.Text.Json.JsonElement arrayElem && arrayElem.ValueKind == System.Text.Json.JsonValueKind.Array)
+                        {
+                            // Handle array of status objects - get the latest failed status
+                            foreach (var arrItem in arrayElem.EnumerateArray().Reverse())
+                            {
+                                if (arrItem.ValueKind == System.Text.Json.JsonValueKind.Object && 
+                                    arrItem.TryGetProperty("Status", out var statusProp) && 
+                                    statusProp.GetString() == "Failed")
+                                {
+                                    if (arrItem.TryGetProperty("FailureReason", out var failureReasonProp) && failureReasonProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                        failureReason = failureReasonProp.GetString();
+                                    if (arrItem.TryGetProperty("StaffId", out var staffIdProp) && staffIdProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                                        staffIdValue = staffIdProp.GetInt32();
+                                    if (arrItem.TryGetProperty("Timestamp", out var timestampProp) && timestampProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                        timestamp = timestampProp.GetDateTime();
+                                    if (arrItem.TryGetProperty("Notes", out var notesProp) && notesProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                                        notes = notesProp.GetString();
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        _logger.LogInformation("[PARENT][PARSED] Period: {Period}, ItemId: {ItemId}, StaffId: {StaffId}, FailureReason: {FailureReason}, Notes: {Notes}", 
+                            period, item.MedicineRequestItemId, staffIdValue, failureReason, notes);
                         
                         failedPeriods.Add(new {
                             studentCode = req.StudentCode,
@@ -475,6 +537,10 @@ public class ParentController : ControllerBase
                 }
             }
         }
+        
+        // Debug log after filtering
+        _logger.LogInformation("[PARENT][AFTER] Found {Count} failed periods for parent {ParentId}", failedPeriods.Count, parentId);
+        
         return Ok(failedPeriods);
     }
 

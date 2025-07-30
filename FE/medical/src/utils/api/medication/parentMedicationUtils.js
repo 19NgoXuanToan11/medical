@@ -20,8 +20,6 @@ export const transformParentMedicationData = (requests) => {
     // Map status from API to UI
     const getUIStatus = (apiStatus) => {
       switch (apiStatus?.toLowerCase()) {
-        case "pending":
-          return "pending";
         case "assigned":
           return "active";
         case "completed":
@@ -31,8 +29,11 @@ export const transformParentMedicationData = (requests) => {
         case "rejected":
         case "refused":
           return "rejected";
+        case "verified":
+        case "confirmed":
+          return "confirmed";
         default:
-          return "pending";
+          return "confirmed";
       }
     };
 
@@ -53,29 +54,35 @@ export const transformParentMedicationData = (requests) => {
     return {
       id: req.requestId
         ? `MED${req.requestId}`
+        : req.medicineRequestItemId
+        ? `MED${req.medicineRequestItemId}`
         : `MED${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      requestId: req.requestId || null,
+      requestId: req.requestId || req.medicineRequestItemId || null,
       studentName:
         req.student?.firstName && req.student?.lastName
           ? `${req.student.firstName} ${req.student.lastName}`
           : req.studentName || req.studentCode, // Use student name from nested object or fallback
       studentCode: req.studentCode,
       class: req.className,
-      medicationName: firstMedicine.medicineName || "N/A", // Keep for backward compatibility
-      medicationNames: allMedicationNames, // Array of all medication names
-      medicationDisplay: medicationDisplay, // For easy display in components
-      medicationCount: medicineItems.length, // Number of medications in this request
+      medicationName: req.medicineName || firstMedicine.medicineName || "N/A", // Keep for backward compatibility
+      medicationNames: req.medicineName ? [req.medicineName] : allMedicationNames, // Array of all medication names
+      medicationDisplay: req.medicineName ? [req.medicineName] : medicationDisplay, // For easy display in components
+      medicationCount: req.medicineName ? 1 : medicineItems.length, // Number of medications in this request
       requestDate: req.requestDate
         ? new Date(req.requestDate).toISOString().split("T")[0]
+        : req.timestamp
+        ? new Date(req.timestamp).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0],
-      startDate: req.date || new Date().toISOString().split("T")[0],
-      endDate: req.date || new Date().toISOString().split("T")[0], // Using same date as start for now
+      startDate: req.date || req.timestamp || new Date().toISOString().split("T")[0],
+      endDate: req.date || req.timestamp || new Date().toISOString().split("T")[0], // Using same date as start for now
       status: getUIStatus(req.status),
-      dosage: firstMedicine.dosage || "N/A",
-      dosageUnit: firstMedicine.dosageUnit || "viên",
-      frequency: firstMedicine.frequency || "N/A",
-      timeOfDay: firstMedicine.timeOfDay || "N/A",
-      instructions: firstMedicine.instructions || "N/A",
+      dosage: req.dosage || firstMedicine.dosage || "N/A",
+      dosageUnit: req.dosageUnit || firstMedicine.dosageUnit || "viên",
+      frequency: req.frequency || firstMedicine.frequency || "N/A",
+      timeOfDay: req.timeOfDay || firstMedicine.timeOfDay || "N/A",
+      instructions: req.instructions || firstMedicine.instructions || "N/A",
+      period: req.period || "N/A", // Add period field
+      timestamp: req.timestamp || null, // Add timestamp field
       refusalReason: req.refusalReason || null, // Add refusal reason for rejected requests
       lastAdministered: lastAdministered,
       completedDoses: completedDoses,
@@ -85,12 +92,13 @@ export const transformParentMedicationData = (requests) => {
       medicineRequestItems: medicineItems, // Keep for backward compatibility
       medicineItems: medicineItems, // Use correct field name from API
       parentId: req.parentId,
+      parentName: req.parentName || "N/A", // Add parent name
       staffId: req.staffId,
       staffName:
         req.staff?.firstName && req.staff?.lastName
           ? `${req.staff.firstName} ${req.staff.lastName}`
           : "N/A", // Add staff name for who processed the request
-      // Raw API data for reference
+      // Raw API data for reference - preserve all original fields
       originalData: req,
     };
   });
@@ -138,7 +146,10 @@ export const transformRejectedMedicationData = (requests) => {
 
 // Get status badge configuration
 export const getStatusBadge = (status) => {
-  switch (status) {
+  // Normalize status to lowercase for comparison
+  const normalizedStatus = status?.toLowerCase();
+
+  switch (normalizedStatus) {
     case "active":
       return {
         className:
@@ -150,12 +161,6 @@ export const getStatusBadge = (status) => {
         className:
           "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 ring-1 ring-green-600/20 dark:ring-green-400/20",
         text: "Đã hoàn thành",
-      };
-    case "pending":
-      return {
-        className:
-          "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 ring-1 ring-yellow-600/20 dark:ring-yellow-400/20",
-        text: "Chờ xác nhận",
       };
     case "confirmed":
       return {
@@ -257,10 +262,9 @@ export const normalizeVerifiedStatus = (verifiedStatus) => {
 // Helper function to determine medication status based on verifiedStatus
 export const getMedicationStatusFromVerifiedStatus = (medicineItems) => {
   if (!medicineItems || medicineItems.length === 0) {
-    return "pending";
+    return "confirmed";
   }
 
-  let hasPending = false;
   let hasConfirmed = false;
   let hasActive = false;
   let hasCompleted = false;
@@ -307,9 +311,6 @@ export const getMedicationStatusFromVerifiedStatus = (medicineItems) => {
       }
 
       switch (statusStr) {
-        case "pending":
-          hasPending = true;
-          break;
         case "verified":
         case "confirmed":
           hasConfirmed = true;
@@ -334,21 +335,19 @@ export const getMedicationStatusFromVerifiedStatus = (medicineItems) => {
     });
   });
 
-  // Priority order: failed > rejected > completed > active > confirmed > pending
+  // Priority order: failed > rejected > completed > active > confirmed
   if (hasFailed) return "failed";
   if (hasRejected) return "rejected";
   if (hasCompleted) return "completed";
   if (hasActive) return "active";
   if (hasConfirmed) return "confirmed";
-  if (hasPending) return "pending";
 
-  return "pending"; // Default fallback
+  return "confirmed"; // Default fallback
 };
 
 // Calculate medication statistics for dashboard based on verifiedStatus
 export const calculateMedicationStats = (medications) => {
   const stats = {
-    pending: 0,
     confirmed: 0,
     active: 0,
     completed: 0,
@@ -362,9 +361,6 @@ export const calculateMedicationStats = (medications) => {
     const status = getMedicationStatusFromVerifiedStatus(med.medicineItems);
 
     switch (status) {
-      case "pending":
-        stats.pending++;
-        break;
       case "confirmed":
         stats.confirmed++;
         break;
@@ -389,72 +385,60 @@ export const calculateMedicationStats = (medications) => {
 // Transform failed medication request data
 export const transformFailedMedicationData = (failedResults) => {
   return failedResults.map((result) => {
-    const request = result.request || {};
-    const student = request.student || {};
-    const medicineItems =
-      request.medicineItems || request.medicineRequestItems || [];
-    const firstMedicine = medicineItems[0] || {};
-
-    // Get all medication names for display
-    const allMedicationNames = medicineItems
-      .map((item) => item.medicineName)
-      .filter((name) => name);
-    const medicationDisplay =
-      allMedicationNames.length > 0 ? allMedicationNames : ["N/A"];
-
-    // Get failed frequencies and reasons
-    const failedFrequencies = result.failedFrequencies || [];
-    const failureReasons = result.failureReasons || {};
-    const failedReasonsDisplay =
-      Object.values(failureReasons).join("; ") || "Không có lý do cụ thể";
-
+    // The API now returns a flat structure with all fields directly available
     return {
-      id: request.requestId
-        ? `MED${request.requestId}`
+      id: result.medicineRequestItemId
+        ? `MED${result.medicineRequestItemId}`
         : `MED${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      requestId: request.requestId || null,
-      resultId: result.resultId,
-      studentName:
-        student.firstName && student.lastName
-          ? `${student.firstName} ${student.lastName}`
-          : request.studentCode,
-      studentCode: request.studentCode,
-      class: request.className || student.className,
-      medicationName: firstMedicine.medicineName || "N/A",
-      medicationNames: allMedicationNames,
-      medicationDisplay: medicationDisplay,
-      medicationCount: medicineItems.length,
-      requestDate: request.requestDate
-        ? new Date(request.requestDate).toISOString().split("T")[0]
+      requestId: result.medicineRequestItemId || null,
+      medicineRequestItemId: result.medicineRequestItemId,
+      studentName: result.studentName,
+      studentCode: result.studentCode,
+      class: result.className,
+      className: result.className,
+      parentId: result.parentId,
+      parentName: result.parentName,
+      medicationName: result.medicineName || "N/A",
+      medicineName: result.medicineName,
+      medicationNames: [result.medicineName].filter((name) => name),
+      medicationDisplay: [result.medicineName].filter((name) => name),
+      medicationCount: 1,
+      dosage: result.dosage,
+      dosageUnit: result.dosageUnit,
+      frequency: result.frequency,
+      timeOfDay: result.timeOfDay,
+      period: result.period,
+      instructions: result.instructions,
+      status: result.status || "Failed",
+      staffId: result.staffId,
+      staffName: "N/A", // This would need to be looked up separately if needed
+      timestamp: result.timestamp,
+      failureReason: result.failureReason,
+      notes: result.notes,
+      requestDate: result.timestamp
+        ? new Date(result.timestamp).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0],
-      startDate: request.date || new Date().toISOString().split("T")[0],
-      administeredTime: result.administeredTime
-        ? new Date(result.administeredTime).toLocaleString("vi-VN")
+      startDate: result.timestamp
+        ? new Date(result.timestamp).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      administeredTime: null,
+      submittedAt: result.timestamp
+        ? new Date(result.timestamp).toLocaleString("vi-VN")
         : null,
-      submittedAt: result.submittedAt
-        ? new Date(result.submittedAt).toLocaleString("vi-VN")
+      lastAttemptTime: result.timestamp
+        ? new Date(result.timestamp).toLocaleString("vi-VN")
         : null,
-      lastAttemptTime: result.lastAttemptTime
-        ? new Date(result.lastAttemptTime).toLocaleString("vi-VN")
-        : null,
-      status: "failed",
-      frequency: result.frequency || firstMedicine.frequency || "N/A",
-      timesPerDay: result.timesPerDay || 0,
-      currentDayCount: result.currentDayCount || 0,
-      failedAttempts: result.failedAttempts || 0,
-      failedFrequencies: failedFrequencies,
-      failureReasons: failedReasonsDisplay,
-      reRequestReason: result.reRequestReason || null,
-      isReRequest: result.isReRequest || false,
-      originalRequestResultId: result.originalRequestResultId || null,
+      timesPerDay: 0,
+      currentDayCount: 0,
+      failedAttempts: 1, // Assuming each record represents one failed attempt
+      failedFrequencies: [],
+      failureReasons: result.failureReason || "Không có lý do cụ thể",
+      reRequestReason: null,
+      isReRequest: false,
+      originalRequestResultId: null,
       // Staff information
-      administeredByStaff: result.administeredByStaff || null,
-      actionByStaff: result.actionByStaff || null,
-      staffName: result.actionByStaff
-        ? `${result.actionByStaff.firstName || ""} ${
-            result.actionByStaff.lastName || ""
-          }`.trim()
-        : "N/A",
+      administeredByStaff: null,
+      actionByStaff: null,
       // Keep all original data for reference
       originalData: result,
     };

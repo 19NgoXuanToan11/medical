@@ -428,12 +428,6 @@ const VaccinationManagement = () => {
                       </p>
                       <p>
                         <span className="font-medium text-gray-700 dark:text-gray-300">
-                          Loại:
-                        </span>{" "}
-                        {selectedInjectionForm.vaccine.type || "N/A"}
-                      </p>
-                      <p>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">
                           Nhà sản xuất:
                         </span>{" "}
                         {selectedInjectionForm.vaccine.manufacturer || "N/A"}
