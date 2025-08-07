@@ -117,7 +117,6 @@ export const useHealthCheckForm = (editId = null) => {
             )
             .map(item => item.id);
           
-          console.log("Auto-selecting basic health check items:", basicItemIds);
           setFormData(prev => ({
             ...prev,
             checkItems: basicItemIds
@@ -176,7 +175,6 @@ export const useHealthCheckForm = (editId = null) => {
           
           // Auto-select all fallback items
           const fallbackItemIds = fallbackItems.map(item => item.id);
-          console.log("Auto-selecting fallback health check items:", fallbackItemIds);
           setFormData(prev => ({
             ...prev,
             checkItems: fallbackItemIds
@@ -237,7 +235,6 @@ export const useHealthCheckForm = (editId = null) => {
         
         // Auto-select all fallback items
         const fallbackItemIds = fallbackItems.map(item => item.id);
-        console.log("Auto-selecting fallback health check items:", fallbackItemIds);
         setFormData(prev => ({
           ...prev,
           checkItems: fallbackItemIds
@@ -254,11 +251,7 @@ export const useHealthCheckForm = (editId = null) => {
   useEffect(() => {
     const loadAssignedClasses = async () => {
       try {
-        console.log("Loading assigned classes...");
-        // Only nurses can access assigned classes - check will be done by API
-
         const result = await staffService.getMyAssignedClasses();
-        console.log("Staff service result:", result);
 
         if (result?.success && result?.data && Array.isArray(result.data)) {
           // Lưu assignedClasses gốc để tính toán
@@ -278,18 +271,15 @@ export const useHealthCheckForm = (editId = null) => {
             isActive: classItem.isActive !== false,
           }));
 
-          console.log("Transformed classes:", transformedClasses);
           setAvailableGrades(transformedClasses);
           
           // Tự động chọn tất cả lớp được phân công cho nurse
           const allClassIds = transformedClasses.map(cls => cls.id);
-          console.log("Auto-selecting class IDs:", allClassIds);
           setFormData(prev => {
             const newData = {
               ...prev,
               targetGrades: allClassIds
             };
-            console.log("Updated formData:", newData);
             return newData;
           });
         } else {
@@ -327,13 +317,11 @@ export const useHealthCheckForm = (editId = null) => {
           
           // Auto-select all fallback classes
           const allClassIds = fallbackClasses.map(cls => cls.id);
-          console.log("Auto-selecting fallback class IDs:", allClassIds);
           setFormData(prev => {
             const newData = {
               ...prev,
               targetGrades: allClassIds
             };
-            console.log("Updated formData with fallback:", newData);
             return newData;
           });
         }
@@ -806,16 +794,12 @@ export const useHealthCheckForm = (editId = null) => {
 
   // Submit form
   const handleSubmit = useCallback(async () => {
-    console.log("handleSubmit called", { formData, currentStep });
-    
     // Final validation for all steps
     const allErrors = {};
     for (let step = 1; step <= 3; step++) {
       const stepErrors = validateFormStep(step, formData);
       Object.assign(allErrors, stepErrors);
     }
-
-    console.log("Validation errors:", allErrors);
 
     if (Object.keys(allErrors).length > 0) {
       setValidationErrors(allErrors);
@@ -840,8 +824,6 @@ export const useHealthCheckForm = (editId = null) => {
 
     setLoading(true);
     try {
-      console.log("Starting submission...");
-      
       // Generate equipment report
       const equipmentReport = generateEquipmentReport();
 
@@ -903,8 +885,6 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
           ? JSON.stringify(formData.targetGrades.map((g) => String(g)))
           : JSON.stringify([]);
 
-      console.log("Grade IDs formatted:", gradeIdsFormatted);
-
       // Map form data to API schema with proper validation
       const submissionData = {
         FormId: 0, // Always 0 for new forms
@@ -939,8 +919,6 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
         ConfirmedByStaff: null,
         Results: null,
       };
-
-      console.log("Submission data:", submissionData);
 
       // Set default values for missing fields to pass validation
       if (!formData.checkItems || formData.checkItems.length === 0) {
@@ -977,15 +955,11 @@ Vui lòng xem xét và chuẩn bị thiết bị trước ngày thực hiện kh
       let response;
       if (editId) {
         // Update existing health check
-        console.log("Updating existing health check with ID:", editId);
         response = await updateHealthCheckSchedule(editId, submissionData);
       } else {
         // Create new health check
-        console.log("Creating new health check");
         response = await createHealthCheck(submissionData);
       }
-
-      console.log("API response:", response);
 
       // Clear draft after successful submission
       localStorage.removeItem("healthcheck_draft");

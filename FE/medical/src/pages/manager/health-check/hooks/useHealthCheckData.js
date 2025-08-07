@@ -22,15 +22,7 @@ export const useHealthCheckData = () => {
   const fetchHealthCheckSchedules = async (forceRefresh = false) => {
     setFetchingData(true);
     setError(null);
-    
-    if (forceRefresh) {
-      console.log("🔄 FORCE REFRESH - Clearing cache and reloading data...");
-      // Clear any cached data
-      setPendingRequests([]);
-      setUpcomingRequests([]);
-      setHealthCheckPrograms([]);
-    }
-    
+
     try {
       const schedules = await getHealthCheckSchedules();
 
@@ -134,28 +126,9 @@ export const useHealthCheckData = () => {
       // Filter upcoming requests (manager approved) - use confirmStatus
       const upcoming = transformedRequests.filter((req) => {
         const confirmStatus = req.confirmStatus?.toLowerCase();
-        // Only show requests that manager has approved - STRICT FILTER
-        console.log("Checking request:", req.id, "confirmStatus:", req.confirmStatus, "lowercase:", confirmStatus);
-        
-        // EXTRA STRICT: Only approved requests should appear in "Sắp tới" tab
-        const isApproved = confirmStatus === "approved";
-        if (!isApproved) {
-          console.log("❌ FILTERING OUT request", req.id, "because confirmStatus is", req.confirmStatus, "not 'approved'");
-        } else {
-          console.log("✅ ALLOWING request", req.id, "because confirmStatus is", req.confirmStatus);
-        }
-        
+          
         return isApproved;
       });
-
-      console.log("DEBUG - All requests:", transformedRequests.map(r => ({
-        id: r.id, 
-        title: r.title, 
-        confirmStatus: r.confirmStatus,
-        status: r.status
-      })));
-      console.log("DEBUG - Pending requests:", pending.length, pending.map(p => ({id: p.id, confirmStatus: p.confirmStatus})));
-      console.log("DEBUG - Upcoming requests (should only be approved):", upcoming.length, upcoming.map(u => ({id: u.id, confirmStatus: u.confirmStatus})));
 
       setPendingRequests(pending);
       setUpcomingRequests(upcoming);
